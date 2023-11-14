@@ -1,0 +1,4 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "Scan Generator")(type "KiCad")(uri "${KIPRJMOD}/Scan Generator.pretty")(options "")(descr ""))
+)
