@@ -1,5 +1,5 @@
 # Open Beam Interface
-![Overview of PCB](Images/PCB%20Rendering%202023-11-13.png)
+![Overview of PCB](Images/Open%20Beam%20Interface%20Product%20Front.jpeg)
 ## About
 ### Hardware
 2 high speed DACs, 1 high speed ADC. Just what you need to control the beam and get an image.
@@ -20,14 +20,15 @@ Glasgow handles getting the bytes in and out of your computer. Our software take
 ![Mystery Cip FIB Xsection](Images/Mystery%20Chip%20FIB%20X-Section%20-%201.jpeg)
 
 ## Roadmap
-***This project is in an early Alpha stage, as in it "works" but it takes a bit of magnet wire on the PCB, and you have to restart the software and Glasgow Applet occasionally when changing imaging parameters***
+
 - [X] Order and test rev 1 PCBs (Design not uploaded, required significant rework)
 - [X] Capture 16,384 x 16,384 images
 - [X] Live viewer fast enough to focus and stigmate with
 - [X] Raster pattern mode at 16,384 x 16,384 image resolution, with 8 bit grayscale dwelltimes
-- [ ] Order and test rev 2 PCBs (rev2 is uploaded here in its "in progress" state, we do NOT recommend ordering as-is yet, but welcome feedback)
+- [X] Order and test V1.0 PCBs 
 - [ ] Refactor gateware to support 16 bit grayscale vector and raster patterning
 - [ ] Implement UI for new 16 bit grayscale imaging, vector and raster patterning modes.
+- [ ] Implement Metadata for saved images
 
 
 ## Supported microscopes
@@ -96,4 +97,5 @@ We are always open to potential microscope donations to use for hardware develop
 
 ## License
 ### Hardware
+CERN-OHL-W
 
