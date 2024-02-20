@@ -70,7 +70,7 @@ We would like to thank our sponsors' generous sustaining contributions. Without 
 ### Microscope Donations
 We are always open to potential microscope donations to use for hardware development, in order to expand the range of microscopes and capabilities we can support. Right now we are especially in search of FIBs, Dual Beams, and TEMs.
 
-- JEOL 6320F: Rob Flickenger https://hackerfriendly.com/about/
+- JEOL 6320F: Rob Flickenger https://hackerfriendly.com/
 
 ### Financial Supporters
 Thanks to the generous support of our financial sponsors we have been able to dedicate almost all of our time and facility resources to developing the project this far. We are looking for more sponsors in order to continue our work, involve more enginers, and take this project to the next level.
