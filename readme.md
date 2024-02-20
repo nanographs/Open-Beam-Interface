@@ -26,9 +26,11 @@ Glasgow handles getting the bytes in and out of your computer. Our software take
 - [X] Live viewer fast enough to focus and stigmate with
 - [X] Raster pattern mode at 16,384 x 16,384 image resolution, with 8 bit grayscale dwelltimes
 - [X] Order and test V1.0 PCBs 
+- [ ] Order and test blanking and external/internal scan sellect PCBs
 - [ ] Refactor gateware to support 16 bit grayscale vector and raster patterning
 - [ ] Implement UI for new 16 bit grayscale imaging, vector and raster patterning modes.
 - [ ] Implement Metadata for saved images
+
 
 
 ## Supported microscopes
@@ -68,32 +70,20 @@ We would like to thank our sponsors' generous sustaining contributions. Without 
 ### Microscope Donations
 We are always open to potential microscope donations to use for hardware development, in order to expand the range of microscopes and capabilities we can support. Right now we are especially in search of FIBs, Dual Beams, and TEMs.
 
-### Pt Tier: > $10,000 per month
-- Your Name Here
-    - Get in touch if you want to support this project!
+- JEOL 6320F: Rob Flickenger https://hackerfriendly.com/about/
 
-### XeF2 Tier: >$7,500 per month
+### Financial Supporters
+Thanks to the generous support of our financial sponsors we have been able to dedicate almost all of our time and facility resources to developing the project this far. We are looking for more sponsors in order to continue our work, involve more enginers, and take this project to the next level.
+
 - Superior Technical Services
     - http://superior-technical.com
-    - Provides excellent 3rd party independrnt support and service for a range of FEI SEMs, FIBs, and Dual Beams
+    - Provides excellent 3rd party independent support and service for a range of FEI SEMs, FIBs, and Dual Beams
     - Sponsor since May 2023
-- Your Name Here
-    - Get in touch if you want to support this project!
 
-### SiO2 Tier: >$5,000 per month
 - SEMion
     - https://www.semionco.com
     - Provides FIB, SEM, and STEM analytical lab services. Also provides consumable services such as new LMISs, LMIS re-dipping, and GIS crucible refills.
     - Sponsor since May 2023
-- Your Name Here
-    - Get in touch if you want to support this project!
-
-### W Tier: >$2,500 per month
-- Your Name Here
-    - Get in touch if you want to support this project!
-
-### Ga Tier: Any Amount
-- Any amount of support makes a big difference in bringing open source hardware to electron microscopy.
 
 ## License
 ### Hardware
