@@ -183,7 +183,6 @@ class Supersampler(wiring.Component):
                 with m.If(self.dac_stream.valid):
                     m.d.sync += dac_stream_data.eq(self.dac_stream.data)
                     m.d.sync += dwell_counter.eq(0)
-                    m.d.comb += n_average_fifo.w_en.eq(1) # overflow shouldn't be possible
                     m.next = "Generate"
 
             with m.State("Generate"):
