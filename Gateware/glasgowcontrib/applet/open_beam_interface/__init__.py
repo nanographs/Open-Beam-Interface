@@ -141,7 +141,7 @@ class BusController(wiring.Component):
 
         return m
 
-
+#=========================================================================
 class Supersampler(wiring.Component):
     dac_stream: In(StreamSignature(data.StructLayout({
         "dac_x_code": 14,
@@ -216,7 +216,7 @@ class Supersampler(wiring.Component):
 
         return m
 
-
+#=========================================================================
 class RasterRegion(data.Struct):
     x_start: 14 # UQ(14,0)
     x_count: 14 # UQ(14,0)
@@ -297,6 +297,8 @@ class RasterScanner(wiring.Component):
 
         return m
 
+#=========================================================================
+
 
 Cookie = unsigned(16)
 #: Arbitrary value for synchronization. When received, returned as-is in an USB IN frame.
@@ -338,7 +340,7 @@ class CommandParser(wiring.Component):
     def elaborate(self, platform):
         m = Module()
 
-        command = Signal(Command.Type)
+        command = Signal(Command)
 
         with m.FSM():
             with m.State("Type"):
@@ -427,7 +429,7 @@ class CommandParser(wiring.Component):
 
         return m
 
-
+#=========================================================================
 class CommandExecutor(wiring.Component):
     cmd_stream: In(StreamSignature(Command))
     img_stream: Out(StreamSignature(unsigned(16)))
@@ -553,7 +555,7 @@ class CommandExecutor(wiring.Component):
 
         return m
 
-
+#=========================================================================
 class ImageSerializer(wiring.Component):
     img_stream: In(StreamSignature(unsigned(16)))
     usb_stream: Out(StreamSignature(8))
@@ -578,6 +580,44 @@ class ImageSerializer(wiring.Component):
 
         return m
 
+#=========================================================================
+
+from amaranth.build import *
+from glasgow.gateware.pads import Pads
+
+obi_resources  = [
+    Resource("control", 0,
+        Subsignal("power_good", Pins("K1", dir="o")), # D17
+        #Subsignal("D18", Pins("J1", dir="o")), # D18
+        Subsignal("x_latch", Pins("H3", dir="o")), # D19
+        Subsignal("y_latch", Pins("H1", dir="o")), # D20
+        Subsignal("a_enable", Pins("G3", dir="o")), # D21
+        Subsignal("a_latch", Pins("H2", dir="o")), # D22
+        Subsignal("d_clock", Pins("F3", dir="o")), # D23
+        Subsignal("a_clock", Pins("G1", dir="o")), # D24
+        Attrs(IO_STANDARD="SB_LVCMOS33")
+    ),
+
+    Resource("data", 0,
+        Subsignal("D1", Pins("B2", dir="io")),
+        Subsignal("D2", Pins("B1", dir="io")),
+        Subsignal("D3", Pins("C4", dir="io")),
+        Subsignal("D4", Pins("C3", dir="io")),
+        Subsignal("D5", Pins("C2", dir="io")),
+        Subsignal("D6", Pins("C1", dir="io")),
+        Subsignal("D7", Pins("D1", dir="io")),
+        Subsignal("D8", Pins("D3", dir="io")),
+        Subsignal("D9", Pins("F4", dir="io")),
+        Subsignal("D10", Pins("G2", dir="io")),
+        Subsignal("D11", Pins("E3", dir="io")),
+        Subsignal("D12", Pins("F1", dir="io")),
+        Subsignal("D13", Pins("E2", dir="io")),
+        Subsignal("D14", Pins("F2", dir="io")),
+        # Subsignal("D15", Pins("E1", dir="io")),
+        # Subsignal("D16", Pins("D2", dir="io")),
+        Attrs(IO_STANDARD="SB_LVCMOS33")
+    ),
+]
 
 class OBISubtarget(wiring.Component):
     def __init__(self, *, out_fifo, in_fifo):
@@ -603,21 +643,48 @@ class OBISubtarget(wiring.Component):
             serializer.usb_stream.ready.eq(self.in_fifo.w_rdy),
         ]
 
+        control = platform.request("control")
+
         m.d.comb += [
             # platform.request("blah").eq(executor.bus.data_o) ...
-            platform.request("x_latch").eq(executor.bus.dac_x_le),
-            platform.request("y_latch").eq(executor.bus.dac_y_le),
-            platform.request("a_enable").eq(executor.bus.adc_oe),
-            platform.request("d_clock").eq(executor.bus.dac_clk),
-            platform.request("a_clock").eq(executor.bus.adc_clk),
-
-            executor.bus.data_i.eq(platform.request("data").i),
-            platform.request("data").o.eq(executor.bus.data_o),
-            platform.request.data_oe.eq(executor.bus.data_oe)
+            control.x_latch.eq(executor.bus.dac_x_le),
+            control.y_latch.eq(executor.bus.dac_y_le),
+            control.a_enable.eq(executor.bus.adc_oe),
+            control.d_clock.eq(executor.bus.dac_clk),
+            control.a_clock.eq(executor.bus.adc_clk),
         ]
 
+        data_lines = platform.request("data")
+        
+        data = [
+                data_lines.D1,
+                data_lines.D2,
+                data_lines.D3,
+                data_lines.D4,
+                data_lines.D5,
+                data_lines.D6,
+                data_lines.D7,
+                data_lines.D8,
+                data_lines.D9,
+                data_lines.D10,
+                data_lines.D11,
+                data_lines.D12,
+                data_lines.D13,
+                data_lines.D14
+            ]
+
+        for i, pad in enumerate(data):
+            m.d.comb += [
+                executor.bus.data_i[i].eq(pad.i),
+                pad.o.eq(executor.bus.data_o),
+                pad.oe.eq(executor.bus.data_oe)
+            ]
+
+        return m
 
 #=========================================================================
+
+
 import logging
 from glasgow.applet import *
 
@@ -631,6 +698,9 @@ class OBIApplet(GlasgowApplet):
     def build(self, target, args):
         self.mux_interface = iface = \
             target.multiplexer.claim_interface(self, args=None, throttle="none")
+
+        
+        target.platform.add_resources(obi_resources)
         
         subtarget = iface.add_subtarget(OBISubtarget(
             in_fifo=iface.get_in_fifo(auto_flush=False),
