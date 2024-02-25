@@ -470,12 +470,13 @@ class CommandExecutor(wiring.Component):
         m.d.sync += in_flight_pixels.eq(in_flight_pixels + submit_pixel - retire_pixel)
 
         command = Signal.like(self.cmd_stream.data)
-        run_length = Signal.like(command.payload.raster_pixel_run)
+        run_length = Signal.like(command.payload.raster_pixel_run.length)
         m.d.comb += [
             raster_scanner.roi_stream.data.eq(command.payload.raster_region),
-            vector_stream.dac_x_code.eq(command.payload.vector_pixel.x_coord),
-            vector_stream.dac_x_code.eq(command.payload.vector_pixel.y_coord),
-            vector_stream.dwell_time.eq(command.payload.vector_pixel.dwell_time),
+            vector_stream.data.eq(command.payload.vector_pixel)
+            # vector_stream.dac_x_code.eq(command.payload.vector_pixel.x_coord),
+            # vector_stream.dac_x_code.eq(command.payload.vector_pixel.y_coord),
+            # vector_stream.dwell_time.eq(command.payload.vector_pixel.dwell_time),
         ]
 
         sync_req = Signal()
