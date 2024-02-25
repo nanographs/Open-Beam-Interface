@@ -349,21 +349,22 @@ class CommandParser(wiring.Component):
                 with m.If(self.usb_stream.valid):
                     with m.Switch(self.usb_stream.data):
                         with m.Case(Command.Type.Synchronize):
-                            m.next = "Payload Synchronize 1"
+                            m.next = "Payload Synchronize 1 High"
 
                         with m.Case(Command.Type.RasterRegion):
-                            m.next = "Payload Raster Region 1"
+                            m.next = "Payload Raster Region 1 High"
 
                         with m.Case(Command.Type.RasterPixel):
-                            m.next = "Payload Raster Pixel Count"
+                            m.next = "Payload Raster Pixel Count High"
 
                         with m.Case(Command.Type.RasterPixelRun):
-                            m.next = "Payload Raster Pixel Run 1"
+                            m.next = "Payload Raster Pixel Run 1 High"
 
                         with m.Case(Command.Type.VectorPixel):
-                            m.next = "Payload Vector Pixel 1"
+                            m.next = "Payload Vector Pixel 1 High"
 
             def Deserialize(target, state, next_state):
+                print(f'state: {state} -> next state: {next_state}')
                 with m.State(state):
                     m.d.comb += self.usb_stream.ready.eq(1)
                     with m.If(self.usb_stream.valid):
@@ -371,6 +372,9 @@ class CommandParser(wiring.Component):
                         m.next = next_state
 
             def DeserializeWord(target, state_prefix, next_state):
+                if not "Submit" in next_state:
+                    next_state += " High"
+                print(f'\tdeserializing: {state_prefix} to {next_state}')
                 Deserialize(target[0:8],
                     f"{state_prefix} High", f"{state_prefix} Low")
                 Deserialize(target[0:8],
@@ -378,7 +382,7 @@ class CommandParser(wiring.Component):
 
             DeserializeWord(command.payload.synchronize.cookie,
                 "Payload Synchronize 1", "Payload Synchronize 2")
-            Deserialize(command.payload.synchronize.raster_mode,
+            DeserializeWord(command.payload.synchronize.raster_mode,
                 "Payload Synchronize 2", "Submit")
 
             DeserializeWord(command.payload.raster_region.x_start,
@@ -390,18 +394,18 @@ class CommandParser(wiring.Component):
             DeserializeWord(command.payload.raster_region.y_start,
                 "Payload Raster Region 4", "Payload Raster Region 5")
             DeserializeWord(command.payload.raster_region.y_count,
-                "Payload Raster Region 5", "Payload Raster Region 6")
-            DeserializeWord(command.payload.raster_region.y_step,
-                "Payload Raster Region 6", "Submit")
+                "Payload Raster Region 5", "Submit")
+            # DeserializeWord(command.payload.raster_region.y_step,
+            #     "Payload Raster Region 6", "Submit")
 
             raster_pixel_count = Signal(16)
             DeserializeWord(raster_pixel_count,
-                "Payload Raster Pixel Count", "Payload Raster Pixel Array Low")
+                "Payload Raster Pixel Count", "Payload Raster Pixel Array")
 
             DeserializeWord(command.payload.raster_pixel,
                 "Payload Raster Pixel Array", "Payload Raster Pixel Array Submit")
 
-            with m.State("Payload Raster Pixel Submit"):
+            with m.State("Payload Raster Pixel Array Submit"):
                 m.d.comb += self.cmd_stream.valid.eq(1)
                 with m.If(self.cmd_stream.ready):
                     with m.If(raster_pixel_count == 0):
@@ -439,6 +443,7 @@ class CommandExecutor(wiring.Component):
     def elaborate(self, platform):
         m = Module()
 
+        # adc half period: 3 cycles, adc latency: 6 cycles
         m.submodules.bus_controller = bus_controller = BusController()
         m.submodules.supersampler   = supersampler   = Supersampler()
         m.submodules.raster_scanner = raster_scanner = RasterScanner()
