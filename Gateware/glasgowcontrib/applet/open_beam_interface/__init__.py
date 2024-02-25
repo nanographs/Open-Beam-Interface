@@ -1,6 +1,6 @@
 from amaranth import *
 from amaranth.lib import enum, data, wiring
-from amaranth.lib.wiring import In, Out
+from amaranth.lib.wiring import In, Out, flipped
 
 
 # Overview of (linear) processing pipeline:
@@ -443,8 +443,7 @@ class CommandExecutor(wiring.Component):
     def elaborate(self, platform):
         m = Module()
 
-        # adc half period: 3 cycles, adc latency: 6 cycles
-        m.submodules.bus_controller = bus_controller = BusController()
+        m.submodules.bus_controller = bus_controller = BusController(adc_half_period=3, adc_latency=6)
         m.submodules.supersampler   = supersampler   = Supersampler()
         m.submodules.raster_scanner = raster_scanner = RasterScanner()
 
