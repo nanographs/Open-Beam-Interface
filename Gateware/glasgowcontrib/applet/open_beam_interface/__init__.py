@@ -330,9 +330,10 @@ class Command(data.Struct):
     })
 
 
-class CommandParser(wiring.Signature):
+class CommandParser(wiring.Component):
     usb_stream: In(StreamSignature(8))
     cmd_stream: Out(StreamSignature(Command))
+
 
     def elaborate(self, platform):
         m = Module()
@@ -427,7 +428,7 @@ class CommandParser(wiring.Signature):
         return m
 
 
-class CommandExecutor(wiring.Signature):
+class CommandExecutor(wiring.Component):
     cmd_stream: In(StreamSignature(Command))
     img_stream: Out(StreamSignature(unsigned(16)))
 
