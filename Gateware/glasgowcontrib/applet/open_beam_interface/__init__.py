@@ -1,5 +1,6 @@
 from amaranth import *
 from amaranth.lib import enum, data, wiring
+from amaranth.lib.fifo import SyncFIFOBuffered
 from amaranth.lib.wiring import In, Out, flipped
 
 
