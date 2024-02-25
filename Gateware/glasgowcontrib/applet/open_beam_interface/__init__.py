@@ -617,10 +617,15 @@ class OBISubtarget(wiring.Component):
 
 
 #=========================================================================
-
+import logging
 from glasgow.applet import *
 
 class OBIApplet(GlasgowApplet):
+    logger = logging.getLogger(__name__)
+    help = "open beam interface"
+    description = """
+    Scanning beam control applet
+    """
     
     def build(self, target, args):
         self.mux_interface = iface = \
