@@ -83,23 +83,24 @@ class BusController(wiring.Component):
         # Queue; as above
         last_sample = Signal(self.adc_latency)
 
-        m.submodules.o_stream_fifo = o_stream_fifo = \
-            SyncFIFOBuffered(depth=self.adc_latency, width=len(self.o_stream.data.as_value()))
+        m.submodules.adc_stream_fifo = adc_stream_fifo = \
+            SyncFIFOBuffered(depth=self.adc_latency, width=len(self.adc_stream.data.as_value()))
         m.d.comb += [
-            self.o_stream.data.eq(o_stream_fifo.r_data),
-            self.o_stream.valid.eq(o_stream_fifo.r_rdy),
-            o_stream_fifo.r_en.eq(self.o_stream.ready),
+            self.adc_stream.data.eq(adc_stream_fifo.r_data),
+            self.adc_stream.valid.eq(adc_stream_fifo.r_rdy),
+            adc_stream_fifo.r_en.eq(self.adc_stream.ready),
         ]
 
-        o_stream_data = Signal.like(self.o_stream.data) # FIXME: will not be needed after FIFOs have shapes
+        adc_stream_data = Signal.like(self.adc_stream.data) # FIXME: will not be needed after FIFOs have shapes
         m.d.comb += [
-            Cat(o_stream_data.adc_code,
-                o_stream_data.adc_ovf).eq(self.io_bus.i),
-            o_stream_data.last.eq(last_sample[0]),
-            o_stream_fifo.w_data.eq(o_stream_data),
+            # Cat(adc_stream_data.adc_code,
+            #     adc_stream_data.adc_ovf).eq(self.bus.i),
+            adc_stream_data.adc_code.eq(self.bus.data_i),
+            adc_stream_data.last.eq(last_sample[0]),
+            adc_stream_fifo.w_data.eq(adc_stream_data),
         ]
 
-        i_stream_data = Signal.like(self.i_stream.data)
+        dac_stream_data = Signal.like(self.dac_stream.data)
         with m.FSM():
             with m.State("ADC Wait"):
                 with m.If(self.bus.adc_clk & (adc_cycles == 0)):
@@ -107,15 +108,15 @@ class BusController(wiring.Component):
                     m.next = "ADC Read"
 
             with m.State("ADC Read"):
-                m.d.comb += o_stream_fifo.w_en.eq(accept_sample[0]) # does nothing if ~o_stream_fifo.w_rdy
-                with m.If(self.i_stream.valid & o_stream_data.w_rdy):
+                m.d.comb += adc_stream_fifo.w_en.eq(accept_sample[0]) # does nothing if ~o_stream_fifo.w_rdy
+                with m.If(self.dac_stream.valid & adc_stream_fifo.w_rdy):
                     # Latch DAC codes from input stream.
-                    m.d.comb += self.i_stream.ready.eq(1)
-                    m.d.sync += i_stream_data.eq(self.i_stream.data)
+                    m.d.comb += self.dac_stream.ready.eq(1)
+                    m.d.sync += dac_stream_data.eq(self.dac_stream.data)
                     # Schedule ADC sample for these DAC codes to be output.
                     m.d.sync += accept_sample.eq(Cat(accept_sample, 1))
                     # Carry over the flag for last sample [of averaging window] to the output.
-                    m.d.sync += accept_sample.eq(Cat(last_sample, self.i_stream.data.last))
+                    m.d.sync += accept_sample.eq(Cat(last_sample, self.dac_stream.data.last))
                 with m.Else():
                     # Leave DAC codes as they are.
                     # Schedule ADC sample for these DAC codes to be discarded.
@@ -126,7 +127,7 @@ class BusController(wiring.Component):
 
             with m.State("X DAC Write"):
                 m.d.comb += [
-                    self.bus.data_o.eq(i_stream_data.dac_x_code),
+                    self.bus.data_o.eq(dac_stream_data.dac_x_code),
                     self.bus.data_oe.eq(1),
                     self.bus.dac_x_le.eq(1),
                 ]
@@ -134,7 +135,7 @@ class BusController(wiring.Component):
 
             with m.State("Y DAC Write"):
                 m.d.comb += [
-                    self.bus.data_o.eq(i_stream_data.dac_y_code),
+                    self.bus.data_o.eq(dac_stream_data.dac_y_code),
                     self.bus.data_oe.eq(1),
                     self.bus.dac_y_le.eq(1),
                 ]
