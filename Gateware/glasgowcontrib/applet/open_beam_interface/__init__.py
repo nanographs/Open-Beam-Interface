@@ -218,12 +218,12 @@ class Supersampler(wiring.Component):
 
 
 class RasterRegion(data.Struct):
-    x_start: 14, # UQ(14,0)
-    x_count: 14, # UQ(14,0)
-    x_step:  16, # UQ(8,8)
-    y_start: 14, # UQ(14,0)
-    y_count: 14, # UQ(14,0)
-    y_stop:  16, # UQ(8,8)
+    x_start: 14 # UQ(14,0)
+    x_count: 14 # UQ(14,0)
+    x_step:  16 # UQ(8,8)
+    y_start: 14 # UQ(14,0)
+    y_count: 14 # UQ(14,0)
+    y_stop:  16 # UQ(8,8)
 
 
 DwellTime = unsigned(16)
@@ -633,6 +633,6 @@ class ExampleOOTApplet(GlasgowApplet):
 
     async def run(self, device, args):
         iface = await device.demultiplexer.claim_interface(self, self.mux_interface, args=None)
-        
+
     
 
