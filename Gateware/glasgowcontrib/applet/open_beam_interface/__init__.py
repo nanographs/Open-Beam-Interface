@@ -287,7 +287,7 @@ class RasterScanner(wiring.Component):
                         with m.If(y_count == region.y_count):
                             m.next = "Get ROI"
                         with m.Else():
-                            m.d.sync += y_accum.eq(y_accum + region.y_step)
+                            m.d.sync += y_accum.eq(y_accum + region.x_step) #use same step for x and y. pixels should be square
                             m.d.sync += y_count.eq(y_count + 1)
 
                         m.d.sync += x_accum.eq(Cat(C(0, self.FRAC_BITS), self.roi_stream.data.x_start))
