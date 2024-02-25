@@ -620,7 +620,7 @@ class OBISubtarget(wiring.Component):
 
 from glasgow.applet import *
 
-class ExampleOOTApplet(GlasgowApplet):
+class OBIApplet(GlasgowApplet):
     
     def build(self, target, args):
         self.mux_interface = iface = \
