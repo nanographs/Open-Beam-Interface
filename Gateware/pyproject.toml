@@ -1,0 +1,19 @@
+[project]
+name = "glasgowcontrib-applet-open_beam_interface"
+version = "0"
+description = "Interface to scanning image capture"
+authors = [{name = "nanographs"}]
+license = {text = "0BSD OR Apache-2.0"}
+
+requires-python = "~=3.9"
+dependencies = ["glasgow"]
+
+[project.entry-points."glasgow.applet"]
+open_beam_interface = "glasgowcontrib.applet.open_beam_interface:OBIApplet"
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+[tool.pdm.build]
+includes = ["glasgowcontrib"]
