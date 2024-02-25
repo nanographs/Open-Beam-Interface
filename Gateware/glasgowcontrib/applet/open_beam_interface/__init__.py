@@ -172,8 +172,8 @@ class Supersampler(wiring.Component):
 
         dac_stream_data = Signal.like(self.dac_stream.data)
         m.d.comb += [
-            self.super_dac_stream.data.dac_x_code.eq(dac_stream.dac_x_code),
-            self.super_dac_stream.data.dac_y_code.eq(dac_stream.dac_y_code),
+            self.super_dac_stream.data.dac_x_code.eq(dac_stream_data.dac_x_code),
+            self.super_dac_stream.data.dac_y_code.eq(dac_stream_data.dac_y_code),
         ]
 
         dwell_counter = Signal.like(dac_stream_data.dwell_time)
@@ -181,7 +181,7 @@ class Supersampler(wiring.Component):
             with m.State("Wait"):
                 m.d.comb += self.dac_stream.ready.eq(1)
                 with m.If(self.dac_stream.valid):
-                    m.d.sync += dac_stream_data.eq(self.dac_stream)
+                    m.d.sync += dac_stream_data.eq(self.dac_stream.data)
                     m.d.sync += dwell_counter.eq(0)
                     m.d.comb += n_average_fifo.w_en.eq(1) # overflow shouldn't be possible
                     m.next = "Generate"
@@ -366,7 +366,7 @@ class CommandParser(wiring.Component):
                             m.next = "Payload Vector Pixel 1 High"
 
             def Deserialize(target, state, next_state):
-                print(f'state: {state} -> next state: {next_state}')
+                #print(f'state: {state} -> next state: {next_state}')
                 with m.State(state):
                     m.d.comb += self.usb_stream.ready.eq(1)
                     with m.If(self.usb_stream.valid):
@@ -376,7 +376,7 @@ class CommandParser(wiring.Component):
             def DeserializeWord(target, state_prefix, next_state):
                 if not "Submit" in next_state:
                     next_state += " High"
-                print(f'\tdeserializing: {state_prefix} to {next_state}')
+                #print(f'\tdeserializing: {state_prefix} to {next_state}')
                 Deserialize(target[0:8],
                     f"{state_prefix} High", f"{state_prefix} Low")
                 Deserialize(target[0:8],
