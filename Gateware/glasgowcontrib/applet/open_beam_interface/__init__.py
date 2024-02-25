@@ -611,9 +611,28 @@ class OBISubtarget(wiring.Component):
             platform.request("a_clock").eq(executor.bus.adc_clk),
 
             executor.bus.data_i.eq(platform.request("data").i),
-            platform.request("data").o.eq(executor.bus.data_o)
-            # data_i
-            # data_o
-            # data_oe
+            platform.request("data").o.eq(executor.bus.data_o),
+            platform.request.data_oe.eq(executor.bus.data_oe)
         ]
+
+
+#=========================================================================
+
+from glasgow.applet import *
+
+class ExampleOOTApplet(GlasgowApplet):
+    
+    def build(self, target, args):
+        self.mux_interface = iface = \
+            target.multiplexer.claim_interface(self, args=None, throttle="none")
+        
+        subtarget = iface.add_subtarget(OBISubtarget(
+            in_fifo=iface.get_in_fifo(auto_flush=False),
+            out_fifo=iface.get_out_fifo(),
+        ))
+
+    async def run(self, device, args):
+        iface = await device.demultiplexer.claim_interface(self, self.mux_interface, args=None)
+        
+    
 
