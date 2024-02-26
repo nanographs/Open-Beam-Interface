@@ -694,6 +694,14 @@ class OBISubtarget(wiring.Component):
 import logging
 from glasgow.applet import *
 
+class OBIInterface:
+    def __init__(self, interface, logger, device):
+        self.lower   = interface
+        self._logger = logger
+        self._level  = logging.DEBUG if self._logger.name == __name__ else logging.TRACE
+        self._device = device
+
+
 class OBIApplet(GlasgowApplet):
     logger = logging.getLogger(__name__)
     help = "open beam interface"
@@ -708,13 +716,24 @@ class OBIApplet(GlasgowApplet):
         
         target.platform.add_resources(obi_resources)
         
-        subtarget = iface.add_subtarget(OBISubtarget(
+        subtarget = OBISubtarget(
             in_fifo=iface.get_in_fifo(auto_flush=False),
             out_fifo=iface.get_out_fifo(),
-        ))
+        )
+
+        return iface.add_subtarget(subtarget)
 
     async def run(self, device, args):
         iface = await device.demultiplexer.claim_interface(self, self.mux_interface, args=None)
+
+        obi_iface = OBIInterface(iface, self.logger, device)
+
+        return obi_iface
+
+    async def interact(self, device, args, iface):
+        pass
+
+        
 
     
 
