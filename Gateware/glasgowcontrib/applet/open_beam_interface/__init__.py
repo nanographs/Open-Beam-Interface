@@ -224,7 +224,7 @@ class RasterRegion(data.Struct):
     x_step:  16 # UQ(8,8)
     y_start: 14 # UQ(14,0)
     y_count: 14 # UQ(14,0)
-    y_stop:  16 # UQ(8,8)
+    # y_stop:  16 # UQ(8,8)
 
 
 DwellTime = unsigned(16)
@@ -383,8 +383,10 @@ class CommandParser(wiring.Component):
 
             DeserializeWord(command.payload.synchronize.cookie,
                 "Payload Synchronize 1", "Payload Synchronize 2")
-            DeserializeWord(command.payload.synchronize.raster_mode,
-                "Payload Synchronize 2", "Submit")
+            # DeserializeWord(command.payload.synchronize.raster_mode,
+            #     "Payload Synchronize 2", "Submit")
+            Deserialize(command.payload.synchronize.raster_mode, 
+                "Payload Synchronize 2 High", "Submit")
 
             DeserializeWord(command.payload.raster_region.x_start,
                 "Payload Raster Region 1", "Payload Raster Region 2")
@@ -544,7 +546,7 @@ class CommandExecutor(wiring.Component):
 
             with m.State("Write FFFF"):
                 m.d.comb += [
-                    self.img_stream.data.eq(0xffff),
+                    self.img_stream.data.eq(0xfeff),
                     self.img_stream.valid.eq(1),
                 ]
                 with m.If(self.img_stream.ready):
@@ -570,6 +572,7 @@ class ImageSerializer(wiring.Component):
         m = Module()
 
         high = Signal(8)
+        
         with m.FSM():
             with m.State("Low"):
                 m.d.comb += self.usb_stream.data.eq(self.img_stream.data[0:8])
@@ -580,7 +583,7 @@ class ImageSerializer(wiring.Component):
 
             with m.State("High"):
                 m.d.comb += self.usb_stream.data.eq(high)
-                m.d.comb += self.usb_stream.valid.eq(high)
+                m.d.comb += self.usb_stream.valid.eq(1)
                 with m.If(self.usb_stream.ready):
                     m.next = "Low"
 
@@ -693,6 +696,40 @@ class OBISubtarget(wiring.Component):
 
 import logging
 from glasgow.applet import *
+import struct
+
+def ffp_8_8(num: int): #couldn't find builtin python function for this if there is one
+    b_str = ""
+    assert (num <= pow(2,8))
+    for n in range(8, 0, -1):
+        b = num//pow(2,n)
+        b_str += str(int(b))
+        num -= b*pow(2,n)
+    for n in range(0,8):
+        b = num//pow(2,-1*n)
+        b_str += str(int(b))
+        num -= b*pow(2,-1*n)
+    return int(b_str, 2)
+class OBICommands:
+    def cookie():
+        cmd_sync = Command.Type.Synchronize.value
+        cookie = 400
+        return struct.pack('>bHb', cmd_sync, cookie, 1)
+    def raster_region(x_start: int, x_count:int , x_step: int, 
+                    y_start: int, y_count: int):
+        x_step = ffp_8_8(x_step)
+        assert (x_count <= 16384)
+        assert (y_count <= 16384)
+        assert (x_start <= x_count)
+        assert (y_start <= y_count)
+
+        cmd_type = Command.Type.RasterRegion.value
+
+        return struct.pack('>bHHHHH', cmd_type, x_start, x_count, x_step, y_start, y_count)
+    def raster_pixel(dwell_time: int):
+        cmd_type = Command.Type.RasterPixel.value
+        return struct.pack('>bH', cmd_type, dwell_time)
+
 
 class OBIInterface:
     def __init__(self, interface, logger, device):
@@ -700,7 +737,6 @@ class OBIInterface:
         self._logger = logger
         self._level  = logging.DEBUG if self._logger.name == __name__ else logging.TRACE
         self._device = device
-
 
 class OBIApplet(GlasgowApplet):
     logger = logging.getLogger(__name__)
@@ -720,7 +756,6 @@ class OBIApplet(GlasgowApplet):
             in_fifo=iface.get_in_fifo(auto_flush=False),
             out_fifo=iface.get_out_fifo(),
         )
-
         return iface.add_subtarget(subtarget)
 
     async def run(self, device, args):
@@ -730,8 +765,16 @@ class OBIApplet(GlasgowApplet):
 
         return obi_iface
 
-    async def interact(self, device, args, iface):
-        pass
+    async def interact(self, device, args, obi_iface):
+        cmd1 = OBICommands.cookie()
+        cmd2 = OBICommands.raster_region(5, 400, 2, 5, 400)
+        cmd3 = OBICommands.raster_pixel(2)
+        print(f'{[cmd1, cmd2, cmd3]}')
+        await obi_iface.lower.write(cmd1)
+        await obi_iface.lower.write(cmd2)
+        await obi_iface.lower.write(cmd3)
+        data = await obi_iface.lower.read(512)
+        print(str(data.tolist()))
 
         
 
