@@ -141,6 +141,7 @@ class BusController(wiring.Component):
                 ]
                 m.next = "ADC Read"
 
+
         return m
 
 #=========================================================================
@@ -342,6 +343,7 @@ class CommandParser(wiring.Component):
         m = Module()
 
         command = Signal(Command)
+        m.d.comb += self.cmd_stream.data.eq(command)
 
         with m.FSM():
             with m.State("Type"):
@@ -376,7 +378,7 @@ class CommandParser(wiring.Component):
                 if not "Submit" in next_state:
                     next_state += " High"
                 #print(f'\tdeserializing: {state_prefix} to {next_state}')
-                Deserialize(target[0:8],
+                Deserialize(target[8:16],
                     f"{state_prefix} High", f"{state_prefix} Low")
                 Deserialize(target[0:8],
                     f"{state_prefix} Low",  next_state)
@@ -453,7 +455,7 @@ class CommandExecutor(wiring.Component):
         wiring.connect(m, flipped(self.bus), bus_controller.bus)
 
         wiring.connect(m, supersampler.super_dac_stream, bus_controller.dac_stream)
-        wiring.connect(m, supersampler.super_adc_stream, bus_controller.adc_stream)
+        wiring.connect(m, bus_controller.adc_stream, supersampler.super_adc_stream)
 
         vector_stream = StreamSignature(data.StructLayout({
             "dac_x_code": 14,
@@ -577,6 +579,7 @@ class ImageSerializer(wiring.Component):
             with m.State("Low"):
                 m.d.comb += self.usb_stream.data.eq(self.img_stream.data[0:8])
                 m.d.comb += self.usb_stream.valid.eq(self.img_stream.valid)
+                m.d.comb += self.img_stream.ready.eq(self.usb_stream.ready)
                 m.d.sync += high.eq(self.img_stream.data[8:16])
                 with m.If(self.usb_stream.ready & self.img_stream.valid):
                     m.next = "High"
@@ -753,7 +756,7 @@ class OBIApplet(GlasgowApplet):
         target.platform.add_resources(obi_resources)
         
         subtarget = OBISubtarget(
-            in_fifo=iface.get_in_fifo(auto_flush=False),
+            in_fifo=iface.get_in_fifo(auto_flush=True),
             out_fifo=iface.get_out_fifo(),
         )
         return iface.add_subtarget(subtarget)
@@ -769,11 +772,11 @@ class OBIApplet(GlasgowApplet):
         cmd1 = OBICommands.cookie()
         cmd2 = OBICommands.raster_region(5, 400, 2, 5, 400)
         cmd3 = OBICommands.raster_pixel(2)
-        print(f'{[cmd1, cmd2, cmd3]}')
+        # print(f'{[cmd1, cmd2, cmd3]}')
         await obi_iface.lower.write(cmd1)
-        await obi_iface.lower.write(cmd2)
-        await obi_iface.lower.write(cmd3)
-        data = await obi_iface.lower.read(512)
+        # await obi_iface.lower.write(cmd2)
+        # await obi_iface.lower.write(cmd3)
+        data = await obi_iface.lower.read()
         print(str(data.tolist()))
 
         
