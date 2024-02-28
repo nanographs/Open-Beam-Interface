@@ -95,12 +95,17 @@ class BusController(wiring.Component):
         m.d.comb += [
             # Cat(adc_stream_data.adc_code,
             #     adc_stream_data.adc_ovf).eq(self.bus.i),
-            adc_stream_data.adc_code.eq(self.bus.data_i),
             adc_stream_data.last.eq(last_sample[self.adc_latency-1]),
             adc_stream_fifo.w_data.eq(adc_stream_data),
         ]
 
         dac_stream_data = Signal.like(self.dac_stream.data)
+
+        if True:
+            m.d.comb += adc_stream_data.adc_code.eq(dac_stream_data.dac_x_code)
+        if False:
+            m.d.comb += adc_stream_data.adc_code.eq(self.bus.data_i),
+
         with m.FSM():
             with m.State("ADC Wait"):
                 with m.If(self.bus.adc_clk & (adc_cycles == 0)):
@@ -216,7 +221,8 @@ class Supersampler(wiring.Component):
                         m.next = "Wait"
 
             with m.State("Wait"):
-                m.d.sync += self.adc_stream.valid.eq(1)
+                #m.d.sync += self.adc_stream.valid.eq(1)
+                m.d.comb += self.adc_stream.valid.eq(1)
                 with m.If(self.adc_stream.ready):
                     m.next = "Start"
 
@@ -773,8 +779,17 @@ class OBIApplet(GlasgowApplet):
     description = """
     Scanning beam control applet
     """
+
+    @classmethod
+    def add_build_arguments(cls, parser, access):
+        super().add_build_arguments(parser, access)
+
+        # parser.add_argument(
+        #     metavar="test", dest = "test", type=str, default = None)
+        
     
     def build(self, target, args):
+        #if not args.test:
         if False:
             self.mux_interface = iface = \
                 target.multiplexer.claim_interface(self, args=None, throttle="none")
@@ -788,6 +803,7 @@ class OBIApplet(GlasgowApplet):
             )
             return iface.add_subtarget(subtarget)
 
+        #if args.test:
         if True:
             from glasgow.access.simulation import SimulationMultiplexerInterface, SimulationDemultiplexerInterface
             from glasgow.device.hardware import GlasgowHardwareDevice
@@ -809,16 +825,18 @@ class OBIApplet(GlasgowApplet):
 
                 cmd1 = OBICommands.sync_cookie_vector()
                 cmd2 = OBICommands.vector_pixel(400, 300, 2)
-                cmd2 = OBICommands.vector_pixel(300, 400, 3)
+                cmd3 = OBICommands.vector_pixel(300, 400, 3)
                 
                 yield from iface.write(cmd1)
                 yield from iface.write(cmd2)
-                #yield from iface.write(cmd3)/
+                
 
-                data = yield from iface.read()
+                data = yield from iface.read(6)
                 print(str(list(data)))
 
-                data = yield from iface.read(1)
+                yield from iface.write(cmd3)
+
+                data = yield from iface.read(2)
                 print(str(list(data)))
 
                 
