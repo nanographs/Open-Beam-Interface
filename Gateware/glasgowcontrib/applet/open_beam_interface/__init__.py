@@ -58,7 +58,7 @@ class BusController(wiring.Component):
     # IO-side interface
     bus: Out(BusSignature)
 
-    def __init__(self, *, adc_half_period: int, adc_latency: int, loopback = loopback):
+    def __init__(self, *, adc_half_period: int, adc_latency: int, loopback):
         assert (adc_half_period * 2) >= 4, "ADC period must be large enough for FSM latency"
         self.adc_half_period = adc_half_period
         self.adc_latency     = adc_latency
@@ -456,8 +456,9 @@ class CommandExecutor(wiring.Component):
 
     bus: Out(BusSignature)
 
-    def __init__(self, loopback = loopback):
+    def __init__(self, loopback):
         self.loopback = loopback
+        super().__init__()
 
     def elaborate(self, platform):
         m = Module()
@@ -647,7 +648,7 @@ obi_resources  = [
 ]
 
 class OBISubtarget(wiring.Component):
-    def __init__(self, *, out_fifo, in_fifo, sim = sim, loopback = loopback):
+    def __init__(self, *, out_fifo, in_fifo, sim, loopback):
         self.out_fifo = out_fifo
         self.in_fifo  = in_fifo
         self.sim = sim
@@ -779,6 +780,65 @@ class OBIInterface:
         self._level  = logging.DEBUG if self._logger.name == __name__ else logging.TRACE
         self._device = device
 
+
+from amaranth.sim import Simulator
+class SimulationOBIInterface():
+    def __init__(self, dut, lower):
+        self.dut = dut
+        self.lower = lower
+        self.text_file = open("results.txt", "w+")
+    def run_sim(self, bench_gen):
+        sim = Simulator(self.dut)
+
+        def bench():
+            while True:
+                try:
+                    print(".")
+                    yield from bench_gen
+                except RuntimeError: #RuntimeError: generator raised StopIteration
+                    print("simulation complete")
+                    break
+
+        sim.add_clock(1e-6) # 1 MHz
+        sim.add_sync_process(bench)
+        with sim.write_vcd("applet_sim.vcd"):
+            sim.run()
+    
+    def sim_vector_stream(self, stream_gen):
+        bytes_written = 0
+        read_bytes_expected = 0
+        self.text_file.write("\n WRITTEN: \n")
+
+        sync_cmd = OBICommands.sync_cookie_vector()
+        yield from self.lower.write(sync_cmd)
+        self.text_file.write(str(list(sync_cmd)))
+        bytes_written += 4
+        read_bytes_expected += 4
+        
+        while True:    
+            try:
+                if ((bytes_written + 7) > 512):
+                    bytes_written = 0
+                    self.text_file.write("\n WRITTEN: \n")
+                if (read_bytes_expected + 2) > 512:
+                    data = yield from self.lower.read(read_bytes_expected)
+                    self.text_file.write("\n READ: \n")
+                    self.text_file.write(str(list(data)))
+                    read_bytes_expected = 0
+                if ((bytes_written + 7) <= 512) & ((read_bytes_expected +2) <= 512):
+                    x, y, d = next(stream_gen)
+                    print(x,y,d)
+                    cmd = OBICommands.vector_pixel(x, y, d)
+                    yield from self.lower.write(cmd)
+                    self.text_file.write(str(list(cmd)))
+                    bytes_written += 7
+                    read_bytes_expected += 2
+            except StopIteration:
+                print("pattern complete")
+                raise StopIteration
+                break
+
+
 class OBIApplet(GlasgowApplet):
     logger = logging.getLogger(__name__)
     help = "open beam interface"
@@ -790,11 +850,11 @@ class OBIApplet(GlasgowApplet):
     def add_build_arguments(cls, parser, access):
         super().add_build_arguments(parser, access)
 
-        parser.add_argument(
-            metavar="loopback", dest = "loopback", nargs = '?', const = False, 
+        parser.add_argument("--loopback",
+            dest = "loopback", action = 'store_true', 
             help = "connect output and input streams internally")
-        parser.add_argument(
-            metavar="sim", dest = "sim", nargs = '?', const = False, 
+        parser.add_argument("--sim",
+            dest = "sim", action = 'store_true', 
             help = "simulate applet instead of actually building")
         
     
@@ -816,7 +876,6 @@ class OBIApplet(GlasgowApplet):
         if args.sim:
             from glasgow.access.simulation import SimulationMultiplexerInterface, SimulationDemultiplexerInterface
             from glasgow.device.hardware import GlasgowHardwareDevice
-            from amaranth.sim import Simulator
 
             self.mux_interface = iface = SimulationMultiplexerInterface(OBIApplet)
 
@@ -830,35 +889,17 @@ class OBIApplet(GlasgowApplet):
                 out_fifo = out_fifo, 
                 sim = args.sim, 
                 loopback = args.loopback)
+            
+            sim_iface = SimulationOBIInterface(dut, iface)
 
-            def bench():
-                # cmd1 = OBICommands.sync_cookie_raster()
-                # cmd2 = OBICommands.raster_region(5, 400, 2, 5, 400)
-                # cmd3 = OBICommands.raster_pixel(2)
-
-                cmd1 = OBICommands.sync_cookie_vector()
-                cmd2 = OBICommands.vector_pixel(400, 300, 2)
-                cmd3 = OBICommands.vector_pixel(300, 400, 3)
+            def rectangle(x_width, y_height):
+                for y in range(0, y_height):
+                    for x in range(0, x_width):
+                        yield [x, y, 2]
                 
-                yield from iface.write(cmd1)
-                yield from iface.write(cmd2)
-                
+            bench = sim_iface.sim_vector_stream(rectangle(10,10))
+            sim_iface.run_sim(bench)
 
-                data = yield from iface.read(6)
-                print(str(list(data)))
-
-                yield from iface.write(cmd3)
-
-                data = yield from iface.read(2)
-                print(str(list(data)))
-
-                
-
-            sim = Simulator(dut)
-            sim.add_clock(1e-6) # 1 MHz
-            sim.add_sync_process(bench)
-            with sim.write_vcd("applet_sim.vcd"):
-                sim.run()
             
 
 
