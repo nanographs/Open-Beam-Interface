@@ -58,10 +58,11 @@ class BusController(wiring.Component):
     # IO-side interface
     bus: Out(BusSignature)
 
-    def __init__(self, *, adc_half_period: int, adc_latency: int):
+    def __init__(self, *, adc_half_period: int, adc_latency: int, loopback = loopback):
         assert (adc_half_period * 2) >= 4, "ADC period must be large enough for FSM latency"
         self.adc_half_period = adc_half_period
         self.adc_latency     = adc_latency
+        self.loopback = loopback
 
         super().__init__()
 
@@ -101,9 +102,9 @@ class BusController(wiring.Component):
 
         dac_stream_data = Signal.like(self.dac_stream.data)
 
-        if True:
+        if self.loopback:
             m.d.comb += adc_stream_data.adc_code.eq(dac_stream_data.dac_x_code)
-        if False:
+        if not self.loopback:
             m.d.comb += adc_stream_data.adc_code.eq(self.bus.data_i),
 
         with m.FSM():
@@ -455,10 +456,14 @@ class CommandExecutor(wiring.Component):
 
     bus: Out(BusSignature)
 
+    def __init__(self, loopback = loopback):
+        self.loopback = loopback
+
     def elaborate(self, platform):
         m = Module()
 
-        m.submodules.bus_controller = bus_controller = BusController(adc_half_period=3, adc_latency=6)
+        m.submodules.bus_controller = bus_controller = BusController(adc_half_period=3, adc_latency=6, 
+                                                                    loopback = self.loopback)
         m.submodules.supersampler   = supersampler   = Supersampler()
         m.submodules.raster_scanner = raster_scanner = RasterScanner()
 
@@ -642,16 +647,17 @@ obi_resources  = [
 ]
 
 class OBISubtarget(wiring.Component):
-    def __init__(self, *, out_fifo, in_fifo, sim = False):
+    def __init__(self, *, out_fifo, in_fifo, sim = sim, loopback = loopback):
         self.out_fifo = out_fifo
         self.in_fifo  = in_fifo
         self.sim = sim
+        self.loopback = loopback
 
     def elaborate(self, platform):
         m = Module()
 
         m.submodules.parser     = parser     = CommandParser()
-        m.submodules.executor   = executor   = CommandExecutor()
+        m.submodules.executor   = executor   = CommandExecutor(loopback = self.loopback)
         m.submodules.serializer = serializer = ImageSerializer()
 
         wiring.connect(m, parser.cmd_stream, executor.cmd_stream)
@@ -784,27 +790,30 @@ class OBIApplet(GlasgowApplet):
     def add_build_arguments(cls, parser, access):
         super().add_build_arguments(parser, access)
 
-        # parser.add_argument(
-        #     metavar="test", dest = "test", type=str, default = None)
+        parser.add_argument(
+            metavar="loopback", dest = "loopback", nargs = '?', const = False, 
+            help = "connect output and input streams internally")
+        parser.add_argument(
+            metavar="sim", dest = "sim", nargs = '?', const = False, 
+            help = "simulate applet instead of actually building")
         
     
     def build(self, target, args):
-        #if not args.test:
-        if False:
+        if not args.sim:
             self.mux_interface = iface = \
                 target.multiplexer.claim_interface(self, args=None, throttle="none")
 
-            
             target.platform.add_resources(obi_resources)
             
             subtarget = OBISubtarget(
                 in_fifo=iface.get_in_fifo(auto_flush=True),
                 out_fifo=iface.get_out_fifo(),
+                sim = args.sim,
+                loopback = args.loopback
             )
             return iface.add_subtarget(subtarget)
 
-        #if args.test:
-        if True:
+        if args.sim:
             from glasgow.access.simulation import SimulationMultiplexerInterface, SimulationDemultiplexerInterface
             from glasgow.device.hardware import GlasgowHardwareDevice
             from amaranth.sim import Simulator
@@ -816,7 +825,11 @@ class OBIApplet(GlasgowApplet):
 
             iface = SimulationDemultiplexerInterface(GlasgowHardwareDevice, OBIApplet, iface)
 
-            dut = OBISubtarget(in_fifo = in_fifo, out_fifo = out_fifo, sim = True)
+            dut = OBISubtarget(
+                in_fifo = in_fifo, 
+                out_fifo = out_fifo, 
+                sim = args.sim, 
+                loopback = args.loopback)
 
             def bench():
                 # cmd1 = OBICommands.sync_cookie_raster()
