@@ -108,21 +108,22 @@ class BusController(wiring.Component):
                     m.next = "ADC Read"
 
             with m.State("ADC Read"):
-                m.d.comb += adc_stream_fifo.w_en.eq(accept_sample[0]) # does nothing if ~o_stream_fifo.w_rdy
+                m.d.comb += self.bus.adc_oe.eq(1)
+                m.d.comb += adc_stream_fifo.w_en.eq(accept_sample[self.adc_latency-1]) # does nothing if ~adc_stream_fifo.w_rdy
                 with m.If(self.dac_stream.valid & adc_stream_fifo.w_rdy):
                     # Latch DAC codes from input stream.
                     m.d.comb += self.dac_stream.ready.eq(1)
                     m.d.sync += dac_stream_data.eq(self.dac_stream.data)
                     # Schedule ADC sample for these DAC codes to be output.
-                    m.d.sync += accept_sample.eq(Cat(accept_sample, 1))
+                    m.d.sync += accept_sample.eq(Cat(1,accept_sample))
                     # Carry over the flag for last sample [of averaging window] to the output.
-                    m.d.sync += accept_sample.eq(Cat(last_sample, self.dac_stream.data.last))
+                    m.d.sync += last_sample.eq(Cat(last_sample, self.dac_stream.data.last))
                 with m.Else():
                     # Leave DAC codes as they are.
                     # Schedule ADC sample for these DAC codes to be discarded.
-                    m.d.sync += accept_sample.eq(Cat(accept_sample, 0))
+                    m.d.sync += accept_sample.eq(Cat(0, accept_sample))
                     # The value of this flag is discarded, so it doesn't matter what it is.
-                    m.d.sync += accept_sample.eq(Cat(last_sample, 0))
+                    m.d.sync += last_sample.eq(Cat(last_sample, 0))
                 m.next = "X DAC Write"
 
             with m.State("X DAC Write"):
@@ -139,7 +140,7 @@ class BusController(wiring.Component):
                     self.bus.data_oe.eq(1),
                     self.bus.dac_y_le.eq(1),
                 ]
-                m.next = "ADC Read"
+                m.next = "ADC Wait"
 
 
         return m
@@ -203,6 +204,8 @@ class Supersampler(wiring.Component):
                     m.d.sync += running_average.eq(self.super_adc_stream.data.adc_code)
                     with m.If(self.super_adc_stream.data.last):
                         m.next = "Wait"
+                    with m.Else():
+                        m.next = "Average"
 
             with m.State("Average"):
                 m.d.comb += self.super_adc_stream.ready.eq(1)
@@ -632,9 +635,10 @@ obi_resources  = [
 ]
 
 class OBISubtarget(wiring.Component):
-    def __init__(self, *, out_fifo, in_fifo):
+    def __init__(self, *, out_fifo, in_fifo, sim = False):
         self.out_fifo = out_fifo
         self.in_fifo  = in_fifo
+        self.sim = sim
 
     def elaborate(self, platform):
         m = Module()
@@ -646,6 +650,10 @@ class OBISubtarget(wiring.Component):
         wiring.connect(m, parser.cmd_stream, executor.cmd_stream)
         wiring.connect(m, executor.img_stream, serializer.img_stream)
 
+        if self.sim:
+            m.submodules.out_fifo = self.out_fifo
+            m.submodules.in_fifo = self.in_fifo
+
         m.d.comb += [
             parser.usb_stream.data.eq(self.out_fifo.r_data),
             parser.usb_stream.valid.eq(self.out_fifo.r_rdy),
@@ -655,42 +663,43 @@ class OBISubtarget(wiring.Component):
             serializer.usb_stream.ready.eq(self.in_fifo.w_rdy),
         ]
 
-        control = platform.request("control")
+        if not self.sim:
+            control = platform.request("control")
 
-        m.d.comb += [
-            # platform.request("blah").eq(executor.bus.data_o) ...
-            control.x_latch.eq(executor.bus.dac_x_le),
-            control.y_latch.eq(executor.bus.dac_y_le),
-            control.a_enable.eq(executor.bus.adc_oe),
-            control.d_clock.eq(executor.bus.dac_clk),
-            control.a_clock.eq(executor.bus.adc_clk),
-        ]
-
-        data_lines = platform.request("data")
-        
-        data = [
-                data_lines.D1,
-                data_lines.D2,
-                data_lines.D3,
-                data_lines.D4,
-                data_lines.D5,
-                data_lines.D6,
-                data_lines.D7,
-                data_lines.D8,
-                data_lines.D9,
-                data_lines.D10,
-                data_lines.D11,
-                data_lines.D12,
-                data_lines.D13,
-                data_lines.D14
-            ]
-
-        for i, pad in enumerate(data):
             m.d.comb += [
-                executor.bus.data_i[i].eq(pad.i),
-                pad.o.eq(executor.bus.data_o),
-                pad.oe.eq(executor.bus.data_oe)
+                # platform.request("blah").eq(executor.bus.data_o) ...
+                control.x_latch.eq(executor.bus.dac_x_le),
+                control.y_latch.eq(executor.bus.dac_y_le),
+                control.a_enable.eq(executor.bus.adc_oe),
+                control.d_clock.eq(executor.bus.dac_clk),
+                control.a_clock.eq(executor.bus.adc_clk),
             ]
+
+            data_lines = platform.request("data")
+            
+            data = [
+                    data_lines.D1,
+                    data_lines.D2,
+                    data_lines.D3,
+                    data_lines.D4,
+                    data_lines.D5,
+                    data_lines.D6,
+                    data_lines.D7,
+                    data_lines.D8,
+                    data_lines.D9,
+                    data_lines.D10,
+                    data_lines.D11,
+                    data_lines.D12,
+                    data_lines.D13,
+                    data_lines.D14
+                ]
+
+            for i, pad in enumerate(data):
+                m.d.comb += [
+                    executor.bus.data_i[i].eq(pad.i),
+                    pad.o.eq(executor.bus.data_o),
+                    pad.oe.eq(executor.bus.data_oe)
+                ]
 
         return m
 
@@ -698,7 +707,9 @@ class OBISubtarget(wiring.Component):
 
 
 import logging
+import random
 from glasgow.applet import *
+
 import struct
 
 def ffp_8_8(num: int): #couldn't find builtin python function for this if there is one
@@ -714,10 +725,14 @@ def ffp_8_8(num: int): #couldn't find builtin python function for this if there 
         num -= b*pow(2,-1*n)
     return int(b_str, 2)
 class OBICommands:
-    def cookie():
+    def sync_cookie_raster():
         cmd_sync = Command.Type.Synchronize.value
-        cookie = 400
-        return struct.pack('>bHb', cmd_sync, cookie, 1)
+        cookie = random.randint(1,65535)
+        return struct.pack('>bHb', cmd_sync, cookie, 1) 
+    def sync_cookie_vector():
+        cmd_sync = Command.Type.Synchronize.value
+        cookie = random.randint(1,65535)
+        return struct.pack('>bHb', cmd_sync, cookie, 0) 
     def raster_region(x_start: int, x_count:int , x_step: int, 
                     y_start: int, y_count: int):
         x_step = ffp_8_8(x_step)
@@ -729,9 +744,19 @@ class OBICommands:
         cmd_type = Command.Type.RasterRegion.value
 
         return struct.pack('>bHHHHH', cmd_type, x_start, x_count, x_step, y_start, y_count)
+
     def raster_pixel(dwell_time: int):
+        assert (dwell_time <= 65535)
         cmd_type = Command.Type.RasterPixel.value
         return struct.pack('>bH', cmd_type, dwell_time)
+    
+    def vector_pixel(x_coord: int, y_coord:int, dwell_time: int):
+        assert (x_coord <= 16384)
+        assert (y_coord <= 16384)
+        assert (dwell_time <= 65535)
+
+        cmd_type = Command.Type.VectorPixel.value
+        return struct.pack('>bHHH', cmd_type, x_coord, y_coord, dwell_time)
 
 
 class OBIInterface:
@@ -749,17 +774,63 @@ class OBIApplet(GlasgowApplet):
     """
     
     def build(self, target, args):
-        self.mux_interface = iface = \
-            target.multiplexer.claim_interface(self, args=None, throttle="none")
+        if False:
+            self.mux_interface = iface = \
+                target.multiplexer.claim_interface(self, args=None, throttle="none")
 
-        
-        target.platform.add_resources(obi_resources)
-        
-        subtarget = OBISubtarget(
-            in_fifo=iface.get_in_fifo(auto_flush=True),
-            out_fifo=iface.get_out_fifo(),
-        )
-        return iface.add_subtarget(subtarget)
+            
+            target.platform.add_resources(obi_resources)
+            
+            subtarget = OBISubtarget(
+                in_fifo=iface.get_in_fifo(auto_flush=True),
+                out_fifo=iface.get_out_fifo(),
+            )
+            return iface.add_subtarget(subtarget)
+
+        if True:
+            from glasgow.access.simulation import SimulationMultiplexerInterface, SimulationDemultiplexerInterface
+            from glasgow.device.hardware import GlasgowHardwareDevice
+            from amaranth.sim import Simulator
+
+            self.mux_interface = iface = SimulationMultiplexerInterface(OBIApplet)
+
+            in_fifo = iface._in_fifo = iface.get_in_fifo(auto_flush=False, depth = 512)
+            out_fifo = iface._out_fifo = iface.get_out_fifo(depth = 512)
+
+            iface = SimulationDemultiplexerInterface(GlasgowHardwareDevice, OBIApplet, iface)
+
+            dut = OBISubtarget(in_fifo = in_fifo, out_fifo = out_fifo, sim = True)
+
+            def bench():
+                # cmd1 = OBICommands.sync_cookie_raster()
+                # cmd2 = OBICommands.raster_region(5, 400, 2, 5, 400)
+                # cmd3 = OBICommands.raster_pixel(2)
+
+                cmd1 = OBICommands.sync_cookie_vector()
+                cmd2 = OBICommands.vector_pixel(400, 300, 2)
+                
+                yield from iface.write(cmd1)
+                yield from iface.write(cmd2)
+                #yield from iface.write(cmd3)/
+
+                data = yield from iface.read()
+                print(str(list(data)))
+
+                for n in range(100):
+                    yield
+
+                data = yield from iface.read()
+                print(str(list(data)))
+
+                
+
+            sim = Simulator(dut)
+            sim.add_clock(1e-6) # 1 MHz
+            sim.add_sync_process(bench)
+            with sim.write_vcd("applet_sim.vcd"):
+                sim.run()
+            
+
 
     async def run(self, device, args):
         iface = await device.demultiplexer.claim_interface(self, self.mux_interface, args=None)
@@ -769,7 +840,7 @@ class OBIApplet(GlasgowApplet):
         return obi_iface
 
     async def interact(self, device, args, obi_iface):
-        cmd1 = OBICommands.cookie()
+        cmd1 = OBICommands.sync_cookie_raster()
         cmd2 = OBICommands.raster_region(5, 400, 2, 5, 400)
         cmd3 = OBICommands.raster_pixel(2)
         # print(f'{[cmd1, cmd2, cmd3]}')
