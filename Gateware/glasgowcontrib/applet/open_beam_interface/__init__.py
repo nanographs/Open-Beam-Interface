@@ -96,7 +96,7 @@ class BusController(wiring.Component):
             # Cat(adc_stream_data.adc_code,
             #     adc_stream_data.adc_ovf).eq(self.bus.i),
             adc_stream_data.adc_code.eq(self.bus.data_i),
-            adc_stream_data.last.eq(last_sample[0]),
+            adc_stream_data.last.eq(last_sample[self.adc_latency-1]),
             adc_stream_fifo.w_data.eq(adc_stream_data),
         ]
 
@@ -104,7 +104,7 @@ class BusController(wiring.Component):
         with m.FSM():
             with m.State("ADC Wait"):
                 with m.If(self.bus.adc_clk & (adc_cycles == 0)):
-                    m.d.comb += self.bus.adc_oe.eq(1)
+                    m.d.comb += self.bus.adc_oe.eq(1) #give bus time to stabilize before sampling
                     m.next = "ADC Read"
 
             with m.State("ADC Read"):
@@ -117,13 +117,13 @@ class BusController(wiring.Component):
                     # Schedule ADC sample for these DAC codes to be output.
                     m.d.sync += accept_sample.eq(Cat(1,accept_sample))
                     # Carry over the flag for last sample [of averaging window] to the output.
-                    m.d.sync += last_sample.eq(Cat(last_sample, self.dac_stream.data.last))
+                    m.d.sync += last_sample.eq(Cat(self.dac_stream.data.last,last_sample))
                 with m.Else():
                     # Leave DAC codes as they are.
                     # Schedule ADC sample for these DAC codes to be discarded.
                     m.d.sync += accept_sample.eq(Cat(0, accept_sample))
                     # The value of this flag is discarded, so it doesn't matter what it is.
-                    m.d.sync += last_sample.eq(Cat(last_sample, 0))
+                    m.d.sync += last_sample.eq(Cat(0,last_sample))
                 m.next = "X DAC Write"
 
             with m.State("X DAC Write"):
@@ -191,6 +191,7 @@ class Supersampler(wiring.Component):
                 m.d.comb += self.super_dac_stream.valid.eq(1)
                 with m.If(self.super_dac_stream.ready):
                     with m.If(dwell_counter == dac_stream_data.dwell_time):
+                        m.d.comb += self.super_dac_stream.data.last.eq(1)
                         m.next = "Wait"
                     with m.Else():
                         m.d.sync += dwell_counter.eq(dwell_counter + 1)
@@ -808,6 +809,7 @@ class OBIApplet(GlasgowApplet):
 
                 cmd1 = OBICommands.sync_cookie_vector()
                 cmd2 = OBICommands.vector_pixel(400, 300, 2)
+                cmd2 = OBICommands.vector_pixel(300, 400, 3)
                 
                 yield from iface.write(cmd1)
                 yield from iface.write(cmd2)
@@ -816,10 +818,7 @@ class OBIApplet(GlasgowApplet):
                 data = yield from iface.read()
                 print(str(list(data)))
 
-                for n in range(100):
-                    yield
-
-                data = yield from iface.read()
+                data = yield from iface.read(1)
                 print(str(list(data)))
 
                 
