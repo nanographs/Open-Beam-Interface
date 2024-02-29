@@ -779,6 +779,32 @@ class OBIInterface:
         self._logger = logger
         self._level  = logging.DEBUG if self._logger.name == __name__ else logging.TRACE
         self._device = device
+        self.text_file = open("results.txt", "w+")
+    async def stream_vector(self, pattern_gen):
+        self.text_file.write("\n WRITTEN: \n")
+        read_bytes_expected = 0
+        sync_cmd = OBICommands.sync_cookie_vector()
+        await self.lower.write(sync_cmd)
+        self.text_file.write(str(list(sync_cmd)))
+        read_bytes_expected += 4
+
+        while True:
+            try: 
+                if read_bytes_expected < 512:
+                    data = await self.lower.read(read_bytes_expected)
+                    self.text_file.write("\n READ: \n")
+                    self.text_file.write(str(list(data)))
+                    read_bytes_expected = 0
+
+                else:
+                    x,y,d = next(pattern_gen)
+                    cmd = OBICommands.vector_pixel(x, y, d)
+                    await self.lower.write(cmd)
+                    self.text_file.write(str(list(cmd)))
+                    read_bytes_expected += 2
+            except StopIteration:
+                print("pattern complete")
+                break
 
 
 from amaranth.sim import Simulator
@@ -805,12 +831,13 @@ class SimulationOBIInterface():
             sim.run()
     
     def sim_vector_stream(self, stream_gen):
+    
         bytes_written = 0
         read_bytes_expected = 0
-        self.text_file.write("\n WRITTEN: \n")
 
         sync_cmd = OBICommands.sync_cookie_vector()
         yield from self.lower.write(sync_cmd)
+        self.text_file.write("\n WRITTEN: \n")
         self.text_file.write(str(list(sync_cmd)))
         bytes_written += 4
         read_bytes_expected += 4
@@ -837,6 +864,29 @@ class SimulationOBIInterface():
                 print("pattern complete")
                 raise StopIteration
                 break
+    
+    def sim_raster_region(self, x_start, x_count, x_step,
+                            y_start, y_count, dwell_time):
+        read_bytes_expected = 0
+
+        sync_cmd = OBICommands.sync_cookie_raster()
+        yield from self.lower.write(sync_cmd)
+        self.text_file.write("\n WRITTEN: \n")
+        self.text_file.write(str(list(sync_cmd)))
+        read_bytes_expected += 4
+
+        region_cmd = OBICommands.raster_region(x_start, x_count, x_step,
+                            y_start, y_count)
+        yield from self.lower.write(region_cmd)
+        self.text_file.write(str(list(region_cmd)))
+
+        dwell_cmd = OBICommands.raster_pixel(dwell_time)
+        yield from self.lower.write(dwell_cmd)
+        self.text_file.write(str(list(dwell_cmd)))
+
+        data = yield from self.lower.read(512)
+        self.text_file.write("\n READ: \n")
+        self.text_file.write(str(list(data)))
 
 
 class OBIApplet(GlasgowApplet):
@@ -892,12 +942,15 @@ class OBIApplet(GlasgowApplet):
             
             sim_iface = SimulationOBIInterface(dut, iface)
 
-            def rectangle(x_width, y_height):
-                for y in range(0, y_height):
-                    for x in range(0, x_width):
-                        yield [x, y, 2]
+            # def rectangle(x_width, y_height):
+            #     for y in range(0, y_height):
+            #         for x in range(0, x_width):
+            #             yield [x, y, 2]
                 
-            bench = sim_iface.sim_vector_stream(rectangle(10,10))
+            # bench = sim_iface.sim_vector_stream(rectangle(10,10))
+            # sim_iface.run_sim(bench)
+
+            bench = sim_iface.sim_raster_region(2, 255, 2, 2, 255, 2)
             sim_iface.run_sim(bench)
 
             
