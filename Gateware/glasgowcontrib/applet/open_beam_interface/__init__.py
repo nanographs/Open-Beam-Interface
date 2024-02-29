@@ -287,7 +287,8 @@ class RasterScanner(wiring.Component):
                     m.next = "Scan"
 
             with m.State("Scan"):
-                m.d.comb += self.dwell_stream.ready.eq(1)
+                #m.d.comb += self.dwell_stream.ready.eq(1)
+                m.d.comb += self.dwell_stream.ready.eq(self.dac_stream.ready)
                 m.d.comb += self.dac_stream.valid.eq(self.dwell_stream.valid)
                 with m.If(self.dwell_stream.valid & self.dac_stream.ready):
                     # AXI4-Stream §2.2.1
@@ -369,7 +370,8 @@ class CommandParser(wiring.Component):
                             m.next = "Payload Raster Region 1 High"
 
                         with m.Case(Command.Type.RasterPixel):
-                            m.next = "Payload Raster Pixel Count High"
+                            #m.next = "Payload Raster Pixel Count High"
+                            m.next = "Payload Raster Pixel Array High"
 
                         with m.Case(Command.Type.RasterPixelRun):
                             m.next = "Payload Raster Pixel Run 1 High"
@@ -764,6 +766,12 @@ class OBICommands:
         cmd_type = Command.Type.RasterPixel.value
         return struct.pack('>bH', cmd_type, dwell_time)
     
+    def raster_pixel_run(length: int, dwell_time: int):
+        assert (length <= 65535)
+        assert (dwell_time <= 65535)
+        cmd_type = Command.Type.RasterPixelRun.value
+        return struct.pack('>bHH', cmd_type, length, dwell_time)
+    
     def vector_pixel(x_coord: int, y_coord:int, dwell_time: int):
         assert (x_coord <= 16384)
         assert (y_coord <= 16384)
@@ -880,13 +888,15 @@ class SimulationOBIInterface():
         yield from self.lower.write(region_cmd)
         self.text_file.write(str(list(region_cmd)))
 
-        dwell_cmd = OBICommands.raster_pixel(dwell_time)
+        dwell_cmd = OBICommands.raster_pixel_run(512, dwell_time)
         yield from self.lower.write(dwell_cmd)
         self.text_file.write(str(list(dwell_cmd)))
 
         data = yield from self.lower.read(512)
         self.text_file.write("\n READ: \n")
         self.text_file.write(str(list(data)))
+
+        raise StopIteration
 
 
 class OBIApplet(GlasgowApplet):
