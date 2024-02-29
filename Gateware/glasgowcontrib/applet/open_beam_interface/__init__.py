@@ -965,7 +965,6 @@ class OBIApplet(GlasgowApplet):
 
             
 
-
     async def run(self, device, args):
         iface = await device.demultiplexer.claim_interface(self, self.mux_interface, args=None)
 
@@ -973,16 +972,21 @@ class OBIApplet(GlasgowApplet):
 
         return obi_iface
 
+
+    from glasgow.support.endpoint import ServerEndpoint
+
+    @classmethod
+    def add_interact_arguments(cls, parser):
+        ServerEndpoint.add_argument(parser, "endpoint")
+
     async def interact(self, device, args, obi_iface):
-        cmd1 = OBICommands.sync_cookie_raster()
-        cmd2 = OBICommands.raster_region(5, 400, 2, 5, 400)
-        cmd3 = OBICommands.raster_pixel(2)
-        # print(f'{[cmd1, cmd2, cmd3]}')
-        await obi_iface.lower.write(cmd1)
-        # await obi_iface.lower.write(cmd2)
-        # await obi_iface.lower.write(cmd3)
-        data = await obi_iface.lower.read()
-        print(str(data.tolist()))
+        while True:
+            try:
+                data = await asyncio.shield(endpoint.recv())
+                await obi_iface.lower.write(data)
+            except asyncio.CancelledError:
+                pass
+        
 
         
 
