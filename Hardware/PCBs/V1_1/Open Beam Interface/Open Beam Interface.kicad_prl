@@ -64,8 +64,14 @@
       36,
       40
     ],
-    "visible_layers": "00090aa_00000001",
+    "visible_layers": "00090aa_80000001",
     "zone_display_mode": 0
+  },
+  "git": {
+    "repo_password": "",
+    "repo_type": "",
+    "repo_username": "",
+    "ssh_key": ""
   },
   "meta": {
     "filename": "Open Beam Interface.kicad_prl",
