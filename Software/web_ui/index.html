@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+<head>
+  <title>Hello World program in GLSL</title>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <link href="css/styles.css" rel="stylesheet" type="text/css"/>
+  <script src="js/script.js" type="text/javascript"> </script>
+</head>
+<body>
+  <p>Hello World! Hello GLSL!</p>
+  <canvas>Your browser does not seem to support 
+    HTML5 canvas.</canvas>
+  <script type="x-shader/x-vertex" id="vertex-shader">
+#version 100
+void main() {
+  gl_Position = vec4(0.0, 0.0, 0.0, 1.0);
+  gl_PointSize = 64.0;
+}
+  </script>
+  <script type="x-shader/x-fragment" id="fragment-shader">
+#version 100
+void main() {
+  gl_FragColor = vec4(0.18, 0.54, 0.34, 1.0);
+}
+  </script>
+</body>
+</html>
