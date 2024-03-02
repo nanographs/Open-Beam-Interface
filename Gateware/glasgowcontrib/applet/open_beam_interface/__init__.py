@@ -569,6 +569,7 @@ class CommandExecutor(wiring.Component):
                     with m.Case(Command.Type.Control):
                         with m.If(command.payload.control_instruction == ControlInstruction.Abort):
                             m.d.comb += raster_scanner.abort.eq(1)
+                            m.next = "Fetch"
 
         with m.FSM():
             with m.State("Imaging"):
