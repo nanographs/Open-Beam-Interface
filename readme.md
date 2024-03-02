@@ -26,8 +26,10 @@ Glasgow handles getting the bytes in and out of your computer. Our software take
 - [X] Live viewer fast enough to focus and stigmate with
 - [X] Raster pattern mode at 16,384 x 16,384 image resolution, with 8 bit grayscale dwelltimes
 - [X] Order and test V1.0 PCBs 
+- [x] Refactor gateware to support 16 bit grayscale vector and raster patterning (thanks Whitequark)
+- [ ] Intergrate refactored gateware with UI
+- [ ] Make minor desing-for-manufacturing and thermal changes to V1.1 PCBs (V1.1 uploaded in progress state)
 - [ ] Order and test blanking and external/internal scan sellect PCBs
-- [ ] Refactor gateware to support 16 bit grayscale vector and raster patterning
 - [ ] Implement UI for new 16 bit grayscale imaging, vector and raster patterning modes.
 - [ ] Implement Metadata for saved images
 
