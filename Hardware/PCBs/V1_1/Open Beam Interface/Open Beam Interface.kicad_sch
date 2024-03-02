@@ -7903,6 +7903,24 @@
 						)
 					)
 				)
+				(pin power_in line
+					(at -1.27 -11.43 90)
+					(length 2.54)
+					(name "TP"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "9"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
 			)
 			(symbol "THS4150_1_1"
 				(polyline
@@ -9578,6 +9596,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "1d90371d-3f08-4601-9318-fe40f95db9d1")
+	)
+	(junction
+		(at 200.66 285.75)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "1e7eba65-5774-440a-a170-e72978627380")
 	)
 	(junction
 		(at 482.6 20.32)
@@ -16435,7 +16459,7 @@
 	)
 	(wire
 		(pts
-			(xy 193.04 285.75) (xy 205.74 285.75)
+			(xy 193.04 285.75) (xy 200.66 285.75)
 		)
 		(stroke
 			(width 0)
@@ -19371,6 +19395,16 @@
 			(type default)
 		)
 		(uuid "78969945-3b12-40ed-8a0a-dadf04d9c065")
+	)
+	(wire
+		(pts
+			(xy 200.66 285.75) (xy 205.74 285.75)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "78aac596-76b6-4aef-8987-8adcce6bc47f")
 	)
 	(wire
 		(pts
@@ -30611,7 +30645,6 @@
 		(in_bom no)
 		(on_board no)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "043f4f3e-057b-405a-a541-ee061c3ea4c8")
 		(property "Reference" "#PWR0135"
 			(at 426.974 196.85 0)
@@ -30623,7 +30656,7 @@
 			)
 		)
 		(property "Value" "-14V0"
-			(at 427.228 204.216 0)
+			(at 427.99 204.216 0)
 			(do_not_autoplace yes)
 			(effects
 				(font
@@ -33224,6 +33257,73 @@
 			(project "Open Beam Interface"
 				(path "/39dd4815-2a60-44cf-8871-b7872a24db88"
 					(reference "#PWR050")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GNDA")
+		(at 424.18 204.47 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "16c771bf-a780-4b68-92d5-8832a1e2cd63")
+		(property "Reference" "#PWR0205"
+			(at 424.18 210.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GNDA"
+			(at 424.18 208.6055 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" ""
+			(at 424.18 204.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 424.18 204.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 424.18 204.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "c2513611-bd3e-4b80-910e-11658b4a6bb4")
+		)
+		(instances
+			(project "Open Beam Interface"
+				(path "/39dd4815-2a60-44cf-8871-b7872a24db88"
+					(reference "#PWR0205")
 					(unit 1)
 				)
 			)
@@ -41351,6 +41451,73 @@
 		)
 	)
 	(symbol
+		(lib_id "power:GNDA")
+		(at 426.72 74.93 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "42161421-fa32-47cc-b60d-41fe5ae9cc44")
+		(property "Reference" "#PWR066"
+			(at 426.72 81.28 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GNDA"
+			(at 426.72 79.0655 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" ""
+			(at 426.72 74.93 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 426.72 74.93 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 426.72 74.93 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "cb144e79-937d-4df3-bd8a-24e98e8be6ef")
+		)
+		(instances
+			(project "Open Beam Interface"
+				(path "/39dd4815-2a60-44cf-8871-b7872a24db88"
+					(reference "#PWR066")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Device:R")
 		(at 477.52 48.26 90)
 		(unit 1)
@@ -44473,7 +44640,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Scan Generator:SOIC-8_3.9x4.9mm_P1.27mm"
+		(property "Footprint" "Scan Generator:HVSSOP-8-1_Expanded_Thermal_Pad_P0.65mm_EP1.57x1.89mm_ThermalVias"
 			(at 417.068 194.056 0)
 			(effects
 				(font
@@ -44550,6 +44717,9 @@
 		)
 		(pin "8"
 			(uuid "404e208f-72e5-4e95-94b4-5941398b69fb")
+		)
+		(pin "9"
+			(uuid "4e163303-169e-4d0c-8ec4-dc5e986ea8a1")
 		)
 		(instances
 			(project "Open Beam Interface"
@@ -54103,7 +54273,6 @@
 		(in_bom no)
 		(on_board no)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "8357facb-d5cd-4548-9bae-bfa96f671478")
 		(property "Reference" "#PWR0128"
 			(at 429.514 67.31 0)
@@ -54115,7 +54284,7 @@
 			)
 		)
 		(property "Value" "-14V0"
-			(at 429.768 74.676 0)
+			(at 430.53 74.93 0)
 			(do_not_autoplace yes)
 			(effects
 				(font
@@ -58012,6 +58181,9 @@
 		)
 		(pin "8"
 			(uuid "baf8cd8e-afa2-4b63-88d1-abc09e5a42ee")
+		)
+		(pin "9"
+			(uuid "09b22c15-6f85-4c4c-be5f-d570915fbd7e")
 		)
 		(instances
 			(project "Open Beam Interface"
@@ -71703,6 +71875,101 @@
 			(project "Open Beam Interface"
 				(path "/39dd4815-2a60-44cf-8871-b7872a24db88"
 					(reference "#PWR053")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 200.66 285.75 180)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "e866b8d6-8caf-43f5-ab65-94e8ffb00d65")
+		(property "Reference" "PowerGood1"
+			(at 206.756 290.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+					(bold yes)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "TestPoint"
+			(at 205.74 293.37 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+			(at 195.58 285.75 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 195.58 285.75 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 200.66 285.75 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Order Link" "NA"
+			(at 200.66 285.75 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" ""
+			(at 200.66 285.75 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Is Good" ""
+			(at 200.66 285.75 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "e0f6f646-d391-4eb0-bb7b-ebe3fc1e6b23")
+		)
+		(instances
+			(project "Open Beam Interface"
+				(path "/39dd4815-2a60-44cf-8871-b7872a24db88"
+					(reference "PowerGood1")
 					(unit 1)
 				)
 			)
