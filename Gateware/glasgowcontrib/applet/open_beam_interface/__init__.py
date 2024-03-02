@@ -325,8 +325,14 @@ class Command(data.Struct):
         RasterPixel     = 2
         RasterPixelRun  = 3
         VectorPixel     = 4
+        Control = 5
 
     type: Type
+
+    class ControlInstruction(enum.Enum, shape = 8):
+        Abort = 1
+        Flush = 2
+
     payload: data.UnionLayout({
         "synchronize":      data.StructLayout({
             "cookie":           Cookie,
@@ -343,6 +349,7 @@ class Command(data.Struct):
             "y_coord":          14,
             "dwell_time":       DwellTime,
         }),
+        "control_instruction": ControlInstruction
     })
 
 
@@ -378,6 +385,9 @@ class CommandParser(wiring.Component):
 
                         with m.Case(Command.Type.VectorPixel):
                             m.next = "Payload Vector Pixel 1 High"
+                        
+                        with m.Case(Command.Type.Control):
+                            m.next = "Payload Control"
 
             def Deserialize(target, state, next_state):
                 #print(f'state: {state} -> next state: {next_state}')
@@ -443,6 +453,9 @@ class CommandParser(wiring.Component):
                 "Payload Vector Pixel 2", "Payload Vector Pixel 3")
             DeserializeWord(command.payload.vector_pixel.dwell_time,
                 "Payload Vector Pixel 3", "Submit")
+
+            Deserialize(command.payload.control_instruction, 
+                "Payload Control", "Submit")
 
             with m.State("Submit"):
                 m.d.comb += self.cmd_stream.valid.eq(1)
@@ -552,6 +565,10 @@ class CommandExecutor(wiring.Component):
                         with m.If(vector_stream.ready):
                             m.d.comb += submit_pixel.eq(1)
                             m.next = "Fetch"
+                    
+                    with m.Case(Command.Type.Control):
+                        with m.If(command.payload.control_instruction == ControlInstruction.Abort):
+                            m.d.comb += raster_scanner.abort.eq(1)
 
         with m.FSM():
             with m.State("Imaging"):
