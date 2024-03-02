@@ -1,14 +1,14 @@
 import numpy as np
 import time
 
-def ffp_8_8_to_int(num: int): #couldn't find builtin python function for this if there is one
+def ffp_8_8_to_float(num: int): #couldn't find builtin python function for this if there is one
     bits = f'{num:016b}'
     result = 0
-
     for n in range(8, 0, -1):
         result += pow(2,-n)*bits[n]
     for n in range(1, 9):
         result += pow(2,n)*bits[n+8]
+    return result
 
 class OBIStreamDecoder:
     raster_mode: None
@@ -20,12 +20,22 @@ class OBIStreamDecoder:
     y_upper: None
     current_x: None
     current_y: None
-    resolution_step: None
+    step: None
 
 def get_new_frame_resolution_params(self, x_width, y_height):
     step = 16384/max(x_width, y_height)
+    x_start = 0
+    x_count = x_width*step
+    y_start = 0
+    y_count = y_width*step
+    return x_start, x_count, step, y_start, y_count
     
-
+def get_reduced_area_resolution_params(self, x_lower, x_upper, y_lower, y_upper):
+    x_start = x_lower*self.step
+    x_count = x_upper*self.step
+    y_start = y_lower*self.step
+    y_count = y_upper*self.step
+    return x_start, x_count, self.step, y_start, y_count
 
 def apply_cmd(self, cmd):
     cmd = list(cmd)
@@ -33,7 +43,8 @@ def apply_cmd(self, cmd):
     if cmd_type == CmdType.RasterRegion:
         self.x_start = 256*cmd[1] + cmd[2]
         step = 256*cmd[3] + cmd[4]
-        step = ffp_8_8_to_int(step)
+        step = ffp_8_8_to_float(step)
+        self.step = step
         self.x_count = 256*cmd[5] + cmd[6]
         self.y_start = 256*cmd[7] + cmd[8]
         self.y_count = 256*cmd[9] + cmd[10]
