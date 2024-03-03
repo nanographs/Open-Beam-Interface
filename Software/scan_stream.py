@@ -295,5 +295,10 @@ def points_to_frame(self, m:memoryview, print_debug = True):
             
             break
 
-
+def process_data(self, data:memoryview):
+    if self.raster_mode:
+        self.points_to_frame(data)
+    else:
+        raise NotImplementedError
+        #self.points_to_vector(data)
 

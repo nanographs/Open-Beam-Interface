@@ -100,11 +100,14 @@ class OBICommands:
         return struct.pack('>bHHH', cmd_type, x_coord, y_coord, dwell_time)
 
 
+from scan_stream import OBIStreamDecoder
 
 class OBIInterface(ConnectionManager):
     cookies: {}
     n_cookie: 0
     stream_decoder: OBIStreamDecoder
+def __init__(self, host, port):
+    super().__init__(host, port)
 def get_cookie(self): #use sequential numbers
     if n_cookie >= 65536:
         n_cookie = 0
@@ -126,12 +129,13 @@ def find_cookies(self, data):
         sync_index = data.index(b"\xff\xff", i_start)
         cookie = data[sync_index + 2: sync_index + 4]
         cookie_cmd = self.cookies.pop(cookie)
-        self.stream.apply_cmd(cookie_cmd)
+        self.stream_decoder.apply_cmd(cookie_cmd)
         data = data[sync_index + 4:]
-        self.stream.process_data(data)
+        self.stream_decoder.process_data(memoryview(data))
     data = data[sync_index:]
-    self.stream.process_data(data)
-
+    self.stream_decoder.process_data(memoryview(data))
+def calculate_run_length(self, vector_pixels:memoryview):
+    return sum(vector_pixels.cast('>H')[2::3])
 
 
 
