@@ -40,6 +40,37 @@ BusSignature = wiring.Signature({
     "data_oe":  Out(1),
 })
 
+DwellTime = unsigned(16)
+class PipelinedLoopbackAdapter(wiring.Component):
+    loopback_stream: In(unsigned(14))
+    valid: In(1)
+    bus: Out(BusSignature)
+
+    def __init__(self, adc_latency: int):
+        self.adc_latency = adc_latency
+        super().__init__()
+    def elaborate(self, platform):
+        m = Module()
+
+        prev_bus_adc_oe = Signal()
+        adc_oe_falling = Signal()
+        m.d.sync += prev_bus_adc_oe.eq(self.bus.adc_oe)
+        m.d.comb += adc_oe_falling.eq(prev_bus_adc_oe & ~self.bus.adc_oe)
+        
+
+        m.submodules.loopback_fifo = loopback_fifo = \
+            SyncFIFOBuffered(depth=self.adc_latency, width=len(self.loopback_stream))
+        m.d.comb += [
+            loopback_fifo.w_data.eq(self.loopback_stream),
+            self.bus.data_i.eq(loopback_fifo.r_data),
+            #self.o_stream.valid.eq(loopback_fifo.r_rdy),
+            loopback_fifo.r_en.eq(adc_oe_falling & self.valid),
+            loopback_fifo.w_en.eq(adc_oe_falling),
+            #self.i_stream.ready.eq(loopback_fifo.w_rdy)
+        ]
+
+
+        return m
 
 class BusController(wiring.Component):
     # FPGA-side interface
@@ -58,11 +89,10 @@ class BusController(wiring.Component):
     # IO-side interface
     bus: Out(BusSignature)
 
-    def __init__(self, *, adc_half_period: int, adc_latency: int, loopback):
+    def __init__(self, *, adc_half_period: int, adc_latency: int):
         assert (adc_half_period * 2) >= 4, "ADC period must be large enough for FSM latency"
         self.adc_half_period = adc_half_period
         self.adc_latency     = adc_latency
-        self.loopback = loopback
 
         super().__init__()
 
@@ -102,10 +132,7 @@ class BusController(wiring.Component):
 
         dac_stream_data = Signal.like(self.dac_stream.data)
 
-        if self.loopback:
-            m.d.comb += adc_stream_data.adc_code.eq(dac_stream_data.dac_x_code)
-        if not self.loopback:
-            m.d.comb += adc_stream_data.adc_code.eq(self.bus.data_i),
+        m.d.comb += adc_stream_data.adc_code.eq(self.bus.data_i),
 
         with m.FSM():
             with m.State("ADC Wait"):
@@ -239,7 +266,7 @@ class RasterRegion(data.Struct):
     # y_stop:  16 # UQ(8,8)
 
 
-DwellTime = unsigned(16)
+
 
 
 class RasterScanner(wiring.Component):
@@ -263,9 +290,9 @@ class RasterScanner(wiring.Component):
 
         region  = Signal.like(self.roi_stream.data)
 
-        x_accum = Signal.like(region.x_start)
+        x_accum = Signal(14 + self.FRAC_BITS)
         x_count = Signal.like(region.x_count)
-        y_accum = Signal.like(region.y_start)
+        y_accum = Signal(14 + self.FRAC_BITS)
         y_count = Signal.like(region.y_count)
         m.d.comb += [
             self.dac_stream.data.dac_x_code.eq(x_accum[self.FRAC_BITS:]),
@@ -287,7 +314,6 @@ class RasterScanner(wiring.Component):
                     m.next = "Scan"
 
             with m.State("Scan"):
-                #m.d.comb += self.dwell_stream.ready.eq(1)
                 m.d.comb += self.dwell_stream.ready.eq(self.dac_stream.ready)
                 m.d.comb += self.dac_stream.valid.eq(self.dwell_stream.valid)
                 with m.If(self.dwell_stream.valid & self.dac_stream.ready):
@@ -307,7 +333,7 @@ class RasterScanner(wiring.Component):
                         m.d.sync += x_count.eq(0)
                     with m.Else():
                         m.d.sync += x_accum.eq(x_accum + region.x_step)
-                        m.d.sync += x_count.eq(x_accum + 1)
+                        m.d.sync += x_count.eq(x_count + 1)
 
         return m
 
@@ -478,27 +504,37 @@ class CommandExecutor(wiring.Component):
     def elaborate(self, platform):
         m = Module()
 
-        m.submodules.bus_controller = bus_controller = BusController(adc_half_period=3, adc_latency=6, 
-                                                                    loopback = self.loopback)
+        m.submodules.bus_controller = bus_controller = BusController(adc_half_period=3, adc_latency=6)
         m.submodules.supersampler   = supersampler   = Supersampler()
         m.submodules.raster_scanner = raster_scanner = RasterScanner()
 
         wiring.connect(m, flipped(self.bus), bus_controller.bus)
+        if self.loopback:
+            m.submodules.loopback_adapter = loopback_adapter = PipelinedLoopbackAdapter(adc_latency=6)
+            wiring.connect(m, self.bus, flipped(loopback_adapter.bus))
+            m.d.comb += loopback_adapter.valid.eq(supersampler.super_dac_stream.valid)
 
         wiring.connect(m, supersampler.super_dac_stream, bus_controller.dac_stream)
         wiring.connect(m, bus_controller.adc_stream, supersampler.super_adc_stream)
-
+        
         vector_stream = StreamSignature(data.StructLayout({
             "dac_x_code": 14,
             "dac_y_code": 14,
             "dwell_time": DwellTime,
         })).create()
 
+        print(loopback_adapter.loopback_stream)
+        print(raster_scanner.dac_stream)
+        print(raster_scanner.dac_stream.data.dac_x_code)
         raster_mode = Signal()
         with m.If(raster_mode):
             wiring.connect(m, raster_scanner.dac_stream, supersampler.dac_stream)
+            if self.loopback:
+                m.d.comb += loopback_adapter.loopback_stream.eq(supersampler.super_dac_stream.data.dac_x_code)
         with m.Else():
             wiring.connect(m, vector_stream, supersampler.dac_stream)
+            if self.loopback:
+                m.d.comb += loopback_adapter.loopback_stream.eq(vector_stream.data.dwell_time)
 
         in_flight_pixels = Signal(4) # should never overflow
         submit_pixel = Signal()
@@ -567,7 +603,7 @@ class CommandExecutor(wiring.Component):
                             m.next = "Fetch"
                     
                     with m.Case(Command.Type.Control):
-                        with m.If(command.payload.control_instruction == ControlInstruction.Abort):
+                        with m.If(command.payload.control_instruction == Command.ControlInstruction.Abort):
                             m.d.comb += raster_scanner.abort.eq(1)
                             m.next = "Fetch"
 
@@ -584,7 +620,7 @@ class CommandExecutor(wiring.Component):
 
             with m.State("Write FFFF"):
                 m.d.comb += [
-                    self.img_stream.data.eq(0xfeff),
+                    self.img_stream.data.eq(0xffff),
                     self.img_stream.valid.eq(1),
                 ]
                 with m.If(self.img_stream.ready):
@@ -747,16 +783,20 @@ from glasgow.applet import *
 import struct
 
 def ffp_8_8(num: int): #couldn't find builtin python function for this if there is one
+    print(f'step: {num}')
     b_str = ""
-    assert (num <= pow(2,8))
-    for n in range(8, 0, -1):
+    assert (num <= pow(2,7))
+    for n in range(7, 0, -1):
         b = num//pow(2,n)
         b_str += str(int(b))
         num -= b*pow(2,n)
-    for n in range(0,8):
+        print(f'2^{n}\t{b}')
+    for n in range(0,9):
         b = num//pow(2,-1*n)
         b_str += str(int(b))
         num -= b*pow(2,-1*n)
+        print(f'2^{-1*n}\t{b}')
+    print(f'ffp: {b_str}, int: {int(b_str,2)}')
     return int(b_str, 2)
 class OBICommands:
     def sync_cookie_raster():
@@ -906,17 +946,38 @@ class SimulationOBIInterface():
         yield from self.lower.write(region_cmd)
         self.text_file.write(str(list(region_cmd)))
 
-        dwell_cmd = OBICommands.raster_pixel_run(512, dwell_time)
+        dwell_cmd = OBICommands.raster_pixel_run(512 - read_bytes_expected, dwell_time)
         yield from self.lower.write(dwell_cmd)
         self.text_file.write(str(list(dwell_cmd)))
 
+        
         data = yield from self.lower.read(512)
         self.text_file.write("\n READ: \n")
         self.text_file.write(str(list(data)))
 
+
+        print(f'expected sync: {bytes([255,255])}, actual sync: {data[0:2]}')
+        assert(bytes([255,255]) == data[0:2])
+        print(f'expected cookie: {sync_cmd[1:3]}, received cookie: {data[2:4]}')
+        # assert (sync_cmd[1:3] == data[2:4])
+        # note that the cookie comes out with bytes swapped
+
+        data = memoryview(data[2:]).cast('H')
+
+        for y in range(y_start, y_count):
+            for x in range(x_start, x_count):
+                if ((x_count-x_start)*(y-y_start) + x) >= len(data):
+                    break
+                #print(f'x: {x}, y: {y} = data[{(x_count-x_start)*(y-y_start) + x}]')
+                pixel = data[(x_count-x_start)*(y-y_start) + x]
+                print(f'expected: {x*x_step}, actual: {pixel}')
+                assert (pixel == x*x_step)
+
         raise StopIteration
 
 
+
+from glasgow.support.endpoint import ServerEndpoint
 class OBIApplet(GlasgowApplet):
     logger = logging.getLogger(__name__)
     help = "open beam interface"
@@ -978,7 +1039,7 @@ class OBIApplet(GlasgowApplet):
             # bench = sim_iface.sim_vector_stream(rectangle(10,10))
             # sim_iface.run_sim(bench)
 
-            bench = sim_iface.sim_raster_region(2, 255, 2, 2, 255, 2)
+            bench = sim_iface.sim_raster_region(2, 255, 1, 2, 255, 2)
             sim_iface.run_sim(bench)
 
             
@@ -991,7 +1052,7 @@ class OBIApplet(GlasgowApplet):
         return obi_iface
 
 
-    from glasgow.support.endpoint import ServerEndpoint
+    
 
     @classmethod
     def add_interact_arguments(cls, parser):
