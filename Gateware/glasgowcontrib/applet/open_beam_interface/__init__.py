@@ -525,10 +525,14 @@ class CommandExecutor(wiring.Component):
         })).create()
 
         raster_mode = Signal()
+        command = Signal.like(self.cmd_stream.data)
         with m.If(raster_mode):
             wiring.connect(m, raster_scanner.dac_stream, supersampler.dac_stream)
             if self.loopback:
-                m.d.comb += loopback_adapter.loopback_stream.eq(supersampler.super_dac_stream.data.dac_x_code)
+                with m.If(command.type == Command.Type.RasterPixel):
+                    m.d.comb += loopback_adapter.loopback_stream.eq(supersampler.dac_stream_data.dwell_time)
+                with m.Else():
+                    m.d.comb += loopback_adapter.loopback_stream.eq(supersampler.super_dac_stream.data.dac_x_code)
         with m.Else():
             wiring.connect(m, vector_stream, supersampler.dac_stream)
             if self.loopback:
@@ -539,7 +543,7 @@ class CommandExecutor(wiring.Component):
         retire_pixel = Signal()
         m.d.sync += in_flight_pixels.eq(in_flight_pixels + submit_pixel - retire_pixel)
 
-        command = Signal.like(self.cmd_stream.data)
+        
         run_length = Signal.like(command.payload.raster_pixel_run.length)
         m.d.comb += [
             raster_scanner.roi_stream.data.eq(command.payload.raster_region),
@@ -787,7 +791,7 @@ from glasgow.applet import *
 
 import struct
 
-def ffp_8_8(num: float, print_debug = False): #couldn't find builtin python function for this if there is one
+def ffp_8_8(num: float, print_debug = True): #couldn't find builtin python function for this if there is one
     if print_debug:
         print(f'step: {num}')
     b_str = ""
@@ -943,9 +947,8 @@ class SimulationOBIInterface():
     
     def sim_vector_stream(self, stream_gen, *args):
 
-        print(stream_gen)
-
-        read_gen, write_gen = duplicate(stream_gen, *args)
+        #read_gen, write_gen = duplicate(stream_gen, *args) 
+        write_gen = stream_gen(*args)
     
         bytes_written = 0
         read_bytes_expected = 0
@@ -956,7 +959,6 @@ class SimulationOBIInterface():
         self.text_file.write(str(list(sync_cmd)))
         self.expected_stream.extend([255,255])
         self.expected_stream.extend(sync_cmd[1:3])
-        self.text_file.write(str(list(self.expected_stream)))
         self.text_file.write("---->\n")
 
         while True:    
@@ -965,12 +967,10 @@ class SimulationOBIInterface():
                     yield from self.compare_against_expected()
                 else:
                     x, y, d = next(write_gen)
-                    print(x,y,d)
                     cmd = OBICommands.vector_pixel(x, y, d)
                     yield from self.lower.write(cmd)
                     self.expected_stream.extend(struct.pack('>H',d))
                     self.text_file.write(str(list(cmd)))
-                    self.text_file.write(str(list(self.expected_stream)))
                     self.text_file.write("\n")
             except StopIteration:
                 print("pattern complete")
@@ -1018,17 +1018,44 @@ class SimulationOBIInterface():
     def sim_raster_pattern(self, x_start, x_count,
                         y_start, y_count, stream_gen, *args):
 
-        read_gen, write_gen = duplicate(stream_gen, *args)
-
-        read_bytes_expected = 0
+        #read_gen, write_gen = duplicate(stream_gen, *args)
+        write_gen = stream_gen(*args)
 
         sync_cmd = OBICommands.sync_cookie_raster()
         yield from self.lower.write(sync_cmd)
         self.text_file.write("\n WRITTEN: \n")
         self.text_file.write(str(list(sync_cmd)))
-        read_bytes_expected += 4
         
+        self.expected_stream.extend([255,255])
+        self.expected_stream.extend(sync_cmd[1:3])
 
+        x_step = 16384/max((x_count - x_start + 1),(y_count-y_start + 1))
+        region_cmd = OBICommands.raster_region(x_start, x_count, x_step,
+                            y_start, y_count)
+        yield from self.lower.write(region_cmd)
+        self.text_file.write(str(list(region_cmd)))
+        self.text_file.write("---->\n")
+
+        run_length = 0
+
+        while True:    
+            try:
+                if len(self.expected_stream) >= 512:
+                    yield from self.compare_against_expected()
+                else:
+                    d = next(write_gen)
+                    run_length += 1
+                    print(f'run length: {run_length}')
+                    cmd = OBICommands.raster_pixel(d)
+                    yield from self.lower.write(cmd)
+                    self.expected_stream.extend(struct.pack('>H',d))
+                    self.text_file.write(str(list(cmd)))
+                    self.text_file.write("\n")
+            except StopIteration:
+                print("pattern complete")
+                break
+
+        raise StopIteration
 
 from glasgow.support.endpoint import ServerEndpoint
 class OBIApplet(GlasgowApplet):
@@ -1085,16 +1112,24 @@ class OBIApplet(GlasgowApplet):
             sim_iface = SimulationOBIInterface(dut, iface)
 
             
-            def rectangle(x_width, y_height):
+            def vector_rectangle(x_width, y_height):
                 for y in range(0, y_height):
                     for x in range(0, x_width):
                         yield [x, y, x+y]
-                
-            bench1 = sim_iface.sim_vector_stream(rectangle, 10,10)
-            sim_iface.queue_sim(bench1)
 
-            bench2 = sim_iface.sim_raster_region(255, 511, 0, 255, 2, 200)
-            sim_iface.queue_sim(bench2)
+            def raster_rectangle(x_width, y_height):
+                for y in range(0, 5):
+                    for x in range(0, x_width):
+                        yield x+y
+                
+            # bench1 = sim_iface.sim_vector_stream(vector_rectangle, 10,10)
+            # sim_iface.queue_sim(bench1)
+
+            # bench2 = sim_iface.sim_raster_region(255, 511, 0, 255, 2, 200)
+            # sim_iface.queue_sim(bench2)
+
+            bench3 = sim_iface.sim_raster_pattern(0, 255, 0, 255, raster_rectangle, 256, 256)
+            sim_iface.queue_sim(bench3)
             sim_iface.run_sim()
 
             
