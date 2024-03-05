@@ -56,19 +56,13 @@ class PipelinedLoopbackAdapter(wiring.Component):
         adc_oe_falling = Signal()
         m.d.sync += prev_bus_adc_oe.eq(self.bus.adc_oe)
         m.d.comb += adc_oe_falling.eq(prev_bus_adc_oe & ~self.bus.adc_oe)
+
+        shift_register = Signal(14*self.adc_latency)
+
+        with m.If(adc_oe_falling):
+            m.d.sync += shift_register.eq((shift_register << 14) | self.loopback_stream)
         
-
-        m.submodules.loopback_fifo = loopback_fifo = \
-            SyncFIFOBuffered(depth=self.adc_latency, width=len(self.loopback_stream))
-        m.d.comb += [
-            loopback_fifo.w_data.eq(self.loopback_stream),
-            self.bus.data_i.eq(loopback_fifo.r_data),
-            #self.o_stream.valid.eq(loopback_fifo.r_rdy),
-            loopback_fifo.r_en.eq(adc_oe_falling & self.valid),
-            loopback_fifo.w_en.eq(adc_oe_falling),
-            #self.i_stream.ready.eq(loopback_fifo.w_rdy)
-        ]
-
+        m.d.comb += self.bus.data_i.eq(shift_register.word_select(self.adc_latency-1, 14))
 
         return m
 
@@ -247,6 +241,8 @@ class Supersampler(wiring.Component):
                     m.d.sync += running_average.eq((running_average + self.super_adc_stream.data.adc_code) >> 1)
                     with m.If(self.super_adc_stream.data.last):
                         m.next = "Wait"
+                    with m.Else():
+                        m.next = "Average"
 
             with m.State("Wait"):
                 #m.d.sync += self.adc_stream.valid.eq(1)
@@ -523,9 +519,6 @@ class CommandExecutor(wiring.Component):
             "dwell_time": DwellTime,
         })).create()
 
-        print(loopback_adapter.loopback_stream)
-        print(raster_scanner.dac_stream)
-        print(raster_scanner.dac_stream.data.dac_x_code)
         raster_mode = Signal()
         with m.If(raster_mode):
             wiring.connect(m, raster_scanner.dac_stream, supersampler.dac_stream)
@@ -782,7 +775,7 @@ from glasgow.applet import *
 
 import struct
 
-def ffp_8_8(num: int): #couldn't find builtin python function for this if there is one
+def ffp_8_8(num: float): #couldn't find builtin python function for this if there is one
     print(f'step: {num}')
     b_str = ""
     assert (num <= pow(2,7))
@@ -807,7 +800,7 @@ class OBICommands:
         cmd_sync = Command.Type.Synchronize.value
         cookie = random.randint(1,65535)
         return struct.pack('>bHb', cmd_sync, cookie, 0) 
-    def raster_region(x_start: int, x_count:int , x_step: int, 
+    def raster_region(x_start: int, x_count:int , x_step: float, 
                     y_start: int, y_count: int):
         x_step = ffp_8_8(x_step)
         assert (x_count <= 16384)
@@ -931,7 +924,7 @@ class SimulationOBIInterface():
                 raise StopIteration
                 break
     
-    def sim_raster_region(self, x_start, x_count, x_step,
+    def sim_raster_region(self, x_start, x_count,
                             y_start, y_count, dwell_time):
         read_bytes_expected = 0
 
@@ -941,6 +934,7 @@ class SimulationOBIInterface():
         self.text_file.write(str(list(sync_cmd)))
         read_bytes_expected += 4
 
+        x_step = 16384/max((x_count - x_start + 1),(y_count-y_start + 1))
         region_cmd = OBICommands.raster_region(x_start, x_count, x_step,
                             y_start, y_count)
         yield from self.lower.write(region_cmd)
@@ -962,7 +956,7 @@ class SimulationOBIInterface():
         # assert (sync_cmd[1:3] == data[2:4])
         # note that the cookie comes out with bytes swapped
 
-        data = memoryview(data[2:]).cast('H')
+        data = memoryview(data[4:]).cast('H')
 
         for y in range(y_start, y_count):
             for x in range(x_start, x_count):
@@ -970,8 +964,8 @@ class SimulationOBIInterface():
                     break
                 #print(f'x: {x}, y: {y} = data[{(x_count-x_start)*(y-y_start) + x}]')
                 pixel = data[(x_count-x_start)*(y-y_start) + x]
-                print(f'expected: {x*x_step}, actual: {pixel}')
-                assert (pixel == x*x_step)
+                print(f'expected: {int(x_start + x*x_step)}, actual: {pixel}')
+                assert (pixel == int(x_start + x*x_step))
 
         raise StopIteration
 
@@ -1039,7 +1033,7 @@ class OBIApplet(GlasgowApplet):
             # bench = sim_iface.sim_vector_stream(rectangle(10,10))
             # sim_iface.run_sim(bench)
 
-            bench = sim_iface.sim_raster_region(2, 255, 1, 2, 255, 2)
+            bench = sim_iface.sim_raster_region(1, 256, 0, 255, 2)
             sim_iface.run_sim(bench)
 
             
