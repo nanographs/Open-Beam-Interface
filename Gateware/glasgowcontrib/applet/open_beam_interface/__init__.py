@@ -787,21 +787,25 @@ from glasgow.applet import *
 
 import struct
 
-def ffp_8_8(num: float): #couldn't find builtin python function for this if there is one
-    print(f'step: {num}')
+def ffp_8_8(num: float, print_debug = False): #couldn't find builtin python function for this if there is one
+    if print_debug:
+        print(f'step: {num}')
     b_str = ""
     assert (num <= pow(2,7))
     for n in range(7, 0, -1):
         b = num//pow(2,n)
         b_str += str(int(b))
         num -= b*pow(2,n)
-        print(f'2^{n}\t{b}')
+        if print_debug:
+            print(f'2^{n}\t{b}')
     for n in range(0,9):
         b = num//pow(2,-1*n)
         b_str += str(int(b))
         num -= b*pow(2,-1*n)
-        print(f'2^{-1*n}\t{b}')
-    print(f'ffp: {b_str}, int: {int(b_str,2)}')
+        if print_debug:
+            print(f'2^{-1*n}\t{b}')
+    if print_debug:
+        print(f'ffp: {b_str}, int: {int(b_str,2)}')
     return int(b_str, 2)
 class OBICommands:
     def sync_cookie_raster():
@@ -839,9 +843,19 @@ class OBICommands:
         assert (x_coord <= 16384)
         assert (y_coord <= 16384)
         assert (dwell_time <= 65535)
-
         cmd_type = Command.Type.VectorPixel.value
         return struct.pack('>bHHH', cmd_type, x_coord, y_coord, dwell_time)
+    
+    def control(instruction):
+        assert (1 <= instruction <= 2)
+        cmd_type = Command.Type.Control.value
+        return struct.pack('>bb', cmd_type, instruction)
+
+    def abort():
+        return OBICommands.control(1)
+    
+    def flush():
+        return OBICommands.control(2)
 
 
 class OBIInterface:
@@ -890,6 +904,7 @@ class SimulationOBIInterface():
 
         self.bench_queue = []
         self.expected_stream = bytearray()
+
     def queue_sim(self, bench):
         self.bench_queue.append(bench)
     def run_sim(self):
@@ -898,11 +913,13 @@ class SimulationOBIInterface():
 
         def bench():
             for bench in self.bench_queue:
-                while True:
+                while len(self.expected_stream) < 512:
                     try:
                         yield from bench
                     except RuntimeError: #raised StopIteration
                         break
+                    finally:
+                        yield from self.compare_against_expected()
             print("All done.")
 
         sim.add_clock(1e-6) # 1 MHz
@@ -911,16 +928,18 @@ class SimulationOBIInterface():
             sim.run()
     
     def compare_against_expected(self):
-        data = yield from self.lower.read(512)
+        read_len = min(512, len(self.expected_stream))
+        if read_len < 512:
+            yield from self.lower.write(OBICommands.flush())
+        data = yield from self.lower.read(read_len)
         self.text_file.write("\n READ: \n")
         self.text_file.write(str(list(data)))
 
-
-        for n in range(512):
+        for n in range(read_len):
             #print(f'expected: {self.expected_stream[n]}, actual: {data[n]}')
             print(f'expected: {hex(self.expected_stream[n])}, actual: {hex(data[n])}')
             assert(data[n] == self.expected_stream[n])
-        self.expected_stream = self.expected_stream[512:]
+        self.expected_stream = self.expected_stream[read_len:]
     
     def sim_vector_stream(self, stream_gen, *args):
 
@@ -942,9 +961,8 @@ class SimulationOBIInterface():
 
         while True:    
             try:
-                if (len(self.expected_stream)) >= 512:
+                if len(self.expected_stream) >= 512:
                     yield from self.compare_against_expected()
-                    break
                 else:
                     x, y, d = next(write_gen)
                     print(x,y,d)
@@ -961,8 +979,7 @@ class SimulationOBIInterface():
         raise StopIteration
     
     def sim_raster_region(self, x_start, x_count,
-                            y_start, y_count, dwell_time):
-        print("HELLO?")
+                            y_start, y_count, dwell_time, run_length):
         sync_cmd = OBICommands.sync_cookie_raster()
         yield from self.lower.write(sync_cmd)
         self.text_file.write("\n WRITTEN: \n")
@@ -976,25 +993,27 @@ class SimulationOBIInterface():
         yield from self.lower.write(region_cmd)
         self.text_file.write(str(list(region_cmd)))
 
-        dwell_cmd = OBICommands.raster_pixel_run(512 - len(self.expected_stream), dwell_time)
-        print(f'run length: {512 - len(self.expected_stream)}')
+        dwell_cmd = OBICommands.raster_pixel_run(run_length, dwell_time)
         yield from self.lower.write(dwell_cmd)
         self.text_file.write(str(list(dwell_cmd)))
+        self.text_file.write("---->\n")
 
 
         for y in range(y_count):
             for x in range(x_count):
                 x_position = struct.pack('>H', int(x_start + x*x_step))
                 self.expected_stream.extend(x_position)
-                if len(self.expected_stream) >= 512:
-                    yield from self.compare_against_expected()
+                print(f'x position: {x_position}, expected len: {len(self.expected_stream)}')
+                yield
+                run_length -= 1
+                if run_length == 0:
                     break
+                if len(self.expected_stream) > 512:
+                    yield from self.compare_against_expected()
             break
 
 
         raise StopIteration
-    
-
 
     def sim_raster_pattern(self, x_start, x_count,
                         y_start, y_count, stream_gen, *args):
@@ -1071,10 +1090,10 @@ class OBIApplet(GlasgowApplet):
                     for x in range(0, x_width):
                         yield [x, y, x+y]
                 
-            bench1 = sim_iface.sim_vector_stream(rectangle, 100,100)
+            bench1 = sim_iface.sim_vector_stream(rectangle, 10,10)
             sim_iface.queue_sim(bench1)
 
-            bench2 = sim_iface.sim_raster_region(255, 511, 0, 255, 2)
+            bench2 = sim_iface.sim_raster_region(255, 511, 0, 255, 2, 200)
             sim_iface.queue_sim(bench2)
             sim_iface.run_sim()
 
