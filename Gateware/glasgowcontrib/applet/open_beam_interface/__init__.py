@@ -264,7 +264,7 @@ class RasterRegion(data.Struct):
     x_step:  16 # UQ(8,8)
     y_start: 14 # UQ(14,0)
     y_count: 14 # UQ(14,0)
-    # y_stop:  16 # UQ(8,8)
+    y_step:  16 # UQ(8,8)
 
 
 
@@ -449,9 +449,9 @@ class CommandParser(wiring.Component):
             DeserializeWord(command.payload.raster_region.y_start,
                 "Payload Raster Region 4", "Payload Raster Region 5")
             DeserializeWord(command.payload.raster_region.y_count,
-                "Payload Raster Region 5", "Submit")
-            # DeserializeWord(command.payload.raster_region.y_step,
-            #     "Payload Raster Region 6", "Submit")
+                "Payload Raster Region 5", "Payload Raster Region 6")
+            DeserializeWord(command.payload.raster_region.y_step,
+                "Payload Raster Region 6", "Submit")
 
             raster_pixel_count = Signal(16)
             DeserializeWord(raster_pixel_count,
@@ -821,8 +821,12 @@ class OBICommands:
         cookie = random.randint(1,65535)
         return struct.pack('>bHb', cmd_sync, cookie, 0) 
     def raster_region(x_start: int, x_count:int , x_step: float, 
-                    y_start: int, y_count: int):
+                    y_start: int, y_count: int, y_step: float = None):
         x_step = ffp_8_8(x_step)
+        if y_step == None:
+            y_step = x_step
+        else:
+            y_step = ffp_8_8(y_step)
         assert (x_count <= 16384)
         assert (y_count <= 16384)
         assert (x_start <= x_count)
