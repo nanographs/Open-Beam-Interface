@@ -196,28 +196,33 @@ class Supersampler(wiring.Component):
         "last":       1,
     })))
 
+    def __init__(self):
+        super().__init__()
+        self.dac_stream_data = Signal.like(self.dac_stream.data)
+        
+
     def elaborate(self, platform):
         m = Module()
 
-        dac_stream_data = Signal.like(self.dac_stream.data)
+        
         m.d.comb += [
-            self.super_dac_stream.data.dac_x_code.eq(dac_stream_data.dac_x_code),
-            self.super_dac_stream.data.dac_y_code.eq(dac_stream_data.dac_y_code),
+            self.super_dac_stream.data.dac_x_code.eq(self.dac_stream_data.dac_x_code),
+            self.super_dac_stream.data.dac_y_code.eq(self.dac_stream_data.dac_y_code),
         ]
 
-        dwell_counter = Signal.like(dac_stream_data.dwell_time)
+        dwell_counter = Signal.like(self.dac_stream_data.dwell_time)
         with m.FSM():
             with m.State("Wait"):
                 m.d.comb += self.dac_stream.ready.eq(1)
                 with m.If(self.dac_stream.valid):
-                    m.d.sync += dac_stream_data.eq(self.dac_stream.data)
+                    m.d.sync += self.dac_stream_data.eq(self.dac_stream.data)
                     m.d.sync += dwell_counter.eq(0)
                     m.next = "Generate"
 
             with m.State("Generate"):
                 m.d.comb += self.super_dac_stream.valid.eq(1)
                 with m.If(self.super_dac_stream.ready):
-                    with m.If(dwell_counter == dac_stream_data.dwell_time):
+                    with m.If(dwell_counter == self.dac_stream_data.dwell_time):
                         m.d.comb += self.super_dac_stream.data.last.eq(1)
                         m.next = "Wait"
                     with m.Else():
@@ -245,7 +250,6 @@ class Supersampler(wiring.Component):
                         m.next = "Average"
 
             with m.State("Wait"):
-                #m.d.sync += self.adc_stream.valid.eq(1)
                 m.d.comb += self.adc_stream.valid.eq(1)
                 with m.If(self.adc_stream.ready):
                     m.next = "Start"
@@ -527,7 +531,7 @@ class CommandExecutor(wiring.Component):
         with m.Else():
             wiring.connect(m, vector_stream, supersampler.dac_stream)
             if self.loopback:
-                m.d.comb += loopback_adapter.loopback_stream.eq(vector_stream.data.dwell_time)
+                m.d.comb += loopback_adapter.loopback_stream.eq(supersampler.dac_stream_data.dwell_time)
 
         in_flight_pixels = Signal(4) # should never overflow
         submit_pixel = Signal()
@@ -889,7 +893,14 @@ class SimulationOBIInterface():
         with sim.write_vcd("applet_sim.vcd"):
             sim.run()
     
-    def sim_vector_stream(self, stream_gen):
+    def sim_vector_stream(self, stream_gen, *args):
+
+        print(stream_gen)
+
+        def duplicate(gen_fn, *args):
+                return gen_fn(*args), gen_fn(*args)
+        
+        read_gen, write_gen = duplicate(stream_gen, *args)
     
         bytes_written = 0
         read_bytes_expected = 0
@@ -900,6 +911,8 @@ class SimulationOBIInterface():
         self.text_file.write(str(list(sync_cmd)))
         bytes_written += 4
         read_bytes_expected += 4
+
+        data_buffer = bytearray()
         
         while True:    
             try:
@@ -908,11 +921,13 @@ class SimulationOBIInterface():
                     self.text_file.write("\n WRITTEN: \n")
                 if (read_bytes_expected + 2) > 512:
                     data = yield from self.lower.read(read_bytes_expected)
+                    data_buffer.extend(data)
                     self.text_file.write("\n READ: \n")
                     self.text_file.write(str(list(data)))
                     read_bytes_expected = 0
+                    break
                 if ((bytes_written + 7) <= 512) & ((read_bytes_expected +2) <= 512):
-                    x, y, d = next(stream_gen)
+                    x, y, d = next(write_gen)
                     print(x,y,d)
                     cmd = OBICommands.vector_pixel(x, y, d)
                     yield from self.lower.write(cmd)
@@ -921,8 +936,24 @@ class SimulationOBIInterface():
                     read_bytes_expected += 2
             except StopIteration:
                 print("pattern complete")
-                raise StopIteration
+                #raise StopIteration
                 break
+
+
+        print(f'expected sync: {bytes([255,255])}, actual sync: {data_buffer[0:2]}')
+        assert(bytes([255,255]) == data_buffer[0:2])
+        print(f'expected cookie: {sync_cmd[1:3]}, received cookie: {data_buffer[2:4]}')
+        # assert (sync_cmd[1:3] == data[2:4])
+        # note that the cookie comes out with bytes swapped
+
+        data_buffer = memoryview(data_buffer[4:]).cast('H')
+
+        for point in data_buffer:
+            x, y, d = next(read_gen)
+            print(f'expected: {d}, actual: {point}')
+            assert(d == point)
+
+        raise StopIteration
     
     def sim_raster_region(self, x_start, x_count,
                             y_start, y_count, dwell_time):
@@ -1025,16 +1056,17 @@ class OBIApplet(GlasgowApplet):
             
             sim_iface = SimulationOBIInterface(dut, iface)
 
-            # def rectangle(x_width, y_height):
-            #     for y in range(0, y_height):
-            #         for x in range(0, x_width):
-            #             yield [x, y, 2]
+            
+            def rectangle(x_width, y_height):
+                for y in range(0, y_height):
+                    for x in range(0, x_width):
+                        yield [x, y, x+y]
                 
-            # bench = sim_iface.sim_vector_stream(rectangle(10,10))
-            # sim_iface.run_sim(bench)
-
-            bench = sim_iface.sim_raster_region(1, 256, 0, 255, 2)
+            bench = sim_iface.sim_vector_stream(rectangle, 100,100)
             sim_iface.run_sim(bench)
+
+            # bench = sim_iface.sim_raster_region(1, 256, 0, 255, 2)
+            # sim_iface.run_sim(bench)
 
             
 
