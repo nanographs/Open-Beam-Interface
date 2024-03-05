@@ -898,12 +898,9 @@ class SimulationOBIInterface():
 
         def bench():
             for bench in self.bench_queue:
-                print("hello bench")
                 while True:
                     try:
-                        print(".")
                         yield from bench
-                        print("yielded")
                     except RuntimeError: #raised StopIteration
                         break
             print("All done.")
@@ -1074,12 +1071,11 @@ class OBIApplet(GlasgowApplet):
                     for x in range(0, x_width):
                         yield [x, y, x+y]
                 
-            # bench = sim_iface.sim_vector_stream(rectangle, 100,100)
-            # sim_iface.queue_sim(bench)
-            # sim_iface.run_sim()
+            bench1 = sim_iface.sim_vector_stream(rectangle, 100,100)
+            sim_iface.queue_sim(bench1)
 
-            bench = sim_iface.sim_raster_region(255, 511, 0, 255, 2)
-            sim_iface.queue_sim(bench)
+            bench2 = sim_iface.sim_raster_region(255, 511, 0, 255, 2)
+            sim_iface.queue_sim(bench2)
             sim_iface.run_sim()
 
             
