@@ -24,6 +24,7 @@ def StreamSignature(data_layout):
         "data":  Out(data_layout),
         "valid": Out(1),
         "ready": In(1),
+        "flush": Out(1)
     })
 
 
@@ -602,7 +603,13 @@ class CommandExecutor(wiring.Component):
                     with m.Case(Command.Type.Control):
                         with m.If(command.payload.control_instruction == Command.ControlInstruction.Abort):
                             m.d.comb += raster_scanner.abort.eq(1)
-                            m.next = "Fetch"
+                        with m.If(command.payload.control_instruction == Command.ControlInstruction.Flush):
+                            with m.If(raster_mode):
+                                m.d.comb += raster_scanner.roi_stream.flush.eq(1)
+                            with m.Else():
+                                m.d.comb += vector_stream.flush.eq(1)
+
+                        m.next = "Fetch"
 
         with m.FSM():
             with m.State("Imaging"):
@@ -645,19 +652,19 @@ class ImageSerializer(wiring.Component):
         high = Signal(8)
         
         with m.FSM():
-            with m.State("Low"):
-                m.d.comb += self.usb_stream.data.eq(self.img_stream.data[0:8])
+            with m.State("High"):
+                m.d.comb += self.usb_stream.data.eq(self.img_stream.data[8:16])
                 m.d.comb += self.usb_stream.valid.eq(self.img_stream.valid)
                 m.d.comb += self.img_stream.ready.eq(self.usb_stream.ready)
-                m.d.sync += high.eq(self.img_stream.data[8:16])
+                m.d.sync += high.eq(self.img_stream.data[0:8])
                 with m.If(self.usb_stream.ready & self.img_stream.valid):
-                    m.next = "High"
+                    m.next = "Low"
 
-            with m.State("High"):
+            with m.State("Low"):
                 m.d.comb += self.usb_stream.data.eq(high)
                 m.d.comb += self.usb_stream.valid.eq(1)
                 with m.If(self.usb_stream.ready):
-                    m.next = "Low"
+                    m.next = "High"
 
         return m
 
@@ -727,6 +734,7 @@ class OBISubtarget(wiring.Component):
             self.out_fifo.r_en.eq(parser.usb_stream.ready),
             self.in_fifo.w_data.eq(serializer.usb_stream.data),
             self.in_fifo.w_en.eq(serializer.usb_stream.valid),
+            self.in_fifo.flush.eq(serializer.usb_stream.flush),
             serializer.usb_stream.ready.eq(self.in_fifo.w_rdy),
         ]
 
@@ -871,35 +879,56 @@ class OBIInterface:
 
 
 from amaranth.sim import Simulator
+
+def duplicate(gen_fn, *args):
+    return gen_fn(*args), gen_fn(*args)
 class SimulationOBIInterface():
     def __init__(self, dut, lower):
         self.dut = dut
         self.lower = lower
         self.text_file = open("results.txt", "w+")
-    def run_sim(self, bench_gen):
+
+        self.bench_queue = []
+        self.expected_stream = bytearray()
+    def queue_sim(self, bench):
+        self.bench_queue.append(bench)
+    def run_sim(self):
+        print("run sim")
         sim = Simulator(self.dut)
 
         def bench():
-            while True:
-                try:
-                    print(".")
-                    yield from bench_gen
-                except RuntimeError: #RuntimeError: generator raised StopIteration
-                    print("simulation complete")
-                    break
+            for bench in self.bench_queue:
+                print("hello bench")
+                while True:
+                    try:
+                        print(".")
+                        yield from bench
+                        print("yielded")
+                    except RuntimeError: #raised StopIteration
+                        break
+            print("All done.")
 
         sim.add_clock(1e-6) # 1 MHz
         sim.add_sync_process(bench)
         with sim.write_vcd("applet_sim.vcd"):
             sim.run()
     
+    def compare_against_expected(self):
+        data = yield from self.lower.read(512)
+        self.text_file.write("\n READ: \n")
+        self.text_file.write(str(list(data)))
+
+
+        for n in range(512):
+            #print(f'expected: {self.expected_stream[n]}, actual: {data[n]}')
+            print(f'expected: {hex(self.expected_stream[n])}, actual: {hex(data[n])}')
+            assert(data[n] == self.expected_stream[n])
+        self.expected_stream = self.expected_stream[512:]
+    
     def sim_vector_stream(self, stream_gen, *args):
 
         print(stream_gen)
 
-        def duplicate(gen_fn, *args):
-                return gen_fn(*args), gen_fn(*args)
-        
         read_gen, write_gen = duplicate(stream_gen, *args)
     
         bytes_written = 0
@@ -909,61 +938,40 @@ class SimulationOBIInterface():
         yield from self.lower.write(sync_cmd)
         self.text_file.write("\n WRITTEN: \n")
         self.text_file.write(str(list(sync_cmd)))
-        bytes_written += 4
-        read_bytes_expected += 4
+        self.expected_stream.extend([255,255])
+        self.expected_stream.extend(sync_cmd[1:3])
+        self.text_file.write(str(list(self.expected_stream)))
+        self.text_file.write("---->\n")
 
-        data_buffer = bytearray()
-        
         while True:    
             try:
-                if ((bytes_written + 7) > 512):
-                    bytes_written = 0
-                    self.text_file.write("\n WRITTEN: \n")
-                if (read_bytes_expected + 2) > 512:
-                    data = yield from self.lower.read(read_bytes_expected)
-                    data_buffer.extend(data)
-                    self.text_file.write("\n READ: \n")
-                    self.text_file.write(str(list(data)))
-                    read_bytes_expected = 0
+                if (len(self.expected_stream)) >= 512:
+                    yield from self.compare_against_expected()
                     break
-                if ((bytes_written + 7) <= 512) & ((read_bytes_expected +2) <= 512):
+                else:
                     x, y, d = next(write_gen)
                     print(x,y,d)
                     cmd = OBICommands.vector_pixel(x, y, d)
                     yield from self.lower.write(cmd)
+                    self.expected_stream.extend(struct.pack('>H',d))
                     self.text_file.write(str(list(cmd)))
-                    bytes_written += 7
-                    read_bytes_expected += 2
+                    self.text_file.write(str(list(self.expected_stream)))
+                    self.text_file.write("\n")
             except StopIteration:
                 print("pattern complete")
-                #raise StopIteration
                 break
-
-
-        print(f'expected sync: {bytes([255,255])}, actual sync: {data_buffer[0:2]}')
-        assert(bytes([255,255]) == data_buffer[0:2])
-        print(f'expected cookie: {sync_cmd[1:3]}, received cookie: {data_buffer[2:4]}')
-        # assert (sync_cmd[1:3] == data[2:4])
-        # note that the cookie comes out with bytes swapped
-
-        data_buffer = memoryview(data_buffer[4:]).cast('H')
-
-        for point in data_buffer:
-            x, y, d = next(read_gen)
-            print(f'expected: {d}, actual: {point}')
-            assert(d == point)
 
         raise StopIteration
     
     def sim_raster_region(self, x_start, x_count,
                             y_start, y_count, dwell_time):
-        read_bytes_expected = 0
-
+        print("HELLO?")
         sync_cmd = OBICommands.sync_cookie_raster()
         yield from self.lower.write(sync_cmd)
         self.text_file.write("\n WRITTEN: \n")
         self.text_file.write(str(list(sync_cmd)))
-        read_bytes_expected += 4
+        self.expected_stream.extend([255,255])
+        self.expected_stream.extend(sync_cmd[1:3])
 
         x_step = 16384/max((x_count - x_start + 1),(y_count-y_start + 1))
         region_cmd = OBICommands.raster_region(x_start, x_count, x_step,
@@ -971,35 +979,39 @@ class SimulationOBIInterface():
         yield from self.lower.write(region_cmd)
         self.text_file.write(str(list(region_cmd)))
 
-        dwell_cmd = OBICommands.raster_pixel_run(512 - read_bytes_expected, dwell_time)
+        dwell_cmd = OBICommands.raster_pixel_run(512 - len(self.expected_stream), dwell_time)
+        print(f'run length: {512 - len(self.expected_stream)}')
         yield from self.lower.write(dwell_cmd)
         self.text_file.write(str(list(dwell_cmd)))
 
-        
-        data = yield from self.lower.read(512)
-        self.text_file.write("\n READ: \n")
-        self.text_file.write(str(list(data)))
 
-
-        print(f'expected sync: {bytes([255,255])}, actual sync: {data[0:2]}')
-        assert(bytes([255,255]) == data[0:2])
-        print(f'expected cookie: {sync_cmd[1:3]}, received cookie: {data[2:4]}')
-        # assert (sync_cmd[1:3] == data[2:4])
-        # note that the cookie comes out with bytes swapped
-
-        data = memoryview(data[4:]).cast('H')
-
-        for y in range(y_start, y_count):
-            for x in range(x_start, x_count):
-                if ((x_count-x_start)*(y-y_start) + x) >= len(data):
+        for y in range(y_count):
+            for x in range(x_count):
+                x_position = struct.pack('>H', int(x_start + x*x_step))
+                self.expected_stream.extend(x_position)
+                if len(self.expected_stream) >= 512:
+                    yield from self.compare_against_expected()
                     break
-                #print(f'x: {x}, y: {y} = data[{(x_count-x_start)*(y-y_start) + x}]')
-                pixel = data[(x_count-x_start)*(y-y_start) + x]
-                print(f'expected: {int(x_start + x*x_step)}, actual: {pixel}')
-                assert (pixel == int(x_start + x*x_step))
+            break
+
 
         raise StopIteration
+    
 
+
+    def sim_raster_pattern(self, x_start, x_count,
+                        y_start, y_count, stream_gen, *args):
+
+        read_gen, write_gen = duplicate(stream_gen, *args)
+
+        read_bytes_expected = 0
+
+        sync_cmd = OBICommands.sync_cookie_raster()
+        yield from self.lower.write(sync_cmd)
+        self.text_file.write("\n WRITTEN: \n")
+        self.text_file.write(str(list(sync_cmd)))
+        read_bytes_expected += 4
+        
 
 
 from glasgow.support.endpoint import ServerEndpoint
@@ -1062,11 +1074,13 @@ class OBIApplet(GlasgowApplet):
                     for x in range(0, x_width):
                         yield [x, y, x+y]
                 
-            bench = sim_iface.sim_vector_stream(rectangle, 100,100)
-            sim_iface.run_sim(bench)
+            # bench = sim_iface.sim_vector_stream(rectangle, 100,100)
+            # sim_iface.queue_sim(bench)
+            # sim_iface.run_sim()
 
-            # bench = sim_iface.sim_raster_region(1, 256, 0, 255, 2)
-            # sim_iface.run_sim(bench)
+            bench = sim_iface.sim_raster_region(255, 511, 0, 255, 2)
+            sim_iface.queue_sim(bench)
+            sim_iface.run_sim()
 
             
 
