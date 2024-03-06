@@ -548,9 +548,6 @@ class CommandExecutor(wiring.Component):
         m.d.comb += [
             raster_scanner.roi_stream.data.eq(command.payload.raster_region),
             vector_stream.data.eq(command.payload.vector_pixel)
-            # vector_stream.dac_x_code.eq(command.payload.vector_pixel.x_coord),
-            # vector_stream.dac_x_code.eq(command.payload.vector_pixel.y_coord),
-            # vector_stream.dwell_time.eq(command.payload.vector_pixel.dwell_time),
         ]
 
         sync_req = Signal()
@@ -834,7 +831,7 @@ class OBICommands:
 
         cmd_type = Command.Type.RasterRegion.value
 
-        return struct.pack('>bHHHHH', cmd_type, x_start, x_count, x_step, y_start, y_count)
+        return struct.pack('>bHHHHHH', cmd_type, x_start, x_count, x_step, y_start, y_count, y_step)
 
     def raster_pixel(dwell_time: int):
         assert (dwell_time <= 65535)
@@ -1007,8 +1004,8 @@ class SimulationOBIInterface():
             for x in range(x_count):
                 x_position = struct.pack('>H', int(x_start + x*x_step))
                 self.expected_stream.extend(x_position)
-                print(f'x position: {x_position}, expected len: {len(self.expected_stream)}')
-                yield
+                print(f'x position: {x_position}, expected len: {len(self.expected_stream)}, run length: {run_length}')
+                #yield
                 run_length -= 1
                 if run_length == 0:
                     break
@@ -1049,7 +1046,7 @@ class SimulationOBIInterface():
                 else:
                     d = next(write_gen)
                     run_length += 1
-                    print(f'run length: {run_length}')
+                    print(f'run length: {run_length}, expected len: {len(self.expected_stream)}',)
                     cmd = OBICommands.raster_pixel(d)
                     yield from self.lower.write(cmd)
                     self.expected_stream.extend(struct.pack('>H',d))
@@ -1126,14 +1123,15 @@ class OBIApplet(GlasgowApplet):
                     for x in range(0, x_width):
                         yield x+y
                 
-            # bench1 = sim_iface.sim_vector_stream(vector_rectangle, 10,10)
-            # sim_iface.queue_sim(bench1)
+            bench1 = sim_iface.sim_vector_stream(vector_rectangle, 10,10)
+            sim_iface.queue_sim(bench1)
 
-            # bench2 = sim_iface.sim_raster_region(255, 511, 0, 255, 2, 200)
-            # sim_iface.queue_sim(bench2)
+            bench2 = sim_iface.sim_raster_region(255, 511, 0, 255, 2, 200)
+            sim_iface.queue_sim(bench2)
 
             bench3 = sim_iface.sim_raster_pattern(0, 255, 0, 255, raster_rectangle, 256, 256)
             sim_iface.queue_sim(bench3)
+
             sim_iface.run_sim()
 
             
