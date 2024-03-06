@@ -404,8 +404,8 @@ class CommandParser(wiring.Component):
                             m.next = "Payload Raster Region 1 High"
 
                         with m.Case(Command.Type.RasterPixel):
-                            #m.next = "Payload Raster Pixel Count High"
-                            m.next = "Payload Raster Pixel Array High"
+                            m.next = "Payload Raster Pixel Count High"
+                            #m.next = "Payload Raster Pixel Array High"
 
                         with m.Case(Command.Type.RasterPixelRun):
                             m.next = "Payload Raster Pixel Run 1 High"
@@ -435,8 +435,6 @@ class CommandParser(wiring.Component):
 
             DeserializeWord(command.payload.synchronize.cookie,
                 "Payload Synchronize 1", "Payload Synchronize 2")
-            # DeserializeWord(command.payload.synchronize.raster_mode,
-            #     "Payload Synchronize 2", "Submit")
             Deserialize(command.payload.synchronize.raster_mode, 
                 "Payload Synchronize 2 High", "Submit")
 
@@ -467,7 +465,7 @@ class CommandParser(wiring.Component):
                         m.next = "Type"
                     with m.Else():
                         m.d.sync += raster_pixel_count.eq(raster_pixel_count - 1)
-                        m.next = "Payload Raster Pixel Array Low"
+                        m.next = "Payload Raster Pixel Array High"
 
             DeserializeWord(command.payload.raster_pixel_run.length,
                 "Payload Raster Pixel Run 1", "Payload Raster Pixel Run 2")
@@ -1035,23 +1033,29 @@ class SimulationOBIInterface():
                             y_start, y_count)
         yield from self.lower.write(region_cmd)
         self.text_file.write(str(list(region_cmd)))
+
+        run_length = max(512, (x_count*y_count))
+        run_length_cmd = OBICommands.raster_pixel(run_length)
+        yield from self.lower.write(run_length_cmd)
         self.text_file.write("---->\n")
 
-        run_length = 0
+
 
         while True:    
             try:
                 if len(self.expected_stream) >= 512:
                     yield from self.compare_against_expected()
                 else:
-                    d = next(write_gen)
-                    run_length += 1
                     print(f'run length: {run_length}, expected len: {len(self.expected_stream)}',)
-                    cmd = OBICommands.raster_pixel(d)
-                    yield from self.lower.write(cmd)
+                    d = next(write_gen)
+                    run_length -= 1
+                    d_bytes = struct.pack('>H', d)
+                    yield from self.lower.write(d_bytes)
                     self.expected_stream.extend(struct.pack('>H',d))
-                    self.text_file.write(str(list(cmd)))
+                    self.text_file.write(str(list(d_bytes)))
                     self.text_file.write("\n")
+                    if run_length == 0:
+                        break
             except StopIteration:
                 print("pattern complete")
                 break
@@ -1123,13 +1127,13 @@ class OBIApplet(GlasgowApplet):
                     for x in range(0, x_width):
                         yield x+y
                 
-            bench1 = sim_iface.sim_vector_stream(vector_rectangle, 10,10)
-            sim_iface.queue_sim(bench1)
+            # bench1 = sim_iface.sim_vector_stream(vector_rectangle, 10,10)
+            # sim_iface.queue_sim(bench1)
 
-            bench2 = sim_iface.sim_raster_region(255, 511, 0, 255, 2, 200)
-            sim_iface.queue_sim(bench2)
+            # bench2 = sim_iface.sim_raster_region(255, 511, 0, 255, 2, 200)
+            # sim_iface.queue_sim(bench2)
 
-            bench3 = sim_iface.sim_raster_pattern(0, 255, 0, 255, raster_rectangle, 256, 256)
+            bench3 = sim_iface.sim_raster_pattern(0, 255, 0, 2, raster_rectangle, 256, 3)
             sim_iface.queue_sim(bench3)
 
             sim_iface.run_sim()
