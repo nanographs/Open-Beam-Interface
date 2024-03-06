@@ -33,6 +33,14 @@ Glasgow handles getting the bytes in and out of your computer. Our software take
 - [ ] Implement UI for new 16 bit grayscale imaging, vector and raster patterning modes.
 - [ ] Implement Metadata for saved images
 
+## FAQ
+- How many bits are the DACs and ADCs
+    - 14 bits
+- What are the range of dwell times?
+    - Currently we run everthing at 250ns
+    - Hardware supports 50ns dwells when controlling both DACs and the ADC
+    - Without sampling the ADC (no video signal), the hardware supports 25ns dwells
+    - The limitng factor in most modes is USB bandwidth
 
 
 ## Supported microscopes
