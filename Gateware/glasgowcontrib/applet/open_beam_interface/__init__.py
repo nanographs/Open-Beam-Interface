@@ -1127,14 +1127,14 @@ class OBIApplet(GlasgowApplet):
                     for x in range(0, x_width):
                         yield x+y
                 
-            # bench1 = sim_iface.sim_vector_stream(vector_rectangle, 10,10)
-            # sim_iface.queue_sim(bench1)
+            bench1 = sim_iface.sim_vector_stream(vector_rectangle, 10,10)
+            sim_iface.queue_sim(bench1)
 
-            # bench2 = sim_iface.sim_raster_region(255, 511, 0, 255, 2, 200)
-            # sim_iface.queue_sim(bench2)
+            bench2 = sim_iface.sim_raster_region(255, 511, 0, 255, 2, 200)
+            sim_iface.queue_sim(bench2)
 
-            bench3 = sim_iface.sim_raster_pattern(0, 255, 0, 2, raster_rectangle, 256, 3)
-            sim_iface.queue_sim(bench3)
+            # bench3 = sim_iface.sim_raster_pattern(0, 255, 0, 2, raster_rectangle, 256, 3)
+            # sim_iface.queue_sim(bench3)
 
             sim_iface.run_sim()
 

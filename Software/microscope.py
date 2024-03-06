@@ -14,8 +14,17 @@ class PointSettings:
 class RasterRegionSettings:
     x_start: int
     x_count: int
+    x_step: float
     y_start: int
     y_count: int
+    y_step: float
+
+class ConstantDwellPixelRun:
+    dwell_time: int
+    run_length: int
+
+class VariableDwellPixelRun:
+    run_length: int
 
 class MicroscopeInterface(metaclass=ABCMeta):
     @abstractmethod
