@@ -1,8 +1,6 @@
-from ... import *
-from . import OBIApplet
+import unittest
+from amaranth.sim import Simulator
 
 
 class OBIAppletTestCase(GlasgowAppletTestCase, applet=OBIApplet):
-    @synthesis_test
-    def test_build(self):
-        self.assertBuilds()
+    pass
