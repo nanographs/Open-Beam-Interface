@@ -1,5 +1,6 @@
 from abc import ABCMeta, abstractmethod
 from dataclasses import dataclass
+import enum
 import struct
 import array
 import asyncio
@@ -21,14 +22,14 @@ class Stream:
     def __init__(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
         self._reader = reader
         self._writer = writer
-    
+
     async def send(self, data: bytes | bytearray | memoryview):
         self._writer.write(data)
         await self._writer.drain()
-    
+
     async def recv(self, length: int) -> bytes:
         return await self._reader.readexactly(data)
-    
+
     async def xchg(self, data: bytes | bytearray | memoryview, *, recv_length: int) -> bytes:
         await self.send(data)
         return await self.recv(recv_length)
@@ -49,7 +50,7 @@ class Connection:
         self._stream = None
         self._synchronized = False
         self._next_cookie = 0 # even cookies only
-    
+
     @property
     def connected(self):
         """`True` if the TCP connection with the instrument is open, `False` otherwise."""
@@ -65,46 +66,55 @@ class Connection:
         self._stream = Stream(*await asyncio.open_connection(
             self.host, self.port, limit=self.read_buffer_size))
 
-        peername = self._writer.get_extra_info('peername')
-        logger.info(f'Connected to server at {addr}')
-    
+        peername = self._stream._writer.get_extra_info('peername')
+        logger.info(f'Connected to server at {peername}')
+
     def _disconnect(self):
         assert self.connected
         self._stream = None
+        self._synchronized = False
 
     async def _synchronize(self):
+        if not self.connected:
+            await self._connect()
+        if self.synchronized:
+            return
+
         self._next_cookie += 2 # even cookie to next even cookie
         logger.debug(f'Synchronizing with cookie {self._next_cookie:#06x}')
-        command  = struct.pack(">BHB", CommandType.Synchronize, self._next_cookie, 0)
-        response = struct.pack(">HH", 0xffff, self._next_cookie)
-        await self._stream.send(output)
+
+        cmd = struct.pack(">BHB", CommandType.Synchronize, self._next_cookie, 0)
+        res = struct.pack(">HH", 0xffff, self._next_cookie)
+        await self._stream.send(cmd)
         while True:
             try:
-                await self._stream._reader.readuntil(response)
+                await self._stream._reader.readuntil(res)
+                self._synchronized = True
+                break
             except asyncio.LimitOverrunError:
                 # If we're here, it means the read buffer has exactly `self.read_buffer_size` bytes
                 # in it (set by the `open_connection(limit=)` argument). A partial response could
                 # still be at the very end of the buffer, so read less than that.
-                await self._stream._reader.readexactly(self.read_buffer_size - len(response))
+                await self._stream._reader.readexactly(self.read_buffer_size - len(res))
+
+    def _handle_incomplete_read(self, e):
+        self._disconnect()
+        raise TransferError("connection closed") from e
 
     async def transfer(self, command: Command):
-        if not self.connected:
-            await self._connect()
-
         try:
-            if not self.synchronized:
-                await self._synchronize() # may raise asyncio.IncompleteReadError
-
-            result = await command.transfer(stream)
-            if inspect.isasyncgen(result):
-                async for value in result:
-                    yield value
-            else:
-                return result
-
+            await self._synchronize() # may raise asyncio.IncompleteReadError
+            return await command.transfer(stream)
         except asyncio.IncompleteReadError as e:
-            self._disconnect()
-            raise TransferError("connection closed") from e
+            self._handle_incomplete_read(e)
+
+    async def transfer_multiple(self, command: Command):
+        try:
+            await self._synchronize() # may raise asyncio.IncompleteReadError
+            async for value in result:
+                yield value
+        except asyncio.IncompleteReadError as e:
+            self._handle_incomplete_read(e)
 
 
 class CommandType(enum.IntEnum):
@@ -195,14 +205,14 @@ class _RasterPixelsCommand(Command):
         if chunk:
             append_command(chunk)
             yield (commands, len(chunk))
-    
+
     async def transfer(self, stream: Stream):
         for commands, pixel_count in self._iter_chunks():
             await stream.send(commands)
-            data = array('H', await stream.recv(pixel_count * 2))
+            res = array('H', await stream.recv(pixel_count * 2))
             if not BIG_ENDIAN:
-                data.byteswap()
-            yield data
+                res.byteswap()
+            yield res
 
 
 class _RasterPixelRunCommand(Command):
@@ -231,7 +241,7 @@ class _RasterPixelRunCommand(Command):
         if run_length > 0:
             append_command(run_length)
             yield (commands, run_length)
-        
+
     async def transfer(self, stream: Stream):
         for commands, pixel_count in self._iter_chunks():
             await stream.send(commands)
@@ -255,8 +265,39 @@ class _VectorPixelCommand(Command):
 
 
 class RasterScanCommand(Command):
-    def __init__(self, *, cookie: int, x_range: DACCodeRange, y_range: DACCodeRange):
-        self._cookie = cookie
+    def __init__(self, *, cookie: int, x_range: DACCodeRange, y_range: DACCodeRange,
+                 pixels: list[DwellTime]):
+        assert (x_range.count * y_range.count) % len(pixels) == 0, \
+            "Pixel count not multiple of raster scan point count"
+
+        self._cookie  = cookie
+        self._x_range = x_range
+        self._y_range = y_range
+        self._pixels  = pixels
 
     async def transfer(self, stream: Stream):
         await SynchronizeCommand(cookie=self._cookie, raster_mode=True).transfer(stream)
+        await _RasterRegionCommand(x_range=self._x_range, y_range=self._y_range).transfer(stream)
+        async for chunk in _RasterPixelsCommand(pixels, latency=0x10000).transfer(stream):
+            yield chunk
+
+
+async def main():
+    conn = Connection('localhost', 2222)
+
+    x_range = y_range = DACCodeRange(0, 1024, 256)
+    cmd = RasterScanCommand(cookie=1, x_range=x_range, y_range=y_range,
+                            pixels=[0] * x_range.count * y_range.count)
+    res = array.array('H')
+    async for chunk in conn.transfer_multiple(cmd):
+        res.extend(chunk)
+
+    with open("output.pgm", "wt") as f:
+        f.write(f"P2\n")
+        f.write(f"{x_range.count} {y_range.count}\n")
+        f.write(f"{(1 << 14) - 1}\n")
+        f.write(" ".join(int(val) for val in res))
+
+
+if __name__ == '__main__':
+    asyncio.run(main())
