@@ -66,7 +66,7 @@ class PipelinedLoopbackAdapter(wiring.Component):
 
         with m.If(adc_oe_falling):
             m.d.sync += shift_register.eq((shift_register << 14) | self.loopback_stream)
-        
+
         m.d.comb += self.bus.data_i.eq(shift_register.word_select(self.adc_latency-1, 14))
 
         return m
@@ -194,6 +194,7 @@ class BusController(wiring.Component):
         return m
 
 #=========================================================================
+
 class Supersampler(wiring.Component):
     dac_stream: In(StreamSignature(data.StructLayout({
         "dac_x_code": 14,
@@ -219,18 +220,18 @@ class Supersampler(wiring.Component):
 
     def __init__(self):
         super().__init__()
+
         self.dac_stream_data = Signal.like(self.dac_stream.data)
-        
 
     def elaborate(self, platform):
         m = Module()
 
+        dwell_counter = Signal.like(self.dac_stream_data.dwell_time)
         m.d.comb += [
             self.super_dac_stream.data.dac_x_code.eq(self.dac_stream_data.dac_x_code),
             self.super_dac_stream.data.dac_y_code.eq(self.dac_stream_data.dac_y_code),
+            self.super_dac_stream.data.last.eq(dwell_counter == self.dac_stream_data.dwell_time),
         ]
-
-        dwell_counter = Signal.like(self.dac_stream_data.dwell_time)
         with m.FSM():
             with m.State("Wait"):
                 m.d.comb += self.dac_stream.ready.eq(1)
@@ -242,8 +243,7 @@ class Supersampler(wiring.Component):
             with m.State("Generate"):
                 m.d.comb += self.super_dac_stream.valid.eq(1)
                 with m.If(self.super_dac_stream.ready):
-                    with m.If(dwell_counter == self.dac_stream_data.dwell_time):
-                        m.d.comb += self.super_dac_stream.data.last.eq(1)
+                    with m.If(self.super_dac_stream.data.last):
                         m.next = "Wait"
                     with m.Else():
                         m.d.sync += dwell_counter.eq(dwell_counter + 1)
@@ -277,6 +277,7 @@ class Supersampler(wiring.Component):
         return m
 
 #=========================================================================
+
 class RasterRegion(data.Struct):
     x_start: 14 # UQ(14,0)
     x_count: 14 # UQ(14,0)
@@ -284,9 +285,6 @@ class RasterRegion(data.Struct):
     y_start: 14 # UQ(14,0)
     y_count: 14 # UQ(14,0)
     y_step:  16 # UQ(8,8)
-
-
-
 
 
 class RasterScanner(wiring.Component):
@@ -321,7 +319,7 @@ class RasterScanner(wiring.Component):
         ]
 
         with m.FSM():
-            with m.State("Get ROI"):
+            with m.State("Get-ROI"):
                 m.d.comb += self.roi_stream.ready.eq(1)
                 with m.If(self.roi_stream.valid):
                     m.d.sync += [
@@ -340,11 +338,11 @@ class RasterScanner(wiring.Component):
                     # AXI4-Stream §2.2.1
                     # > Once TVALID is asserted it must remain asserted until the handshake occurs.
                     with m.If(self.abort):
-                        m.next = "Get ROI"
+                        m.next = "Get-ROI"
 
                     with m.If(x_count == region.x_count):
                         with m.If(y_count == region.y_count):
-                            m.next = "Get ROI"
+                            m.next = "Get-ROI"
                         with m.Else():
                             m.d.sync += y_accum.eq(y_accum + region.y_step)
                             m.d.sync += y_count.eq(y_count + 1)
@@ -432,7 +430,7 @@ class CommandParser(wiring.Component):
 
                         with m.Case(Command.Type.VectorPixel):
                             m.next = "Payload Vector Pixel 1 High"
-                        
+
             def Deserialize(target, state, next_state):
                 #print(f'state: {state} -> next state: {next_state}')
                 with m.State(state):
@@ -450,7 +448,7 @@ class CommandParser(wiring.Component):
 
             DeserializeWord(command.payload.synchronize.cookie,
                 "Payload Synchronize 1", "Payload Synchronize 2")
-            Deserialize(command.payload.synchronize.raster_mode, 
+            Deserialize(command.payload.synchronize.raster_mode,
                 "Payload Synchronize 2", "Submit")
 
             DeserializeWord(command.payload.raster_region.x_start,
@@ -522,11 +520,11 @@ class CommandExecutor(wiring.Component):
         m.submodules.supersampler   = self.supersampler
         m.submodules.raster_scanner = raster_scanner = RasterScanner()
 
-        
+
         wiring.connect(m, self.supersampler.super_dac_stream, bus_controller.dac_stream)
         wiring.connect(m, bus_controller.adc_stream, self.supersampler.super_adc_stream)
         wiring.connect(m, flipped(self.bus), bus_controller.bus)
-        
+
         vector_stream = StreamSignature(data.StructLayout({
             "dac_x_code": 14,
             "dac_y_code": 14,
@@ -546,7 +544,7 @@ class CommandExecutor(wiring.Component):
         retire_pixel = Signal()
         m.d.sync += in_flight_pixels.eq(in_flight_pixels + submit_pixel - retire_pixel)
 
-        
+
         run_length = Signal.like(command.payload.raster_pixel_run.length)
         m.d.comb += [
             raster_scanner.roi_stream.data.eq(command.payload.raster_region),
@@ -573,12 +571,12 @@ class CommandExecutor(wiring.Component):
                         with m.If(sync_ack):
                             m.d.sync += raster_mode.eq(command.payload.synchronize.raster_mode)
                             m.next = "Fetch"
-                    
+
                     with m.Case(Command.Type.Abort):
                         m.d.sync += self.flush.eq(1)
                         m.d.comb += raster_scanner.abort.eq(1)
                         m.next = "Fetch"
-                    
+
                     with m.Case(Command.Type.Flush):
                         m.d.sync += self.flush.eq(1)
                         m.next = "Fetch"
@@ -655,7 +653,7 @@ class ImageSerializer(wiring.Component):
         m = Module()
 
         low = Signal(8)
-        
+
         with m.FSM():
             with m.State("High"):
                 m.d.comb += self.usb_stream.data.eq(self.img_stream.data[8:16])
@@ -725,7 +723,7 @@ class OBISubtarget(wiring.Component):
         m.submodules.parser     = parser     = CommandParser()
         m.submodules.executor   = executor   = CommandExecutor(loopback = self.loopback)
         m.submodules.serializer = serializer = ImageSerializer()
-        
+
         if self.loopback:
             m.submodules.loopback_adapter = loopback_adapter = PipelinedLoopbackAdapter(executor.adc_latency)
             wiring.connect(m, executor.bus, flipped(loopback_adapter.bus))
@@ -771,7 +769,7 @@ class OBISubtarget(wiring.Component):
             ]
 
             data_lines = platform.request("data")
-            
+
             data = [
                     data_lines.D1,
                     data_lines.D2,
@@ -819,12 +817,12 @@ class OBIApplet(GlasgowApplet):
         super().add_build_arguments(parser, access)
 
         parser.add_argument("--loopback",
-            dest = "loopback", action = 'store_true', 
+            dest = "loopback", action = 'store_true',
             help = "connect output and input streams internally")
-    
+
     def build(self, target, args):
         target.platform.add_resources(obi_resources)
-        
+
         self.mux_interface = iface = \
             target.multiplexer.claim_interface(self, args=None, throttle="none")
 
