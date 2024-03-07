@@ -2,13 +2,7 @@ import numpy as np
 import time
 
 def ffp_8_8_to_float(num: int): #couldn't find builtin python function for this if there is one
-    bits = f'{num:016b}'
-    result = 0
-    for n in range(8, 0, -1):
-        result += pow(2,-n)*bits[n]
-    for n in range(1, 9):
-        result += pow(2,n)*bits[n+8]
-    return result
+    return float(num)/256
 
 class OBIStreamDecoder:
     raster_mode: None

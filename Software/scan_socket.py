@@ -8,17 +8,17 @@ class ConnectionManager:
         self.writer = None
 
     async def open_connection(self, future):
-        while True:
-            try:
-                reader, writer = await asyncio.open_connection(
-                    self.host, self.port)
-                addr = writer.get_extra_info('peername')
-                print(f'Connected to server at {addr}')
-                future.set_result([reader,writer])
-                break
-            except ConnectionError:
-                pass
-    
+        try:
+            reader, writer = await asyncio.open_connection(
+                self.host, self.port)
+            addr = writer.get_extra_info('peername')
+            print(f'Connected to server at {addr}')
+            future.set_result([reader,writer])
+            
+        except ConnectionError as e:
+            print(f"Connection lost: {e!r}")
+            pass
+
     async def start_client(self):
         loop = asyncio.get_event_loop()
         future_con = loop.create_future()
@@ -26,16 +26,13 @@ class ConnectionManager:
         self.reader, self.writer = await future_con
     
     async def write(self, data):
-        if not self.writer == None:
+        if self.writer:
             self.writer.write(data)
             await self.writer.drain()
     
     async def read(self):
-        if not self.writer == None:
-            data = await self.reader.read()
-            return data
-        else:
-            return None
+        if self.reader:
+            return await self.reader.read()
 
 
 import struct
@@ -53,18 +50,8 @@ class CmdType(Enum):
     VectorPixel     = 4
 
 
-def ffp_8_8(num: float): #couldn't find builtin python function for this if there is one
-    b_str = ""
-    assert (num <= pow(2,8))
-    for n in range(8, 0, -1):
-        b = num//pow(2,n)
-        b_str += str(int(b))
-        num -= b*pow(2,n)
-    for n in range(1,9):
-        b = num//pow(2,-1*n)
-        b_str += str(int(b))
-        num -= b*pow(2,-1*n)
-    return int(b_str, 2)
+def ffp_8_8(num: float): 
+    return hex(int(num*256))
 
 class OBICommands:
     def sync_cookie(cookie:int, sync_type: SyncType):
