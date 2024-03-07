@@ -90,7 +90,7 @@ class BusController(wiring.Component):
     bus: Out(BusSignature)
 
     def __init__(self, *, adc_half_period: int, adc_latency: int):
-        assert (adc_half_period * 2) >= 4, "ADC period must be large enough for FSM latency"
+        assert (adc_half_period * 2) >= 6, "ADC period must be large enough for FSM latency"
         self.adc_half_period = adc_half_period
         self.adc_latency     = adc_latency
 
@@ -179,6 +179,13 @@ class BusController(wiring.Component):
                     self.bus.data_oe.eq(1),
                     self.bus.dac_x_le.eq(1),
                 ]
+                m.next = "X DAC Write 2"
+
+            with m.State("X DAC Write 2"):
+                m.d.comb += [
+                    self.bus.data_o.eq(dac_stream_data.dac_x_code),
+                    self.bus.data_oe.eq(1),
+                ]
                 m.next = "Y DAC Write"
 
             with m.State("Y DAC Write"):
@@ -187,8 +194,14 @@ class BusController(wiring.Component):
                     self.bus.data_oe.eq(1),
                     self.bus.dac_y_le.eq(1),
                 ]
-                m.next = "ADC Wait"
+                m.next = "Y DAC Write 2"
 
+            with m.State("Y DAC Write 2"):
+                m.d.comb += [
+                    self.bus.data_o.eq(dac_stream_data.dac_y_code),
+                    self.bus.data_oe.eq(1),
+                ]
+                m.next = "ADC Wait"
 
         return m
 
@@ -688,23 +701,7 @@ obi_resources  = [
         Attrs(IO_STANDARD="SB_LVCMOS33")
     ),
 
-    Resource("data", 0,
-        Subsignal("D1", Pins("B2", dir="io")),
-        Subsignal("D2", Pins("B1", dir="io")),
-        Subsignal("D3", Pins("C4", dir="io")),
-        Subsignal("D4", Pins("C3", dir="io")),
-        Subsignal("D5", Pins("C2", dir="io")),
-        Subsignal("D6", Pins("C1", dir="io")),
-        Subsignal("D7", Pins("D1", dir="io")),
-        Subsignal("D8", Pins("D3", dir="io")),
-        Subsignal("D9", Pins("F4", dir="io")),
-        Subsignal("D10", Pins("G2", dir="io")),
-        Subsignal("D11", Pins("E3", dir="io")),
-        Subsignal("D12", Pins("F1", dir="io")),
-        Subsignal("D13", Pins("E2", dir="io")),
-        Subsignal("D14", Pins("F2", dir="io")),
-        # Subsignal("D15", Pins("E1", dir="io")),
-        # Subsignal("D16", Pins("D2", dir="io")),
+    Resource("data", 0, Pins("B2 B1 C4 C3 C2 C1 D1 D3 F4 G2 E3 F1 E2 F2", dir="io"), # ; E1 D2
         Attrs(IO_STANDARD="SB_LVCMOS33")
     ),
 ]
@@ -756,42 +753,20 @@ class OBISubtarget(wiring.Component):
 
         if not self.sim:
             control = platform.request("control")
+            data = platform.request("data")
 
             m.d.comb += [
-                # platform.request("blah").eq(executor.bus.data_o) ...
                 control.x_latch.eq(executor.bus.dac_x_le),
                 control.y_latch.eq(executor.bus.dac_y_le),
                 control.a_latch.eq(executor.bus.adc_le),
                 control.a_enable.eq(executor.bus.adc_oe),
                 control.d_clock.eq(executor.bus.dac_clk),
                 control.a_clock.eq(executor.bus.adc_clk),
+
+                executor.bus.data_i.eq(data.i),
+                data.o.eq(executor.bus.data_o),
+                data.oe.eq(executor.bus.data_oe),
             ]
-
-            data_lines = platform.request("data")
-
-            data = [
-                    data_lines.D1,
-                    data_lines.D2,
-                    data_lines.D3,
-                    data_lines.D4,
-                    data_lines.D5,
-                    data_lines.D6,
-                    data_lines.D7,
-                    data_lines.D8,
-                    data_lines.D9,
-                    data_lines.D10,
-                    data_lines.D11,
-                    data_lines.D12,
-                    data_lines.D13,
-                    data_lines.D14
-                ]
-
-            for i, pad in enumerate(data):
-                m.d.comb += [
-                    executor.bus.data_i[i].eq(pad.i),
-                    pad.o.eq(executor.bus.data_o),
-                    pad.oe.eq(executor.bus.data_oe)
-                ]
 
         return m
 

@@ -328,9 +328,10 @@ class RasterScanCommand(Command):
 async def main():
     conn = Connection('localhost', 2222)
 
-    x_range = y_range = DACCodeRange(0, 128, 0x80_00)
+    x_range = y_range = DACCodeRange(0, 128, 0x8000)
+    #x_range = y_range = DACCodeRange(0, 192, 21845)
     cmd = RasterScanCommand(cookie=1, x_range=x_range, y_range=y_range,
-                            pixels=[3] * x_range.count * y_range.count)
+                            pixels=[2] * x_range.count * y_range.count)
     res = array.array('H')
     async for chunk in conn.transfer_multiple(cmd):
         res.extend(chunk)
