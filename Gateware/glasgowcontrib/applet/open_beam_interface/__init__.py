@@ -44,7 +44,6 @@ BusSignature = wiring.Signature({
 DwellTime = unsigned(16)
 class PipelinedLoopbackAdapter(wiring.Component):
     loopback_stream: In(unsigned(14))
-    valid: In(1)
     bus: Out(BusSignature)
 
     def __init__(self, adc_latency: int):
@@ -347,18 +346,16 @@ Cookie = unsigned(16)
 
 class Command(data.Struct):
     class Type(enum.Enum, shape=8):
-        Synchronize     = 0
-        RasterRegion    = 1
-        RasterPixel     = 2
-        RasterPixelRun  = 3
-        VectorPixel     = 4
-        Control = 5
+        Synchronize     = 0x00
+        Abort           = 0x01
+        Flush           = 0x02
+
+        RasterRegion    = 0x10
+        RasterPixel     = 0x11
+        RasterPixelRun  = 0x12
+        VectorPixel     = 0x13
 
     type: Type
-
-    class ControlInstruction(enum.Enum, shape = 8):
-        Abort = 1
-        Flush = 2
 
     payload: data.UnionLayout({
         "synchronize":      data.StructLayout({
@@ -375,8 +372,7 @@ class Command(data.Struct):
             "x_coord":          14,
             "y_coord":          14,
             "dwell_time":       DwellTime,
-        }),
-        "control_instruction": ControlInstruction
+        })
     })
 
 
@@ -400,12 +396,17 @@ class CommandParser(wiring.Component):
                         with m.Case(Command.Type.Synchronize):
                             m.next = "Payload Synchronize 1 High"
 
+                        with m.Case(Command.Type.Abort):
+                            m.next = "Submit"
+
+                        with m.Case(Command.Type.Flush):
+                            m.next = "Submit"
+
                         with m.Case(Command.Type.RasterRegion):
                             m.next = "Payload Raster Region 1 High"
 
-                        with m.Case(Command.Type.RasterPixel):
+                        with m.Case(Command.Type.RasterPixel): # actually an array
                             m.next = "Payload Raster Pixel Count High"
-                            #m.next = "Payload Raster Pixel Array High"
 
                         with m.Case(Command.Type.RasterPixelRun):
                             m.next = "Payload Raster Pixel Run 1 High"
@@ -413,9 +414,6 @@ class CommandParser(wiring.Component):
                         with m.Case(Command.Type.VectorPixel):
                             m.next = "Payload Vector Pixel 1 High"
                         
-                        with m.Case(Command.Type.Control):
-                            m.next = "Payload Control"
-
             def Deserialize(target, state, next_state):
                 #print(f'state: {state} -> next state: {next_state}')
                 with m.State(state):
@@ -479,9 +477,6 @@ class CommandParser(wiring.Component):
             DeserializeWord(command.payload.vector_pixel.dwell_time,
                 "Payload Vector Pixel 3", "Submit")
 
-            Deserialize(command.payload.control_instruction, 
-                "Payload Control", "Submit")
-
             with m.State("Submit"):
                 m.d.comb += self.cmd_stream.valid.eq(1)
                 with m.If(self.cmd_stream.ready):
@@ -496,25 +491,23 @@ class CommandExecutor(wiring.Component):
 
     bus: Out(BusSignature)
 
-    def __init__(self, loopback):
+    def __init__(self, loopback, *, adc_latency=6):
         self.loopback = loopback
+        self.adc_latency = 6
+        self.supersampler = Supersampler()
         super().__init__()
 
     def elaborate(self, platform):
         m = Module()
 
-        m.submodules.bus_controller = bus_controller = BusController(adc_half_period=3, adc_latency=6)
-        m.submodules.supersampler   = supersampler   = Supersampler()
+        m.submodules.bus_controller = bus_controller = BusController(adc_half_period=3, adc_latency=self.adc_latency)
+        m.submodules.supersampler   = self.supersampler
         m.submodules.raster_scanner = raster_scanner = RasterScanner()
 
+        
+        wiring.connect(m, self.supersampler.super_dac_stream, bus_controller.dac_stream)
+        wiring.connect(m, bus_controller.adc_stream, self.supersampler.super_adc_stream)
         wiring.connect(m, flipped(self.bus), bus_controller.bus)
-        if self.loopback:
-            m.submodules.loopback_adapter = loopback_adapter = PipelinedLoopbackAdapter(adc_latency=6)
-            wiring.connect(m, self.bus, flipped(loopback_adapter.bus))
-            m.d.comb += loopback_adapter.valid.eq(supersampler.super_dac_stream.valid)
-
-        wiring.connect(m, supersampler.super_dac_stream, bus_controller.dac_stream)
-        wiring.connect(m, bus_controller.adc_stream, supersampler.super_adc_stream)
         
         vector_stream = StreamSignature(data.StructLayout({
             "dac_x_code": 14,
@@ -522,19 +515,13 @@ class CommandExecutor(wiring.Component):
             "dwell_time": DwellTime,
         })).create()
 
+
         raster_mode = Signal()
         command = Signal.like(self.cmd_stream.data)
         with m.If(raster_mode):
-            wiring.connect(m, raster_scanner.dac_stream, supersampler.dac_stream)
-            if self.loopback:
-                with m.If(command.type == Command.Type.RasterPixel):
-                    m.d.comb += loopback_adapter.loopback_stream.eq(supersampler.dac_stream_data.dwell_time)
-                with m.Else():
-                    m.d.comb += loopback_adapter.loopback_stream.eq(supersampler.super_dac_stream.data.dac_x_code)
+            wiring.connect(m, raster_scanner.dac_stream, self.supersampler.dac_stream)
         with m.Else():
-            wiring.connect(m, vector_stream, supersampler.dac_stream)
-            if self.loopback:
-                m.d.comb += loopback_adapter.loopback_stream.eq(supersampler.dac_stream_data.dwell_time)
+            wiring.connect(m, vector_stream, self.supersampler.dac_stream)
 
         in_flight_pixels = Signal(4) # should never overflow
         submit_pixel = Signal()
@@ -565,6 +552,17 @@ class CommandExecutor(wiring.Component):
                         with m.If(sync_ack):
                             m.d.sync += raster_mode.eq(command.payload.synchronize.raster_mode)
                             m.next = "Fetch"
+                    
+                    with m.Case(Command.Type.Abort):
+                        m.d.comb += raster_scanner.abort.eq(1)
+                        m.next = "Fetch"
+                    
+                    with m.Case(Command.Type.Flush):
+                        with m.If(raster_mode):
+                            m.d.comb += raster_scanner.roi_stream.flush.eq(1)
+                        with m.Else():
+                            m.d.comb += vector_stream.flush.eq(1)
+                        m.next = "Fetch"
 
                     with m.Case(Command.Type.RasterRegion):
                         m.d.comb += raster_scanner.roi_stream.valid.eq(1)
@@ -598,25 +596,14 @@ class CommandExecutor(wiring.Component):
                         with m.If(vector_stream.ready):
                             m.d.comb += submit_pixel.eq(1)
                             m.next = "Fetch"
-                    
-                    with m.Case(Command.Type.Control):
-                        with m.If(command.payload.control_instruction == Command.ControlInstruction.Abort):
-                            m.d.comb += raster_scanner.abort.eq(1)
-                        with m.If(command.payload.control_instruction == Command.ControlInstruction.Flush):
-                            with m.If(raster_mode):
-                                m.d.comb += raster_scanner.roi_stream.flush.eq(1)
-                            with m.Else():
-                                m.d.comb += vector_stream.flush.eq(1)
-
-                        m.next = "Fetch"
 
         with m.FSM():
             with m.State("Imaging"):
                 m.d.comb += [
-                    self.img_stream.data.eq(supersampler.adc_stream.data.adc_code),
-                    self.img_stream.valid.eq(supersampler.adc_stream.valid),
-                    supersampler.adc_stream.ready.eq(self.img_stream.ready),
-                    retire_pixel.eq(supersampler.adc_stream.valid & self.img_stream.ready),
+                    self.img_stream.data.eq(self.supersampler.adc_stream.data.adc_code),
+                    self.img_stream.valid.eq(self.supersampler.adc_stream.valid),
+                    self.supersampler.adc_stream.ready.eq(self.img_stream.ready),
+                    retire_pixel.eq(self.supersampler.adc_stream.valid & self.img_stream.ready),
                 ]
                 with m.If((in_flight_pixels == 0) & sync_req):
                     m.next = "Write FFFF"
@@ -720,6 +707,21 @@ class OBISubtarget(wiring.Component):
         m.submodules.executor   = executor   = CommandExecutor(loopback = self.loopback)
         m.submodules.serializer = serializer = ImageSerializer()
 
+        
+        if self.loopback:
+            m.submodules.loopback_adapter = loopback_adapter = PipelinedLoopbackAdapter(executor.adc_latency)
+            wiring.connect(m, executor.bus, flipped(loopback_adapter.bus))
+
+            loopback_dwell_time = Signal()
+            if self.loopback:
+                m.d.sync += loopback_dwell_time.eq(executor.cmd_stream.data.type == Command.Type.RasterPixel)
+
+            with m.If(loopback_dwell_time):
+                m.d.comb += loopback_adapter.loopback_stream.eq(executor.supersampler.dac_stream_data.dwell_time)
+            with m.Else():
+                m.d.comb += loopback_adapter.loopback_stream.eq(executor.supersampler.super_dac_stream.data.dac_x_code)
+
+
         wiring.connect(m, parser.cmd_stream, executor.cmd_stream)
         wiring.connect(m, executor.img_stream, serializer.img_stream)
 
@@ -786,26 +788,8 @@ from glasgow.applet import *
 
 import struct
 
-def ffp_8_8(num: float, print_debug = True): #couldn't find builtin python function for this if there is one
-    if print_debug:
-        print(f'step: {num}')
-    b_str = ""
-    assert (num <= pow(2,7))
-    for n in range(7, 0, -1):
-        b = num//pow(2,n)
-        b_str += str(int(b))
-        num -= b*pow(2,n)
-        if print_debug:
-            print(f'2^{n}\t{b}')
-    for n in range(0,9):
-        b = num//pow(2,-1*n)
-        b_str += str(int(b))
-        num -= b*pow(2,-1*n)
-        if print_debug:
-            print(f'2^{-1*n}\t{b}')
-    if print_debug:
-        print(f'ffp: {b_str}, int: {int(b_str,2)}')
-    return int(b_str, 2)
+def ffp_8_8(num: float): 
+    return hex(int(num*256))
 class OBICommands:
     def sync_cookie_raster():
         cmd_sync = Command.Type.Synchronize.value
@@ -1127,14 +1111,14 @@ class OBIApplet(GlasgowApplet):
                     for x in range(0, x_width):
                         yield x+y
                 
-            # bench1 = sim_iface.sim_vector_stream(vector_rectangle, 10,10)
-            # sim_iface.queue_sim(bench1)
+            bench1 = sim_iface.sim_vector_stream(vector_rectangle, 10,10)
+            sim_iface.queue_sim(bench1)
 
-            # bench2 = sim_iface.sim_raster_region(255, 511, 0, 255, 2, 200)
-            # sim_iface.queue_sim(bench2)
+            bench2 = sim_iface.sim_raster_region(255, 511, 0, 255, 2, 200)
+            sim_iface.queue_sim(bench2)
 
-            bench3 = sim_iface.sim_raster_pattern(0, 255, 0, 2, raster_rectangle, 256, 3)
-            sim_iface.queue_sim(bench3)
+            # bench3 = sim_iface.sim_raster_pattern(0, 255, 0, 2, raster_rectangle, 256, 3)
+            # sim_iface.queue_sim(bench3)
 
             sim_iface.run_sim()
 
