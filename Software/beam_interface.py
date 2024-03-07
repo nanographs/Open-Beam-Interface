@@ -328,7 +328,7 @@ class RasterScanCommand(Command):
 async def main():
     conn = Connection('localhost', 2222)
 
-    x_range = y_range = DACCodeRange(0, 64, 255)
+    x_range = y_range = DACCodeRange(0, 128, 0x80_00)
     cmd = RasterScanCommand(cookie=1, x_range=x_range, y_range=y_range,
                             pixels=[3] * x_range.count * y_range.count)
     res = array.array('H')
@@ -337,7 +337,7 @@ async def main():
 
     with open("output.pgm", "wt") as f:
         f.write(f"P2\n")
-        f.write(f"{x_range.count} {y_range.count}\n")
+        f.write(f"{x_range.count+1} {y_range.count}\n") # FIXME: off-by-1 elsewhere
         f.write(f"{(1 << 14) - 1}\n")
         f.write(" ".join(str(val) for val in res))
 

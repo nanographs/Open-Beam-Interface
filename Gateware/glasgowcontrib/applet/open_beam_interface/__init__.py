@@ -96,7 +96,7 @@ class BusController(wiring.Component):
 
         super().__init__()
 
-    def elaborate(self, platform):
+    def elaborate2(self, platform):
         m = Module()
 
         m.d.comb += [
@@ -108,7 +108,7 @@ class BusController(wiring.Component):
 
         return m
 
-    def elaborate2(self, platform):
+    def elaborate(self, platform):
         m = Module()
 
         adc_cycles = Signal(range(self.adc_half_period))
@@ -144,8 +144,7 @@ class BusController(wiring.Component):
 
         dac_stream_data = Signal.like(self.dac_stream.data)
 
-        # m.d.comb += adc_stream_data.adc_code.eq(self.bus.data_i),
-        m.d.comb += adc_stream_data.adc_code.eq(dac_stream_data.dac_x_code),
+        m.d.comb += adc_stream_data.adc_code.eq(self.bus.data_i),
 
         with m.FSM():
             with m.State("ADC Wait"):
