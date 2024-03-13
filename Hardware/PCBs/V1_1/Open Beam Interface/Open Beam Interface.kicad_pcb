@@ -52005,7 +52005,7 @@
 	(footprint "Fiducial:Fiducial_0.75mm_Mask1.5mm"
 		(layer "F.Cu")
 		(uuid "a5fa3c8a-edd8-4ac0-9ed8-5428e8251d3b")
-		(at 110.71 59.19)
+		(at 124.11 56.62)
 		(descr "Circular Fiducial, 0.75mm bare copper, 1.5mm soldermask opening (Level B)")
 		(tags "fiducial")
 		(property "Reference" "FID3"
