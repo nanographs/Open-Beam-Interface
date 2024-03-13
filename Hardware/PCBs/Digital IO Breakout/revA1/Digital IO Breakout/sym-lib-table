@@ -1,0 +1,4 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "Digital IO Breakout")(type "KiCad")(uri "${KIPRJMOD}/Digital IO Breakout.kicad_sym")(options "")(descr ""))
+)
