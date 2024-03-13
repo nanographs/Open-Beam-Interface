@@ -1,4 +1,4 @@
-23098177611048472
+23103313075620161
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -87129,21 +87129,42 @@ capacitor
 4
 2
 Scan Generator
-Cable Pinout 1-8
+Cable Pinout 1-8 Back
 
 
 0
 0
 0
 Scan Generator
-Cable Pinout 9-16
+Cable Pinout 1-8 Front
 
 
 0
 0
 0
 Scan Generator
-Cable Pinout Ctrl
+Cable Pinout 9-16 Back
+
+
+0
+0
+0
+Scan Generator
+Cable Pinout 9-16 Front
+
+
+0
+0
+0
+Scan Generator
+Cable Pinout Ctrl Back
+
+
+0
+0
+0
+Scan Generator
+Cable Pinout Ctrl Front
 
 
 0
