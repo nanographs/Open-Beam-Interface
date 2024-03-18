@@ -1,4 +1,4 @@
-23103314223624738
+23048616941830989
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -53647,6 +53647,41 @@ SMD SMT ceramic resonator filter filter hand-soldering
 0
 3
 3
+Digital IO Breakout
+Cable Pinout 1-8 Back
+
+
+0
+0
+0
+Digital IO Breakout
+Cable Pinout 1-8 Front
+
+
+0
+0
+0
+Digital IO Breakout
+Female M8 Right Angle Panel Mount Connector
+
+
+0
+5
+4
+Digital IO Breakout
+MountingHole_3.5mm_Pad_Via_CrtYd
+Mounting Hole 3.5mm with Courtyard for Washers + Tolerance
+mounting hole 3.5mm Courtyard
+0
+13
+1
+Digital IO Breakout
+nanographs small
+
+
+0
+0
+0
 Diode_SMD
 D_0201_0603Metric
 Diode SMD 0201 (0603 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: https://www.vishay.com/docs/20052/crcw0201e3.pdf), generated with kicad-footprint-generator
@@ -87065,265 +87100,6 @@ rotary encoder
 0
 7
 6
-Scan Generator
-866319112100004
-86 6319 1121 00004-1
-Connector
-0
-6
-6
-Scan Generator
-01550900M
-01550900M-1
-Undefined or Miscellaneous
-0
-2
-2
-Scan Generator
-BNC_Amphenol_B6252HB-NPP3G-50_Horizontal_Flipable
-http://www.farnell.com/datasheets/612848.pdf
-BNC Amphenol Horizontal
-0
-5
-2
-Scan Generator
-CAP_20SVPF120M
-
-
-0
-2
-2
-Scan Generator
-CAP_PC_8X7_NCH
-
-PCV1D101MCL2GS 
-0
-2
-2
-Scan Generator
-CAP_PC_8X7_NCH-L
-
-PCV1D101MCL2GS 
-0
-2
-2
-Scan Generator
-CAP_PC_8X7_NCH-M
-
-PCV1D101MCL2GS 
-0
-2
-2
-Scan Generator
-C_1206_3216_Kelvin_Connections
-Capacitor SMD 1206 (3216 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator
-capacitor
-0
-4
-2
-Scan Generator
-C_1210_3225_Kelvin_Connections
-Capacitor SMD 1210 (3225 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator
-capacitor
-0
-4
-2
-Scan Generator
-Cable Pinout 1-8 Back
-
-
-0
-0
-0
-Scan Generator
-Cable Pinout 1-8 Front
-
-
-0
-0
-0
-Scan Generator
-Cable Pinout 9-16 Back
-
-
-0
-0
-0
-Scan Generator
-Cable Pinout 9-16 Front
-
-
-0
-0
-0
-Scan Generator
-Cable Pinout Ctrl Back
-
-
-0
-0
-0
-Scan Generator
-Cable Pinout Ctrl Front
-
-
-0
-0
-0
-Scan Generator
-Female M8 Right Angle Panel Mount Connector
-
-
-0
-6
-5
-Scan Generator
-GND Test Point WIth Dimensions
-
-
-0
-1
-1
-Scan Generator
-HVSSOP-8-1_Expanded_Thermal_Pad_P0.65mm_EP1.57x1.89mm_ThermalVias
-HVSSOP, 8 Pin (https://www.ti.com/lit/ds/symlink/tpa6110a2.pdf), generated with kicad-footprint-generator ipc_gullwing_generator.py
-HVSSOP SO
-0
-20
-9
-Scan Generator
-IDC-Header_2x10_P2.54mm_Vertical_No_Pin_1_Mark
-Through hole IDC box header, 2x10, 2.54mm pitch, DIN 41651 / IEC 60603-13, double rows, https://docs.google.com/spreadsheets/d/16SsEcesNF15N3Lb4niX7dcUr-NY5_MFPQhobNuNppn4/edit#gid=0
-Through hole vertical IDC box header THT 2x10 2.54mm double row
-0
-20
-20
-Scan Generator
-M8 Right Angle Panel Mount Connector
-
-
-0
-6
-5
-Scan Generator
-MountingHole_3.5mm_Pad_Via_CrtYd
-Mounting Hole 3.5mm with Courtyard for Washers + Tolerance
-mounting hole 3.5mm Courtyard
-0
-13
-2
-Scan Generator
-Nanographs Big
-
-
-0
-0
-0
-Scan Generator
-Nidec SP4T CS-4-14NTA
-
-
-0
-6
-6
-Scan Generator
-Nidec SP4T CS-4-14NTB
-
-
-0
-6
-6
-Scan Generator
-Offset and Scale Drawing
-
-
-0
-0
-0
-Scan Generator
-PinHeader_2x22_P1.27mm_Vertical__SMD
-surface-mounted straight pin header, 2x22, 1.27mm pitch, double rows
-Surface mounted pin header SMD 2x22 1.27mm double row
-0
-44
-44
-Scan Generator
-Portland Oregon Stag Sign
-
-
-0
-0
-0
-Scan Generator
-R_0603_1608Metric 2 pos sellector
-Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator
-resistor
-0
-3
-3
-Scan Generator
-Reduced_pads_R_Axial_DIN0204_L3.6mm_D1.6mm_P5.08mm_Horizontal
-Resistor, Axial_DIN0204 series, Axial, Horizontal, pin pitch=5.08mm, 0.167W, length*diameter=3.6*1.6mm^2, http://cdn-reichelt.de/documents/datenblatt/B400/1_4W%23YAG.pdf
-Resistor Axial_DIN0204 series Axial Horizontal pin pitch 5.08mm 0.167W length 3.6mm diameter 1.6mm
-0
-2
-2
-Scan Generator
-Reduced_pads_R_Axial_DIN0204_L3.6mm_D1.6mm_P7.62mm_Horizontal
-Resistor, Axial_DIN0204 series, Axial, Horizontal, pin pitch=7.62mm, 0.167W, length*diameter=3.6*1.6mm^2, http://cdn-reichelt.de/documents/datenblatt/B400/1_4W%23YAG.pdf
-Resistor Axial_DIN0204 series Axial Horizontal pin pitch 7.62mm 0.167W length 3.6mm diameter 1.6mm
-0
-2
-2
-Scan Generator
-SOIC-8_3.9x4.9mm_P1.27mm
-SOIC, 8 Pin (JEDEC MS-012AA, https://www.analog.com/media/en/package-pcb-resources/package/pkg_pdf/soic_narrow-r/r_8.pdf), generated with kicad-footprint-generator ipc_gullwing_generator.py
-SOIC SO
-0
-8
-8
-Scan Generator
-SOT-416
-SOT-416, https://www.nxp.com/docs/en/package-information/SOT416.pdf
-SOT-416
-0
-3
-3
-Scan Generator
-SOT65P210X110-6N
-ADM1085AKSZ-REEL7
-Integrated Circuit
-0
-6
-6
-Scan Generator
-SPDT_rotary_7813J1051E
-7813J-1-051E-1
-Switch
-0
-3
-3
-Scan Generator
-Scan Gen Art 2
-
-
-0
-0
-0
-Scan Generator
-Scan Picture (art)
-
-
-0
-0
-0
-Scan Generator
-nanographs small
-
-
-0
-0
-0
 Sensor
 ASAIR_AM2302_P2.54mm_Lead2.75mm_TabDown
 Temperature and humidity module, http://akizukidenshi.com/download/ds/aosong/AM2302.pdf
