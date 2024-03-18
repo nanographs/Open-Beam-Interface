@@ -2,4 +2,6 @@
 Gateware/applet_sim.vcd
 Gateware/results.txt
 Gateware/open_beam_interface.bin
-Software/*.pgm
+*.pgm
+.vscode/settings.json
+*.vcd
