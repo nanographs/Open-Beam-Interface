@@ -1,4 +1,4 @@
-23046906945072860
+23048616941830989
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -53674,7 +53674,14 @@ Mounting Hole 3.5mm with Courtyard for Washers + Tolerance
 mounting hole 3.5mm Courtyard
 0
 13
-2
+1
+Digital IO Breakout
+nanographs small
+
+
+0
+0
+0
 Diode_SMD
 D_0201_0603Metric
 Diode SMD 0201 (0603 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: https://www.vishay.com/docs/20052/crcw0201e3.pdf), generated with kicad-footprint-generator
