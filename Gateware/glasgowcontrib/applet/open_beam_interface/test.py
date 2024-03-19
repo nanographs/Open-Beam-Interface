@@ -23,6 +23,9 @@ def put_stream(stream, data):
 
 def get_stream(stream, data):
     timeout = 0
+    yield stream.ready.eq(1)
+    yield Tick()
+    yield stream.ready.eq(0)
     while not (yield stream.valid):
         yield Tick()
         timeout += 1; assert timeout < 10
@@ -35,9 +38,6 @@ def get_stream(stream, data):
         assert (yield stream.data) == value, \
             f"data: {yield stream.data} != {value}"
 
-    yield stream.ready.eq(1)
-    yield Tick()
-    yield stream.ready.eq(0)
 
 
 class OBIAppletTestCase(unittest.TestCase):
