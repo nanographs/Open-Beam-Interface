@@ -870,204 +870,6 @@
 				)
 			)
 		)
-		(symbol "Digital IO Breakout:Conn_01x03_Shielded"
-			(pin_names
-				(offset 1.016) hide)
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(property "Reference" "J"
-				(at 0.254 4.826 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Value" "Conn_01x03_Shielded"
-				(at 1.016 -4.826 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify left)
-				)
-			)
-			(property "Footprint" ""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Datasheet" "~"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Description" "Generic shielded connector, single row, 01x03, script generated (kicad-library-utils/schlib/autogen/connector/)"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "ki_keywords" "connector"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "ki_fp_filters" "Connector*:*_1x??-1SH*"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(symbol "Conn_01x03_Shielded_1_1"
-				(rectangle
-					(start -1.27 3.81)
-					(end 1.27 -3.81)
-					(stroke
-						(width 0.1524)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(rectangle
-					(start -1.016 -2.413)
-					(end 0.254 -2.667)
-					(stroke
-						(width 0.1524)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(rectangle
-					(start -1.016 0.127)
-					(end 0.254 -0.127)
-					(stroke
-						(width 0.1524)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(rectangle
-					(start -1.016 2.667)
-					(end 0.254 2.413)
-					(stroke
-						(width 0.1524)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(rectangle
-					(start -1.016 3.556)
-					(end 1.016 -3.556)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type background)
-					)
-				)
-				(pin passive line
-					(at -5.08 2.54 0)
-					(length 4.064)
-					(name "Pin_1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at -5.08 0 0)
-					(length 4.064)
-					(name "Pin_3"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "3"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at -5.08 -2.54 0)
-					(length 4.064)
-					(name "Pin_4"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "4"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 0 -7.62 90)
-					(length 3.81)
-					(name "Shield"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "SH"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-		)
 		(symbol "Mechanical:MountingHole"
 			(pin_names
 				(offset 1.016)
@@ -1146,6 +948,243 @@
 					)
 					(fill
 						(type none)
+					)
+				)
+			)
+		)
+		(symbol "OBI Connectors:M8_conn_01x03_Socket_Shielded"
+			(pin_names
+				(offset 1.016) hide)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "J"
+				(at 0.254 4.826 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "M8_conn_01x03_Socket_Shielded"
+				(at 1.016 -4.826 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+				)
+			)
+			(property "Footprint" "OBI Connectors:M8_conn_01x03_Pin_Shielded_Right_Angle"
+				(at 0 9.398 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "~"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "M8 shielded connector, single row, right angle, 01x03"
+				(at 0 7.112 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "connector"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "Connector*:*_1x??-1SH*"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "M8_conn_01x03_Socket_Shielded_1_1"
+				(rectangle
+					(start -1.27 3.81)
+					(end 1.27 -3.81)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(rectangle
+					(start -1.016 3.556)
+					(end 1.016 -3.556)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+				(arc
+					(start 0 -2.032)
+					(mid -0.5058 -2.54)
+					(end 0 -3.048)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -1.27 -2.54) (xy -0.508 -2.54)
+					)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -1.27 0) (xy -0.508 0)
+					)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -1.27 2.54) (xy -0.508 2.54)
+					)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start 0 0.508)
+					(mid -0.5058 0)
+					(end 0 -0.508)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start 0 3.048)
+					(mid -0.5058 2.54)
+					(end 0 2.032)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(pin passive line
+					(at -5.08 2.54 0)
+					(length 4.064)
+					(name "Pin_1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -5.08 0 0)
+					(length 4.064)
+					(name "Pin_3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -5.08 -2.54 0)
+					(length 4.064)
+					(name "Pin_4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 0 -7.62 90)
+					(length 3.81)
+					(name "Shield"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "SH"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
 					)
 				)
 			)
@@ -2131,7 +2170,7 @@
 	)
 	(rectangle
 		(start 133.35 118.11)
-		(end 176.53 144.78)
+		(end 185.42 144.78)
 		(stroke
 			(width 0)
 			(type dash)
@@ -2155,7 +2194,7 @@
 	)
 	(rectangle
 		(start 133.35 44.45)
-		(end 176.53 115.57)
+		(end 185.42 115.57)
 		(stroke
 			(width 0)
 			(type dash)
@@ -2539,7 +2578,7 @@
 		)
 	)
 	(symbol
-		(lib_id "Digital IO Breakout:Conn_01x03_Shielded")
+		(lib_id "OBI Connectors:M8_conn_01x03_Socket_Shielded")
 		(at 149.86 87.63 0)
 		(unit 1)
 		(exclude_from_sim no)
@@ -2557,7 +2596,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "Conn_01x03_Shielded"
+		(property "Value" "M8_conn_01x03_Socket_Shielded"
 			(at 152.4 88.8999 0)
 			(effects
 				(font
@@ -2566,7 +2605,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Digital IO Breakout:Female M8 Right Angle Panel Mount Connector"
+		(property "Footprint" "OBI Connectors:M8_conn_01x03_Pin_Shielded_Right_Angle"
 			(at 149.86 87.63 0)
 			(effects
 				(font
@@ -2584,7 +2623,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "Generic shielded connector, single row, 01x03, script generated (kicad-library-utils/schlib/autogen/connector/)"
+		(property "Description" "M8 shielded connector, single row, right angle, 01x03"
 			(at 149.86 87.63 0)
 			(effects
 				(font
@@ -2918,7 +2957,7 @@
 		)
 	)
 	(symbol
-		(lib_id "Digital IO Breakout:Conn_01x03_Shielded")
+		(lib_id "OBI Connectors:M8_conn_01x03_Socket_Shielded")
 		(at 149.86 72.39 0)
 		(unit 1)
 		(exclude_from_sim no)
@@ -2936,7 +2975,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "Conn_01x03_Shielded"
+		(property "Value" "M8_conn_01x03_Socket_Shielded"
 			(at 152.4 73.6599 0)
 			(effects
 				(font
@@ -2945,7 +2984,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Digital IO Breakout:Female M8 Right Angle Panel Mount Connector"
+		(property "Footprint" "OBI Connectors:M8_conn_01x03_Pin_Shielded_Right_Angle"
 			(at 149.86 72.39 0)
 			(effects
 				(font
@@ -2963,7 +3002,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "Generic shielded connector, single row, 01x03, script generated (kicad-library-utils/schlib/autogen/connector/)"
+		(property "Description" "M8 shielded connector, single row, right angle, 01x03"
 			(at 149.86 72.39 0)
 			(effects
 				(font
@@ -3068,7 +3107,7 @@
 		)
 	)
 	(symbol
-		(lib_id "Digital IO Breakout:Conn_01x03_Shielded")
+		(lib_id "OBI Connectors:M8_conn_01x03_Socket_Shielded")
 		(at 149.86 57.15 0)
 		(unit 1)
 		(exclude_from_sim no)
@@ -3086,7 +3125,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "Conn_01x03_Shielded"
+		(property "Value" "M8_conn_01x03_Socket_Shielded"
 			(at 152.4 58.4199 0)
 			(effects
 				(font
@@ -3095,7 +3134,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Digital IO Breakout:Female M8 Right Angle Panel Mount Connector"
+		(property "Footprint" "OBI Connectors:M8_conn_01x03_Pin_Shielded_Right_Angle"
 			(at 149.86 57.15 0)
 			(effects
 				(font
@@ -3113,7 +3152,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "Generic shielded connector, single row, 01x03, script generated (kicad-library-utils/schlib/autogen/connector/)"
+		(property "Description" "M8 shielded connector, single row, right angle, 01x03"
 			(at 149.86 57.15 0)
 			(effects
 				(font
@@ -3309,7 +3348,7 @@
 		)
 	)
 	(symbol
-		(lib_id "Digital IO Breakout:Conn_01x03_Shielded")
+		(lib_id "OBI Connectors:M8_conn_01x03_Socket_Shielded")
 		(at 149.86 102.87 0)
 		(unit 1)
 		(exclude_from_sim no)
@@ -3327,7 +3366,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "Conn_01x03_Shielded"
+		(property "Value" "M8_conn_01x03_Socket_Shielded"
 			(at 152.4 104.1399 0)
 			(effects
 				(font
@@ -3336,7 +3375,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Digital IO Breakout:Female M8 Right Angle Panel Mount Connector"
+		(property "Footprint" "OBI Connectors:M8_conn_01x03_Pin_Shielded_Right_Angle"
 			(at 149.86 102.87 0)
 			(effects
 				(font
@@ -3354,7 +3393,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "Generic shielded connector, single row, 01x03, script generated (kicad-library-utils/schlib/autogen/connector/)"
+		(property "Description" "M8 shielded connector, single row, right angle, 01x03"
 			(at 149.86 102.87 0)
 			(effects
 				(font

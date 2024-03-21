@@ -441,10 +441,12 @@
   },
   "libraries": {
     "pinned_footprint_libs": [
-      "Digital IO Breakout"
+      "Digital IO Breakout",
+      "OBI Connectors"
     ],
     "pinned_symbol_libs": [
-      "Digital IO Breakout"
+      "Digital IO Breakout",
+      "OBI Connectors"
     ]
   },
   "meta": {

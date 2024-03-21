@@ -83103,6 +83103,7 @@
 		(property "Reference" "C2"
 			(at 0 -2.3 -90)
 			(layer "F.SilkS")
+			(hide yes)
 			(uuid "ae347932-0476-4ecf-8a5d-6c8f415777fd")
 			(effects
 				(font

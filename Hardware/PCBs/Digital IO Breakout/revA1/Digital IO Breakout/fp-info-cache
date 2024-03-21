@@ -1,4 +1,4 @@
-23048616941830989
+23048617203290315
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -53662,13 +53662,6 @@ Cable Pinout 1-8 Front
 0
 0
 Digital IO Breakout
-Female M8 Right Angle Panel Mount Connector
-
-
-0
-5
-4
-Digital IO Breakout
 MountingHole_3.5mm_Pad_Via_CrtYd
 Mounting Hole 3.5mm with Courtyard for Washers + Tolerance
 mounting hole 3.5mm Courtyard
@@ -66106,6 +66099,13 @@ Net tie, 4 pin, 1.0mm round THT pads
 net tie
 0
 4
+4
+OBI Connectors
+M8_conn_01x03_Pin_Shielded_Right_Angle
+
+
+0
+5
 4
 OptoDevice
 ADNS-9800
