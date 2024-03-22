@@ -237,11 +237,12 @@
   "libraries": {
     "pinned_footprint_libs": [],
     "pinned_symbol_libs": [
-      "Open Beam Interface"
+      "Open Beam Interface",
+      "OBI Components"
     ]
   },
   "meta": {
-    "filename": "Generic Scan Sellector.kicad_pro",
+    "filename": "Generic Scan Selector.kicad_pro",
     "version": 1
   },
   "net_settings": {
