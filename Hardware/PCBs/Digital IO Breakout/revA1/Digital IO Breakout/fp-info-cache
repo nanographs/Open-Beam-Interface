@@ -1,4 +1,4 @@
-23048617203290315
+23050328523878393
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -66100,6 +66100,13 @@ net tie
 0
 4
 4
+OBI Components
+TE IM23TS DPDT Relay
+
+
+0
+8
+8
 OBI Connectors
 M8_conn_01x03_Pin_Shielded_Right_Angle
 

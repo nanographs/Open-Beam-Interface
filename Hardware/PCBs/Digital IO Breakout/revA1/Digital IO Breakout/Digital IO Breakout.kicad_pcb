@@ -386,7 +386,7 @@
 			(uuid "da4e1db7-98e4-42ee-b8d9-67b01fb88ae0")
 		)
 	)
-	(footprint "OBI Connectors:M8_conn_01x03_Pin_Shielded_Right_Angle"
+	(footprint "OBI Connectors:M8_conn_01x03_Socket_Shielded_Right_Angle"
 		(layer "F.Cu")
 		(uuid "1cd05ea8-7001-4c38-a288-cef65f6bb9ab")
 		(at 151 95 90)
@@ -394,7 +394,7 @@
 			(at 0 -4.1 90)
 			(unlocked yes)
 			(layer "F.SilkS")
-			(uuid "0e304186-daf4-42cf-9ab1-40cc4153334e")
+			(uuid "6d0aaf3f-a6f9-456d-961e-b1ca78942255")
 			(effects
 				(font
 					(size 1 1)
@@ -406,7 +406,7 @@
 			(at 0 -8.05 90)
 			(unlocked yes)
 			(layer "F.Fab")
-			(uuid "4c5ed71c-0376-4642-9c60-6f171496b8c7")
+			(uuid "7df4040c-645e-4168-91ac-a77b15abaeeb")
 			(effects
 				(font
 					(size 1 1)
@@ -414,12 +414,12 @@
 				)
 			)
 		)
-		(property "Footprint" "OBI Connectors:M8_conn_01x03_Pin_Shielded_Right_Angle"
+		(property "Footprint" "OBI Connectors:M8_conn_01x03_Socket_Shielded_Right_Angle"
 			(at 0 0 90)
 			(unlocked yes)
 			(layer "F.Fab")
 			(hide yes)
-			(uuid "b4d1e2a5-fe5b-4926-93d7-4a38ffad685a")
+			(uuid "60049da1-4001-45c9-b06a-d1e9683856a7")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -427,11 +427,11 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 0 0 90)
+			(at -3.2 15.3 90)
 			(unlocked yes)
 			(layer "F.Fab")
 			(hide yes)
-			(uuid "fb94d73c-9760-466a-8823-c628909ae285")
+			(uuid "fae4df6e-d3f7-4861-b0cf-ba352eaebc3f")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -443,7 +443,7 @@
 			(unlocked yes)
 			(layer "F.Fab")
 			(hide yes)
-			(uuid "c85d8c98-ab96-4239-8adb-3bb8ebc5b705")
+			(uuid "7e6ffbe9-92ce-4218-8d0c-14cc3b2cf6cc")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -463,7 +463,10 @@
 				)
 			)
 		)
+		(property ki_fp_filters "Connector*:*_1x??-1SH*")
 		(path "/7b3b15eb-92b0-4f9d-9504-c8262b10ab35")
+		(sheetname "Root")
+		(sheetfile "Digital IO Breakout.kicad_sch")
 		(attr smd)
 		(fp_line
 			(start -6.5 2.15)
@@ -473,7 +476,7 @@
 				(type default)
 			)
 			(layer "F.SilkS")
-			(uuid "6635d247-d2b4-47b3-9d98-0e20e5dc982e")
+			(uuid "1f0a1b14-4fba-495f-9db7-80ccb8ed7ded")
 		)
 		(fp_line
 			(start 6.5 8.2)
@@ -483,7 +486,7 @@
 				(type default)
 			)
 			(layer "F.SilkS")
-			(uuid "47c92a0c-402e-47f5-a5c8-2a039e94e5d5")
+			(uuid "77823035-57cb-4a97-90a8-23181c7cae06")
 		)
 		(fp_line
 			(start -6.5 8.2)
@@ -493,26 +496,13 @@
 				(type default)
 			)
 			(layer "F.SilkS")
-			(uuid "d6c011d4-0811-46e3-998b-fd0e8066b349")
-		)
-		(fp_text user "1"
-			(at 3.2 0.5 90)
-			(unlocked yes)
-			(layer "B.SilkS")
-			(uuid "4c028459-06f2-4132-8711-69d58c02ab44")
-			(effects
-				(font
-					(size 1 1)
-					(thickness 0.15)
-				)
-				(justify mirror)
-			)
+			(uuid "ba861959-1923-46f1-890b-c54dd8428375")
 		)
 		(fp_text user "4"
 			(at -1.5 -1.5 90)
 			(unlocked yes)
 			(layer "B.SilkS")
-			(uuid "5012a69c-52ea-493d-ba18-cd40fd9ff31d")
+			(uuid "15797bf2-d24a-44c1-b1e9-5e193d9b9f83")
 			(effects
 				(font
 					(size 1 1)
@@ -525,7 +515,20 @@
 			(at -3.2 0.5 90)
 			(unlocked yes)
 			(layer "B.SilkS")
-			(uuid "50839375-8283-4f74-b051-64ba246c0814")
+			(uuid "937a9b69-6480-4a71-bdfc-be1fbed64214")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+				(justify mirror)
+			)
+		)
+		(fp_text user "1"
+			(at 3.2 0.5 90)
+			(unlocked yes)
+			(layer "B.SilkS")
+			(uuid "faa06f05-3cd8-42b9-a3d9-933991c75598")
 			(effects
 				(font
 					(size 1 1)
@@ -538,7 +541,7 @@
 			(at 0 -5.95 90)
 			(unlocked yes)
 			(layer "F.Fab")
-			(uuid "288d4155-6b0a-425f-ac21-29ab7b6cdbb2")
+			(uuid "4e5163c4-a747-48b0-8c42-9f2dd93a7a4e")
 			(effects
 				(font
 					(size 1 1)
@@ -555,7 +558,7 @@
 			(net 5 "/D-3")
 			(pinfunction "Pin_1")
 			(pintype "passive")
-			(uuid "fc031325-c248-4835-8fad-dfc6d273c76b")
+			(uuid "59db673b-9208-454f-aa0b-ce21d48fb773")
 		)
 		(pad "3" thru_hole circle
 			(at -1.75 0.5 90)
@@ -566,7 +569,7 @@
 			(net 4 "/D-4")
 			(pinfunction "Pin_3")
 			(pintype "passive")
-			(uuid "94971a25-46ab-4db2-8349-377829ad5ef1")
+			(uuid "abfe955c-26f6-43f4-9f83-d7e30571c498")
 		)
 		(pad "4" thru_hole circle
 			(at 0 -1.45 90)
@@ -577,7 +580,7 @@
 			(net 1 "GND")
 			(pinfunction "Pin_4")
 			(pintype "passive")
-			(uuid "35482a76-ca80-4cc9-bfa6-b89b0a0ee44c")
+			(uuid "28954b6e-3592-4695-9b38-009e19bc3473")
 		)
 		(pad "SH" thru_hole roundrect
 			(at -6.25 0 90)
@@ -589,7 +592,7 @@
 			(net 1 "GND")
 			(pinfunction "Shield")
 			(pintype "passive")
-			(uuid "d55aaa2f-73d2-42c9-adff-94b6428c0f10")
+			(uuid "9268ba0a-ef2b-4b5d-af2d-6a7e523ce480")
 		)
 		(pad "SH" thru_hole roundrect
 			(at 6.25 0 90)
@@ -601,7 +604,7 @@
 			(net 1 "GND")
 			(pinfunction "Shield")
 			(pintype "passive")
-			(uuid "aa8f8940-80a5-4d6b-afb9-63e03a0aa8a6")
+			(uuid "edb70026-75b5-4d0d-8a48-e0206174e6b8")
 		)
 		(model "${OBI_3DMODELS}/OBI Connectors.3dshapes/M8_conn_01x03_Pin_Shielded_Right_Angle"
 			(offset
@@ -2417,7 +2420,7 @@
 			(uuid "0ad3c861-b66b-4869-96b6-e931f1c36aee")
 		)
 	)
-	(footprint "OBI Connectors:M8_conn_01x03_Pin_Shielded_Right_Angle"
+	(footprint "OBI Connectors:M8_conn_01x03_Socket_Shielded_Right_Angle"
 		(layer "F.Cu")
 		(uuid "827a332e-86a4-4d9a-81db-92b728aacf2c")
 		(at 151 127 90)
@@ -2425,7 +2428,7 @@
 			(at 0 -4.1 90)
 			(unlocked yes)
 			(layer "F.SilkS")
-			(uuid "97048067-ad29-4f43-a478-1e2be1e4455d")
+			(uuid "1b07fa4f-d1c8-473d-8626-fe01f18d9be0")
 			(effects
 				(font
 					(size 1 1)
@@ -2437,7 +2440,7 @@
 			(at 0 -8.05 90)
 			(unlocked yes)
 			(layer "F.Fab")
-			(uuid "289ebec4-6526-4853-87fe-39e985447c4a")
+			(uuid "260e978d-2c5c-4143-827c-ab74dd544be3")
 			(effects
 				(font
 					(size 1 1)
@@ -2445,12 +2448,12 @@
 				)
 			)
 		)
-		(property "Footprint" "OBI Connectors:M8_conn_01x03_Pin_Shielded_Right_Angle"
+		(property "Footprint" "OBI Connectors:M8_conn_01x03_Socket_Shielded_Right_Angle"
 			(at 0 0 90)
 			(unlocked yes)
 			(layer "F.Fab")
 			(hide yes)
-			(uuid "27a5c277-ce06-4f1d-88ce-7fd289512367")
+			(uuid "4aa360f3-9c9a-4981-aae5-827263e94da6")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2458,11 +2461,11 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 0 0 90)
+			(at -3.2 15.3 90)
 			(unlocked yes)
 			(layer "F.Fab")
 			(hide yes)
-			(uuid "81a29562-7554-48a9-855e-0e1d547f2581")
+			(uuid "e3493d7d-456a-48e6-a508-20058eeef845")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2474,7 +2477,7 @@
 			(unlocked yes)
 			(layer "F.Fab")
 			(hide yes)
-			(uuid "8905aa1c-e8c8-4a57-a842-63088a7d5d29")
+			(uuid "1c6c58f7-04cd-4a1a-89d5-91caf8ab05c4")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2494,7 +2497,10 @@
 				)
 			)
 		)
+		(property ki_fp_filters "Connector*:*_1x??-1SH*")
 		(path "/b2273881-1b8e-4b65-ae48-400a36d7f4db")
+		(sheetname "Root")
+		(sheetfile "Digital IO Breakout.kicad_sch")
 		(attr smd)
 		(fp_line
 			(start -6.5 2.15)
@@ -2504,7 +2510,7 @@
 				(type default)
 			)
 			(layer "F.SilkS")
-			(uuid "3e413f1d-11bf-491c-b973-f79fca52a51d")
+			(uuid "631638ea-01f8-4cc6-9786-a2a3897f9599")
 		)
 		(fp_line
 			(start 6.5 8.2)
@@ -2514,7 +2520,7 @@
 				(type default)
 			)
 			(layer "F.SilkS")
-			(uuid "97c70fe4-120e-4d2c-8ada-d5f76ae08ba0")
+			(uuid "20920a18-34f4-490d-939f-796fe2181209")
 		)
 		(fp_line
 			(start -6.5 8.2)
@@ -2524,13 +2530,26 @@
 				(type default)
 			)
 			(layer "F.SilkS")
-			(uuid "7bb60a8d-2e83-4a6d-b24c-e34ee7f76d71")
+			(uuid "68ca642a-25c4-4eb5-8b0f-37080ffb3516")
+		)
+		(fp_text user "3"
+			(at -3.2 0.5 90)
+			(unlocked yes)
+			(layer "B.SilkS")
+			(uuid "717d12ef-62e5-40ca-b283-cf0a519b6233")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+				(justify mirror)
+			)
 		)
 		(fp_text user "1"
 			(at 3.2 0.5 90)
 			(unlocked yes)
 			(layer "B.SilkS")
-			(uuid "3c9f51c5-3528-475c-9d80-b049797c6b81")
+			(uuid "74ba8579-d6c9-4611-8549-3bf028f2a8f8")
 			(effects
 				(font
 					(size 1 1)
@@ -2543,20 +2562,7 @@
 			(at -1.5 -1.5 90)
 			(unlocked yes)
 			(layer "B.SilkS")
-			(uuid "7ae3d326-9dbc-41db-9909-3773201a47ff")
-			(effects
-				(font
-					(size 1 1)
-					(thickness 0.15)
-				)
-				(justify mirror)
-			)
-		)
-		(fp_text user "3"
-			(at -3.2 0.5 90)
-			(unlocked yes)
-			(layer "B.SilkS")
-			(uuid "7d596ac9-378b-434d-bf9f-1a768acc7cd8")
+			(uuid "c657c775-62ba-44e8-8f2c-c12e8de4b237")
 			(effects
 				(font
 					(size 1 1)
@@ -2569,7 +2575,7 @@
 			(at 0 -5.95 90)
 			(unlocked yes)
 			(layer "F.Fab")
-			(uuid "268f9ead-c6b0-44bd-837c-8a2f7cde31d8")
+			(uuid "33071bda-ba11-4313-8af7-e69d4e13f0b8")
 			(effects
 				(font
 					(size 1 1)
@@ -2586,7 +2592,7 @@
 			(net 8 "/D-7")
 			(pinfunction "Pin_1")
 			(pintype "passive")
-			(uuid "1fb4113c-f431-442e-9fec-422c1e5606cc")
+			(uuid "40f3ab72-323b-449e-9c95-a615969cb378")
 		)
 		(pad "3" thru_hole circle
 			(at -1.75 0.5 90)
@@ -2597,7 +2603,7 @@
 			(net 10 "/D-8")
 			(pinfunction "Pin_3")
 			(pintype "passive")
-			(uuid "a293b0bd-877b-4e68-ad31-3ec7f1c4c23a")
+			(uuid "c095fc64-fac7-48ae-977b-55e9a8dedc4e")
 		)
 		(pad "4" thru_hole circle
 			(at 0 -1.45 90)
@@ -2608,7 +2614,7 @@
 			(net 1 "GND")
 			(pinfunction "Pin_4")
 			(pintype "passive")
-			(uuid "30aa0866-2e13-4a35-b444-3349cdbd075c")
+			(uuid "3a8f0d52-0e4c-4257-bc69-7b3f51678b8a")
 		)
 		(pad "SH" thru_hole roundrect
 			(at -6.25 0 90)
@@ -2620,7 +2626,7 @@
 			(net 1 "GND")
 			(pinfunction "Shield")
 			(pintype "passive")
-			(uuid "66f51ce6-4e67-4273-be28-54f8d521a7e8")
+			(uuid "c8176b98-6840-4644-b56f-9d0e87d5996c")
 		)
 		(pad "SH" thru_hole roundrect
 			(at 6.25 0 90)
@@ -2632,7 +2638,7 @@
 			(net 1 "GND")
 			(pinfunction "Shield")
 			(pintype "passive")
-			(uuid "7abcd834-7064-4c0f-ac84-6316d6b0bbcf")
+			(uuid "ad68c160-95fb-4bc2-8b1e-9e1bc35607a3")
 		)
 		(model "${OBI_3DMODELS}/OBI Connectors.3dshapes/M8_conn_01x03_Pin_Shielded_Right_Angle"
 			(offset
@@ -3912,7 +3918,7 @@
 			)
 		)
 	)
-	(footprint "OBI Connectors:M8_conn_01x03_Pin_Shielded_Right_Angle"
+	(footprint "OBI Connectors:M8_conn_01x03_Socket_Shielded_Right_Angle"
 		(layer "F.Cu")
 		(uuid "c2f1a735-187e-44aa-9245-09c5f0d506b1")
 		(at 151 111 90)
@@ -3920,7 +3926,7 @@
 			(at 0 -4.1 90)
 			(unlocked yes)
 			(layer "F.SilkS")
-			(uuid "a6448471-0fdf-40bc-b6b4-447f6fafe528")
+			(uuid "4e263663-9a51-43b6-b6c8-645b6053fc27")
 			(effects
 				(font
 					(size 1 1)
@@ -3932,7 +3938,7 @@
 			(at 0 -8.05 90)
 			(unlocked yes)
 			(layer "F.Fab")
-			(uuid "cea772b7-8249-46f8-bb49-e4a77f00e347")
+			(uuid "5d80ac4d-8e84-4009-abf5-04c0dc5f3892")
 			(effects
 				(font
 					(size 1 1)
@@ -3940,12 +3946,12 @@
 				)
 			)
 		)
-		(property "Footprint" "OBI Connectors:M8_conn_01x03_Pin_Shielded_Right_Angle"
+		(property "Footprint" "OBI Connectors:M8_conn_01x03_Socket_Shielded_Right_Angle"
 			(at 0 0 90)
 			(unlocked yes)
 			(layer "F.Fab")
 			(hide yes)
-			(uuid "a65e4156-fdf0-4ff9-a590-3521b219864a")
+			(uuid "7a594c64-51c8-46eb-a2dc-1b9b7ff7fc3f")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3953,11 +3959,11 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 0 0 90)
+			(at -3.2 15.3 90)
 			(unlocked yes)
 			(layer "F.Fab")
 			(hide yes)
-			(uuid "3e32d618-ffb8-481d-bbf0-36841de01e7b")
+			(uuid "36a05c62-0261-4641-9151-ca7f82d4b2fd")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3969,7 +3975,7 @@
 			(unlocked yes)
 			(layer "F.Fab")
 			(hide yes)
-			(uuid "a6fdb42e-b58a-4eeb-934f-b7c7525f69cd")
+			(uuid "8900cbc8-5389-4611-817a-34edc3de9856")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3989,7 +3995,10 @@
 				)
 			)
 		)
+		(property ki_fp_filters "Connector*:*_1x??-1SH*")
 		(path "/2ab85f49-b2a6-4501-b0fd-ac5e38a49fc9")
+		(sheetname "Root")
+		(sheetfile "Digital IO Breakout.kicad_sch")
 		(attr smd)
 		(fp_line
 			(start -6.5 2.15)
@@ -3999,7 +4008,7 @@
 				(type default)
 			)
 			(layer "F.SilkS")
-			(uuid "a04f06b1-22ad-4dbb-b1df-b4c0c42fd50c")
+			(uuid "85c4c220-e648-4b45-bf22-40a2b8b13d35")
 		)
 		(fp_line
 			(start 6.5 8.2)
@@ -4009,7 +4018,7 @@
 				(type default)
 			)
 			(layer "F.SilkS")
-			(uuid "8f73b6d0-f028-498c-8032-827a8fb23dc0")
+			(uuid "85836af7-e6f2-415f-8552-f14efaa75080")
 		)
 		(fp_line
 			(start -6.5 8.2)
@@ -4019,13 +4028,13 @@
 				(type default)
 			)
 			(layer "F.SilkS")
-			(uuid "f733c834-155a-4af2-a5d9-559653c6c0c2")
+			(uuid "fcea538e-30b3-4cb1-9442-f810f6495d44")
 		)
-		(fp_text user "4"
-			(at -1.5 -1.5 90)
+		(fp_text user "1"
+			(at 3.2 0.5 90)
 			(unlocked yes)
 			(layer "B.SilkS")
-			(uuid "15759f2a-bbe3-420e-bbb2-cd0c67cfa0fa")
+			(uuid "44ddfb5c-5e5e-4eca-ada8-fe75fbae1127")
 			(effects
 				(font
 					(size 1 1)
@@ -4038,7 +4047,7 @@
 			(at -3.2 0.5 90)
 			(unlocked yes)
 			(layer "B.SilkS")
-			(uuid "2fbe44f5-c589-4e25-803b-c198f588e310")
+			(uuid "897d1a4a-9e8b-4f50-94a9-0f01cdc59673")
 			(effects
 				(font
 					(size 1 1)
@@ -4047,11 +4056,11 @@
 				(justify mirror)
 			)
 		)
-		(fp_text user "1"
-			(at 3.2 0.5 90)
+		(fp_text user "4"
+			(at -1.5 -1.5 90)
 			(unlocked yes)
 			(layer "B.SilkS")
-			(uuid "d9f5beac-4441-422e-a5ce-b86b6ab67a9b")
+			(uuid "e6615663-d10f-4407-8d0c-61a39c9900b9")
 			(effects
 				(font
 					(size 1 1)
@@ -4064,7 +4073,7 @@
 			(at 0 -5.95 90)
 			(unlocked yes)
 			(layer "F.Fab")
-			(uuid "a9b249fd-ddaf-48cb-9305-52fa5637d43e")
+			(uuid "058c3173-2be1-4741-85f3-e8583f91799f")
 			(effects
 				(font
 					(size 1 1)
@@ -4081,7 +4090,7 @@
 			(net 7 "/D-5")
 			(pinfunction "Pin_1")
 			(pintype "passive")
-			(uuid "2fd7fa72-9a6d-4230-9ea2-cc487cd1f855")
+			(uuid "f1e291c8-b8b8-4757-9493-e28d5e2c1a77")
 		)
 		(pad "3" thru_hole circle
 			(at -1.75 0.5 90)
@@ -4092,7 +4101,7 @@
 			(net 6 "/D-6")
 			(pinfunction "Pin_3")
 			(pintype "passive")
-			(uuid "2db51ef3-6e3e-4634-97bb-cb112c723c40")
+			(uuid "389d199a-8058-4b71-a013-319113a9b817")
 		)
 		(pad "4" thru_hole circle
 			(at 0 -1.45 90)
@@ -4103,7 +4112,7 @@
 			(net 1 "GND")
 			(pinfunction "Pin_4")
 			(pintype "passive")
-			(uuid "4a2e7870-0632-4ad9-8bb8-5c08e4caa547")
+			(uuid "2c265f83-ddcf-4fde-a283-ee07fdd5dc68")
 		)
 		(pad "SH" thru_hole roundrect
 			(at -6.25 0 90)
@@ -4115,7 +4124,7 @@
 			(net 1 "GND")
 			(pinfunction "Shield")
 			(pintype "passive")
-			(uuid "7795e1f0-e753-44a7-8855-6cba4a42b679")
+			(uuid "94103857-1332-4435-89f2-2ed30a4b0b98")
 		)
 		(pad "SH" thru_hole roundrect
 			(at 6.25 0 90)
@@ -4127,7 +4136,7 @@
 			(net 1 "GND")
 			(pinfunction "Shield")
 			(pintype "passive")
-			(uuid "bb29c330-d091-47fd-8e82-1069a3c9515a")
+			(uuid "5846c4f4-c0d3-4d5f-9cb0-2fa8ae8d1425")
 		)
 		(model "${OBI_3DMODELS}/OBI Connectors.3dshapes/M8_conn_01x03_Pin_Shielded_Right_Angle"
 			(offset
@@ -4390,7 +4399,7 @@
 			(uuid "71b60a16-a5e2-4ed3-852b-145d9e94d67c")
 		)
 	)
-	(footprint "OBI Connectors:M8_conn_01x03_Pin_Shielded_Right_Angle"
+	(footprint "OBI Connectors:M8_conn_01x03_Socket_Shielded_Right_Angle"
 		(layer "F.Cu")
 		(uuid "d27c29ce-498a-466d-aa31-b74930466949")
 		(at 151 79 90)
@@ -4398,7 +4407,7 @@
 			(at 0 -4.1 90)
 			(unlocked yes)
 			(layer "F.SilkS")
-			(uuid "f646b85f-2e4a-466d-8454-63f50c910a89")
+			(uuid "73f88eae-8444-4bc7-927b-fafe239a0e41")
 			(effects
 				(font
 					(size 1 1)
@@ -4410,7 +4419,7 @@
 			(at 0 -8.05 90)
 			(unlocked yes)
 			(layer "F.Fab")
-			(uuid "4d6e38e6-4a44-4505-ad56-525113ce6326")
+			(uuid "c3378e9a-00e3-4177-9ad8-5cac94cdbdec")
 			(effects
 				(font
 					(size 1 1)
@@ -4418,12 +4427,12 @@
 				)
 			)
 		)
-		(property "Footprint" "OBI Connectors:M8_conn_01x03_Pin_Shielded_Right_Angle"
+		(property "Footprint" "OBI Connectors:M8_conn_01x03_Socket_Shielded_Right_Angle"
 			(at 0 0 90)
 			(unlocked yes)
 			(layer "F.Fab")
 			(hide yes)
-			(uuid "57bf02c9-13f9-4f55-b0ba-06d3222b8d35")
+			(uuid "2f9ac8f2-180d-4ef9-800b-9ce17b3209f5")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4431,11 +4440,11 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 0 0 90)
+			(at -3.2 15.3 90)
 			(unlocked yes)
 			(layer "F.Fab")
 			(hide yes)
-			(uuid "e4d067be-ba90-4fc4-a8ab-abe12a4cb801")
+			(uuid "4c8542d2-cb24-45a0-93fc-c3eab2973a92")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4447,7 +4456,7 @@
 			(unlocked yes)
 			(layer "F.Fab")
 			(hide yes)
-			(uuid "add3af3e-7f4c-45ab-a151-4700e76fc04e")
+			(uuid "c5ef83d3-8e9e-440d-9824-d4eb5b2267e9")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4467,7 +4476,10 @@
 				)
 			)
 		)
+		(property ki_fp_filters "Connector*:*_1x??-1SH*")
 		(path "/9327fdb8-fd48-463f-9573-b6c2b8b7f85e")
+		(sheetname "Root")
+		(sheetfile "Digital IO Breakout.kicad_sch")
 		(attr smd)
 		(fp_line
 			(start -6.5 2.15)
@@ -4477,7 +4489,7 @@
 				(type default)
 			)
 			(layer "F.SilkS")
-			(uuid "40f598ce-cbea-43f1-9445-9074e89acfcf")
+			(uuid "3655da8e-b5a2-4f6d-b901-584125b1a59e")
 		)
 		(fp_line
 			(start 6.5 8.2)
@@ -4487,7 +4499,7 @@
 				(type default)
 			)
 			(layer "F.SilkS")
-			(uuid "b0e3bcd0-9cfd-4567-9d3e-1614466a6c1c")
+			(uuid "ddc5b370-d35b-4327-95ac-572b41e34928")
 		)
 		(fp_line
 			(start -6.5 8.2)
@@ -4497,13 +4509,13 @@
 				(type default)
 			)
 			(layer "F.SilkS")
-			(uuid "9ccda471-5443-44ea-9b0e-71f40053a6c6")
+			(uuid "12089b82-fa55-4e13-b1d8-52b8de0b0916")
 		)
-		(fp_text user "3"
-			(at -3.2 0.5 90)
+		(fp_text user "4"
+			(at -1.5 -1.5 90)
 			(unlocked yes)
 			(layer "B.SilkS")
-			(uuid "4e5f07fc-28af-4919-90c9-c8679c459962")
+			(uuid "8d4a1586-4b56-4954-a1e3-3144a2517a3f")
 			(effects
 				(font
 					(size 1 1)
@@ -4516,7 +4528,7 @@
 			(at 3.2 0.5 90)
 			(unlocked yes)
 			(layer "B.SilkS")
-			(uuid "b185edb9-902a-4b28-8b24-be398c9fbe1c")
+			(uuid "8e5e2c15-bf39-44da-9850-ad99ea2cb3d5")
 			(effects
 				(font
 					(size 1 1)
@@ -4525,11 +4537,11 @@
 				(justify mirror)
 			)
 		)
-		(fp_text user "4"
-			(at -1.5 -1.5 90)
+		(fp_text user "3"
+			(at -3.2 0.5 90)
 			(unlocked yes)
 			(layer "B.SilkS")
-			(uuid "b7ba0106-1d08-4c1e-b4e6-f8709b339d72")
+			(uuid "f6853d4a-0e84-488b-8919-d519485d70ae")
 			(effects
 				(font
 					(size 1 1)
@@ -4542,7 +4554,7 @@
 			(at 0 -5.95 90)
 			(unlocked yes)
 			(layer "F.Fab")
-			(uuid "b79e0525-3717-4f6e-819d-1a70115c20d1")
+			(uuid "3e3a9141-a7e1-4236-94fe-9fc3299f7ad8")
 			(effects
 				(font
 					(size 1 1)
@@ -4559,7 +4571,7 @@
 			(net 2 "/D-1")
 			(pinfunction "Pin_1")
 			(pintype "passive")
-			(uuid "01ba5bb6-ae65-4c24-9b48-9414b458fea1")
+			(uuid "4ee3747c-ead4-4181-aaf4-c45c38af9398")
 		)
 		(pad "3" thru_hole circle
 			(at -1.75 0.5 90)
@@ -4570,7 +4582,7 @@
 			(net 3 "/D-2")
 			(pinfunction "Pin_3")
 			(pintype "passive")
-			(uuid "88e8edc0-9362-41e2-b6ba-84bfb3af2f4e")
+			(uuid "f8488018-8645-4caf-be41-10b93a2dde19")
 		)
 		(pad "4" thru_hole circle
 			(at 0 -1.45 90)
@@ -4581,7 +4593,7 @@
 			(net 1 "GND")
 			(pinfunction "Pin_4")
 			(pintype "passive")
-			(uuid "c8881eeb-b14f-4a79-8d9c-c444f8b6f8d5")
+			(uuid "26ed0a40-67bc-456d-bd4a-238d70866fac")
 		)
 		(pad "SH" thru_hole roundrect
 			(at -6.25 0 90)
@@ -4593,7 +4605,7 @@
 			(net 1 "GND")
 			(pinfunction "Shield")
 			(pintype "passive")
-			(uuid "2f5b39d6-b8fd-416a-b711-db8762585d9c")
+			(uuid "1700b801-ef4d-477c-9a87-8f02f3344d89")
 		)
 		(pad "SH" thru_hole roundrect
 			(at 6.25 0 90)
@@ -4605,7 +4617,7 @@
 			(net 1 "GND")
 			(pinfunction "Shield")
 			(pintype "passive")
-			(uuid "fe924815-ed8f-4234-87bd-888216a2527b")
+			(uuid "254d5461-b4fc-4801-a749-c9fd9d7ae3ee")
 		)
 		(model "${OBI_3DMODELS}/OBI Connectors.3dshapes/M8_conn_01x03_Pin_Shielded_Right_Angle"
 			(offset

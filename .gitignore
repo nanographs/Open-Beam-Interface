@@ -5,3 +5,4 @@ Gateware/open_beam_interface.bin
 *.pgm
 .vscode/settings.json
 *.vcd
+*.zip

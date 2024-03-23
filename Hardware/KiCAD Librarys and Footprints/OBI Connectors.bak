@@ -223,8 +223,8 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
-			(at 0 0 0)
+		(property "Footprint" "OBI Connectors:M8_conn_01x03_Socket_Shielded_Right_Angle"
+			(at 0 9.398 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -241,8 +241,8 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "Generic shielded connector, single row, 01x03, script generated (kicad-library-utils/schlib/autogen/connector/)"
-			(at 0 0 0)
+		(property "Description" "M8 shielded connector, single row, right angle, 01x03"
+			(at 0 7.112 0)
 			(effects
 				(font
 					(size 1.27 1.27)

@@ -144,9 +144,10 @@
 				)
 			)
 		)
-		(symbol "Diode:1N4007"
+		(symbol "Device:D"
 			(pin_numbers hide)
-			(pin_names hide)
+			(pin_names
+				(offset 1.016) hide)
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
@@ -158,7 +159,7 @@
 					)
 				)
 			)
-			(property "Value" "1N4007"
+			(property "Value" "D"
 				(at 0 -2.54 0)
 				(effects
 					(font
@@ -166,16 +167,7 @@
 					)
 				)
 			)
-			(property "Footprint" "Diode_THT:D_DO-41_SOD81_P10.16mm_Horizontal"
-				(at 0 -4.445 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Datasheet" "http://www.vishay.com/docs/88503/1n4001.pdf"
+			(property "Footprint" ""
 				(at 0 0 0)
 				(effects
 					(font
@@ -184,7 +176,16 @@
 					(hide yes)
 				)
 			)
-			(property "Description" "1000V 1A General Purpose Rectifier Diode, DO-41"
+			(property "Datasheet" "~"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Diode"
 				(at 0 0 0)
 				(effects
 					(font
@@ -220,7 +221,7 @@
 					(hide yes)
 				)
 			)
-			(property "ki_fp_filters" "D*DO?41*"
+			(property "ki_fp_filters" "TO-???* *_Diode_* *SingleDiode* D_*"
 				(at 0 0 0)
 				(effects
 					(font
@@ -229,7 +230,7 @@
 					(hide yes)
 				)
 			)
-			(symbol "1N4007_0_1"
+			(symbol "D_0_1"
 				(polyline
 					(pts
 						(xy -1.27 1.27) (xy -1.27 -1.27)
@@ -267,7 +268,7 @@
 					)
 				)
 			)
-			(symbol "1N4007_1_1"
+			(symbol "D_1_1"
 				(pin passive line
 					(at -3.81 0 0)
 					(length 2.54)
@@ -306,93 +307,11 @@
 				)
 			)
 		)
-		(symbol "Mechanical:MountingHole"
-			(pin_names
-				(offset 1.016)
-			)
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(property "Reference" "H"
-				(at 0 5.08 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Value" "MountingHole"
-				(at 0 3.175 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" ""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Datasheet" "~"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Description" "Mounting Hole without connection"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "ki_keywords" "mounting hole"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "ki_fp_filters" "MountingHole*"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(symbol "MountingHole_0_1"
-				(circle
-					(center 0 0)
-					(radius 1.27)
-					(stroke
-						(width 1.27)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-			)
-		)
 		(symbol "OBI Components:TE_IM_Axicom_Relay_DPDT"
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
-			(property "Reference" "RY"
+			(property "Reference" "U"
 				(at 0.254 13.97 0)
 				(effects
 					(font
@@ -855,7 +774,7 @@
 					(justify left)
 				)
 			)
-			(property "Footprint" "OBI Connectors:M8_conn_01x03_Pin_Shielded_Right_Angle"
+			(property "Footprint" ""
 				(at 0 0 0)
 				(effects
 					(font
@@ -1139,14 +1058,6 @@
 		(color 0 0 0 0)
 		(uuid "603cfa81-1f81-4e7d-b0a8-174f42ad8e7c")
 	)
-	(no_connect
-		(at 151.13 114.3)
-		(uuid "384244a3-b7c6-4c91-8e8a-f1fa35cfe9b1")
-	)
-	(no_connect
-		(at 140.97 119.38)
-		(uuid "73fac6fc-5fbe-4f55-a37a-e8c5f8150149")
-	)
 	(wire
 		(pts
 			(xy 127 92.71) (xy 130.81 92.71)
@@ -1229,7 +1140,7 @@
 	)
 	(wire
 		(pts
-			(xy 148.59 110.49) (xy 161.29 110.49)
+			(xy 151.13 110.49) (xy 161.29 110.49)
 		)
 		(stroke
 			(width 0)
@@ -1349,7 +1260,7 @@
 	)
 	(wire
 		(pts
-			(xy 148.59 110.49) (xy 148.59 114.3)
+			(xy 151.13 110.49) (xy 151.13 114.3)
 		)
 		(stroke
 			(width 0)
@@ -1426,18 +1337,10 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
+		(fields_autoplaced yes)
 		(uuid "07bf9caf-dbae-4206-b620-1f4817262b4a")
-		(property "Reference" "J4"
-			(at 118.11 85.09 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "Y_Out"
-			(at 119.38 87.6299 0)
-			(do_not_autoplace yes)
+		(property "Reference" "J2"
+			(at 119.38 85.0899 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1445,7 +1348,16 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical"
+		(property "Value" "Y_Out"
+			(at 119.38 87.6299 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
 			(at 121.92 85.09 0)
 			(effects
 				(font
@@ -1481,7 +1393,7 @@
 		(instances
 			(project "Generic Scan Selector"
 				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
-					(reference "J4")
+					(reference "J2")
 					(unit 1)
 				)
 			)
@@ -1513,7 +1425,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical"
+		(property "Footprint" ""
 			(at 121.92 77.47 0)
 			(effects
 				(font
@@ -1632,7 +1544,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "1a642f0c-88f7-45e9-82d3-bcba1c1f29c8")
-		(property "Reference" "J2"
+		(property "Reference" "J4"
 			(at 118.11 92.71 0)
 			(effects
 				(font
@@ -1648,7 +1560,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical"
+		(property "Footprint" ""
 			(at 121.92 92.71 0)
 			(effects
 				(font
@@ -1684,7 +1596,7 @@
 		(instances
 			(project "Generic Scan Selector"
 				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
-					(reference "J2")
+					(reference "J4")
 					(unit 1)
 				)
 			)
@@ -1718,7 +1630,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "OBI Connectors:M8_conn_01x03_Pin_Shielded_Right_Angle"
+		(property "Footprint" ""
 			(at 148.59 119.38 0)
 			(effects
 				(font
@@ -1761,6 +1673,91 @@
 			(project "Generic Scan Selector"
 				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
 					(reference "J7")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:D")
+		(at 148.59 105.41 180)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "202c64ee-17c5-4f35-811e-30a7e0eed76a")
+		(property "Reference" "D1"
+			(at 148.59 102.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "D"
+			(at 148.59 108.204 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 148.59 105.41 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 148.59 105.41 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Diode"
+			(at 148.59 105.41 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" "D"
+			(at 148.59 105.41 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" "1=K 2=A"
+			(at 148.59 105.41 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "2372f07d-7764-48bc-bece-7ee7f40eccb8")
+		)
+		(pin "1"
+			(uuid "c652e2de-839f-4225-b061-bb690604be92")
+		)
+		(instances
+			(project "Generic Scan Selector"
+				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
+					(reference "D1")
 					(unit 1)
 				)
 			)
@@ -1834,6 +1831,73 @@
 		)
 	)
 	(symbol
+		(lib_id "power:GND")
+		(at 140.97 119.38 270)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "33325046-8942-44d9-b8b7-8efbdb2eb053")
+		(property "Reference" "#PWR07"
+			(at 134.62 119.38 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 135.89 119.38 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" ""
+			(at 140.97 119.38 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 140.97 119.38 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 140.97 119.38 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "d04bca66-4751-466e-b654-ddc4717b9d43")
+		)
+		(instances
+			(project "Generic Scan Selector"
+				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
+					(reference "#PWR07")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Connector_Generic:Conn_01x02")
 		(at 175.26 77.47 0)
 		(unit 1)
@@ -1858,7 +1922,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical"
+		(property "Footprint" ""
 			(at 175.26 77.47 0)
 			(effects
 				(font
@@ -1968,91 +2032,6 @@
 		)
 	)
 	(symbol
-		(lib_id "Diode:1N4007")
-		(at 148.59 105.41 180)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "6ece6f3e-e266-4faf-b4d4-061826aca2dc")
-		(property "Reference" "D1"
-			(at 148.59 102.616 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "1N4007"
-			(at 148.59 107.95 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Diode_THT:D_DO-41_SOD81_P10.16mm_Horizontal"
-			(at 148.59 100.965 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "http://www.vishay.com/docs/88503/1n4001.pdf"
-			(at 148.59 105.41 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "1000V 1A General Purpose Rectifier Diode, DO-41"
-			(at 148.59 105.41 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Sim.Device" "D"
-			(at 148.59 105.41 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Sim.Pins" "1=K 2=A"
-			(at 148.59 105.41 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "c07fd405-3faa-477a-a2ff-4c3292f6b83f")
-		)
-		(pin "1"
-			(uuid "5a42dfe1-c410-4f2c-be52-8f0b7437e286")
-		)
-		(instances
-			(project "Generic Scan Selector"
-				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
-					(reference "D1")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Connector_Generic:Conn_01x02")
 		(at 175.26 85.09 0)
 		(unit 1)
@@ -2062,7 +2041,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "7471bb4f-354c-4595-b8b4-069580183b27")
-		(property "Reference" "J3"
+		(property "Reference" "J1"
 			(at 177.8 85.0899 0)
 			(effects
 				(font
@@ -2080,7 +2059,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical"
+		(property "Footprint" ""
 			(at 175.26 85.09 0)
 			(effects
 				(font
@@ -2116,70 +2095,7 @@
 		(instances
 			(project "Generic Scan Selector"
 				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
-					(reference "J3")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Mechanical:MountingHole")
-		(at 110.49 123.19 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "8fbb687d-ecd5-48c6-bccd-44492b138cfb")
-		(property "Reference" "H3"
-			(at 110.49 119.888 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "MountingHole"
-			(at 113.03 124.4599 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-		(property "Footprint" "OBI Components:MountingHole_3.5mm_Pad_Via_CrtYd_CoperOverCorner"
-			(at 110.49 123.19 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 110.49 123.19 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Mounting Hole without connection"
-			(at 110.49 123.19 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(instances
-			(project "Generic Scan Selector"
-				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
-					(reference "H3")
+					(reference "J1")
 					(unit 1)
 				)
 			)
@@ -2262,7 +2178,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "9b308034-b01e-4380-9168-f2e811fc2a78")
-		(property "Reference" "RY1"
+		(property "Reference" "U1"
 			(at 148.59 75.692 0)
 			(effects
 				(font
@@ -2332,7 +2248,7 @@
 		(instances
 			(project "Generic Scan Selector"
 				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
-					(reference "RY1")
+					(reference "U1")
 					(unit 1)
 				)
 			)
@@ -2414,7 +2330,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "a301b0d1-4896-4d07-89e1-2bdc56af3f2e")
-		(property "Reference" "J1"
+		(property "Reference" "J3"
 			(at 178.816 92.71 0)
 			(effects
 				(font
@@ -2430,7 +2346,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical"
+		(property "Footprint" ""
 			(at 175.26 92.71 0)
 			(effects
 				(font
@@ -2466,133 +2382,7 @@
 		(instances
 			(project "Generic Scan Selector"
 				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
-					(reference "J1")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Mechanical:MountingHole")
-		(at 115.57 114.3 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "ca6b47b3-a1c4-42b3-835b-5453f974034e")
-		(property "Reference" "H1"
-			(at 115.57 110.998 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "MountingHole"
-			(at 118.11 115.5699 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-		(property "Footprint" "OBI Components:MountingHole_3.5mm_Pad_Via_CrtYd_CopperOverEdge"
-			(at 115.57 114.3 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 115.57 114.3 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Mounting Hole without connection"
-			(at 115.57 114.3 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(instances
-			(project "Generic Scan Selector"
-				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
-					(reference "H1")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Mechanical:MountingHole")
-		(at 119.38 123.19 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "d9547c66-3deb-4db3-8825-8f9f1c6677d8")
-		(property "Reference" "H2"
-			(at 119.38 119.888 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "MountingHole"
-			(at 121.92 124.4599 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-		(property "Footprint" "OBI Components:MountingHole_3.5mm_Pad_Via_CrtYd_CoperOverCorner"
-			(at 119.38 123.19 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 119.38 123.19 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Mounting Hole without connection"
-			(at 119.38 123.19 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(instances
-			(project "Generic Scan Selector"
-				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
-					(reference "H2")
+					(reference "J3")
 					(unit 1)
 				)
 			)

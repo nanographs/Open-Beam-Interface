@@ -6,7 +6,7 @@
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
-		(property "Reference" "U"
+		(property "Reference" "RY"
 			(at 0.254 13.97 0)
 			(effects
 				(font
@@ -14,7 +14,7 @@
 				)
 			)
 		)
-		(property "Value" ""
+		(property "Value" "TE IM23TS DPDT"
 			(at 19.05 -27.94 0)
 			(effects
 				(font
@@ -22,8 +22,8 @@
 				)
 			)
 		)
-		(property "Footprint" ""
-			(at 19.05 -27.94 0)
+		(property "Footprint" "OBI Components:TE IM23TS DPDT Relay"
+			(at 0 -12.954 0)
 			(effects
 				(font
 					(size 1.27 1.27)

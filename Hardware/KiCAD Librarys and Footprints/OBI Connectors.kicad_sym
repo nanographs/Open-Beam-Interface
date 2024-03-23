@@ -25,7 +25,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "OBI Connectors:M8_conn_01x03_Pin_Shielded_Right_Angle"
 			(at 0 0 0)
 			(effects
 				(font
@@ -223,7 +223,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "OBI Connectors:M8_conn_01x03_Pin_Shielded_Right_Angle"
+		(property "Footprint" "OBI Connectors:M8_conn_01x03_Socket_Shielded_Right_Angle"
 			(at 0 9.398 0)
 			(effects
 				(font

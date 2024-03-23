@@ -1,4 +1,4 @@
-(footprint "M8_conn_01x03_Pin_Shielded_Right_Angle"
+(footprint "M8_conn_01x03_Socket_Shielded_Right_Angle"
 	(version 20240108)
 	(generator "pcbnew")
 	(generator_version "8.0")
@@ -15,7 +15,7 @@
 			)
 		)
 	)
-	(property "Value" "M8_conn_01x03_Pin_Shielded_Right_Angle"
+	(property "Value" "M8_conn_01x03_Socket_Shielded_Right_Angle"
 		(at 0 -8.05 0)
 		(unlocked yes)
 		(layer "F.Fab")
@@ -107,7 +107,7 @@
 			(justify mirror)
 		)
 	)
-	(fp_text user "1"
+	(fp_text user "3"
 		(at -3.2 0.5 0)
 		(unlocked yes)
 		(layer "B.SilkS")
@@ -120,7 +120,7 @@
 			(justify mirror)
 		)
 	)
-	(fp_text user "3"
+	(fp_text user "1"
 		(at 3.2 0.5 0)
 		(unlocked yes)
 		(layer "B.SilkS")
@@ -146,20 +146,20 @@
 		)
 	)
 	(pad "1" thru_hole circle
-		(at -1.75 0.5)
-		(size 1.7 1.7)
-		(drill 1.3)
-		(layers "*.Cu" "*.Mask")
-		(remove_unused_layers no)
-		(uuid "fc7713e1-8223-4cae-9938-c0e12f67cbb5")
-	)
-	(pad "3" thru_hole circle
 		(at 1.75 0.5)
 		(size 1.7 1.7)
 		(drill 1.3)
 		(layers "*.Cu" "*.Mask")
 		(remove_unused_layers no)
 		(uuid "34f9279e-e3f3-4279-939d-fa02e080ea69")
+	)
+	(pad "3" thru_hole circle
+		(at -1.75 0.5)
+		(size 1.7 1.7)
+		(drill 1.3)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "fc7713e1-8223-4cae-9938-c0e12f67cbb5")
 	)
 	(pad "4" thru_hole circle
 		(at 0 -1.45)
@@ -187,7 +187,7 @@
 		(roundrect_rratio 0.4)
 		(uuid "9443b794-0a03-4f71-bc3b-f4249806a4c5")
 	)
-	(model "${OBI_3DMODELS}/OBI Connectors.3dshapes/M8_conn_01x03_Pin_Shielded_Right_Angle.stp"
+	(model "${OBI_3DMODELS}/OBI Connectors.3dshapes/M8_conn_01x03_Pin_Shielded_Right_Angle"
 		(offset
 			(xyz 0 -3.2 6.3)
 		)

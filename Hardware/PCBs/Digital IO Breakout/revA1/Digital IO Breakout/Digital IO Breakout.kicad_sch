@@ -975,7 +975,7 @@
 					(justify left)
 				)
 			)
-			(property "Footprint" "OBI Connectors:M8_conn_01x03_Pin_Shielded_Right_Angle"
+			(property "Footprint" "OBI Connectors:M8_conn_01x03_Socket_Shielded_Right_Angle"
 				(at 0 9.398 0)
 				(effects
 					(font
@@ -2605,7 +2605,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "OBI Connectors:M8_conn_01x03_Pin_Shielded_Right_Angle"
+		(property "Footprint" "OBI Connectors:M8_conn_01x03_Socket_Shielded_Right_Angle"
 			(at 149.86 87.63 0)
 			(effects
 				(font
@@ -2984,7 +2984,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "OBI Connectors:M8_conn_01x03_Pin_Shielded_Right_Angle"
+		(property "Footprint" "OBI Connectors:M8_conn_01x03_Socket_Shielded_Right_Angle"
 			(at 149.86 72.39 0)
 			(effects
 				(font
@@ -3134,7 +3134,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "OBI Connectors:M8_conn_01x03_Pin_Shielded_Right_Angle"
+		(property "Footprint" "OBI Connectors:M8_conn_01x03_Socket_Shielded_Right_Angle"
 			(at 149.86 57.15 0)
 			(effects
 				(font
@@ -3375,7 +3375,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "OBI Connectors:M8_conn_01x03_Pin_Shielded_Right_Angle"
+		(property "Footprint" "OBI Connectors:M8_conn_01x03_Socket_Shielded_Right_Angle"
 			(at 149.86 102.87 0)
 			(effects
 				(font
