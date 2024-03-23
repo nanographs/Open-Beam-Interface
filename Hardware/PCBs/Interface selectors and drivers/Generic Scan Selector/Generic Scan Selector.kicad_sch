@@ -1409,13 +1409,33 @@
 	)
 	(text "Pin 1: Glasgow Digtial IO\nPin 3: Glasgow Digital IO\nPin 4: Glasgow Digital GND"
 		(exclude_from_sim no)
-		(at 148.59 127 0)
+		(at 148.336 125.73 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 		)
 		(uuid "8c05b670-cc7c-4de5-97f6-7c5f13d6f538")
+	)
+	(text "Note: Pin and Socket M8 connectors swap\npins 1 and 3 on PCB, this board is\ndesigned to use pin connector on PCB."
+		(exclude_from_sim no)
+		(at 149.098 133.858 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "ca985eed-c0af-45ae-a106-d23b96f20c96")
+	)
+	(text "Note: Glasgow digital ground is not\nconnected to PCB ground, digital\nground is only connected to the\nnegative side of the relay coil."
+		(exclude_from_sim no)
+		(at 114.808 107.95 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "d8c68e87-3e12-4946-871d-d26e2d6a8439")
 	)
 	(symbol
 		(lib_id "Connector_Generic:Conn_01x02")
@@ -2124,7 +2144,7 @@
 	)
 	(symbol
 		(lib_id "Mechanical:MountingHole")
-		(at 110.49 123.19 0)
+		(at 109.22 129.54 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -2132,7 +2152,7 @@
 		(dnp no)
 		(uuid "8fbb687d-ecd5-48c6-bccd-44492b138cfb")
 		(property "Reference" "H3"
-			(at 110.49 119.888 0)
+			(at 109.22 126.238 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2140,7 +2160,7 @@
 			)
 		)
 		(property "Value" "MountingHole"
-			(at 113.03 124.4599 0)
+			(at 111.76 130.8099 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2150,7 +2170,7 @@
 			)
 		)
 		(property "Footprint" "OBI Components:MountingHole_3.5mm_Pad_Via_CrtYd_CoperOverCorner"
-			(at 110.49 123.19 0)
+			(at 109.22 129.54 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2159,7 +2179,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 110.49 123.19 0)
+			(at 109.22 129.54 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2168,7 +2188,7 @@
 			)
 		)
 		(property "Description" "Mounting Hole without connection"
-			(at 110.49 123.19 0)
+			(at 109.22 129.54 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2474,7 +2494,7 @@
 	)
 	(symbol
 		(lib_id "Mechanical:MountingHole")
-		(at 115.57 114.3 0)
+		(at 114.3 120.65 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -2482,7 +2502,7 @@
 		(dnp no)
 		(uuid "ca6b47b3-a1c4-42b3-835b-5453f974034e")
 		(property "Reference" "H1"
-			(at 115.57 110.998 0)
+			(at 114.3 117.348 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2490,7 +2510,7 @@
 			)
 		)
 		(property "Value" "MountingHole"
-			(at 118.11 115.5699 0)
+			(at 116.84 121.9199 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2500,7 +2520,7 @@
 			)
 		)
 		(property "Footprint" "OBI Components:MountingHole_3.5mm_Pad_Via_CrtYd_CopperOverEdge"
-			(at 115.57 114.3 0)
+			(at 114.3 120.65 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2509,7 +2529,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 115.57 114.3 0)
+			(at 114.3 120.65 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2518,7 +2538,7 @@
 			)
 		)
 		(property "Description" "Mounting Hole without connection"
-			(at 115.57 114.3 0)
+			(at 114.3 120.65 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2537,7 +2557,7 @@
 	)
 	(symbol
 		(lib_id "Mechanical:MountingHole")
-		(at 119.38 123.19 0)
+		(at 119.38 129.54 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -2545,7 +2565,7 @@
 		(dnp no)
 		(uuid "d9547c66-3deb-4db3-8825-8f9f1c6677d8")
 		(property "Reference" "H2"
-			(at 119.38 119.888 0)
+			(at 119.38 126.238 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2553,7 +2573,7 @@
 			)
 		)
 		(property "Value" "MountingHole"
-			(at 121.92 124.4599 0)
+			(at 121.92 130.8099 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2563,7 +2583,7 @@
 			)
 		)
 		(property "Footprint" "OBI Components:MountingHole_3.5mm_Pad_Via_CrtYd_CoperOverCorner"
-			(at 119.38 123.19 0)
+			(at 119.38 129.54 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2572,7 +2592,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 119.38 123.19 0)
+			(at 119.38 129.54 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2581,7 +2601,7 @@
 			)
 		)
 		(property "Description" "Mounting Hole without connection"
-			(at 119.38 123.19 0)
+			(at 119.38 129.54 0)
 			(effects
 				(font
 					(size 1.27 1.27)
