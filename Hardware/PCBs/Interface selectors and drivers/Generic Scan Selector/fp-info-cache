@@ -1,4 +1,4 @@
-23050328523878393
+23052041867941722
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -53647,34 +53647,6 @@ SMD SMT ceramic resonator filter filter hand-soldering
 0
 3
 3
-Digital IO Breakout
-Cable Pinout 1-8 Back
-
-
-0
-0
-0
-Digital IO Breakout
-Cable Pinout 1-8 Front
-
-
-0
-0
-0
-Digital IO Breakout
-MountingHole_3.5mm_Pad_Via_CrtYd
-Mounting Hole 3.5mm with Courtyard for Washers + Tolerance
-mounting hole 3.5mm Courtyard
-0
-13
-1
-Digital IO Breakout
-nanographs small
-
-
-0
-0
-0
 Diode_SMD
 D_0201_0603Metric
 Diode SMD 0201 (0603 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: https://www.vishay.com/docs/20052/crcw0201e3.pdf), generated with kicad-footprint-generator
@@ -66101,6 +66073,27 @@ net tie
 4
 4
 OBI Components
+MountingHole_3.5mm_Pad_Via_CrtYd
+Mounting Hole 3.5mm with Courtyard for Washers + Tolerance
+mounting hole 3.5mm Courtyard
+0
+9
+1
+OBI Components
+MountingHole_3.5mm_Pad_Via_CrtYd_CoperOverCorner
+Mounting Hole 3.5mm with Courtyard for Washers + Tolerance
+mounting hole 3.5mm Courtyard
+0
+13
+1
+OBI Components
+MountingHole_3.5mm_Pad_Via_CrtYd_CopperOverEdge
+Mounting Hole 3.5mm with Courtyard for Washers + Tolerance
+mounting hole 3.5mm Courtyard
+0
+11
+1
+OBI Components
 TE IM23TS DPDT Relay
 
 
@@ -66114,6 +66107,20 @@ M8_conn_01x03_Pin_Shielded_Right_Angle
 0
 5
 4
+OBI Connectors
+M8_conn_01x03_Socket_Shielded_Right_Angle
+
+
+0
+5
+4
+OBI Graphics
+nanographs small
+
+
+0
+0
+0
 OptoDevice
 ADNS-9800
 Laser Gaming Sensor ADNS-9800

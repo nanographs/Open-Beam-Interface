@@ -240,7 +240,10 @@
 				)
 			)
 		)
+		(property ki_fp_filters "MountingHole*")
 		(path "/9918a9c2-af0b-4011-b10f-0c9fc91e307b")
+		(sheetname "Root")
+		(sheetfile "Digital IO Breakout.kicad_sch")
 		(attr exclude_from_pos_files)
 		(fp_circle
 			(center 0 0)
@@ -383,15 +386,15 @@
 			(uuid "da4e1db7-98e4-42ee-b8d9-67b01fb88ae0")
 		)
 	)
-	(footprint "Digital IO Breakout:Female M8 Right Angle Panel Mount Connector"
+	(footprint "OBI Connectors:M8_conn_01x03_Socket_Shielded_Right_Angle"
 		(layer "F.Cu")
 		(uuid "1cd05ea8-7001-4c38-a288-cef65f6bb9ab")
 		(at 151 95 90)
 		(property "Reference" "J2"
-			(at 0 -3.26 90)
+			(at 0 -4.1 90)
 			(unlocked yes)
 			(layer "F.SilkS")
-			(uuid "0d0831fc-420e-4d17-90ba-37d051166765")
+			(uuid "6d0aaf3f-a6f9-456d-961e-b1ca78942255")
 			(effects
 				(font
 					(size 1 1)
@@ -399,11 +402,11 @@
 				)
 			)
 		)
-		(property "Value" "Conn_01x03_Shielded"
+		(property "Value" "M8_conn_01x03_Socket_Shielded"
 			(at 0 -8.05 90)
 			(unlocked yes)
 			(layer "F.Fab")
-			(uuid "f21f6b0e-5576-43a7-a6b0-934daa606b30")
+			(uuid "7df4040c-645e-4168-91ac-a77b15abaeeb")
 			(effects
 				(font
 					(size 1 1)
@@ -411,12 +414,12 @@
 				)
 			)
 		)
-		(property "Footprint" "Digital IO Breakout:Female M8 Right Angle Panel Mount Connector"
+		(property "Footprint" "OBI Connectors:M8_conn_01x03_Socket_Shielded_Right_Angle"
 			(at 0 0 90)
 			(unlocked yes)
 			(layer "F.Fab")
 			(hide yes)
-			(uuid "71f48413-e0f1-4e1b-9f02-fa14736e8e17")
+			(uuid "60049da1-4001-45c9-b06a-d1e9683856a7")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -424,23 +427,23 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 0 0 90)
+			(at -3.2 15.3 90)
 			(unlocked yes)
 			(layer "F.Fab")
 			(hide yes)
-			(uuid "9faa0d7e-6589-4426-8529-1ce35f94bd77")
+			(uuid "fae4df6e-d3f7-4861-b0cf-ba352eaebc3f")
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Description" "Generic shielded connector, single row, 01x03, script generated (kicad-library-utils/schlib/autogen/connector/)"
+		(property "Description" "M8 shielded connector, single row, right angle, 01x03"
 			(at 0 0 90)
 			(unlocked yes)
 			(layer "F.Fab")
 			(hide yes)
-			(uuid "4d30bce0-9487-48a5-b0cf-b97dc927ce2a")
+			(uuid "7e6ffbe9-92ce-4218-8d0c-14cc3b2cf6cc")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -460,7 +463,10 @@
 				)
 			)
 		)
+		(property ki_fp_filters "Connector*:*_1x??-1SH*")
 		(path "/7b3b15eb-92b0-4f9d-9504-c8262b10ab35")
+		(sheetname "Root")
+		(sheetfile "Digital IO Breakout.kicad_sch")
 		(attr smd)
 		(fp_line
 			(start -6.5 2.15)
@@ -470,7 +476,7 @@
 				(type default)
 			)
 			(layer "F.SilkS")
-			(uuid "a61b7154-b372-45a5-b417-cd08ec0dea46")
+			(uuid "1f0a1b14-4fba-495f-9db7-80ccb8ed7ded")
 		)
 		(fp_line
 			(start 6.5 8.2)
@@ -480,7 +486,7 @@
 				(type default)
 			)
 			(layer "F.SilkS")
-			(uuid "d4b2e6ab-3938-419f-bff9-611e8f02a178")
+			(uuid "77823035-57cb-4a97-90a8-23181c7cae06")
 		)
 		(fp_line
 			(start -6.5 8.2)
@@ -490,26 +496,13 @@
 				(type default)
 			)
 			(layer "F.SilkS")
-			(uuid "727c905e-8436-4044-a7f3-183979b07031")
+			(uuid "ba861959-1923-46f1-890b-c54dd8428375")
 		)
 		(fp_text user "4"
 			(at -1.5 -1.5 90)
 			(unlocked yes)
 			(layer "B.SilkS")
-			(uuid "37439403-824a-4dbe-9af8-116a97938048")
-			(effects
-				(font
-					(size 1 1)
-					(thickness 0.15)
-				)
-				(justify mirror)
-			)
-		)
-		(fp_text user "1"
-			(at 3.2 0.5 90)
-			(unlocked yes)
-			(layer "B.SilkS")
-			(uuid "e2b7458e-3bb3-4264-be67-a284668e569d")
+			(uuid "15797bf2-d24a-44c1-b1e9-5e193d9b9f83")
 			(effects
 				(font
 					(size 1 1)
@@ -522,7 +515,20 @@
 			(at -3.2 0.5 90)
 			(unlocked yes)
 			(layer "B.SilkS")
-			(uuid "fd2e7391-c786-4474-a9bc-541c02c8cab8")
+			(uuid "937a9b69-6480-4a71-bdfc-be1fbed64214")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+				(justify mirror)
+			)
+		)
+		(fp_text user "1"
+			(at 3.2 0.5 90)
+			(unlocked yes)
+			(layer "B.SilkS")
+			(uuid "faa06f05-3cd8-42b9-a3d9-933991c75598")
 			(effects
 				(font
 					(size 1 1)
@@ -535,7 +541,7 @@
 			(at 0 -5.95 90)
 			(unlocked yes)
 			(layer "F.Fab")
-			(uuid "9cf1e2d4-8781-4f4d-b801-829550db141a")
+			(uuid "4e5163c4-a747-48b0-8c42-9f2dd93a7a4e")
 			(effects
 				(font
 					(size 1 1)
@@ -552,7 +558,7 @@
 			(net 5 "/D-3")
 			(pinfunction "Pin_1")
 			(pintype "passive")
-			(uuid "e74088a6-9195-4843-aa28-5449958ba992")
+			(uuid "59db673b-9208-454f-aa0b-ce21d48fb773")
 		)
 		(pad "3" thru_hole circle
 			(at -1.75 0.5 90)
@@ -563,7 +569,7 @@
 			(net 4 "/D-4")
 			(pinfunction "Pin_3")
 			(pintype "passive")
-			(uuid "cb3482cc-ad86-43f3-9746-c33e13aba6de")
+			(uuid "abfe955c-26f6-43f4-9f83-d7e30571c498")
 		)
 		(pad "4" thru_hole circle
 			(at 0 -1.45 90)
@@ -574,7 +580,7 @@
 			(net 1 "GND")
 			(pinfunction "Pin_4")
 			(pintype "passive")
-			(uuid "d816e54a-7761-4183-bfea-936377b27e4c")
+			(uuid "28954b6e-3592-4695-9b38-009e19bc3473")
 		)
 		(pad "SH" thru_hole roundrect
 			(at -6.25 0 90)
@@ -586,7 +592,7 @@
 			(net 1 "GND")
 			(pinfunction "Shield")
 			(pintype "passive")
-			(uuid "a9e4b94b-df26-4dd9-b243-adf461b29f6e")
+			(uuid "9268ba0a-ef2b-4b5d-af2d-6a7e523ce480")
 		)
 		(pad "SH" thru_hole roundrect
 			(at 6.25 0 90)
@@ -598,11 +604,11 @@
 			(net 1 "GND")
 			(pinfunction "Shield")
 			(pintype "passive")
-			(uuid "b030eebe-2216-422e-b2a5-1620ee464533")
+			(uuid "edb70026-75b5-4d0d-8a48-e0206174e6b8")
 		)
-		(model "${KIPRJMOD}/3D Models/86_6618_1121_00003.stp"
+		(model "${OBI_3DMODELS}/OBI Connectors.3dshapes/M8_conn_01x03_Pin_Shielded_Right_Angle"
 			(offset
-				(xyz 0 -3.19 6.26)
+				(xyz 0 -3.2 6.3)
 			)
 			(scale
 				(xyz 1 1 1)
@@ -1816,7 +1822,10 @@
 				)
 			)
 		)
+		(property ki_fp_filters "MountingHole*")
 		(path "/3ecfb5d7-2c0c-4e1e-97a4-307e72fa2f84")
+		(sheetname "Root")
+		(sheetfile "Digital IO Breakout.kicad_sch")
 		(attr exclude_from_pos_files)
 		(fp_circle
 			(center 0 0)
@@ -2411,15 +2420,15 @@
 			(uuid "0ad3c861-b66b-4869-96b6-e931f1c36aee")
 		)
 	)
-	(footprint "Digital IO Breakout:Female M8 Right Angle Panel Mount Connector"
+	(footprint "OBI Connectors:M8_conn_01x03_Socket_Shielded_Right_Angle"
 		(layer "F.Cu")
 		(uuid "827a332e-86a4-4d9a-81db-92b728aacf2c")
 		(at 151 127 90)
 		(property "Reference" "J4"
-			(at 0 -3.26 90)
+			(at 0 -4.1 90)
 			(unlocked yes)
 			(layer "F.SilkS")
-			(uuid "97cd2514-a318-4f1d-8c36-b99e07fdc2f8")
+			(uuid "1b07fa4f-d1c8-473d-8626-fe01f18d9be0")
 			(effects
 				(font
 					(size 1 1)
@@ -2427,11 +2436,11 @@
 				)
 			)
 		)
-		(property "Value" "Conn_01x03_Shielded"
+		(property "Value" "M8_conn_01x03_Socket_Shielded"
 			(at 0 -8.05 90)
 			(unlocked yes)
 			(layer "F.Fab")
-			(uuid "eab8408a-bfdd-4e97-a5eb-293b75097743")
+			(uuid "260e978d-2c5c-4143-827c-ab74dd544be3")
 			(effects
 				(font
 					(size 1 1)
@@ -2439,12 +2448,12 @@
 				)
 			)
 		)
-		(property "Footprint" "Digital IO Breakout:Female M8 Right Angle Panel Mount Connector"
+		(property "Footprint" "OBI Connectors:M8_conn_01x03_Socket_Shielded_Right_Angle"
 			(at 0 0 90)
 			(unlocked yes)
 			(layer "F.Fab")
 			(hide yes)
-			(uuid "cda8c8d8-484d-44a3-b4a9-e8cb4b8fc101")
+			(uuid "4aa360f3-9c9a-4981-aae5-827263e94da6")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2452,23 +2461,23 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 0 0 90)
+			(at -3.2 15.3 90)
 			(unlocked yes)
 			(layer "F.Fab")
 			(hide yes)
-			(uuid "83ecbcfa-6a77-4f36-bffa-8a22c13b40e2")
+			(uuid "e3493d7d-456a-48e6-a508-20058eeef845")
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Description" "Generic shielded connector, single row, 01x03, script generated (kicad-library-utils/schlib/autogen/connector/)"
+		(property "Description" "M8 shielded connector, single row, right angle, 01x03"
 			(at 0 0 90)
 			(unlocked yes)
 			(layer "F.Fab")
 			(hide yes)
-			(uuid "7f043657-e855-4001-a843-3ee2dd709165")
+			(uuid "1c6c58f7-04cd-4a1a-89d5-91caf8ab05c4")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2488,7 +2497,10 @@
 				)
 			)
 		)
+		(property ki_fp_filters "Connector*:*_1x??-1SH*")
 		(path "/b2273881-1b8e-4b65-ae48-400a36d7f4db")
+		(sheetname "Root")
+		(sheetfile "Digital IO Breakout.kicad_sch")
 		(attr smd)
 		(fp_line
 			(start -6.5 2.15)
@@ -2498,7 +2510,7 @@
 				(type default)
 			)
 			(layer "F.SilkS")
-			(uuid "b4f360ae-47c2-408f-86bd-983464ceb30e")
+			(uuid "631638ea-01f8-4cc6-9786-a2a3897f9599")
 		)
 		(fp_line
 			(start 6.5 8.2)
@@ -2508,7 +2520,7 @@
 				(type default)
 			)
 			(layer "F.SilkS")
-			(uuid "9cea0a34-301c-4dc2-8c6c-bd775b70d0f1")
+			(uuid "20920a18-34f4-490d-939f-796fe2181209")
 		)
 		(fp_line
 			(start -6.5 8.2)
@@ -2518,13 +2530,26 @@
 				(type default)
 			)
 			(layer "F.SilkS")
-			(uuid "d2461067-701b-49c5-9fa7-02c07db10e88")
+			(uuid "68ca642a-25c4-4eb5-8b0f-37080ffb3516")
+		)
+		(fp_text user "3"
+			(at -3.2 0.5 90)
+			(unlocked yes)
+			(layer "B.SilkS")
+			(uuid "717d12ef-62e5-40ca-b283-cf0a519b6233")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+				(justify mirror)
+			)
 		)
 		(fp_text user "1"
 			(at 3.2 0.5 90)
 			(unlocked yes)
 			(layer "B.SilkS")
-			(uuid "2ca90543-63fd-447f-b8f7-953a67d19da5")
+			(uuid "74ba8579-d6c9-4611-8549-3bf028f2a8f8")
 			(effects
 				(font
 					(size 1 1)
@@ -2537,20 +2562,7 @@
 			(at -1.5 -1.5 90)
 			(unlocked yes)
 			(layer "B.SilkS")
-			(uuid "67c7b651-28c2-4954-8da9-be9821b281dc")
-			(effects
-				(font
-					(size 1 1)
-					(thickness 0.15)
-				)
-				(justify mirror)
-			)
-		)
-		(fp_text user "3"
-			(at -3.2 0.5 90)
-			(unlocked yes)
-			(layer "B.SilkS")
-			(uuid "ca355ffa-e901-4827-9cab-c11efb996889")
+			(uuid "c657c775-62ba-44e8-8f2c-c12e8de4b237")
 			(effects
 				(font
 					(size 1 1)
@@ -2563,7 +2575,7 @@
 			(at 0 -5.95 90)
 			(unlocked yes)
 			(layer "F.Fab")
-			(uuid "bbf2a4f9-8751-49d1-9c15-34cb4af38bc1")
+			(uuid "33071bda-ba11-4313-8af7-e69d4e13f0b8")
 			(effects
 				(font
 					(size 1 1)
@@ -2580,7 +2592,7 @@
 			(net 8 "/D-7")
 			(pinfunction "Pin_1")
 			(pintype "passive")
-			(uuid "d945490b-3669-467e-9d77-e7ab0b28066d")
+			(uuid "40f3ab72-323b-449e-9c95-a615969cb378")
 		)
 		(pad "3" thru_hole circle
 			(at -1.75 0.5 90)
@@ -2591,7 +2603,7 @@
 			(net 10 "/D-8")
 			(pinfunction "Pin_3")
 			(pintype "passive")
-			(uuid "b70be6d8-dbe0-44f1-ab60-b6ccaa2a7b21")
+			(uuid "c095fc64-fac7-48ae-977b-55e9a8dedc4e")
 		)
 		(pad "4" thru_hole circle
 			(at 0 -1.45 90)
@@ -2602,7 +2614,7 @@
 			(net 1 "GND")
 			(pinfunction "Pin_4")
 			(pintype "passive")
-			(uuid "f46bce74-125e-4c44-a9f9-4da92903b715")
+			(uuid "3a8f0d52-0e4c-4257-bc69-7b3f51678b8a")
 		)
 		(pad "SH" thru_hole roundrect
 			(at -6.25 0 90)
@@ -2614,7 +2626,7 @@
 			(net 1 "GND")
 			(pinfunction "Shield")
 			(pintype "passive")
-			(uuid "9177d95f-8629-4c9a-a085-e5a5a576b84b")
+			(uuid "c8176b98-6840-4644-b56f-9d0e87d5996c")
 		)
 		(pad "SH" thru_hole roundrect
 			(at 6.25 0 90)
@@ -2626,11 +2638,11 @@
 			(net 1 "GND")
 			(pinfunction "Shield")
 			(pintype "passive")
-			(uuid "0dbb2eda-8ea3-44db-9a29-f723d72efdd8")
+			(uuid "ad68c160-95fb-4bc2-8b1e-9e1bc35607a3")
 		)
-		(model "${KIPRJMOD}/3D Models/86_6618_1121_00003.stp"
+		(model "${OBI_3DMODELS}/OBI Connectors.3dshapes/M8_conn_01x03_Pin_Shielded_Right_Angle"
 			(offset
-				(xyz 0 -3.19 6.26)
+				(xyz 0 -3.2 6.3)
 			)
 			(scale
 				(xyz 1 1 1)
@@ -2743,7 +2755,10 @@
 				)
 			)
 		)
+		(property ki_fp_filters "MountingHole*")
 		(path "/03baa3a9-940b-4ed8-bba2-fff821978103")
+		(sheetname "Root")
+		(sheetfile "Digital IO Breakout.kicad_sch")
 		(attr exclude_from_pos_files)
 		(fp_circle
 			(center 0 0)
@@ -3903,15 +3918,15 @@
 			)
 		)
 	)
-	(footprint "Digital IO Breakout:Female M8 Right Angle Panel Mount Connector"
+	(footprint "OBI Connectors:M8_conn_01x03_Socket_Shielded_Right_Angle"
 		(layer "F.Cu")
 		(uuid "c2f1a735-187e-44aa-9245-09c5f0d506b1")
 		(at 151 111 90)
 		(property "Reference" "J3"
-			(at 0 -3.26 90)
+			(at 0 -4.1 90)
 			(unlocked yes)
 			(layer "F.SilkS")
-			(uuid "a94bf630-6a74-4bca-8e09-bbe43709aff6")
+			(uuid "4e263663-9a51-43b6-b6c8-645b6053fc27")
 			(effects
 				(font
 					(size 1 1)
@@ -3919,11 +3934,11 @@
 				)
 			)
 		)
-		(property "Value" "Conn_01x03_Shielded"
+		(property "Value" "M8_conn_01x03_Socket_Shielded"
 			(at 0 -8.05 90)
 			(unlocked yes)
 			(layer "F.Fab")
-			(uuid "47f4fb31-4f86-4cc5-b85c-b31649d724c7")
+			(uuid "5d80ac4d-8e84-4009-abf5-04c0dc5f3892")
 			(effects
 				(font
 					(size 1 1)
@@ -3931,12 +3946,12 @@
 				)
 			)
 		)
-		(property "Footprint" "Digital IO Breakout:Female M8 Right Angle Panel Mount Connector"
+		(property "Footprint" "OBI Connectors:M8_conn_01x03_Socket_Shielded_Right_Angle"
 			(at 0 0 90)
 			(unlocked yes)
 			(layer "F.Fab")
 			(hide yes)
-			(uuid "4928ebe2-0f20-40a2-9c52-0978555721df")
+			(uuid "7a594c64-51c8-46eb-a2dc-1b9b7ff7fc3f")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3944,23 +3959,23 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 0 0 90)
+			(at -3.2 15.3 90)
 			(unlocked yes)
 			(layer "F.Fab")
 			(hide yes)
-			(uuid "0a8832d4-3603-4e3a-b243-661509caeb01")
+			(uuid "36a05c62-0261-4641-9151-ca7f82d4b2fd")
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Description" "Generic shielded connector, single row, 01x03, script generated (kicad-library-utils/schlib/autogen/connector/)"
+		(property "Description" "M8 shielded connector, single row, right angle, 01x03"
 			(at 0 0 90)
 			(unlocked yes)
 			(layer "F.Fab")
 			(hide yes)
-			(uuid "aecca40f-f28d-44bb-b673-c161bee3703d")
+			(uuid "8900cbc8-5389-4611-817a-34edc3de9856")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3980,7 +3995,10 @@
 				)
 			)
 		)
+		(property ki_fp_filters "Connector*:*_1x??-1SH*")
 		(path "/2ab85f49-b2a6-4501-b0fd-ac5e38a49fc9")
+		(sheetname "Root")
+		(sheetfile "Digital IO Breakout.kicad_sch")
 		(attr smd)
 		(fp_line
 			(start -6.5 2.15)
@@ -3990,7 +4008,7 @@
 				(type default)
 			)
 			(layer "F.SilkS")
-			(uuid "152eee93-308a-496c-b475-c7e9516b86ab")
+			(uuid "85c4c220-e648-4b45-bf22-40a2b8b13d35")
 		)
 		(fp_line
 			(start 6.5 8.2)
@@ -4000,7 +4018,7 @@
 				(type default)
 			)
 			(layer "F.SilkS")
-			(uuid "b959394b-f235-4d3d-8196-6b18819ad823")
+			(uuid "85836af7-e6f2-415f-8552-f14efaa75080")
 		)
 		(fp_line
 			(start -6.5 8.2)
@@ -4010,26 +4028,13 @@
 				(type default)
 			)
 			(layer "F.SilkS")
-			(uuid "3fb9ffcd-0154-4be8-be76-b4edd73c968f")
-		)
-		(fp_text user "4"
-			(at -1.5 -1.5 90)
-			(unlocked yes)
-			(layer "B.SilkS")
-			(uuid "041c7f3b-09b3-4764-af0c-10f5b9c016df")
-			(effects
-				(font
-					(size 1 1)
-					(thickness 0.15)
-				)
-				(justify mirror)
-			)
+			(uuid "fcea538e-30b3-4cb1-9442-f810f6495d44")
 		)
 		(fp_text user "1"
 			(at 3.2 0.5 90)
 			(unlocked yes)
 			(layer "B.SilkS")
-			(uuid "c9ec9101-dab0-4a5b-9cea-4f65fde0aaa5")
+			(uuid "44ddfb5c-5e5e-4eca-ada8-fe75fbae1127")
 			(effects
 				(font
 					(size 1 1)
@@ -4042,7 +4047,20 @@
 			(at -3.2 0.5 90)
 			(unlocked yes)
 			(layer "B.SilkS")
-			(uuid "d3b5801f-1c72-4b2d-a516-ec81f22b8e16")
+			(uuid "897d1a4a-9e8b-4f50-94a9-0f01cdc59673")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+				(justify mirror)
+			)
+		)
+		(fp_text user "4"
+			(at -1.5 -1.5 90)
+			(unlocked yes)
+			(layer "B.SilkS")
+			(uuid "e6615663-d10f-4407-8d0c-61a39c9900b9")
 			(effects
 				(font
 					(size 1 1)
@@ -4055,7 +4073,7 @@
 			(at 0 -5.95 90)
 			(unlocked yes)
 			(layer "F.Fab")
-			(uuid "b8efc247-0bdb-4740-ae15-d1a41516d1de")
+			(uuid "058c3173-2be1-4741-85f3-e8583f91799f")
 			(effects
 				(font
 					(size 1 1)
@@ -4072,7 +4090,7 @@
 			(net 7 "/D-5")
 			(pinfunction "Pin_1")
 			(pintype "passive")
-			(uuid "8681420f-048a-4939-87a4-b4eb0466d2e4")
+			(uuid "f1e291c8-b8b8-4757-9493-e28d5e2c1a77")
 		)
 		(pad "3" thru_hole circle
 			(at -1.75 0.5 90)
@@ -4083,7 +4101,7 @@
 			(net 6 "/D-6")
 			(pinfunction "Pin_3")
 			(pintype "passive")
-			(uuid "09abcb9d-ce3b-41c2-866f-5e685594ebee")
+			(uuid "389d199a-8058-4b71-a013-319113a9b817")
 		)
 		(pad "4" thru_hole circle
 			(at 0 -1.45 90)
@@ -4094,7 +4112,7 @@
 			(net 1 "GND")
 			(pinfunction "Pin_4")
 			(pintype "passive")
-			(uuid "9b93dc85-e838-4b71-8900-1dcd368f4280")
+			(uuid "2c265f83-ddcf-4fde-a283-ee07fdd5dc68")
 		)
 		(pad "SH" thru_hole roundrect
 			(at -6.25 0 90)
@@ -4106,7 +4124,7 @@
 			(net 1 "GND")
 			(pinfunction "Shield")
 			(pintype "passive")
-			(uuid "7ee15718-510b-4e79-88a3-f977b95ae4eb")
+			(uuid "94103857-1332-4435-89f2-2ed30a4b0b98")
 		)
 		(pad "SH" thru_hole roundrect
 			(at 6.25 0 90)
@@ -4118,11 +4136,11 @@
 			(net 1 "GND")
 			(pinfunction "Shield")
 			(pintype "passive")
-			(uuid "db438d3f-0492-4715-9d93-0f74fed2ea87")
+			(uuid "5846c4f4-c0d3-4d5f-9cb0-2fa8ae8d1425")
 		)
-		(model "${KIPRJMOD}/3D Models/86_6618_1121_00003.stp"
+		(model "${OBI_3DMODELS}/OBI Connectors.3dshapes/M8_conn_01x03_Pin_Shielded_Right_Angle"
 			(offset
-				(xyz 0 -3.19 6.26)
+				(xyz 0 -3.2 6.3)
 			)
 			(scale
 				(xyz 1 1 1)
@@ -4235,7 +4253,10 @@
 				)
 			)
 		)
+		(property ki_fp_filters "MountingHole*")
 		(path "/bb4b6681-0c5f-4939-adaf-4a0fd7e5a05d")
+		(sheetname "Root")
+		(sheetfile "Digital IO Breakout.kicad_sch")
 		(attr exclude_from_pos_files)
 		(fp_circle
 			(center 0 0)
@@ -4378,15 +4399,15 @@
 			(uuid "71b60a16-a5e2-4ed3-852b-145d9e94d67c")
 		)
 	)
-	(footprint "Digital IO Breakout:Female M8 Right Angle Panel Mount Connector"
+	(footprint "OBI Connectors:M8_conn_01x03_Socket_Shielded_Right_Angle"
 		(layer "F.Cu")
 		(uuid "d27c29ce-498a-466d-aa31-b74930466949")
 		(at 151 79 90)
 		(property "Reference" "J1"
-			(at 0 -3.26 90)
+			(at 0 -4.1 90)
 			(unlocked yes)
 			(layer "F.SilkS")
-			(uuid "31d6eada-77bb-4d52-90ef-0f394e2ef4c5")
+			(uuid "73f88eae-8444-4bc7-927b-fafe239a0e41")
 			(effects
 				(font
 					(size 1 1)
@@ -4394,11 +4415,11 @@
 				)
 			)
 		)
-		(property "Value" "Conn_01x03_Shielded"
+		(property "Value" "M8_conn_01x03_Socket_Shielded"
 			(at 0 -8.05 90)
 			(unlocked yes)
 			(layer "F.Fab")
-			(uuid "d8710f64-d09e-491e-8e1b-5f0cd088d400")
+			(uuid "c3378e9a-00e3-4177-9ad8-5cac94cdbdec")
 			(effects
 				(font
 					(size 1 1)
@@ -4406,12 +4427,12 @@
 				)
 			)
 		)
-		(property "Footprint" "Digital IO Breakout:Female M8 Right Angle Panel Mount Connector"
+		(property "Footprint" "OBI Connectors:M8_conn_01x03_Socket_Shielded_Right_Angle"
 			(at 0 0 90)
 			(unlocked yes)
 			(layer "F.Fab")
 			(hide yes)
-			(uuid "0183bc53-9a3f-45fd-a9cd-0590d75e7249")
+			(uuid "2f9ac8f2-180d-4ef9-800b-9ce17b3209f5")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4419,23 +4440,23 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 0 0 90)
+			(at -3.2 15.3 90)
 			(unlocked yes)
 			(layer "F.Fab")
 			(hide yes)
-			(uuid "eca9ec10-b552-467c-bc50-cd0cdbcafa90")
+			(uuid "4c8542d2-cb24-45a0-93fc-c3eab2973a92")
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Description" "Generic shielded connector, single row, 01x03, script generated (kicad-library-utils/schlib/autogen/connector/)"
+		(property "Description" "M8 shielded connector, single row, right angle, 01x03"
 			(at 0 0 90)
 			(unlocked yes)
 			(layer "F.Fab")
 			(hide yes)
-			(uuid "144f4720-1d83-44bf-ad57-6aa2c49ba1ce")
+			(uuid "c5ef83d3-8e9e-440d-9824-d4eb5b2267e9")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4455,7 +4476,10 @@
 				)
 			)
 		)
+		(property ki_fp_filters "Connector*:*_1x??-1SH*")
 		(path "/9327fdb8-fd48-463f-9573-b6c2b8b7f85e")
+		(sheetname "Root")
+		(sheetfile "Digital IO Breakout.kicad_sch")
 		(attr smd)
 		(fp_line
 			(start -6.5 2.15)
@@ -4465,7 +4489,7 @@
 				(type default)
 			)
 			(layer "F.SilkS")
-			(uuid "b920cb0d-3e4f-46be-b8ac-67cb4b59db82")
+			(uuid "3655da8e-b5a2-4f6d-b901-584125b1a59e")
 		)
 		(fp_line
 			(start 6.5 8.2)
@@ -4475,7 +4499,7 @@
 				(type default)
 			)
 			(layer "F.SilkS")
-			(uuid "ea26dbda-8e4c-46dc-b1ca-14d42468d65c")
+			(uuid "ddc5b370-d35b-4327-95ac-572b41e34928")
 		)
 		(fp_line
 			(start -6.5 8.2)
@@ -4485,13 +4509,13 @@
 				(type default)
 			)
 			(layer "F.SilkS")
-			(uuid "69a0e5ae-3c5b-4ed5-8bc8-cbac375de755")
+			(uuid "12089b82-fa55-4e13-b1d8-52b8de0b0916")
 		)
-		(fp_text user "1"
-			(at 3.2 0.5 90)
+		(fp_text user "4"
+			(at -1.5 -1.5 90)
 			(unlocked yes)
 			(layer "B.SilkS")
-			(uuid "a42208b2-b6ce-4f7c-815d-d7cf93fca9f0")
+			(uuid "8d4a1586-4b56-4954-a1e3-3144a2517a3f")
 			(effects
 				(font
 					(size 1 1)
@@ -4500,11 +4524,11 @@
 				(justify mirror)
 			)
 		)
-		(fp_text user "4"
-			(at -1.5 -1.5 90)
+		(fp_text user "1"
+			(at 3.2 0.5 90)
 			(unlocked yes)
 			(layer "B.SilkS")
-			(uuid "c431456f-4d7a-4282-aa15-adfdf9f91015")
+			(uuid "8e5e2c15-bf39-44da-9850-ad99ea2cb3d5")
 			(effects
 				(font
 					(size 1 1)
@@ -4517,7 +4541,7 @@
 			(at -3.2 0.5 90)
 			(unlocked yes)
 			(layer "B.SilkS")
-			(uuid "d0a72e5f-f222-4b66-9fd6-4bae56a53bb1")
+			(uuid "f6853d4a-0e84-488b-8919-d519485d70ae")
 			(effects
 				(font
 					(size 1 1)
@@ -4530,7 +4554,7 @@
 			(at 0 -5.95 90)
 			(unlocked yes)
 			(layer "F.Fab")
-			(uuid "7ba4b1aa-457c-4534-abfc-22c29a9c739e")
+			(uuid "3e3a9141-a7e1-4236-94fe-9fc3299f7ad8")
 			(effects
 				(font
 					(size 1 1)
@@ -4547,7 +4571,7 @@
 			(net 2 "/D-1")
 			(pinfunction "Pin_1")
 			(pintype "passive")
-			(uuid "2b41b8cb-3871-45b1-a62b-56a6faa8eb30")
+			(uuid "4ee3747c-ead4-4181-aaf4-c45c38af9398")
 		)
 		(pad "3" thru_hole circle
 			(at -1.75 0.5 90)
@@ -4558,7 +4582,7 @@
 			(net 3 "/D-2")
 			(pinfunction "Pin_3")
 			(pintype "passive")
-			(uuid "3c39db05-8669-421f-b0c6-35e7b6d49922")
+			(uuid "f8488018-8645-4caf-be41-10b93a2dde19")
 		)
 		(pad "4" thru_hole circle
 			(at 0 -1.45 90)
@@ -4569,7 +4593,7 @@
 			(net 1 "GND")
 			(pinfunction "Pin_4")
 			(pintype "passive")
-			(uuid "e28fd421-5bc3-4c04-a7a4-2f05120c7fa7")
+			(uuid "26ed0a40-67bc-456d-bd4a-238d70866fac")
 		)
 		(pad "SH" thru_hole roundrect
 			(at -6.25 0 90)
@@ -4581,7 +4605,7 @@
 			(net 1 "GND")
 			(pinfunction "Shield")
 			(pintype "passive")
-			(uuid "db58f853-9986-44d7-8a06-70d09bdfa64f")
+			(uuid "1700b801-ef4d-477c-9a87-8f02f3344d89")
 		)
 		(pad "SH" thru_hole roundrect
 			(at 6.25 0 90)
@@ -4593,11 +4617,11 @@
 			(net 1 "GND")
 			(pinfunction "Shield")
 			(pintype "passive")
-			(uuid "97bfecc1-3176-48e4-9395-50cb75d3529b")
+			(uuid "254d5461-b4fc-4801-a749-c9fd9d7ae3ee")
 		)
-		(model "${KIPRJMOD}/3D Models/86_6618_1121_00003.stp"
+		(model "${OBI_3DMODELS}/OBI Connectors.3dshapes/M8_conn_01x03_Pin_Shielded_Right_Angle"
 			(offset
-				(xyz 0 -3.19 6.26)
+				(xyz 0 -3.2 6.3)
 			)
 			(scale
 				(xyz 1 1 1)
