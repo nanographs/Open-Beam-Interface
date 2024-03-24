@@ -24,7 +24,7 @@ from glasgow.support.endpoint import ServerEndpoint
 
 def StreamSignature(data_layout):
     return wiring.Signature({
-        "data":  Out(data_layout),
+        "payload":  Out(data_layout),
         "valid": Out(1),
         "ready": In(1)
     })
@@ -101,8 +101,8 @@ class BusController(wiring.Component):
 
         m.d.comb += [
             self.adc_stream.valid.eq(self.dac_stream.valid),
-            self.adc_stream.data.adc_code.eq(self.dac_stream.data.dac_x_code),
-            self.adc_stream.data.last.eq(self.dac_stream.data.last),
+            self.adc_stream.payload.adc_code.eq(self.dac_stream.data.dac_x_code),
+            self.adc_stream.payload.last.eq(self.dac_stream.data.last),
             self.dac_stream.ready.eq(self.adc_stream.ready),
         ]
 
@@ -129,7 +129,7 @@ class BusController(wiring.Component):
         m.submodules.adc_stream_fifo = adc_stream_fifo = \
             SyncFIFOBuffered(depth=self.adc_latency, width=len(self.adc_stream.data.as_value()))
         m.d.comb += [
-            self.adc_stream.data.eq(adc_stream_fifo.r_data),
+            self.adc_stream.payload.eq(adc_stream_fifo.r_data),
             self.adc_stream.valid.eq(adc_stream_fifo.r_rdy),
             adc_stream_fifo.r_en.eq(self.adc_stream.ready),
         ]
@@ -164,7 +164,7 @@ class BusController(wiring.Component):
                     # Schedule ADC sample for these DAC codes to be output.
                     m.d.sync += accept_sample.eq(Cat(1, accept_sample))
                     # Carry over the flag for last sample [of averaging window] to the output.
-                    m.d.sync += last_sample.eq(Cat(self.dac_stream.data.last, last_sample))
+                    m.d.sync += last_sample.eq(Cat(self.dac_stream.payload.last, last_sample))
                 with m.Else():
                     # Leave DAC codes as they are.
                     # Schedule ADC sample for these DAC codes to be discarded.
@@ -233,41 +233,41 @@ class Supersampler(wiring.Component):
     def __init__(self):
         super().__init__()
 
-        self.dac_stream_data = Signal.like(self.dac_stream.data)
+        self.dac_stream_data = Signal.like(self.dac_stream.payload)
 
     def elaborate(self, platform):
         m = Module()
 
         dwell_counter = Signal.like(self.dac_stream_data.dwell_time)
         m.d.comb += [
-            self.super_dac_stream.data.dac_x_code.eq(self.dac_stream_data.dac_x_code),
-            self.super_dac_stream.data.dac_y_code.eq(self.dac_stream_data.dac_y_code),
-            self.super_dac_stream.data.last.eq(dwell_counter == self.dac_stream_data.dwell_time),
+            self.super_dac_stream.payload.dac_x_code.eq(self.dac_stream_data.dac_x_code),
+            self.super_dac_stream.payload.dac_y_code.eq(self.dac_stream_data.dac_y_code),
+            self.super_dac_stream.payload.last.eq(dwell_counter == self.dac_stream_data.dwell_time),
         ]
         with m.FSM():
             with m.State("Wait"):
                 m.d.comb += self.dac_stream.ready.eq(1)
                 with m.If(self.dac_stream.valid):
-                    m.d.sync += self.dac_stream_data.eq(self.dac_stream.data)
+                    m.d.sync += self.dac_stream_data.eq(self.dac_stream.payload)
                     m.d.sync += dwell_counter.eq(0)
                     m.next = "Generate"
 
             with m.State("Generate"):
                 m.d.comb += self.super_dac_stream.valid.eq(1)
                 with m.If(self.super_dac_stream.ready):
-                    with m.If(self.super_dac_stream.data.last):
+                    with m.If(self.super_dac_stream.payload.last):
                         m.next = "Wait"
                     with m.Else():
                         m.d.sync += dwell_counter.eq(dwell_counter + 1)
 
-        running_average = Signal.like(self.super_adc_stream.data.adc_code)
-        m.d.comb += self.adc_stream.data.adc_code.eq(running_average)
+        running_average = Signal.like(self.super_adc_stream.payload.adc_code)
+        m.d.comb += self.adc_stream.payload.adc_code.eq(running_average)
         with m.FSM():
             with m.State("Start"):
                 m.d.comb += self.super_adc_stream.ready.eq(1)
                 with m.If(self.super_adc_stream.valid):
-                    m.d.sync += running_average.eq(self.super_adc_stream.data.adc_code)
-                    with m.If(self.super_adc_stream.data.last):
+                    m.d.sync += running_average.eq(self.super_adc_stream.payload.adc_code)
+                    with m.If(self.super_adc_stream.payload.last):
                         m.next = "Wait"
                     with m.Else():
                         m.next = "Average"
@@ -275,8 +275,8 @@ class Supersampler(wiring.Component):
             with m.State("Average"):
                 m.d.comb += self.super_adc_stream.ready.eq(1)
                 with m.If(self.super_adc_stream.valid):
-                    m.d.sync += running_average.eq((running_average + self.super_adc_stream.data.adc_code) >> 1)
-                    with m.If(self.super_adc_stream.data.last):
+                    m.d.sync += running_average.eq((running_average + self.super_adc_stream.payload.adc_code) >> 1)
+                    with m.If(self.super_adc_stream.payload.last):
                         m.next = "Wait"
                     with m.Else():
                         m.next = "Average"
@@ -318,16 +318,16 @@ class RasterScanner(wiring.Component):
     def elaborate(self, platform):
         m = Module()
 
-        region  = Signal.like(self.roi_stream.data)
+        region  = Signal.like(self.roi_stream.payload)
 
         x_accum = Signal(14 + self.FRAC_BITS)
         x_count = Signal.like(region.x_count)
         y_accum = Signal(14 + self.FRAC_BITS)
         y_count = Signal.like(region.y_count)
         m.d.comb += [
-            self.dac_stream.data.dac_x_code.eq(x_accum >> self.FRAC_BITS),
-            self.dac_stream.data.dac_y_code.eq(y_accum >> self.FRAC_BITS),
-            self.dac_stream.data.dwell_time.eq(self.dwell_stream.data),
+            self.dac_stream.payload.dac_x_code.eq(x_accum >> self.FRAC_BITS),
+            self.dac_stream.payload.dac_y_code.eq(y_accum >> self.FRAC_BITS),
+            self.dac_stream.payload.dwell_time.eq(self.dwell_stream.payload),
         ]
 
         with m.FSM():
@@ -335,10 +335,10 @@ class RasterScanner(wiring.Component):
                 m.d.comb += self.roi_stream.ready.eq(1)
                 with m.If(self.roi_stream.valid):
                     m.d.sync += [
-                        region.eq(self.roi_stream.data),
-                        x_accum.eq(self.roi_stream.data.x_start << self.FRAC_BITS),
+                        region.eq(self.roi_stream.payload),
+                        x_accum.eq(self.roi_stream.payload.x_start << self.FRAC_BITS),
                         x_count.eq(0),
-                        y_accum.eq(self.roi_stream.data.y_start << self.FRAC_BITS),
+                        y_accum.eq(self.roi_stream.payload.y_start << self.FRAC_BITS),
                         y_count.eq(0),
                     ]
                     m.next = "Scan"
@@ -359,7 +359,7 @@ class RasterScanner(wiring.Component):
                             m.d.sync += y_accum.eq(y_accum + region.y_step)
                             m.d.sync += y_count.eq(y_count + 1)
 
-                        m.d.sync += x_accum.eq(self.roi_stream.data.x_start << self.FRAC_BITS)
+                        m.d.sync += x_accum.eq(self.roi_stream.payload.x_start << self.FRAC_BITS)
                         m.d.sync += x_count.eq(0)
                     with m.Else():
                         m.d.sync += x_accum.eq(x_accum + region.x_step)
@@ -414,12 +414,12 @@ class CommandParser(wiring.Component):
         m = Module()
 
         command = Signal(Command)
-        m.d.comb += self.cmd_stream.data.eq(command)
+        m.d.comb += self.cmd_stream.payload.eq(command)
 
         with m.FSM():
             with m.State("Type"):
                 m.d.comb += self.usb_stream.ready.eq(1)
-                m.d.sync += command.type.eq(self.usb_stream.data)
+                m.d.sync += command.type.eq(self.usb_stream.payload)
                 with m.If(self.usb_stream.valid):
                     with m.Switch(self.usb_stream.data):
                         with m.Case(Command.Type.Synchronize):
@@ -448,7 +448,7 @@ class CommandParser(wiring.Component):
                 with m.State(state):
                     m.d.comb += self.usb_stream.ready.eq(1)
                     with m.If(self.usb_stream.valid):
-                        m.d.sync += target.eq(self.usb_stream.data)
+                        m.d.sync += target.eq(self.usb_stream.payload)
                         m.next = next_state
 
             def DeserializeWord(target, state_prefix, next_state):
@@ -545,7 +545,7 @@ class CommandExecutor(wiring.Component):
 
 
         raster_mode = Signal()
-        command = Signal.like(self.cmd_stream.data)
+        command = Signal.like(self.cmd_stream.payload)
         with m.If(raster_mode):
             wiring.connect(m, raster_scanner.dac_stream, self.supersampler.dac_stream)
         with m.Else():
@@ -559,7 +559,7 @@ class CommandExecutor(wiring.Component):
 
         run_length = Signal.like(command.payload.raster_pixel_run.length)
         m.d.comb += [
-            raster_scanner.roi_stream.data.eq(command.payload.raster_region),
+            raster_scanner.roi_stream.payload.eq(command.payload.raster_region),
             vector_stream.data.eq(command.payload.vector_pixel)
         ]
 
@@ -601,7 +601,7 @@ class CommandExecutor(wiring.Component):
                     with m.Case(Command.Type.RasterPixel):
                         m.d.comb += [
                             raster_scanner.dwell_stream.valid.eq(1),
-                            raster_scanner.dwell_stream.data.eq(command.payload.raster_pixel),
+                            raster_scanner.dwell_stream.payload.eq(command.payload.raster_pixel),
                         ]
                         with m.If(raster_scanner.dwell_stream.ready):
                             m.d.comb += submit_pixel.eq(1)
@@ -610,7 +610,7 @@ class CommandExecutor(wiring.Component):
                     with m.Case(Command.Type.RasterPixelRun):
                         m.d.comb += [
                             raster_scanner.dwell_stream.valid.eq(1),
-                            raster_scanner.dwell_stream.data.eq(command.payload.raster_pixel_run.dwell_time)
+                            raster_scanner.dwell_stream.payload.eq(command.payload.raster_pixel_run.dwell_time)
                         ]
                         with m.If(raster_scanner.dwell_stream.ready):
                             m.d.comb += submit_pixel.eq(1)
@@ -629,7 +629,7 @@ class CommandExecutor(wiring.Component):
         with m.FSM():
             with m.State("Imaging"):
                 m.d.comb += [
-                    self.img_stream.data.eq(self.supersampler.adc_stream.data.adc_code),
+                    self.img_stream.payload.eq(self.supersampler.adc_stream.payload.adc_code),
                     self.img_stream.valid.eq(self.supersampler.adc_stream.valid),
                     self.supersampler.adc_stream.ready.eq(self.img_stream.ready),
                     retire_pixel.eq(self.supersampler.adc_stream.valid & self.img_stream.ready),
@@ -639,7 +639,7 @@ class CommandExecutor(wiring.Component):
 
             with m.State("Write FFFF"):
                 m.d.comb += [
-                    self.img_stream.data.eq(0xffff),
+                    self.img_stream.payload.eq(0xffff),
                     self.img_stream.valid.eq(1),
                 ]
                 with m.If(self.img_stream.ready):
@@ -647,7 +647,7 @@ class CommandExecutor(wiring.Component):
 
             with m.State("Write cookie"):
                 m.d.comb += [
-                    self.img_stream.data.eq(command.payload.synchronize.cookie),
+                    self.img_stream.payload.eq(command.payload.synchronize.cookie),
                     self.img_stream.valid.eq(1),
                 ]
                 with m.If(self.img_stream.ready):
@@ -668,15 +668,15 @@ class ImageSerializer(wiring.Component):
 
         with m.FSM():
             with m.State("High"):
-                m.d.comb += self.usb_stream.data.eq(self.img_stream.data[8:16])
+                m.d.comb += self.usb_stream.payload.eq(self.img_stream.payload[8:16])
                 m.d.comb += self.usb_stream.valid.eq(self.img_stream.valid)
                 m.d.comb += self.img_stream.ready.eq(self.usb_stream.ready)
-                m.d.sync += low.eq(self.img_stream.data[0:8])
+                m.d.sync += low.eq(self.img_stream.payload[0:8])
                 with m.If(self.usb_stream.ready & self.img_stream.valid):
                     m.next = "Low"
 
             with m.State("Low"):
-                m.d.comb += self.usb_stream.data.eq(low)
+                m.d.comb += self.usb_stream.payload.eq(low)
                 m.d.comb += self.usb_stream.valid.eq(1)
                 with m.If(self.usb_stream.ready):
                     m.next = "High"
@@ -726,12 +726,12 @@ class OBISubtarget(wiring.Component):
 
             loopback_dwell_time = Signal()
             if self.loopback:
-                m.d.sync += loopback_dwell_time.eq(executor.cmd_stream.data.type == Command.Type.RasterPixel)
+                m.d.sync += loopback_dwell_time.eq(executor.cmd_stream.payload.type == Command.Type.RasterPixel)
 
             with m.If(loopback_dwell_time):
                 m.d.comb += loopback_adapter.loopback_stream.eq(executor.supersampler.dac_stream_data.dwell_time)
             with m.Else():
-                m.d.comb += loopback_adapter.loopback_stream.eq(executor.supersampler.super_dac_stream.data.dac_x_code)
+                m.d.comb += loopback_adapter.loopback_stream.eq(executor.supersampler.super_dac_stream.payload.dac_x_code)
 
 
         wiring.connect(m, parser.cmd_stream, executor.cmd_stream)
@@ -742,10 +742,10 @@ class OBISubtarget(wiring.Component):
             m.submodules.in_fifo = self.in_fifo
 
         m.d.comb += [
-            parser.usb_stream.data.eq(self.out_fifo.r_data),
+            parser.usb_stream.payload.eq(self.out_fifo.r_data),
             parser.usb_stream.valid.eq(self.out_fifo.r_rdy),
             self.out_fifo.r_en.eq(parser.usb_stream.ready),
-            self.in_fifo.w_data.eq(serializer.usb_stream.data),
+            self.in_fifo.w_data.eq(serializer.usb_stream.payload),
             self.in_fifo.w_en.eq(serializer.usb_stream.valid),
             serializer.usb_stream.ready.eq(self.in_fifo.w_rdy),
             # self.in_fifo.flush.eq(executor.flush),
@@ -837,3 +837,4 @@ class OBIApplet(GlasgowApplet):
         forward_in_fut  = asyncio.ensure_future(forward_in())
         await asyncio.wait([forward_out_fut, forward_in_fut],
                            return_when=asyncio.FIRST_EXCEPTION)
+
