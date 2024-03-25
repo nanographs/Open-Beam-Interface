@@ -144,7 +144,7 @@ class OBIAppletTestCase(unittest.TestCase):
         def put_testbench():
             yield from put_stream(dut.roi_stream, {
                 "x_start": 5, "x_count": 2, "x_step": 0x2_00,
-                "y_start": 9, "y_count": 2, "y_step": 0x5_00,
+                "y_start": 9, "y_count": 1, "y_step": 0x5_00,
             })
             yield from put_stream(dut.dwell_stream, 1)
             yield from put_stream(dut.dwell_stream, 2)
@@ -161,5 +161,6 @@ class OBIAppletTestCase(unittest.TestCase):
             yield from get_stream(dut.dac_stream, {"dac_x_code": 7, "dac_y_code": 14, "dwell_time": 8})
             yield from get_stream(dut.dac_stream, {"dac_x_code": 9, "dac_y_code": 14, "dwell_time": 9})
             assert (yield dut.dac_stream.valid) == 0
+            assert (yield dut.roi_stream.ready) == 1
 
         self.simulate(dut, [get_testbench,put_testbench], name = "raster_scanner")        
