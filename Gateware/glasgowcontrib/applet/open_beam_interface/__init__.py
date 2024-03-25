@@ -421,9 +421,9 @@ class CommandParser(wiring.Component):
                 m.d.comb += self.usb_stream.ready.eq(1)
                 m.d.sync += command.type.eq(self.usb_stream.payload)
                 with m.If(self.usb_stream.valid):
-                    with m.Switch(self.usb_stream.data):
+                    with m.Switch(self.usb_stream.payload):
                         with m.Case(Command.Type.Synchronize):
-                            m.next = "Payload Synchronize 1 High"
+                            m.next = "Payload_Synchronize_1_High"
 
                         with m.Case(Command.Type.Abort):
                             m.next = "Submit"
@@ -432,16 +432,16 @@ class CommandParser(wiring.Component):
                             m.next = "Submit"
 
                         with m.Case(Command.Type.RasterRegion):
-                            m.next = "Payload Raster Region 1 High"
+                            m.next = "Payload_Raster_Region_1_High"
 
                         with m.Case(Command.Type.RasterPixel): # actually an array
-                            m.next = "Payload Raster Pixel Count High"
+                            m.next = "Payload_Raster_Pixel_Count_High"
 
                         with m.Case(Command.Type.RasterPixelRun):
-                            m.next = "Payload Raster Pixel Run 1 High"
+                            m.next = "Payload_Raster_Pixel_Run_1_High"
 
                         with m.Case(Command.Type.VectorPixel):
-                            m.next = "Payload Vector Pixel 1 High"
+                            m.next = "Payload_Vector_Pixel_1_High"
 
             def Deserialize(target, state, next_state):
                 #print(f'state: {state} -> next state: {next_state}')
@@ -454,53 +454,53 @@ class CommandParser(wiring.Component):
             def DeserializeWord(target, state_prefix, next_state):
                 # print(f'\tdeserializing: {state_prefix} to {next_state}')
                 Deserialize(target[8:16],
-                    f"{state_prefix} High", f"{state_prefix} Low")
+                    f"{state_prefix}_High", f"{state_prefix}_Low")
                 Deserialize(target[0:8],
-                    f"{state_prefix} Low",  next_state)
+                    f"{state_prefix}_Low",  next_state)
 
             DeserializeWord(command.payload.synchronize.cookie,
-                "Payload Synchronize 1", "Payload Synchronize 2")
+                "Payload_Synchronize_1", "Payload_Synchronize_2")
             Deserialize(command.payload.synchronize.raster_mode,
-                "Payload Synchronize 2", "Submit")
+                "Payload_Synchronize_2", "Submit")
 
             DeserializeWord(command.payload.raster_region.x_start,
-                "Payload Raster Region 1", "Payload Raster Region 2 High")
+                "Payload_Raster_Region_1", "Payload_Raster_Region_2_High")
             DeserializeWord(command.payload.raster_region.x_count,
-                "Payload Raster Region 2", "Payload Raster Region 3 High")
+                "Payload_Raster_Region_2", "Payload_Raster_Region_3_High")
             DeserializeWord(command.payload.raster_region.x_step,
-                "Payload Raster Region 3", "Payload Raster Region 4 High")
+                "Payload_Raster_Region_3", "Payload_Raster_Region_4_High")
             DeserializeWord(command.payload.raster_region.y_start,
-                "Payload Raster Region 4", "Payload Raster Region 5 High")
+                "Payload_Raster_Region_4", "Payload_Raster_Region_5_High")
             DeserializeWord(command.payload.raster_region.y_count,
-                "Payload Raster Region 5", "Payload Raster Region 6 High")
+                "Payload_Raster_Region_5", "Payload_Raster_Region_6_High")
             DeserializeWord(command.payload.raster_region.y_step,
-                "Payload Raster Region 6", "Submit")
+                "Payload_Raster_Region_6", "Submit")
 
             raster_pixel_count = Signal(16)
             DeserializeWord(raster_pixel_count,
-                "Payload Raster Pixel Count", "Payload Raster Pixel Array High")
+                "Payload_Raster_Pixel_Count", "Payload_Raster_Pixel_Array_High")
             DeserializeWord(command.payload.raster_pixel,
-                "Payload Raster Pixel Array", "Payload Raster Pixel Array Submit")
-            with m.State("Payload Raster Pixel Array Submit"):
+                "Payload_Raster_Pixel_Array", "Payload_Raster_Pixel_Array_Submit")
+            with m.State("Payload_Raster_Pixel_Array_Submit"):
                 m.d.comb += self.cmd_stream.valid.eq(1)
                 with m.If(self.cmd_stream.ready):
                     with m.If(raster_pixel_count == 0):
                         m.next = "Type"
                     with m.Else():
                         m.d.sync += raster_pixel_count.eq(raster_pixel_count - 1)
-                        m.next = "Payload Raster Pixel Array High"
+                        m.next = "Payload_Raster_Pixel_Array_High"
 
             DeserializeWord(command.payload.raster_pixel_run.length,
-                "Payload Raster Pixel Run 1", "Payload Raster Pixel Run 2 High")
+                "Payload_Raster_Pixel_Run_1", "Payload_Raster_Pixel_Run_2_High")
             DeserializeWord(command.payload.raster_pixel_run.dwell_time,
-                "Payload Raster Pixel Run 2", "Submit")
+                "Payload_Raster_Pixel_Run_2", "Submit")
 
             DeserializeWord(command.payload.vector_pixel.x_coord,
-                "Payload Vector Pixel 1", "Payload Vector Pixel 2 High")
+                "Payload_Vector_Pixel_1", "Payload_Vector_Pixel_2_High")
             DeserializeWord(command.payload.vector_pixel.y_coord,
-                "Payload Vector Pixel 2", "Payload Vector Pixel 3 High")
+                "Payload_Vector_Pixel_2", "Payload_Vector_Pixel_3_High")
             DeserializeWord(command.payload.vector_pixel.dwell_time,
-                "Payload Vector Pixel 3", "Submit")
+                "Payload_Vector_Pixel_3", "Submit")
 
             with m.State("Submit"):
                 m.d.comb += self.cmd_stream.valid.eq(1)
