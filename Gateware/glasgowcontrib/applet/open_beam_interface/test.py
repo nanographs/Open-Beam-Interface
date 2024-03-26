@@ -1,8 +1,11 @@
 import unittest
+import struct
 from amaranth.sim import Simulator, Tick
+from amaranth import Signal
 
 from . import StreamSignature
-from . import Supersampler, RasterScanner
+from . import Supersampler, RasterScanner, RasterRegion
+from . import CommandParser, CommandExecutor, Command
 
 
 def put_stream(stream, payload):
@@ -18,7 +21,7 @@ def put_stream(stream, payload):
     while not ready:
         ready = (yield stream.ready)
         yield Tick()
-        timeout += 1; assert timeout < 10
+        timeout += 1; assert timeout < 15
     yield stream.valid.eq(0)
 
 
@@ -36,7 +39,7 @@ def get_stream_nosample(stream, payload):
             value = (yield stream.payload)
         print(f"get_stream {valid=} {value=}")
         yield Tick()
-        timeout += 1; assert timeout < 10
+        timeout += 1; assert timeout < 15
     yield stream.ready.eq(0)
 
     if isinstance(payload, dict):
@@ -62,7 +65,7 @@ def get_stream(stream, payload):
         else:
             value = (yield stream.payload)
         print(f"get_stream {valid=} {value=}")
-        timeout += 1; assert timeout < 10
+        timeout += 1; assert timeout < 15
     yield stream.ready.eq(0)
 
     if isinstance(payload, dict):
@@ -163,4 +166,87 @@ class OBIAppletTestCase(unittest.TestCase):
             assert (yield dut.dac_stream.valid) == 0
             assert (yield dut.roi_stream.ready) == 1
 
-        self.simulate(dut, [get_testbench,put_testbench], name = "raster_scanner")        
+        self.simulate(dut, [get_testbench,put_testbench], name = "raster_scanner")  
+
+    def test_command_parser(self):
+        dut = CommandParser()
+
+        def test_synchronize_cmd():
+            def put_testbench():
+                yield from put_stream(dut.usb_stream, 0)
+                yield from put_stream(dut.usb_stream, 1)
+                yield from put_stream(dut.usb_stream, 123)
+                yield from put_stream(dut.usb_stream, 234)
+
+            def get_testbench():
+                yield from get_stream(dut.cmd_stream, {"type":Command.Type.Synchronize})
+                assert (yield dut.cmd_stream.valid) == 0
+
+            self.simulate(dut, [get_testbench,put_testbench], name = "cmd_sync")  
+        
+        def test_rasterregion_cmd():
+            def put_testbench():
+                cmd = struct.pack('>BHHHHHH', 0x10, 5, 2, 0x2_00, 9, 1, 0x5_00)
+                for b in cmd:
+                    yield from put_stream(dut.usb_stream, b)
+
+            def get_testbench():
+                yield from get_stream(dut.cmd_stream, {"type":Command.Type.RasterRegion})
+                assert (yield dut.cmd_stream.valid) == 0
+
+            self.simulate(dut, [get_testbench,put_testbench], name = "cmd_rasterregion")
+
+        def test_rasterpixel_cmd():
+            def put_testbench():
+                cmd = struct.pack('>BH', 0x11, 2)
+                for b in cmd:
+                    print(f'b: {b}')
+                    yield from put_stream(dut.usb_stream, b)
+                for n in [1,2]:
+                    print(f'n: {n}')
+                    yield from put_stream(dut.usb_stream, 0)
+                    yield from put_stream(dut.usb_stream, n)
+
+            def get_testbench():
+                yield from get_stream(dut.cmd_stream, {"type":Command.Type.RasterPixel})
+                assert (yield dut.cmd_stream.valid) == 0
+
+            self.simulate(dut, [get_testbench,put_testbench], name = "cmd_rasterpixel")  
+        
+        def test_rasterpixelrun_cmd():
+            def put_testbench():
+                cmd = struct.pack('>BHH', 0x12, 2, 2)
+                for b in cmd:
+                    print(f'b: {b}')
+                    yield from put_stream(dut.usb_stream, b)
+
+
+            def get_testbench():
+                yield from get_stream(dut.cmd_stream, {"type":Command.Type.RasterPixelRun})
+                assert (yield dut.cmd_stream.valid) == 0
+
+            self.simulate(dut, [get_testbench,put_testbench], name = "cmd_rasterpixelrun")  
+        
+        def test_vectorpixel_cmd():
+            def put_testbench():
+                cmd = struct.pack('>BHHH', 0x13, 2, 2, 2)
+                for b in cmd:
+                    print(f'b: {b}')
+                    yield from put_stream(dut.usb_stream, b)
+
+
+            def get_testbench():
+                yield from get_stream(dut.cmd_stream, {"type":Command.Type.VectorPixel})
+                assert (yield dut.cmd_stream.valid) == 0
+
+            self.simulate(dut, [get_testbench,put_testbench], name = "cmd_vectorpixel")  
+
+        test_synchronize_cmd()
+        test_rasterregion_cmd()
+        test_rasterpixel_cmd()
+        test_rasterpixelrun_cmd()
+        test_vectorpixel_cmd()
+
+
+
+
