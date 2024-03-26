@@ -388,7 +388,7 @@
 				)
 			)
 		)
-		(symbol "OBI Components:TE_IM_Axicom_Relay_DPDT"
+		(symbol "OBI Components:Omron_G6K-2P-RF_DPDT_Relay"
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
@@ -400,16 +400,16 @@
 					)
 				)
 			)
-			(property "Value" ""
-				(at 19.05 -27.94 0)
+			(property "Value" "Omron G6K-2P-RF"
+				(at 0 16.256 0)
 				(effects
 					(font
 						(size 1.27 1.27)
 					)
 				)
 			)
-			(property "Footprint" "OBI Components:TE IM23TS DPDT Relay"
-				(at 0 -12.954 0)
+			(property "Footprint" "OBI Components:Omron G6K-2P-RF DPDT Relay"
+				(at 0 18.542 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -417,7 +417,7 @@
 					(hide yes)
 				)
 			)
-			(property "Datasheet" ""
+			(property "Datasheet" "https://www.digikey.com/en/products/detail/omron-electronics-inc-emc-div/G6K-2P-RF-DC5/5864630"
 				(at 19.05 -27.94 0)
 				(effects
 					(font
@@ -435,7 +435,7 @@
 					(hide yes)
 				)
 			)
-			(symbol "TE_IM_Axicom_Relay_DPDT_0_0"
+			(symbol "Omron_G6K-2P-RF_DPDT_Relay_0_0"
 				(circle
 					(center -3.81 0)
 					(radius 0.508)
@@ -459,7 +459,7 @@
 					)
 				)
 			)
-			(symbol "TE_IM_Axicom_Relay_DPDT_0_1"
+			(symbol "Omron_G6K-2P-RF_DPDT_Relay_0_1"
 				(circle
 					(center -3.81 10.16)
 					(radius 0.508)
@@ -531,7 +531,7 @@
 					)
 				)
 			)
-			(symbol "TE_IM_Axicom_Relay_DPDT_1_0"
+			(symbol "Omron_G6K-2P-RF_DPDT_Relay_1_0"
 				(circle
 					(center -3.81 5.08)
 					(radius 0.508)
@@ -674,7 +674,7 @@
 					)
 				)
 			)
-			(symbol "TE_IM_Axicom_Relay_DPDT_1_1"
+			(symbol "Omron_G6K-2P-RF_DPDT_Relay_1_1"
 				(rectangle
 					(start -8.89 12.7)
 					(end 8.89 -10.16)
@@ -823,6 +823,24 @@
 						)
 					)
 					(number "8"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 0 -12.7 90)
+					(length 2.54)
+					(name ""
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "Sh"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -1128,28 +1146,28 @@
 		)
 	)
 	(junction
-		(at 135.89 105.41)
+		(at 135.89 102.87)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "30e9749b-9856-43b6-8ba8-4f682de5f046")
 	)
 	(junction
-		(at 161.29 105.41)
+		(at 161.29 102.87)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "603cfa81-1f81-4e7d-b0a8-174f42ad8e7c")
 	)
 	(no_connect
-		(at 151.13 114.3)
+		(at 151.13 111.76)
 		(uuid "384244a3-b7c6-4c91-8e8a-f1fa35cfe9b1")
 	)
 	(no_connect
-		(at 140.97 119.38)
+		(at 140.97 116.84)
 		(uuid "73fac6fc-5fbe-4f55-a37a-e8c5f8150149")
 	)
 	(wire
 		(pts
-			(xy 127 92.71) (xy 130.81 92.71)
+			(xy 127 85.09) (xy 130.81 85.09)
 		)
 		(stroke
 			(width 0)
@@ -1159,7 +1177,7 @@
 	)
 	(wire
 		(pts
-			(xy 130.81 92.71) (xy 133.35 90.17)
+			(xy 130.81 85.09) (xy 133.35 82.55)
 		)
 		(stroke
 			(width 0)
@@ -1169,7 +1187,7 @@
 	)
 	(wire
 		(pts
-			(xy 161.29 105.41) (xy 161.29 110.49)
+			(xy 161.29 102.87) (xy 161.29 107.95)
 		)
 		(stroke
 			(width 0)
@@ -1179,7 +1197,7 @@
 	)
 	(wire
 		(pts
-			(xy 133.35 90.17) (xy 137.16 90.17)
+			(xy 133.35 82.55) (xy 137.16 82.55)
 		)
 		(stroke
 			(width 0)
@@ -1189,17 +1207,7 @@
 	)
 	(wire
 		(pts
-			(xy 135.89 97.79) (xy 137.16 97.79)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "19a7cc9a-5b89-44ff-9b16-5c9677ec1aeb")
-	)
-	(wire
-		(pts
-			(xy 163.83 80.01) (xy 160.02 80.01)
+			(xy 163.83 72.39) (xy 160.02 72.39)
 		)
 		(stroke
 			(width 0)
@@ -1209,7 +1217,7 @@
 	)
 	(wire
 		(pts
-			(xy 146.05 110.49) (xy 146.05 114.3)
+			(xy 146.05 107.95) (xy 146.05 111.76)
 		)
 		(stroke
 			(width 0)
@@ -1219,7 +1227,7 @@
 	)
 	(wire
 		(pts
-			(xy 161.29 97.79) (xy 161.29 105.41)
+			(xy 161.29 90.17) (xy 161.29 102.87)
 		)
 		(stroke
 			(width 0)
@@ -1229,7 +1237,17 @@
 	)
 	(wire
 		(pts
-			(xy 148.59 110.49) (xy 161.29 110.49)
+			(xy 160.02 90.17) (xy 161.29 90.17)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "515d28f5-34ee-4e55-89ec-fe880a7503e7")
+	)
+	(wire
+		(pts
+			(xy 148.59 107.95) (xy 161.29 107.95)
 		)
 		(stroke
 			(width 0)
@@ -1239,7 +1257,7 @@
 	)
 	(wire
 		(pts
-			(xy 170.18 77.47) (xy 166.37 77.47)
+			(xy 170.18 69.85) (xy 166.37 69.85)
 		)
 		(stroke
 			(width 0)
@@ -1249,7 +1267,7 @@
 	)
 	(wire
 		(pts
-			(xy 170.18 92.71) (xy 166.37 92.71)
+			(xy 170.18 85.09) (xy 166.37 85.09)
 		)
 		(stroke
 			(width 0)
@@ -1259,7 +1277,7 @@
 	)
 	(wire
 		(pts
-			(xy 127 85.09) (xy 137.16 85.09)
+			(xy 127 77.47) (xy 137.16 77.47)
 		)
 		(stroke
 			(width 0)
@@ -1269,7 +1287,7 @@
 	)
 	(wire
 		(pts
-			(xy 163.83 90.17) (xy 160.02 90.17)
+			(xy 163.83 82.55) (xy 160.02 82.55)
 		)
 		(stroke
 			(width 0)
@@ -1279,7 +1297,7 @@
 	)
 	(wire
 		(pts
-			(xy 135.89 105.41) (xy 135.89 110.49)
+			(xy 135.89 102.87) (xy 135.89 107.95)
 		)
 		(stroke
 			(width 0)
@@ -1289,7 +1307,7 @@
 	)
 	(wire
 		(pts
-			(xy 135.89 105.41) (xy 144.78 105.41)
+			(xy 135.89 102.87) (xy 144.78 102.87)
 		)
 		(stroke
 			(width 0)
@@ -1299,7 +1317,7 @@
 	)
 	(wire
 		(pts
-			(xy 135.89 110.49) (xy 146.05 110.49)
+			(xy 135.89 107.95) (xy 146.05 107.95)
 		)
 		(stroke
 			(width 0)
@@ -1309,7 +1327,7 @@
 	)
 	(wire
 		(pts
-			(xy 133.35 80.01) (xy 137.16 80.01)
+			(xy 133.35 72.39) (xy 137.16 72.39)
 		)
 		(stroke
 			(width 0)
@@ -1319,7 +1337,7 @@
 	)
 	(wire
 		(pts
-			(xy 166.37 92.71) (xy 163.83 90.17)
+			(xy 166.37 85.09) (xy 163.83 82.55)
 		)
 		(stroke
 			(width 0)
@@ -1329,7 +1347,7 @@
 	)
 	(wire
 		(pts
-			(xy 166.37 77.47) (xy 163.83 80.01)
+			(xy 166.37 69.85) (xy 163.83 72.39)
 		)
 		(stroke
 			(width 0)
@@ -1339,7 +1357,7 @@
 	)
 	(wire
 		(pts
-			(xy 135.89 97.79) (xy 135.89 105.41)
+			(xy 135.89 90.17) (xy 135.89 102.87)
 		)
 		(stroke
 			(width 0)
@@ -1349,7 +1367,17 @@
 	)
 	(wire
 		(pts
-			(xy 148.59 110.49) (xy 148.59 114.3)
+			(xy 135.89 90.17) (xy 137.16 90.17)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "bd4daf3d-0d54-4a7c-a441-1048cc776990")
+	)
+	(wire
+		(pts
+			(xy 148.59 107.95) (xy 148.59 111.76)
 		)
 		(stroke
 			(width 0)
@@ -1359,7 +1387,7 @@
 	)
 	(wire
 		(pts
-			(xy 170.18 85.09) (xy 160.02 85.09)
+			(xy 170.18 77.47) (xy 160.02 77.47)
 		)
 		(stroke
 			(width 0)
@@ -1369,7 +1397,7 @@
 	)
 	(wire
 		(pts
-			(xy 130.81 77.47) (xy 133.35 80.01)
+			(xy 130.81 69.85) (xy 133.35 72.39)
 		)
 		(stroke
 			(width 0)
@@ -1379,7 +1407,7 @@
 	)
 	(wire
 		(pts
-			(xy 127 77.47) (xy 130.81 77.47)
+			(xy 127 69.85) (xy 130.81 69.85)
 		)
 		(stroke
 			(width 0)
@@ -1389,17 +1417,7 @@
 	)
 	(wire
 		(pts
-			(xy 160.02 97.79) (xy 161.29 97.79)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "f444c1da-62ed-45bd-b46b-9a97ba661d2a")
-	)
-	(wire
-		(pts
-			(xy 152.4 105.41) (xy 161.29 105.41)
+			(xy 152.4 102.87) (xy 161.29 102.87)
 		)
 		(stroke
 			(width 0)
@@ -1409,7 +1427,7 @@
 	)
 	(text "Pin 1: Glasgow Digtial IO\nPin 3: Glasgow Digital IO\nPin 4: Glasgow Digital GND"
 		(exclude_from_sim no)
-		(at 148.336 125.73 0)
+		(at 148.336 123.19 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1417,9 +1435,19 @@
 		)
 		(uuid "8c05b670-cc7c-4de5-97f6-7c5f13d6f538")
 	)
+	(text "Mounting holes are\nnot grounded."
+		(exclude_from_sim no)
+		(at 114.808 132.588 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "c1a8ade1-bde9-49f8-a00f-4dd433507b61")
+	)
 	(text "Note: Pin and Socket M8 connectors swap\npins 1 and 3 on PCB, this board is\ndesigned to use pin connector on PCB."
 		(exclude_from_sim no)
-		(at 149.098 133.858 0)
+		(at 149.098 131.318 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1427,9 +1455,9 @@
 		)
 		(uuid "ca985eed-c0af-45ae-a106-d23b96f20c96")
 	)
-	(text "Note: Glasgow digital ground is not\nconnected to PCB ground, digital\nground is only connected to the\nnegative side of the relay coil."
+	(text "Note: Glasgow digital ground is not\nconnected to PCB ground, digital\nground is only connected to the\nnegative side of the relay coil.\nThe traces on the PCB are routed\nto minimize loop area."
 		(exclude_from_sim no)
-		(at 114.808 107.95 0)
+		(at 114.3 103.124 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1439,7 +1467,7 @@
 	)
 	(symbol
 		(lib_id "Connector_Generic:Conn_01x02")
-		(at 121.92 85.09 0)
+		(at 121.92 77.47 0)
 		(mirror y)
 		(unit 1)
 		(exclude_from_sim no)
@@ -1448,7 +1476,7 @@
 		(dnp no)
 		(uuid "07bf9caf-dbae-4206-b620-1f4817262b4a")
 		(property "Reference" "J4"
-			(at 118.11 85.09 0)
+			(at 118.11 77.47 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1456,7 +1484,7 @@
 			)
 		)
 		(property "Value" "Y_Out"
-			(at 119.38 87.6299 0)
+			(at 119.38 80.0099 0)
 			(do_not_autoplace yes)
 			(effects
 				(font
@@ -1466,7 +1494,7 @@
 			)
 		)
 		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical"
-			(at 121.92 85.09 0)
+			(at 121.92 77.47 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1475,7 +1503,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 121.92 85.09 0)
+			(at 121.92 77.47 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1484,7 +1512,7 @@
 			)
 		)
 		(property "Description" "Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"
-			(at 121.92 85.09 0)
+			(at 121.92 77.47 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1509,7 +1537,7 @@
 	)
 	(symbol
 		(lib_id "Connector_Generic:Conn_01x02")
-		(at 121.92 77.47 0)
+		(at 121.92 69.85 0)
 		(mirror y)
 		(unit 1)
 		(exclude_from_sim no)
@@ -1518,7 +1546,7 @@
 		(dnp no)
 		(uuid "1368bc68-77c7-4474-b3fd-f1006c12d52a")
 		(property "Reference" "J6"
-			(at 118.364 77.47 0)
+			(at 118.364 69.85 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1526,7 +1554,7 @@
 			)
 		)
 		(property "Value" "Y_External"
-			(at 115.062 80.01 0)
+			(at 115.062 72.39 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1534,7 +1562,7 @@
 			)
 		)
 		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical"
-			(at 121.92 77.47 0)
+			(at 121.92 69.85 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1543,7 +1571,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 121.92 77.47 0)
+			(at 121.92 69.85 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1552,7 +1580,7 @@
 			)
 		)
 		(property "Description" "Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"
-			(at 121.92 77.47 0)
+			(at 121.92 69.85 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1577,7 +1605,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 170.18 95.25 270)
+		(at 170.18 87.63 270)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -1586,637 +1614,6 @@
 		(fields_autoplaced yes)
 		(uuid "151326d1-77a5-4b9a-a69b-2130ed26003d")
 		(property "Reference" "#PWR02"
-			(at 163.83 95.25 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND"
-			(at 165.1 95.25 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Footprint" ""
-			(at 170.18 95.25 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 170.18 95.25 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 170.18 95.25 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "c13d4294-d2f4-4f3b-b973-be6d1ddb19c0")
-		)
-		(instances
-			(project "Generic Scan Selector"
-				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
-					(reference "#PWR02")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Connector_Generic:Conn_01x02")
-		(at 121.92 92.71 0)
-		(mirror y)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "1a642f0c-88f7-45e9-82d3-bcba1c1f29c8")
-		(property "Reference" "J2"
-			(at 118.11 92.71 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "Y_Internal"
-			(at 114.808 95.25 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical"
-			(at 121.92 92.71 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 121.92 92.71 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"
-			(at 121.92 92.71 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "1a057c9f-55d3-4036-8d4a-a2b325a00e83")
-		)
-		(pin "2"
-			(uuid "64d8632e-66b0-4e69-934e-dc2b794e5f0f")
-		)
-		(instances
-			(project "Generic Scan Selector"
-				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
-					(reference "J2")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "OBI Connectors:M8_conn_01x03_Pin_Shielded")
-		(at 148.59 119.38 270)
-		(mirror x)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "1d5ef976-7498-46a4-9745-fec7c52536f5")
-		(property "Reference" "J7"
-			(at 153.416 116.586 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "M8_conn_01x03_Pin_Shielded"
-			(at 153.162 119.38 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "OBI Connectors:M8_conn_01x03_Pin_Shielded_Right_Angle"
-			(at 148.59 119.38 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 148.59 119.38 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Generic shielded connector, single row, 01x03, script generated (kicad-library-utils/schlib/autogen/connector/)"
-			(at 148.59 119.38 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "3ea87655-70cb-4a4f-b13d-ad110aa58414")
-		)
-		(pin "4"
-			(uuid "7f4d96ae-b20e-4f51-8935-7aceeb8ac156")
-		)
-		(pin "3"
-			(uuid "c9f5ad59-f9da-49d3-acf4-5d7ff7f21aa8")
-		)
-		(pin "SH"
-			(uuid "1a543d78-c176-41d0-a348-26d397f0e4cf")
-		)
-		(instances
-			(project "Generic Scan Selector"
-				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
-					(reference "J7")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 127 95.25 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "23f50b69-fcaf-4257-aa1f-92020da60a45")
-		(property "Reference" "#PWR03"
-			(at 133.35 95.25 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND"
-			(at 132.08 95.25 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Footprint" ""
-			(at 127 95.25 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 127 95.25 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 127 95.25 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "54eabb78-c2b1-4577-99e9-7b1b3c260f0b")
-		)
-		(instances
-			(project "Generic Scan Selector"
-				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
-					(reference "#PWR03")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Connector_Generic:Conn_01x02")
-		(at 175.26 77.47 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "34515111-9973-49af-a42b-21c7d27edbd6")
-		(property "Reference" "J5"
-			(at 179.07 77.47 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "X_External"
-			(at 182.88 80.01 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical"
-			(at 175.26 77.47 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 175.26 77.47 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"
-			(at 175.26 77.47 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "9ad58ba7-13c6-423f-ab04-5428cf7aeea1")
-		)
-		(pin "2"
-			(uuid "5b06af3e-2fb8-4575-8b12-37e890ef095d")
-		)
-		(instances
-			(project "Generic Scan Selector"
-				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
-					(reference "J5")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 127 87.63 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "5e68c7b4-2485-46e9-9eb8-d09721c57205")
-		(property "Reference" "#PWR05"
-			(at 133.35 87.63 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND"
-			(at 132.08 87.63 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Footprint" ""
-			(at 127 87.63 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 127 87.63 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 127 87.63 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "412c43ea-2233-4b75-a98d-7027234b9fd6")
-		)
-		(instances
-			(project "Generic Scan Selector"
-				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
-					(reference "#PWR05")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Diode:1N4007")
-		(at 148.59 105.41 180)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "6ece6f3e-e266-4faf-b4d4-061826aca2dc")
-		(property "Reference" "D1"
-			(at 148.59 102.616 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "1N4007"
-			(at 148.59 107.95 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Diode_THT:D_DO-41_SOD81_P10.16mm_Horizontal"
-			(at 148.59 100.965 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "http://www.vishay.com/docs/88503/1n4001.pdf"
-			(at 148.59 105.41 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "1000V 1A General Purpose Rectifier Diode, DO-41"
-			(at 148.59 105.41 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Sim.Device" "D"
-			(at 148.59 105.41 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Sim.Pins" "1=K 2=A"
-			(at 148.59 105.41 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "c07fd405-3faa-477a-a2ff-4c3292f6b83f")
-		)
-		(pin "1"
-			(uuid "5a42dfe1-c410-4f2c-be52-8f0b7437e286")
-		)
-		(instances
-			(project "Generic Scan Selector"
-				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
-					(reference "D1")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Connector_Generic:Conn_01x02")
-		(at 175.26 85.09 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "7471bb4f-354c-4595-b8b4-069580183b27")
-		(property "Reference" "J3"
-			(at 177.8 85.0899 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "X_Out"
-			(at 177.8 87.6299 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical"
-			(at 175.26 85.09 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 175.26 85.09 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"
-			(at 175.26 85.09 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "3167d8be-bcde-4151-97d5-cc1311e242df")
-		)
-		(pin "2"
-			(uuid "690c7dbc-faa4-4124-a8f6-51abd05f6b38")
-		)
-		(instances
-			(project "Generic Scan Selector"
-				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
-					(reference "J3")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Mechanical:MountingHole")
-		(at 109.22 129.54 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "8fbb687d-ecd5-48c6-bccd-44492b138cfb")
-		(property "Reference" "H3"
-			(at 109.22 126.238 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "MountingHole"
-			(at 111.76 130.8099 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-		(property "Footprint" "OBI Components:MountingHole_3.5mm_Pad_Via_CrtYd_CoperOverCorner"
-			(at 109.22 129.54 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 109.22 129.54 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Mounting Hole without connection"
-			(at 109.22 129.54 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(instances
-			(project "Generic Scan Selector"
-				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
-					(reference "H3")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 170.18 87.63 270)
-		(mirror x)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "93a03005-ef73-4a4c-8ea4-171c342216ea")
-		(property "Reference" "#PWR06"
 			(at 163.83 87.63 0)
 			(effects
 				(font
@@ -2262,44 +1659,191 @@
 			)
 		)
 		(pin "1"
-			(uuid "013b4d10-5a72-40de-a836-4aba045de2af")
+			(uuid "c13d4294-d2f4-4f3b-b973-be6d1ddb19c0")
 		)
 		(instances
 			(project "Generic Scan Selector"
 				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
-					(reference "#PWR06")
+					(reference "#PWR02")
 					(unit 1)
 				)
 			)
 		)
 	)
 	(symbol
-		(lib_id "OBI Components:TE_IM_Axicom_Relay_DPDT")
-		(at 148.59 90.17 0)
+		(lib_id "Connector_Generic:Conn_01x02")
+		(at 121.92 85.09 0)
+		(mirror y)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "9b308034-b01e-4380-9168-f2e811fc2a78")
-		(property "Reference" "RY1"
-			(at 148.59 75.692 0)
+		(uuid "1a642f0c-88f7-45e9-82d3-bcba1c1f29c8")
+		(property "Reference" "J2"
+			(at 118.11 85.09 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Value" "~"
-			(at 148.59 76.2 0)
+		(property "Value" "Y_Internal"
+			(at 114.808 87.63 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Footprint" "OBI Components:TE IM23TS DPDT Relay"
-			(at 167.64 118.11 0)
+		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical"
+			(at 121.92 85.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 121.92 85.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"
+			(at 121.92 85.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "1a057c9f-55d3-4036-8d4a-a2b325a00e83")
+		)
+		(pin "2"
+			(uuid "64d8632e-66b0-4e69-934e-dc2b794e5f0f")
+		)
+		(instances
+			(project "Generic Scan Selector"
+				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
+					(reference "J2")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "OBI Connectors:M8_conn_01x03_Pin_Shielded")
+		(at 148.59 116.84 270)
+		(mirror x)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "1d5ef976-7498-46a4-9745-fec7c52536f5")
+		(property "Reference" "J7"
+			(at 153.416 114.046 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "M8_conn_01x03_Pin_Shielded"
+			(at 153.162 116.84 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "OBI Connectors:M8_conn_01x03_Pin_Shielded_Right_Angle"
+			(at 148.59 116.84 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 148.59 116.84 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Generic shielded connector, single row, 01x03, script generated (kicad-library-utils/schlib/autogen/connector/)"
+			(at 148.59 116.84 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "3ea87655-70cb-4a4f-b13d-ad110aa58414")
+		)
+		(pin "4"
+			(uuid "7f4d96ae-b20e-4f51-8935-7aceeb8ac156")
+		)
+		(pin "3"
+			(uuid "c9f5ad59-f9da-49d3-acf4-5d7ff7f21aa8")
+		)
+		(pin "SH"
+			(uuid "1a543d78-c176-41d0-a348-26d397f0e4cf")
+		)
+		(instances
+			(project "Generic Scan Selector"
+				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
+					(reference "J7")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 127 87.63 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "23f50b69-fcaf-4257-aa1f-92020da60a45")
+		(property "Reference" "#PWR03"
+			(at 133.35 87.63 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 132.08 87.63 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" ""
+			(at 127 87.63 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2308,7 +1852,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 167.64 118.11 0)
+			(at 127 87.63 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2316,43 +1860,89 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
-			(at 167.64 118.11 0)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 127 87.63 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(hide yes)
 			)
-		)
-		(pin "2"
-			(uuid "99786ccc-87de-4471-9cdf-04a75474d64e")
-		)
-		(pin "3"
-			(uuid "1439aeda-c0e0-445f-aad1-96b1c313e054")
 		)
 		(pin "1"
-			(uuid "747643ab-b258-43c3-8c0d-00edbb75ae43")
-		)
-		(pin "4"
-			(uuid "61b323e2-18a6-444b-bb29-2b349cb7d47f")
-		)
-		(pin "5"
-			(uuid "d011d77d-322f-45c9-be17-2708ac4f49b5")
-		)
-		(pin "6"
-			(uuid "fc7aa698-ef28-4f28-aa58-79a32fa5ca70")
-		)
-		(pin "7"
-			(uuid "6947e899-b775-40a1-80fb-2e1ed0f97a04")
-		)
-		(pin "8"
-			(uuid "e4836a05-163e-49bf-a484-aebaa160cd52")
+			(uuid "54eabb78-c2b1-4577-99e9-7b1b3c260f0b")
 		)
 		(instances
 			(project "Generic Scan Selector"
 				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
-					(reference "RY1")
+					(reference "#PWR03")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector_Generic:Conn_01x02")
+		(at 175.26 69.85 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "34515111-9973-49af-a42b-21c7d27edbd6")
+		(property "Reference" "J5"
+			(at 179.07 69.85 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "X_External"
+			(at 182.88 72.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical"
+			(at 175.26 69.85 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 175.26 69.85 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"
+			(at 175.26 69.85 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "9ad58ba7-13c6-423f-ab04-5428cf7aeea1")
+		)
+		(pin "2"
+			(uuid "5b06af3e-2fb8-4575-8b12-37e890ef095d")
+		)
+		(instances
+			(project "Generic Scan Selector"
+				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
+					(reference "J5")
 					(unit 1)
 				)
 			)
@@ -2367,8 +1957,8 @@
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "a0f96357-eff3-4f06-83ba-195a09006da3")
-		(property "Reference" "#PWR01"
+		(uuid "5e68c7b4-2485-46e9-9eb8-d09721c57205")
+		(property "Reference" "#PWR05"
 			(at 133.35 80.01 0)
 			(effects
 				(font
@@ -2414,12 +2004,97 @@
 			)
 		)
 		(pin "1"
-			(uuid "2c3b01d3-9b28-4245-8d74-ee1e3c3007e0")
+			(uuid "412c43ea-2233-4b75-a98d-7027234b9fd6")
 		)
 		(instances
 			(project "Generic Scan Selector"
 				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
-					(reference "#PWR01")
+					(reference "#PWR05")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Diode:1N4007")
+		(at 148.59 102.87 180)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "6ece6f3e-e266-4faf-b4d4-061826aca2dc")
+		(property "Reference" "D1"
+			(at 148.59 100.076 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "1N4007"
+			(at 148.59 105.41 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Diode_THT:D_DO-41_SOD81_P10.16mm_Horizontal"
+			(at 148.59 98.425 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "http://www.vishay.com/docs/88503/1n4001.pdf"
+			(at 148.59 102.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "1000V 1A General Purpose Rectifier Diode, DO-41"
+			(at 148.59 102.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" "D"
+			(at 148.59 102.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" "1=K 2=A"
+			(at 148.59 102.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "c07fd405-3faa-477a-a2ff-4c3292f6b83f")
+		)
+		(pin "1"
+			(uuid "5a42dfe1-c410-4f2c-be52-8f0b7437e286")
+		)
+		(instances
+			(project "Generic Scan Selector"
+				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
+					(reference "D1")
 					(unit 1)
 				)
 			)
@@ -2427,31 +2102,34 @@
 	)
 	(symbol
 		(lib_id "Connector_Generic:Conn_01x02")
-		(at 175.26 92.71 0)
+		(at 175.26 77.47 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "a301b0d1-4896-4d07-89e1-2bdc56af3f2e")
-		(property "Reference" "J1"
-			(at 178.816 92.71 0)
+		(fields_autoplaced yes)
+		(uuid "7471bb4f-354c-4595-b8b4-069580183b27")
+		(property "Reference" "J3"
+			(at 177.8 77.4699 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify left)
 			)
 		)
-		(property "Value" "X_Internal"
-			(at 182.372 95.25 0)
+		(property "Value" "X_Out"
+			(at 177.8 80.0099 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify left)
 			)
 		)
 		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical"
-			(at 175.26 92.71 0)
+			(at 175.26 77.47 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2460,7 +2138,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 175.26 92.71 0)
+			(at 175.26 77.47 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2469,7 +2147,7 @@
 			)
 		)
 		(property "Description" "Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"
-			(at 175.26 92.71 0)
+			(at 175.26 77.47 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2478,15 +2156,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "9e321643-8858-4cbe-a942-05fbd0225a04")
+			(uuid "3167d8be-bcde-4151-97d5-cc1311e242df")
 		)
 		(pin "2"
-			(uuid "65b292c1-9794-495c-a788-c90deb712418")
+			(uuid "690c7dbc-faa4-4124-a8f6-51abd05f6b38")
 		)
 		(instances
 			(project "Generic Scan Selector"
 				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
-					(reference "J1")
+					(reference "J3")
 					(unit 1)
 				)
 			)
@@ -2494,15 +2172,15 @@
 	)
 	(symbol
 		(lib_id "Mechanical:MountingHole")
-		(at 114.3 120.65 0)
+		(at 109.22 127 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "ca6b47b3-a1c4-42b3-835b-5453f974034e")
-		(property "Reference" "H1"
-			(at 114.3 117.348 0)
+		(uuid "8fbb687d-ecd5-48c6-bccd-44492b138cfb")
+		(property "Reference" "H3"
+			(at 109.22 123.698 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2510,70 +2188,7 @@
 			)
 		)
 		(property "Value" "MountingHole"
-			(at 116.84 121.9199 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-		(property "Footprint" "OBI Components:MountingHole_3.5mm_Pad_Via_CrtYd_CopperOverEdge"
-			(at 114.3 120.65 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 114.3 120.65 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Mounting Hole without connection"
-			(at 114.3 120.65 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(instances
-			(project "Generic Scan Selector"
-				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
-					(reference "H1")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Mechanical:MountingHole")
-		(at 119.38 129.54 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "d9547c66-3deb-4db3-8825-8f9f1c6677d8")
-		(property "Reference" "H2"
-			(at 119.38 126.238 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "MountingHole"
-			(at 121.92 130.8099 0)
+			(at 111.76 128.2699 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2583,7 +2198,7 @@
 			)
 		)
 		(property "Footprint" "OBI Components:MountingHole_3.5mm_Pad_Via_CrtYd_CoperOverCorner"
-			(at 119.38 129.54 0)
+			(at 109.22 127 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2592,7 +2207,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 119.38 129.54 0)
+			(at 109.22 127 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2601,7 +2216,7 @@
 			)
 		)
 		(property "Description" "Mounting Hole without connection"
-			(at 119.38 129.54 0)
+			(at 109.22 127 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2612,7 +2227,7 @@
 		(instances
 			(project "Generic Scan Selector"
 				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
-					(reference "H2")
+					(reference "H3")
 					(unit 1)
 				)
 			)
@@ -2621,14 +2236,15 @@
 	(symbol
 		(lib_id "power:GND")
 		(at 170.18 80.01 270)
+		(mirror x)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "e8f93391-52d6-4d25-9696-2f5065ad9a5a")
-		(property "Reference" "#PWR04"
+		(uuid "93a03005-ef73-4a4c-8ea4-171c342216ea")
+		(property "Reference" "#PWR06"
 			(at 163.83 80.01 0)
 			(effects
 				(font
@@ -2666,6 +2282,488 @@
 		)
 		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
 			(at 170.18 80.01 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "013b4d10-5a72-40de-a836-4aba045de2af")
+		)
+		(instances
+			(project "Generic Scan Selector"
+				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
+					(reference "#PWR06")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "OBI Components:Omron_G6K-2P-RF_DPDT_Relay")
+		(at 148.59 82.55 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "9b308034-b01e-4380-9168-f2e811fc2a78")
+		(property "Reference" "RY1"
+			(at 148.59 68.072 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "Omron G6K-2P-RF"
+			(at 148.59 66.294 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "OBI Components:Omron G6K-2P-RF DPDT Relay"
+			(at 148.59 64.008 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "https://www.digikey.com/en/products/detail/omron-electronics-inc-emc-div/G6K-2P-RF-DC5/5864630"
+			(at 167.64 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 167.64 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "99786ccc-87de-4471-9cdf-04a75474d64e")
+		)
+		(pin "3"
+			(uuid "1439aeda-c0e0-445f-aad1-96b1c313e054")
+		)
+		(pin "1"
+			(uuid "747643ab-b258-43c3-8c0d-00edbb75ae43")
+		)
+		(pin "4"
+			(uuid "61b323e2-18a6-444b-bb29-2b349cb7d47f")
+		)
+		(pin "5"
+			(uuid "d011d77d-322f-45c9-be17-2708ac4f49b5")
+		)
+		(pin "6"
+			(uuid "fc7aa698-ef28-4f28-aa58-79a32fa5ca70")
+		)
+		(pin "7"
+			(uuid "6947e899-b775-40a1-80fb-2e1ed0f97a04")
+		)
+		(pin "8"
+			(uuid "e4836a05-163e-49bf-a484-aebaa160cd52")
+		)
+		(pin "Sh"
+			(uuid "cfd3dc4c-7075-4690-8996-2e4804dd4161")
+		)
+		(instances
+			(project "Generic Scan Selector"
+				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
+					(reference "RY1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 127 72.39 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "a0f96357-eff3-4f06-83ba-195a09006da3")
+		(property "Reference" "#PWR01"
+			(at 133.35 72.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 132.08 72.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" ""
+			(at 127 72.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 127 72.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 127 72.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "2c3b01d3-9b28-4245-8d74-ee1e3c3007e0")
+		)
+		(instances
+			(project "Generic Scan Selector"
+				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
+					(reference "#PWR01")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector_Generic:Conn_01x02")
+		(at 175.26 85.09 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "a301b0d1-4896-4d07-89e1-2bdc56af3f2e")
+		(property "Reference" "J1"
+			(at 178.816 85.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "X_Internal"
+			(at 182.372 87.63 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical"
+			(at 175.26 85.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 175.26 85.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"
+			(at 175.26 85.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "9e321643-8858-4cbe-a942-05fbd0225a04")
+		)
+		(pin "2"
+			(uuid "65b292c1-9794-495c-a788-c90deb712418")
+		)
+		(instances
+			(project "Generic Scan Selector"
+				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
+					(reference "J1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Mechanical:MountingHole")
+		(at 114.3 118.11 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "ca6b47b3-a1c4-42b3-835b-5453f974034e")
+		(property "Reference" "H1"
+			(at 114.3 114.808 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "MountingHole"
+			(at 116.84 119.3799 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "OBI Components:MountingHole_3.5mm_Pad_Via_CrtYd_CopperOverEdge"
+			(at 114.3 118.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 114.3 118.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Mounting Hole without connection"
+			(at 114.3 118.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(instances
+			(project "Generic Scan Selector"
+				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
+					(reference "H1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 148.59 95.25 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "d328bac0-d105-4bc2-96c1-eed6a0431c27")
+		(property "Reference" "#PWR07"
+			(at 148.59 101.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 148.59 100.33 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" ""
+			(at 148.59 95.25 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 148.59 95.25 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 148.59 95.25 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "df34bfc4-f190-442f-928b-f9a420cdc81e")
+		)
+		(instances
+			(project "Generic Scan Selector"
+				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
+					(reference "#PWR07")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Mechanical:MountingHole")
+		(at 119.38 127 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "d9547c66-3deb-4db3-8825-8f9f1c6677d8")
+		(property "Reference" "H2"
+			(at 119.38 123.698 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "MountingHole"
+			(at 121.92 128.2699 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "OBI Components:MountingHole_3.5mm_Pad_Via_CrtYd_CoperOverCorner"
+			(at 119.38 127 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 119.38 127 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Mounting Hole without connection"
+			(at 119.38 127 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(instances
+			(project "Generic Scan Selector"
+				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
+					(reference "H2")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 170.18 72.39 270)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "e8f93391-52d6-4d25-9696-2f5065ad9a5a")
+		(property "Reference" "#PWR04"
+			(at 163.83 72.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 165.1 72.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" ""
+			(at 170.18 72.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 170.18 72.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 170.18 72.39 0)
 			(effects
 				(font
 					(size 1.27 1.27)
