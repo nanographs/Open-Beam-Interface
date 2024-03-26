@@ -57,13 +57,13 @@ def get_stream(stream, payload):
     timeout = 0
     while not valid:
         valid, data = (yield Tick(sample=[stream.valid, stream.payload]))
-        data = stream.payload.shape().from_bits(data)
         if isinstance(payload, dict):
+            data = stream.payload.shape().from_bits(data)
             value = {}
             for field in payload:
                 value[field] = getattr(data, field)
         else:
-            value = (yield stream.payload)
+            value = data
         print(f"get_stream {valid=} {value=}")
         timeout += 1; assert timeout < 15
     yield stream.ready.eq(0)
@@ -258,6 +258,7 @@ class OBIAppletTestCase(unittest.TestCase):
                 yield from put_stream(dut.cmd_stream, command)
             
             def get_testbench():
+                yield from get_stream(dut.img_stream, 65535) # FFFF
                 yield from get_stream(dut.img_stream, cookie)
         
             self.simulate(dut, [get_testbench,put_testbench], name = "exec_sync")  
