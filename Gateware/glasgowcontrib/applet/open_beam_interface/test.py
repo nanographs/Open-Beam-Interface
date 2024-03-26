@@ -1,7 +1,7 @@
 import unittest
 import struct
 from amaranth.sim import Simulator, Tick
-from amaranth import Signal
+from amaranth import Signal, ShapeCastable
 
 from . import StreamSignature
 from . import Supersampler, RasterScanner, RasterRegion
@@ -57,24 +57,14 @@ def get_stream(stream, payload):
     timeout = 0
     while not valid:
         valid, data = (yield Tick(sample=[stream.valid, stream.payload]))
-        if isinstance(payload, dict):
+        if isinstance(stream.payload.shape(), ShapeCastable):
             data = stream.payload.shape().from_bits(data)
-            value = {}
-            for field in payload:
-                value[field] = getattr(data, field)
-        else:
-            value = data
-        print(f"get_stream {valid=} {value=}")
-        timeout += 1; assert timeout < 15
+        print(f"get_stream {valid=} {data=}")
+        timeout += 1; assert timeout < 10
     yield stream.ready.eq(0)
 
-    if isinstance(payload, dict):
-        for field in payload:
-            assert value[field] == payload[field], \
-                f"payload.{field}: {value[field]} != {payload[field]} (expected)"
-    else:
-        assert value == payload, \
-            f"payload: {value} != {payload} (expected)"
+    assert data == payload, \
+        f"payload: {data} != {payload} (expected)"
 
 
 
