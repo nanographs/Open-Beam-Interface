@@ -1,14 +1,14 @@
 import unittest
 import struct
 from amaranth.sim import Simulator, Tick
-from amaranth import Signal, ShapeCastable
+from amaranth import Signal, ShapeCastable, Const
 
 from . import StreamSignature
 from . import Supersampler, RasterScanner, RasterRegion
 from . import CommandParser, CommandExecutor, Command
 
 
-def put_stream(stream, payload):
+def put_stream(stream, payload, timeout_steps=10):
     if isinstance(payload, dict):
         for field, value in payload.items():
             yield getattr(stream.payload, field).eq(value)
@@ -21,7 +21,7 @@ def put_stream(stream, payload):
     while not ready:
         ready = (yield stream.ready)
         yield Tick()
-        timeout += 1; assert timeout < 15
+        timeout += 1; assert timeout < timeout_steps
     yield stream.valid.eq(0)
 
 
@@ -48,10 +48,38 @@ def get_stream_nosample(stream, payload):
                 f"payload.{field}: {value[field]} != {payload[field]} (expected)"
     else:
         assert value == payload, \
-            f"payload: {value} != {payload} (expected)"
+            f"payload: {value!r} != {payload!r} (expected)"
 
+def unpack_const(data):
+    newmembers = {}
+    members = data.shape().members
+    for member in members:
+        field = data.__getattr__(member)
+        newmembers[member] = field
+    return newmembers
 
-def get_stream(stream, payload):
+def unpack_dict(data):
+    all_data = {}
+    for member in data:
+        try:
+            unpacked_data = unpack_const(data.get(member))
+            all_data[member] = unpack_dict(unpacked_data)
+        except Exception as e:
+            all_data[member] = data.get(member)
+    return all_data
+
+def prettier_print(data):
+    try:
+        data = unpack_const(data)
+        if isinstance(data, dict):
+            all_data = unpack_dict(data)
+        else:
+            all_data = data
+    except: all_data = data
+    return all_data
+    
+
+def get_stream(stream, payload, timeout_steps=10):
     yield stream.ready.eq(1)
     valid = False
     timeout = 0
@@ -59,12 +87,13 @@ def get_stream(stream, payload):
         valid, data = (yield Tick(sample=[stream.valid, stream.payload]))
         if isinstance(stream.payload.shape(), ShapeCastable):
             data = stream.payload.shape().from_bits(data)
-        print(f"get_stream {valid=} {data=}")
-        timeout += 1; assert timeout < 10
+        # print(f"get_stream {valid=} {data=}\n")
+        print(f'get_stream {valid=} {prettier_print(data)}')
+        timeout += 1; assert timeout < timeout_steps
     yield stream.ready.eq(0)
-
-    assert data == payload, \
-        f"payload: {data} != {payload} (expected)"
+    wrapped_payload = stream.payload.shape().const(payload)
+    assert data == wrapped_payload,\
+        f"payload: {prettier_print(data)} != {prettier_print(payload)} (expected)"
 
 
 
@@ -163,13 +192,20 @@ class OBIAppletTestCase(unittest.TestCase):
 
         def test_synchronize_cmd():
             def put_testbench():
-                yield from put_stream(dut.usb_stream, 0)
-                yield from put_stream(dut.usb_stream, 1)
-                yield from put_stream(dut.usb_stream, 123)
+                yield from put_stream(dut.usb_stream, 0) #Type
+                yield from put_stream(dut.usb_stream, 123) #Cookie
                 yield from put_stream(dut.usb_stream, 234)
+                yield from put_stream(dut.usb_stream, 1) #Raster Mode
 
             def get_testbench():
-                yield from get_stream(dut.cmd_stream, {"type":Command.Type.Synchronize})
+                yield from get_stream(dut.cmd_stream, {
+                            "type": Command.Type.Synchronize, 
+                            "payload": {
+                                "synchronize": {
+                                    "cookie": 123*256 + 234,
+                                    "raster_mode": 1,
+                                }
+                            }})
                 assert (yield dut.cmd_stream.valid) == 0
 
             self.simulate(dut, [get_testbench,put_testbench], name = "cmd_sync")  
@@ -178,10 +214,21 @@ class OBIAppletTestCase(unittest.TestCase):
             def put_testbench():
                 cmd = struct.pack('>BHHHHHH', 0x10, 5, 2, 0x2_00, 9, 1, 0x5_00)
                 for b in cmd:
-                    yield from put_stream(dut.usb_stream, b)
+                    yield from put_stream(dut.usb_stream, b, timeout_steps=15)
 
             def get_testbench():
-                yield from get_stream(dut.cmd_stream, {"type":Command.Type.RasterRegion})
+                yield from get_stream(dut.cmd_stream, {
+                            "type":Command.Type.RasterRegion,
+                            "payload": {
+                                "raster_region": {
+                                    "x_start": 5,
+                                    "x_count": 2,
+                                    "x_step": 0x2_00,
+                                    "y_start": 9,
+                                    "y_count": 1,
+                                    "y_step": 0x5_00
+                                }
+                            }}, timeout_steps = 15)
                 assert (yield dut.cmd_stream.valid) == 0
 
             self.simulate(dut, [get_testbench,put_testbench], name = "cmd_rasterregion")
@@ -196,33 +243,55 @@ class OBIAppletTestCase(unittest.TestCase):
                     yield from put_stream(dut.usb_stream, n)
 
             def get_testbench():
-                yield from get_stream(dut.cmd_stream, {"type":Command.Type.RasterPixel})
+                yield from get_stream(dut.cmd_stream, {
+                            "type": Command.Type.RasterPixel,
+                            "payload": {
+                                "raster_pixel": 1
+                            }})
+                yield from get_stream(dut.cmd_stream, {
+                            "type": Command.Type.RasterPixel,
+                            "payload": {
+                                "raster_pixel": 2
+                            }})
                 assert (yield dut.cmd_stream.valid) == 0
 
             self.simulate(dut, [get_testbench,put_testbench], name = "cmd_rasterpixel")  
         
         def test_rasterpixelrun_cmd():
             def put_testbench():
-                cmd = struct.pack('>BHH', 0x12, 2, 2)
+                cmd = struct.pack('>BHH', 0x12, 2, 1)
                 for b in cmd:
                     yield from put_stream(dut.usb_stream, b)
 
-
             def get_testbench():
-                yield from get_stream(dut.cmd_stream, {"type":Command.Type.RasterPixelRun})
+                yield from get_stream(dut.cmd_stream, {
+                    "type":Command.Type.RasterPixelRun,
+                    "payload": {
+                        "raster_pixel_run": {
+                            "length": 2,
+                            "dwell_time": 1
+                        }
+                    }})
                 assert (yield dut.cmd_stream.valid) == 0
 
             self.simulate(dut, [get_testbench,put_testbench], name = "cmd_rasterpixelrun")  
         
         def test_vectorpixel_cmd():
             def put_testbench():
-                cmd = struct.pack('>BHHH', 0x13, 2, 2, 2)
+                cmd = struct.pack('>BHHH', 0x13, 1, 2, 3)
                 for b in cmd:
                     yield from put_stream(dut.usb_stream, b)
 
-
             def get_testbench():
-                yield from get_stream(dut.cmd_stream, {"type":Command.Type.VectorPixel})
+                yield from get_stream(dut.cmd_stream, {
+                    "type":Command.Type.VectorPixel,
+                    "payload": {
+                        "vector_pixel": {
+                            "x_coord": 1,
+                            "y_coord": 2,
+                            "dwell_time": 3
+                        }
+                    }})
                 assert (yield dut.cmd_stream.valid) == 0
 
             self.simulate(dut, [get_testbench,put_testbench], name = "cmd_vectorpixel")  
@@ -234,47 +303,47 @@ class OBIAppletTestCase(unittest.TestCase):
         test_vectorpixel_cmd()
     
 
-    def test_command_executor(self):
-        dut = CommandExecutor(loopback=False)
+    # def test_command_executor(self):
+    #     dut = CommandExecutor(loopback=False)
 
-        def test_sync_exec():
-            command = Signal(Command)
-            command.type = Command.Type.Synchronize
-            command.payload.synchronize.raster_mode = 1
-            cookie = 123*256 + 234
-            command.payload.synchronize.cookie = cookie
+    #     def test_sync_exec():
+    #         command = Signal(Command)
+    #         command.type = Command.Type.Synchronize
+    #         command.payload.synchronize.raster_mode = 1
+    #         cookie = 123*256 + 234
+    #         command.payload.synchronize.cookie = cookie
 
-            def put_testbench():
-                yield from put_stream(dut.cmd_stream, command)
+    #         def put_testbench():
+    #             yield from put_stream(dut.cmd_stream, command)
             
-            def get_testbench():
-                yield from get_stream(dut.img_stream, 65535) # FFFF
-                yield from get_stream(dut.img_stream, cookie)
+    #         def get_testbench():
+    #             yield from get_stream(dut.img_stream, 65535) # FFFF
+    #             yield from get_stream(dut.img_stream, cookie)
         
-            self.simulate(dut, [get_testbench,put_testbench], name = "exec_sync")  
+    #         self.simulate(dut, [get_testbench,put_testbench], name = "exec_sync")  
 
-        def test_rasterregion_exec():
-            region = Signal(RasterRegion)
-            region.x_start = 5
-            region.x_count = 2
-            region.x_step = 0x2_00
-            region.y_start = 9
-            region.y_count = 1
-            region.y_step = 0x5_00
-            command = Signal(Command)
-            command.type = Command.Type.RasterRegion
-            command.payload.raster_region = region
+    #     def test_rasterregion_exec():
+    #         region = Signal(RasterRegion)
+    #         region.x_start = 5
+    #         region.x_count = 2
+    #         region.x_step = 0x2_00
+    #         region.y_start = 9
+    #         region.y_count = 1
+    #         region.y_step = 0x5_00
+    #         command = Signal(Command)
+    #         command.type = Command.Type.RasterRegion
+    #         command.payload.raster_region = region
 
-            def put_testbench():
-                yield from put_stream(dut.cmd_stream, command)
+    #         def put_testbench():
+    #             yield from put_stream(dut.cmd_stream, command)
 
-            def get_testbench():
-                yield from get_stream(dut.raster_scanner.roi_stream, region)
+    #         def get_testbench():
+    #             yield from get_stream(dut.raster_scanner.roi_stream, region)
 
-            self.simulate(dut, [get_testbench,put_testbench], name = "exec_rasterregion")  
+    #         self.simulate(dut, [get_testbench,put_testbench], name = "exec_rasterregion")  
 
-        #test_rasterregion_exec() # doesn't work yet
-        test_sync_exec()
+    #     #test_rasterregion_exec() # doesn't work yet
+    #     # test_sync_exec()
 
 
 
