@@ -756,12 +756,12 @@ class OBISubtarget(wiring.Component):
             data = platform.request("data")
 
             m.d.comb += [
-                control.x_latch.eq(executor.bus.dac_x_le),
-                control.y_latch.eq(executor.bus.dac_y_le),
-                control.a_latch.eq(executor.bus.adc_le),
-                control.a_enable.eq(executor.bus.adc_oe),
-                control.d_clock.eq(executor.bus.dac_clk),
-                control.a_clock.eq(executor.bus.adc_clk),
+                control.x_latch.o.eq(executor.bus.dac_x_le),
+                control.y_latch.o.eq(executor.bus.dac_y_le),
+                control.a_latch.o.eq(executor.bus.adc_le),
+                control.a_enable.o.eq(executor.bus.adc_oe),
+                control.d_clock.o.eq(executor.bus.dac_clk),
+                control.a_clock.o.eq(executor.bus.adc_clk),
 
                 executor.bus.data_i.eq(data.i),
                 data.o.eq(executor.bus.data_o),
