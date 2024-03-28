@@ -224,6 +224,8 @@ class _RasterPixelsCommand(Command):
             if dwell_time >= self._latency:
                 yield (commands, pixel_count)
                 commands = b""
+                pixel_count = 0
+                dwell_time = 0
         if chunk:
             append_command(chunk)
             yield (commands, pixel_count)
@@ -356,14 +358,14 @@ async def main():
     conn = Connection('localhost', 2222)
     fb = FrameBuffer(conn)
 
-    x_range = y_range = DACCodeRange(0, 180, 0x7000)
+    x_range = y_range = DACCodeRange(0, 2048, int((16384/2048)*256))
     #x_range = y_range = DACCodeRange(0, 192, 21845)
 
-    res = await fb.capture_image(x_range, y_range, 2)
-    #fb.output_pgm(res, x_range, y_range)
+    res = await fb.capture_image(x_range, y_range, 1)
+    fb.output_pgm(res, x_range, y_range)
 
-    ar = fb.output_ndarray(res, x_range, y_range)
-    print(ar)
+    #ar = fb.output_ndarray(res, x_range, y_range)
+    #print(ar)
 
 
 
