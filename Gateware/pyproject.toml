@@ -6,7 +6,7 @@ authors = [{name = "nanographs"}]
 license = {text = "0BSD OR Apache-2.0"}
 
 requires-python = "~=3.9"
-dependencies = ["glasgow"]
+dependencies = ["glasgow", "numpy"]
 
 [project.entry-points."glasgow.applet"]
 open_beam_interface = "glasgowcontrib.applet.open_beam_interface:OBIApplet"
