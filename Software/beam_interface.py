@@ -325,22 +325,46 @@ class RasterScanCommand(Command):
         await SynchronizeCommand(cookie=self._cookie + 2, raster_mode=True).transfer(stream)
 
 
+import numpy as np
+#import PIL
+class FrameBuffer():
+    def __init__(self, conn):
+        self.conn = conn
+    async def capture_image(self, x_range, y_range, dwell):
+        cmd = RasterScanCommand(cookie=1, x_range=x_range, y_range=y_range,
+                        pixels=[dwell] * x_range.count * y_range.count)
+        res = array.array('H')
+        async for chunk in self.conn.transfer_multiple(cmd):
+            res.extend(chunk)
+        return res
+
+    def output_pgm(self, res, x_range, y_range):
+        with open("output.pgm", "wt") as f:
+            f.write(f"P2\n")
+            f.write(f"{x_range.count+1} {y_range.count}\n") # FIXME: off-by-1 elsewhere
+            f.write(f"{(1 << 14) - 1}\n")
+            f.write(" ".join(str(val) for val in res))
+
+    def output_ndarray(self, res, x_range, y_range):
+        ar = np.array(res)
+        ar = ar.astype(np.uint8)
+        ar = ar.reshape(x_range.count, y_range.count)
+        return ar
+        
+
 async def main():
     conn = Connection('localhost', 2222)
+    fb = FrameBuffer(conn)
 
-    x_range = y_range = DACCodeRange(0, 128, 0x8000)
+    x_range = y_range = DACCodeRange(0, 180, 0x7000)
     #x_range = y_range = DACCodeRange(0, 192, 21845)
-    cmd = RasterScanCommand(cookie=1, x_range=x_range, y_range=y_range,
-                            pixels=[2] * x_range.count * y_range.count)
-    res = array.array('H')
-    async for chunk in conn.transfer_multiple(cmd):
-        res.extend(chunk)
 
-    with open("output.pgm", "wt") as f:
-        f.write(f"P2\n")
-        f.write(f"{x_range.count+1} {y_range.count}\n") # FIXME: off-by-1 elsewhere
-        f.write(f"{(1 << 14) - 1}\n")
-        f.write(" ".join(str(val) for val in res))
+    res = await fb.capture_image(x_range, y_range, 2)
+    #fb.output_pgm(res, x_range, y_range)
+
+    ar = fb.output_ndarray(res, x_range, y_range)
+    print(ar)
+
 
 
 if __name__ == '__main__':
