@@ -4,6 +4,7 @@ from amaranth.lib import enum, data, wiring
 from amaranth.lib.fifo import SyncFIFOBuffered
 from amaranth.lib.wiring import In, Out, flipped
 
+from glasgow.support.logging import dump_hex
 from glasgow.support.endpoint import ServerEndpoint
 
 
@@ -127,14 +128,14 @@ class BusController(wiring.Component):
         last_sample = Signal(self.adc_latency)
 
         m.submodules.adc_stream_fifo = adc_stream_fifo = \
-            SyncFIFOBuffered(depth=self.adc_latency, width=len(self.adc_stream.data.as_value()))
+            SyncFIFOBuffered(depth=self.adc_latency, width=len(self.adc_stream.payload.as_value()))
         m.d.comb += [
             self.adc_stream.payload.eq(adc_stream_fifo.r_data),
             self.adc_stream.valid.eq(adc_stream_fifo.r_rdy),
             adc_stream_fifo.r_en.eq(self.adc_stream.ready),
         ]
 
-        adc_stream_data = Signal.like(self.adc_stream.data) # FIXME: will not be needed after FIFOs have shapes
+        adc_stream_data = Signal.like(self.adc_stream.payload) # FIXME: will not be needed after FIFOs have shapes
         m.d.comb += [
             # Cat(adc_stream_data.adc_code,
             #     adc_stream_data.adc_ovf).eq(self.bus.i),
@@ -142,25 +143,25 @@ class BusController(wiring.Component):
             adc_stream_fifo.w_data.eq(adc_stream_data),
         ]
 
-        dac_stream_data = Signal.like(self.dac_stream.data)
+        dac_stream_data = Signal.like(self.dac_stream.payload)
 
         m.d.comb += adc_stream_data.adc_code.eq(self.bus.data_i),
 
         with m.FSM():
-            with m.State("ADC Wait"):
+            with m.State("ADC_Wait"):
                 with m.If(self.bus.adc_clk & (adc_cycles == 0)):
                     m.d.comb += self.bus.adc_le.eq(1)
                     m.d.comb += self.bus.adc_oe.eq(1) #give bus time to stabilize before sampling
-                    m.next = "ADC Read"
+                    m.next = "ADC_Read"
 
-            with m.State("ADC Read"):
+            with m.State("ADC_Read"):
                 m.d.comb += self.bus.adc_le.eq(1)
                 m.d.comb += self.bus.adc_oe.eq(1)
                 m.d.comb += adc_stream_fifo.w_en.eq(accept_sample[self.adc_latency-1]) # does nothing if ~adc_stream_fifo.w_rdy
                 with m.If(self.dac_stream.valid & adc_stream_fifo.w_rdy):
                     # Latch DAC codes from input stream.
                     m.d.comb += self.dac_stream.ready.eq(1)
-                    m.d.sync += dac_stream_data.eq(self.dac_stream.data)
+                    m.d.sync += dac_stream_data.eq(self.dac_stream.payload)
                     # Schedule ADC sample for these DAC codes to be output.
                     m.d.sync += accept_sample.eq(Cat(1, accept_sample))
                     # Carry over the flag for last sample [of averaging window] to the output.
@@ -171,37 +172,37 @@ class BusController(wiring.Component):
                     m.d.sync += accept_sample.eq(Cat(0, accept_sample))
                     # The value of this flag is discarded, so it doesn't matter what it is.
                     m.d.sync += last_sample.eq(Cat(0, last_sample))
-                m.next = "X DAC Write"
+                m.next = "X_DAC_Write"
 
-            with m.State("X DAC Write"):
+            with m.State("X_DAC_Write"):
                 m.d.comb += [
                     self.bus.data_o.eq(dac_stream_data.dac_x_code),
                     self.bus.data_oe.eq(1),
                     self.bus.dac_x_le.eq(1),
                 ]
-                m.next = "X DAC Write 2"
+                m.next = "X_DAC_Write_2"
 
-            with m.State("X DAC Write 2"):
+            with m.State("X_DAC_Write_2"):
                 m.d.comb += [
                     self.bus.data_o.eq(dac_stream_data.dac_x_code),
                     self.bus.data_oe.eq(1),
                 ]
-                m.next = "Y DAC Write"
+                m.next = "Y_DAC_Write"
 
-            with m.State("Y DAC Write"):
+            with m.State("Y_DAC_Write"):
                 m.d.comb += [
                     self.bus.data_o.eq(dac_stream_data.dac_y_code),
                     self.bus.data_oe.eq(1),
                     self.bus.dac_y_le.eq(1),
                 ]
-                m.next = "Y DAC Write 2"
+                m.next = "Y_DAC_Write_2"
 
-            with m.State("Y DAC Write 2"):
+            with m.State("Y_DAC_Write_2"):
                 m.d.comb += [
                     self.bus.data_o.eq(dac_stream_data.dac_y_code),
                     self.bus.data_oe.eq(1),
                 ]
-                m.next = "ADC Wait"
+                m.next = "ADC_Wait"
 
         return m
 
@@ -337,9 +338,9 @@ class RasterScanner(wiring.Component):
                     m.d.sync += [
                         region.eq(self.roi_stream.payload),
                         x_accum.eq(self.roi_stream.payload.x_start << self.FRAC_BITS),
-                        x_count.eq(0),
+                        x_count.eq(self.roi_stream.payload.x_count - 1),
                         y_accum.eq(self.roi_stream.payload.y_start << self.FRAC_BITS),
-                        y_count.eq(0),
+                        y_count.eq(self.roi_stream.payload.y_count - 1),
                     ]
                     m.next = "Scan"
 
@@ -352,18 +353,18 @@ class RasterScanner(wiring.Component):
                     with m.If(self.abort):
                         m.next = "Get-ROI"
 
-                    with m.If(x_count == region.x_count):
-                        with m.If(y_count == region.y_count):
+                    with m.If(x_count == 0):
+                        with m.If(y_count == 0):
                             m.next = "Get-ROI"
                         with m.Else():
                             m.d.sync += y_accum.eq(y_accum + region.y_step)
-                            m.d.sync += y_count.eq(y_count + 1)
+                            m.d.sync += y_count.eq(y_count - 1)
 
-                        m.d.sync += x_accum.eq(self.roi_stream.payload.x_start << self.FRAC_BITS)
-                        m.d.sync += x_count.eq(0)
+                        m.d.sync += x_accum.eq(region.x_start << self.FRAC_BITS)
+                        m.d.sync += x_count.eq(region.x_count - 1)
                     with m.Else():
                         m.d.sync += x_accum.eq(x_accum + region.x_step)
-                        m.d.sync += x_count.eq(x_count + 1)
+                        m.d.sync += x_count.eq(x_count - 1)
 
         return m
 
@@ -383,7 +384,8 @@ class Command(data.Struct):
         RasterRegion    = 0x10
         RasterPixel     = 0x11
         RasterPixelRun  = 0x12
-        VectorPixel     = 0x13
+        RasterFreeScan  = 0x13
+        VectorPixel     = 0x14
 
     type: Type
 
@@ -439,6 +441,9 @@ class CommandParser(wiring.Component):
 
                         with m.Case(Command.Type.RasterPixelRun):
                             m.next = "Payload_Raster_Pixel_Run_1_High"
+                        
+                        with m.Case(Command.Type.RasterFreeScan):
++                            m.next = "Payload_Raster_Free_Scan"
 
                         with m.Case(Command.Type.VectorPixel):
                             m.next = "Payload_Vector_Pixel_1_High"
@@ -495,6 +500,9 @@ class CommandParser(wiring.Component):
             DeserializeWord(command.payload.raster_pixel_run.dwell_time,
                 "Payload_Raster_Pixel_Run_2", "Submit")
 
+            DeserializeWord(command.payload.raster_pixel,
++                "Payload_Raster_Free_Scan", "Submit")
+
             DeserializeWord(command.payload.vector_pixel.x_coord,
                 "Payload_Vector_Pixel_1", "Payload_Vector_Pixel_2_High")
             DeserializeWord(command.payload.vector_pixel.y_coord,
@@ -530,7 +538,7 @@ class CommandExecutor(wiring.Component):
 
         m.submodules.bus_controller = bus_controller = BusController(adc_half_period=3, adc_latency=self.adc_latency)
         m.submodules.supersampler   = self.supersampler
-        m.submodules.raster_scanner = raster_scanner = RasterScanner()
+        m.submodules.raster_scanner = self.raster_scanner = RasterScanner()
 
 
         wiring.connect(m, self.supersampler.super_dac_stream, bus_controller.dac_stream)
@@ -547,7 +555,7 @@ class CommandExecutor(wiring.Component):
         raster_mode = Signal()
         command = Signal.like(self.cmd_stream.payload)
         with m.If(raster_mode):
-            wiring.connect(m, raster_scanner.dac_stream, self.supersampler.dac_stream)
+            wiring.connect(m, self.raster_scanner.dac_stream, self.supersampler.dac_stream)
         with m.Else():
             wiring.connect(m, vector_stream, self.supersampler.dac_stream)
 
@@ -558,9 +566,10 @@ class CommandExecutor(wiring.Component):
 
 
         run_length = Signal.like(command.payload.raster_pixel_run.length)
+        raster_region = Signal.like(command.payload.raster_region)
         m.d.comb += [
-            raster_scanner.roi_stream.payload.eq(command.payload.raster_region),
-            vector_stream.data.eq(command.payload.vector_pixel)
+            self.raster_scanner.roi_stream.payload.eq(raster_region),
+            vector_stream.payload.eq(command.payload.vector_pixel)
         ]
 
         sync_req = Signal()
@@ -570,7 +579,7 @@ class CommandExecutor(wiring.Component):
             with m.State("Fetch"):
                 m.d.comb += self.cmd_stream.ready.eq(1)
                 with m.If(self.cmd_stream.valid):
-                    m.d.sync += command.eq(self.cmd_stream.data)
+                    m.d.sync += command.eq(self.cmd_stream.payload)
                     m.next = "Execute"
 
             with m.State("Execute"):
@@ -586,7 +595,7 @@ class CommandExecutor(wiring.Component):
 
                     with m.Case(Command.Type.Abort):
                         m.d.sync += self.flush.eq(1)
-                        m.d.comb += raster_scanner.abort.eq(1)
+                        m.d.comb += self.raster_scanner.abort.eq(1)
                         m.next = "Fetch"
 
                     with m.Case(Command.Type.Flush):
@@ -594,31 +603,53 @@ class CommandExecutor(wiring.Component):
                         m.next = "Fetch"
 
                     with m.Case(Command.Type.RasterRegion):
-                        m.d.comb += raster_scanner.roi_stream.valid.eq(1)
-                        with m.If(raster_scanner.roi_stream.ready):
+                        m.d.sync += raster_region.eq(command.payload.raster_region)
+                        m.d.comb += [
+                            self.raster_scanner.roi_stream.valid.eq(1),
+                            self.raster_scanner.roi_stream.payload.eq(command.payload.raster_region),
+                        ]
+                        with m.If(self.raster_scanner.roi_stream.ready):
                             m.next = "Fetch"
 
                     with m.Case(Command.Type.RasterPixel):
                         m.d.comb += [
-                            raster_scanner.dwell_stream.valid.eq(1),
-                            raster_scanner.dwell_stream.payload.eq(command.payload.raster_pixel),
+                            self.raster_scanner.dwell_stream.valid.eq(1),
+                            self.raster_scanner.dwell_stream.payload.eq(command.payload.raster_pixel),
                         ]
-                        with m.If(raster_scanner.dwell_stream.ready):
+                        with m.If(self.raster_scanner.dwell_stream.ready):
                             m.d.comb += submit_pixel.eq(1)
                             m.next = "Fetch"
 
                     with m.Case(Command.Type.RasterPixelRun):
                         m.d.comb += [
-                            raster_scanner.dwell_stream.valid.eq(1),
-                            raster_scanner.dwell_stream.payload.eq(command.payload.raster_pixel_run.dwell_time)
+                            self.raster_scanner.dwell_stream.valid.eq(1),
+                            self.raster_scanner.dwell_stream.payload.eq(command.payload.raster_pixel_run.dwell_time)
                         ]
-                        with m.If(raster_scanner.dwell_stream.ready):
+                        with m.If(self.raster_scanner.dwell_stream.ready):
                             m.d.comb += submit_pixel.eq(1)
                             with m.If(run_length == command.payload.raster_pixel_run.length):
                                 m.d.sync += run_length.eq(0)
                                 m.next = "Fetch"
                             with m.Else():
                                 m.d.sync += run_length.eq(run_length + 1)
+
+                    with m.Case(Command.Type.RasterFreeScan):
+                        m.d.comb += [
+                            self.raster_scanner.roi_stream.payload.eq(raster_region),
+                            self.raster_scanner.dwell_stream.payload.eq(command.payload.raster_pixel),
+                        ]
+                        with m.If(self.cmd_stream.valid):
+                            m.d.comb += self.raster_scanner.abort.eq(1)
+                            # `abort` only takes effect on the next opportunity!
+                            with m.If(self.raster_scanner.dac_stream.ready):
+                                m.next = "Fetch"
+                        with m.Else():
+                            # don't count pixels; resynchronization is mandatory after this command
+                            m.d.comb += [
+                                self.raster_scanner.roi_stream.valid.eq(1),
+                                self.raster_scanner.dwell_stream.valid.eq(1),
+                            ]
+
 
                     with m.Case(Command.Type.VectorPixel):
                         m.d.comb += vector_stream.valid.eq(1)
@@ -635,17 +666,17 @@ class CommandExecutor(wiring.Component):
                     retire_pixel.eq(self.supersampler.adc_stream.valid & self.img_stream.ready),
                 ]
                 with m.If((in_flight_pixels == 0) & sync_req):
-                    m.next = "Write FFFF"
+                    m.next = "Write_FFFF"
 
-            with m.State("Write FFFF"):
+            with m.State("Write_FFFF"):
                 m.d.comb += [
                     self.img_stream.payload.eq(0xffff),
                     self.img_stream.valid.eq(1),
                 ]
                 with m.If(self.img_stream.ready):
-                    m.next = "Write cookie"
+                    m.next = "Write_cookie"
 
-            with m.State("Write cookie"):
+            with m.State("Write_cookie"):
                 m.d.comb += [
                     self.img_stream.payload.eq(command.payload.synchronize.cookie),
                     self.img_stream.valid.eq(1),
@@ -748,7 +779,7 @@ class OBISubtarget(wiring.Component):
             self.in_fifo.w_data.eq(serializer.usb_stream.payload),
             self.in_fifo.w_en.eq(serializer.usb_stream.valid),
             serializer.usb_stream.ready.eq(self.in_fifo.w_rdy),
-            # self.in_fifo.flush.eq(executor.flush),
+            self.in_fifo.flush.eq(executor.flush),
         ]
 
         if not self.sim:
@@ -756,12 +787,12 @@ class OBISubtarget(wiring.Component):
             data = platform.request("data")
 
             m.d.comb += [
-                control.x_latch.eq(executor.bus.dac_x_le),
-                control.y_latch.eq(executor.bus.dac_y_le),
-                control.a_latch.eq(executor.bus.adc_le),
-                control.a_enable.eq(executor.bus.adc_oe),
-                control.d_clock.eq(executor.bus.dac_clk),
-                control.a_clock.eq(executor.bus.adc_clk),
+                control.x_latch.o.eq(executor.bus.dac_x_le),
+                control.y_latch.o.eq(executor.bus.dac_y_le),
+                control.a_latch.o.eq(executor.bus.adc_le),
+                control.a_enable.o.eq(executor.bus.adc_oe),
+                control.d_clock.o.eq(executor.bus.dac_clk),
+                control.a_clock.o.eq(executor.bus.adc_clk),
 
                 executor.bus.data_i.eq(data.i),
                 data.o.eq(executor.bus.data_o),
@@ -801,9 +832,9 @@ class OBIApplet(GlasgowApplet):
             target.multiplexer.claim_interface(self, args=None, throttle="none")
 
         subtarget = OBISubtarget(
-            in_fifo=iface.get_in_fifo(depth=9000, auto_flush=True),
-            out_fifo=iface.get_out_fifo(depth=128),
-            loopback=args.loopback
+            in_fifo=iface.get_in_fifo(depth=512, auto_flush=False),
+            out_fifo=iface.get_out_fifo(depth=512),
+            loopback=args.loopback,
         )
         return iface.add_subtarget(subtarget)
 
@@ -816,25 +847,39 @@ class OBIApplet(GlasgowApplet):
         ServerEndpoint.add_argument(parser, "endpoint")
 
     async def interact(self, device, args, iface):
-        endpoint = await ServerEndpoint("socket", self.logger, args.endpoint)
-        async def forward_out():
-            while True:
-                try:
-                    data = await endpoint.recv()
-                    await iface.write(data)
-                    await iface.flush()
-                except asyncio.CancelledError:
-                    pass
-        async def forward_in():
-            while True:
-                try:
-                    data = await iface.read()
-                    print(f"wrote {len(data)} bytes")
-                    await endpoint.send(data)
-                except asyncio.CancelledError:
-                    pass
-        forward_out_fut = asyncio.ensure_future(forward_out())
-        forward_in_fut  = asyncio.ensure_future(forward_in())
-        await asyncio.wait([forward_out_fut, forward_in_fut],
-                           return_when=asyncio.FIRST_EXCEPTION)
+        class ForwardProtocol(asyncio.Protocol):
+            logger = self.logger
 
+            def connection_made(self, transport):
+                self.transport = transport
+
+                peername = self.transport.get_extra_info("peername")
+                self.logger.info("new connection from [%s]:%d", *peername[0:2])
+
+                async def initialize():
+                    self.logger.debug("reset")
+                    await iface.reset()
+
+                    async def send_data():
+                        data = await iface.read(flush=False)
+                        self.logger.debug("dev->ui <%s>", dump_hex(data))
+                        transport.write(data)
+                        asyncio.create_task(send_data())
+                    asyncio.create_task(send_data())
+                self.init_fut = asyncio.create_task(initialize())
+            
+            def connection_lost(self, exc):
+                peername = self.transport.get_extra_info("peername")
+                self.logger.info("connection from [%s]:%d lost", *peername[0:2], exc_info=exc)
+
+            def data_received(self, data):
+                async def recv_data():
+                    await self.init_fut
+                    self.logger.debug("ui->dev <%s>", dump_hex(data))
+                    await iface.write(data)
+                    await iface.flush(wait=False)
+                asyncio.create_task(recv_data())
+
+        proto, *proto_args = args.endpoint
+        server = await asyncio.get_event_loop().create_server(ForwardProtocol, *proto_args, backlog=1)
+        await server.serve_forever()
