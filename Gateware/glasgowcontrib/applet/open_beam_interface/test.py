@@ -390,8 +390,44 @@ class OBIAppletTestCase(unittest.TestCase):
 
             self.simulate(dut, [get_testbench,put_testbench], name = "exec_rasterregion")  
 
+        def test_rasterpixel_exec():
+
+            def put_testbench():
+                yield from put_stream(dut.cmd_stream, {
+                    "type": Command.Type.RasterPixel,
+                    "payload": {
+                        "raster_pixel": 1
+                    }
+                })
+
+            def get_testbench():
+                yield from get_stream(dut.raster_scanner.dwell_stream, 1)
+
+            self.simulate(dut, [get_testbench,put_testbench], name = "exec_rasterpixel")  
+        
+        def test_rasterpixelrun_exec():
+
+            def put_testbench():
+                yield from put_stream(dut.cmd_stream, {
+                    "type": Command.Type.RasterPixelRun,
+                    "payload": {
+                        "raster_pixel_run": {
+                            "length": 2,
+                            "dwell_time": 1,
+                        } 
+                    }
+                })
+
+            def get_testbench():
+                yield from get_stream(dut.raster_scanner.dwell_stream, 1)
+                yield from get_stream(dut.raster_scanner.dwell_stream, 1)
+
+            self.simulate(dut, [get_testbench,put_testbench], name = "exec_rasterpixelrun")  
+
         test_sync_exec()
         test_rasterregion_exec()
+        test_rasterpixel_exec()
+        test_rasterpixelrun_exec()
 
 
 
