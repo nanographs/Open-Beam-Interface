@@ -7734,7 +7734,7 @@
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
-		(dnp no)
+		(dnp yes)
 		(uuid "061812a1-ddb3-4ab6-bd53-0380f1a43e52")
 		(property "Reference" "J5"
 			(at 218.44 71.12 0)
@@ -7771,6 +7771,15 @@
 			)
 		)
 		(property "Description" ""
+			(at 220.98 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Digikey Part Number" ""
 			(at 220.98 77.47 0)
 			(effects
 				(font
@@ -7838,6 +7847,24 @@
 			)
 		)
 		(property "Description" ""
+			(at 109.22 54.61 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Digikey Link" "https://www.digikey.com/en/products/detail/samtec-inc/CLP-125-02-G-D-P/6706472"
+			(at 109.22 54.61 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Digikey Part Number" "CLP-125-02-G-D-P-ND"
 			(at 109.22 54.61 0)
 			(effects
 				(font
@@ -8072,7 +8099,7 @@
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
-		(dnp no)
+		(dnp yes)
 		(fields_autoplaced yes)
 		(uuid "23f0907d-a817-4c0a-9ec1-b4c35ede6798")
 		(property "Reference" "H3"
@@ -8113,6 +8140,15 @@
 			)
 		)
 		(property "Description" ""
+			(at 193.04 156.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Digikey Part Number" ""
 			(at 193.04 156.21 0)
 			(effects
 				(font
@@ -8204,7 +8240,7 @@
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
-		(dnp no)
+		(dnp yes)
 		(fields_autoplaced yes)
 		(uuid "2a6044c9-2010-4f8d-b5d9-7756b2ddcaf5")
 		(property "Reference" "R3"
@@ -8244,6 +8280,15 @@
 			)
 		)
 		(property "Description" ""
+			(at 208.28 76.2 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Digikey Part Number" ""
 			(at 208.28 76.2 0)
 			(effects
 				(font
@@ -8314,6 +8359,24 @@
 			)
 		)
 		(property "Description" ""
+			(at 100.33 160.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Digikey Link" "https://www.digikey.com/en/products/detail/samsung-electro-mechanics/CL10B104KA8NNNC/3886664"
+			(at 100.33 160.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Digikey Part Number" "1276-1006-1-ND"
 			(at 100.33 160.02 0)
 			(effects
 				(font
@@ -8456,6 +8519,24 @@
 				(hide yes)
 			)
 		)
+		(property "Digikey Link" "https://www.digikey.com/en/products/detail/samtec-inc/BCS-110-S-D-TE/6629089"
+			(at 260.35 146.05 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Digikey Part Number" "BCS-110-S-D-TE-ND"
+			(at 260.35 146.05 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "d5a4c727-28ac-49ef-9df1-180b8a92108e")
 		)
@@ -8572,6 +8653,24 @@
 			)
 		)
 		(property "Description" ""
+			(at 62.23 160.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Digikey Link" "https://www.digikey.com/en/products/detail/samsung-electro-mechanics/CL10B104KA8NNNC/3886664"
+			(at 62.23 160.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Digikey Part Number" "1276-1006-1-ND"
 			(at 62.23 160.02 0)
 			(effects
 				(font
@@ -8780,6 +8879,24 @@
 				(hide yes)
 			)
 		)
+		(property "Digikey Link" "https://www.digikey.com/en/products/detail/samsung-electro-mechanics/CL31B475KAHNNWE/3888836"
+			(at 111.76 160.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Digikey Part Number" "1276-3178-1-ND"
+			(at 111.76 160.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "5bf4a1ff-1914-4d6a-826c-f6e8ff5279d0")
 		)
@@ -8907,6 +9024,24 @@
 			)
 		)
 		(property "Description" ""
+			(at 245.11 148.59 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Digikey Part Number" "Y1330CT-ND"
+			(at 245.11 148.59 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Digikey Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/EXB-2HV330JV/285301"
 			(at 245.11 148.59 0)
 			(effects
 				(font
@@ -9046,7 +9181,7 @@
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
-		(dnp no)
+		(dnp yes)
 		(fields_autoplaced yes)
 		(uuid "63d477ce-d06e-4504-9c26-9b8a56f21bb5")
 		(property "Reference" "JP2"
@@ -9086,6 +9221,24 @@
 			)
 		)
 		(property "Description" ""
+			(at 53.34 143.51 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Digikey Part Number" "A106051CT-ND"
+			(at 53.34 143.51 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Digikey Link" "https://www.digikey.com/en/products/detail/te-connectivity-passive-product/CRG0603ZR/2380828"
 			(at 53.34 143.51 0)
 			(effects
 				(font
@@ -9228,8 +9381,17 @@
 				(hide yes)
 			)
 		)
-		(property "Digikey Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/EXB-2HV471JV/285315"
+		(property "Digikey Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/EXB-2HV330JV/285301"
 			(at 245.11 55.88 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Digikey Part Number" "Y1330CT-ND"
+			(at 245.11 55.88 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9349,6 +9511,24 @@
 				(hide yes)
 			)
 		)
+		(property "Digikey Link" "https://www.digikey.com/en/products/detail/samsung-electro-mechanics/CL10B104KA8NNNC/3886664"
+			(at 111.76 152.4 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Digikey Part Number" "1276-1006-1-ND"
+			(at 111.76 152.4 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "287d7a40-e099-4d1c-8fec-b15f261bff77")
 		)
@@ -9439,7 +9619,7 @@
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
-		(dnp no)
+		(dnp yes)
 		(fields_autoplaced yes)
 		(uuid "8a3e3f7e-db63-498e-8d35-61d71782cfce")
 		(property "Reference" "H1"
@@ -9488,6 +9668,15 @@
 				(hide yes)
 			)
 		)
+		(property "Digikey Part Number" ""
+			(at 182.88 148.59 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(instances
 			(project "OBI Data Interconnect"
 				(path "/8e30db5a-8377-41bb-9178-f054fa0904ec"
@@ -9504,7 +9693,7 @@
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
-		(dnp no)
+		(dnp yes)
 		(fields_autoplaced yes)
 		(uuid "995fcb40-5224-4ef2-b37a-b10422d1c0d9")
 		(property "Reference" "H2"
@@ -9545,6 +9734,15 @@
 			)
 		)
 		(property "Description" ""
+			(at 193.04 148.59 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Digikey Part Number" ""
 			(at 193.04 148.59 0)
 			(effects
 				(font
@@ -9634,7 +9832,7 @@
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
-		(dnp no)
+		(dnp yes)
 		(fields_autoplaced yes)
 		(uuid "b22b4ea4-4b4e-498a-b000-249edddbe5ab")
 		(property "Reference" "R1"
@@ -9672,6 +9870,15 @@
 			)
 		)
 		(property "Description" ""
+			(at 200.66 74.93 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Digikey Part Number" ""
 			(at 200.66 74.93 0)
 			(effects
 				(font
@@ -9805,6 +10012,24 @@
 			)
 		)
 		(property "Description" ""
+			(at 245.11 105.41 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Digikey Part Number" "Y1330CT-ND"
+			(at 245.11 105.41 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Digikey Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/EXB-2HV330JV/285301"
 			(at 245.11 105.41 0)
 			(effects
 				(font
@@ -9993,6 +10218,24 @@
 				(hide yes)
 			)
 		)
+		(property "Digikey Part Number" "A106051CT-ND"
+			(at 120.65 142.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Digikey Link" "https://www.digikey.com/en/products/detail/te-connectivity-passive-product/CRG0603ZR/2380828"
+			(at 120.65 142.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "e85e05b5-49fc-42fd-8f50-f0fb4979e9a4")
 		)
@@ -10131,6 +10374,24 @@
 				(hide yes)
 			)
 		)
+		(property "Digikey Link" "https://www.digikey.com/en/products/detail/samsung-electro-mechanics/CL31B475KAHNNWE/3888836"
+			(at 100.33 152.4 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Digikey Part Number" "1276-3178-1-ND"
+			(at 100.33 152.4 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "67415b6e-c0af-4877-a422-9026e3ae1067")
 		)
@@ -10201,6 +10462,24 @@
 				(hide yes)
 			)
 		)
+		(property "Digikey Link" "https://www.digikey.com/en/products/detail/samsung-electro-mechanics/CL31B475KAHNNWE/3888836"
+			(at 74.93 160.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Digikey Part Number" "1276-3178-1-ND"
+			(at 74.93 160.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "2f35b421-3a3f-4046-b767-2d41e801ef1f")
 		)
@@ -10261,6 +10540,24 @@
 			)
 		)
 		(property "Description" ""
+			(at 260.35 53.34 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Digikey Link" "https://www.digikey.com/en/products/detail/samtec-inc/BCS-110-S-D-TE/6629089"
+			(at 260.35 53.34 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Digikey Part Number" "BCS-110-S-D-TE-ND"
 			(at 260.35 53.34 0)
 			(effects
 				(font
@@ -10456,6 +10753,24 @@
 				(hide yes)
 			)
 		)
+		(property "Digikey Link" "https://www.digikey.com/en/products/detail/samtec-inc/BCS-110-S-D-TE/6629089"
+			(at 260.35 102.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Digikey Part Number" "BCS-110-S-D-TE-ND"
+			(at 260.35 102.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "30741986-1bf6-4035-8323-82e85444e4a0")
 		)
@@ -10532,7 +10847,7 @@
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
-		(dnp no)
+		(dnp yes)
 		(uuid "fe570f95-cc66-4023-9b0b-02fcd51a0abb")
 		(property "Reference" "R2"
 			(at 200.66 80.01 90)
@@ -10569,6 +10884,15 @@
 			)
 		)
 		(property "Description" ""
+			(at 200.66 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Digikey Part Number" ""
 			(at 200.66 77.47 0)
 			(effects
 				(font

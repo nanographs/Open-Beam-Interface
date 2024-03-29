@@ -133,6 +133,42 @@
 			(justify mirror)
 		)
 	)
+	(fp_text user "4"
+		(at -1.5 -1.5 0)
+		(unlocked yes)
+		(layer "F.SilkS")
+		(uuid "02e7611d-04eb-4f14-a27c-19ba96458a53")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(fp_text user "1"
+		(at -3.2 0.5 0)
+		(unlocked yes)
+		(layer "F.SilkS")
+		(uuid "3b945de6-8c83-4d26-a9a5-c30629a9d7d5")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(fp_text user "3"
+		(at 3.2 0.5 0)
+		(unlocked yes)
+		(layer "F.SilkS")
+		(uuid "ef9941aa-00a0-4f79-b59c-d1bfd70ff972")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
 	(fp_text user "${REFERENCE}"
 		(at 0 -5.95 0)
 		(unlocked yes)
