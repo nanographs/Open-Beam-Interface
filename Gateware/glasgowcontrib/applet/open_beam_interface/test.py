@@ -275,6 +275,23 @@ class OBIAppletTestCase(unittest.TestCase):
                 assert (yield dut.cmd_stream.valid) == 0
 
             self.simulate(dut, [get_testbench,put_testbench], name = "cmd_rasterpixelrun")  
+
+        def test_rasterfreescan_cmd():
+            def put_testbench():
+                cmd = struct.pack('>BH', 0x13, 2)
+                for b in cmd:
+                    yield from put_stream(dut.usb_stream, b)
+
+            def get_testbench():
+                yield from get_stream(dut.cmd_stream, {
+                    "type":Command.Type.RasterFreeScan,
+                    "payload": {
+                        "raster_pixel": 2
+                        }
+                    })
+                assert (yield dut.cmd_stream.valid) == 0
+
+            self.simulate(dut, [get_testbench,put_testbench], name = "cmd_rasterfreescan")  
         
         def test_vectorpixel_cmd():
             def put_testbench():
@@ -300,6 +317,7 @@ class OBIAppletTestCase(unittest.TestCase):
         test_rasterregion_cmd()
         test_rasterpixel_cmd()
         test_rasterpixelrun_cmd()
+        test_rasterfreescan_cmd()
         test_vectorpixel_cmd()
     
 
