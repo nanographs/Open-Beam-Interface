@@ -8,12 +8,27 @@ from . import Supersampler, RasterScanner, RasterRegion
 from . import CommandParser, CommandExecutor, Command
 
 
+def put_dict(stream, signal):
+    for sig_field, sig_value in signal.items():
+        new_stream = getattr(stream, sig_field)
+        if isinstance(sig_value, dict):
+            yield from put_dict(new_stream, sig_value)
+        else:
+            yield new_stream.eq(sig_value)
+
+
 def put_stream(stream, payload, timeout_steps=10):
+    # if isinstance(payload, dict):
+    #     for field, value in payload.items():
+    #         yield getattr(stream.payload, field).eq(value)
+    # else:
+    #     yield stream.payload.eq(payload)
+
     if isinstance(payload, dict):
-        for field, value in payload.items():
-            yield getattr(stream.payload, field).eq(value)
+        yield from put_dict(stream.payload, payload)
     else:
         yield stream.payload.eq(payload)
+    
 
     yield stream.valid.eq(1)
     ready = False
@@ -91,7 +106,10 @@ def get_stream(stream, payload, timeout_steps=10):
         print(f'get_stream {valid=} {prettier_print(data)}')
         timeout += 1; assert timeout < timeout_steps
     yield stream.ready.eq(0)
-    wrapped_payload = stream.payload.shape().const(payload)
+    if isinstance(payload, dict):
+        wrapped_payload = stream.payload.shape().const(payload)
+    else:
+        wrapped_payload = payload
     assert data == wrapped_payload,\
         f"payload: {prettier_print(data)} != {prettier_print(payload)} (expected)"
 
@@ -118,7 +136,7 @@ class OBIAppletTestCase(unittest.TestCase):
 
             def get_testbench():
                 for index in range(dwell + 1):
-                    yield from get_stream_nosample(dut.super_dac_stream,
+                    yield from get_stream(dut.super_dac_stream,
                         {"dac_x_code": 123, "dac_y_code": 456, "last": int(index == dwell)})
                 assert (yield dut.super_dac_stream.valid) == 0
 
@@ -136,7 +154,7 @@ class OBIAppletTestCase(unittest.TestCase):
                 {"adc_code": 123, "adc_ovf": 0, "last": 1})
 
         def get_testbench():
-            yield from get_stream_nosample(dut.adc_stream,
+            yield from get_stream(dut.adc_stream,
                 {"adc_code": 123})
             assert (yield dut.adc_stream.valid) == 0
 
@@ -154,7 +172,7 @@ class OBIAppletTestCase(unittest.TestCase):
                 {"adc_code": 999, "adc_ovf": 0, "last": 0})
 
         def get_testbench():
-            yield from get_stream_nosample(dut.adc_stream,
+            yield from get_stream(dut.adc_stream,
                 {"adc_code": (456+123)//2})
             assert (yield dut.adc_stream.valid) == 0
 
@@ -321,47 +339,55 @@ class OBIAppletTestCase(unittest.TestCase):
         test_vectorpixel_cmd()
     
 
-    # def test_command_executor(self):
-    #     dut = CommandExecutor(loopback=False)
+    def test_command_executor(self):
+        dut = CommandExecutor(loopback=False)
 
-    #     def test_sync_exec():
-    #         command = Signal(Command)
-    #         command.type = Command.Type.Synchronize
-    #         command.payload.synchronize.raster_mode = 1
-    #         cookie = 123*256 + 234
-    #         command.payload.synchronize.cookie = cookie
+        def test_sync_exec():
+            command = Signal(Command)
+            command.type = Command.Type.Synchronize
+            command.payload.synchronize.raster_mode = 1
+            cookie = 123*256 + 234
+            command.payload.synchronize.cookie = cookie
 
-    #         def put_testbench():
-    #             yield from put_stream(dut.cmd_stream, command)
+            def put_testbench():
+                yield from put_stream(dut.cmd_stream, {
+                    "type": Command.Type.Synchronize,
+                    "payload": {
+                        "synchronize": {
+                            "cookie": 123*256 + 234,
+                            "raster_mode": 1
+                        }
+                    }
+                })
             
-    #         def get_testbench():
-    #             yield from get_stream(dut.img_stream, 65535) # FFFF
-    #             yield from get_stream(dut.img_stream, cookie)
+            def get_testbench():
+                yield from get_stream(dut.img_stream, 65535) # FFFF
+                yield from get_stream(dut.img_stream, cookie)
         
-    #         self.simulate(dut, [get_testbench,put_testbench], name = "exec_sync")  
+            self.simulate(dut, [put_testbench, get_testbench], name = "exec_sync")  
 
-    #     def test_rasterregion_exec():
-    #         region = Signal(RasterRegion)
-    #         region.x_start = 5
-    #         region.x_count = 2
-    #         region.x_step = 0x2_00
-    #         region.y_start = 9
-    #         region.y_count = 1
-    #         region.y_step = 0x5_00
-    #         command = Signal(Command)
-    #         command.type = Command.Type.RasterRegion
-    #         command.payload.raster_region = region
+        def test_rasterregion_exec():
+            region = Signal(RasterRegion)
+            region.x_start = 5
+            region.x_count = 2
+            region.x_step = 0x2_00
+            region.y_start = 9
+            region.y_count = 1
+            region.y_step = 0x5_00
+            command = Signal(Command)
+            command.type = Command.Type.RasterRegion
+            command.payload.raster_region = region
 
-    #         def put_testbench():
-    #             yield from put_stream(dut.cmd_stream, command)
+            def put_testbench():
+                yield from put_stream(dut.cmd_stream, command)
 
-    #         def get_testbench():
-    #             yield from get_stream(dut.raster_scanner.roi_stream, region)
+            def get_testbench():
+                yield from get_stream(dut.raster_scanner.roi_stream, region)
 
-    #         self.simulate(dut, [get_testbench,put_testbench], name = "exec_rasterregion")  
+            self.simulate(dut, [get_testbench,put_testbench], name = "exec_rasterregion")  
 
-    #     #test_rasterregion_exec() # doesn't work yet
-    #     # test_sync_exec()
+        test_sync_exec()
+        # test_rasterregion_exec() # doesn't work yet
 
 
 
