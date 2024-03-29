@@ -527,8 +527,7 @@ class CommandExecutor(wiring.Component):
     #: Active if `Synchronize`, `Flush`, or `Abort` was the last received command.
     flush: Out(1)
 
-    def __init__(self, loopback, *, adc_latency=6):
-        self.loopback = loopback
+    def __init__(self, *, adc_latency=6):
         self.adc_latency = 6
         self.supersampler = Supersampler()
         super().__init__()
