@@ -384,7 +384,8 @@ class Command(data.Struct):
         RasterRegion    = 0x10
         RasterPixel     = 0x11
         RasterPixelRun  = 0x12
-        VectorPixel     = 0x13
+        RasterFreeScan  = 0x13
+        VectorPixel     = 0x14
 
     type: Type
 
@@ -440,6 +441,9 @@ class CommandParser(wiring.Component):
 
                         with m.Case(Command.Type.RasterPixelRun):
                             m.next = "Payload_Raster_Pixel_Run_1_High"
+                        
+                        with m.Case(Command.Type.RasterFreeScan):
++                            m.next = "Payload_Raster_Free_Scan"
 
                         with m.Case(Command.Type.VectorPixel):
                             m.next = "Payload_Vector_Pixel_1_High"
@@ -495,6 +499,9 @@ class CommandParser(wiring.Component):
                 "Payload_Raster_Pixel_Run_1", "Payload_Raster_Pixel_Run_2_High")
             DeserializeWord(command.payload.raster_pixel_run.dwell_time,
                 "Payload_Raster_Pixel_Run_2", "Submit")
+
+            DeserializeWord(command.payload.raster_pixel,
++                "Payload_Raster_Free_Scan", "Submit")
 
             DeserializeWord(command.payload.vector_pixel.x_coord,
                 "Payload_Vector_Pixel_1", "Payload_Vector_Pixel_2_High")
@@ -559,8 +566,9 @@ class CommandExecutor(wiring.Component):
 
 
         run_length = Signal.like(command.payload.raster_pixel_run.length)
+        raster_region = Signal.like(command.payload.raster_region)
         m.d.comb += [
-            self.raster_scanner.roi_stream.payload.eq(command.payload.raster_region),
+            self.raster_scanner.roi_stream.payload.eq(raster_region),
             vector_stream.payload.eq(command.payload.vector_pixel)
         ]
 
@@ -595,7 +603,11 @@ class CommandExecutor(wiring.Component):
                         m.next = "Fetch"
 
                     with m.Case(Command.Type.RasterRegion):
-                        m.d.comb += self.raster_scanner.roi_stream.valid.eq(1)
+                        m.d.sync += raster_region.eq(command.payload.raster_region)
+                        m.d.comb += [
+                            self.raster_scanner.roi_stream.valid.eq(1),
+                            self.raster_scanner.roi_stream.payload.eq(command.payload.raster_region),
+                        ]
                         with m.If(self.raster_scanner.roi_stream.ready):
                             m.next = "Fetch"
 
@@ -620,6 +632,24 @@ class CommandExecutor(wiring.Component):
                                 m.next = "Fetch"
                             with m.Else():
                                 m.d.sync += run_length.eq(run_length + 1)
+
+                    with m.Case(Command.Type.RasterFreeScan):
+                        m.d.comb += [
+                            self.raster_scanner.roi_stream.payload.eq(raster_region),
+                            self.raster_scanner.dwell_stream.payload.eq(command.payload.raster_pixel),
+                        ]
+                        with m.If(self.cmd_stream.valid):
+                            m.d.comb += self.raster_scanner.abort.eq(1)
+                            # `abort` only takes effect on the next opportunity!
+                            with m.If(self.raster_scanner.dac_stream.ready):
+                                m.next = "Fetch"
+                        with m.Else():
+                            # don't count pixels; resynchronization is mandatory after this command
+                            m.d.comb += [
+                                self.raster_scanner.roi_stream.valid.eq(1),
+                                self.raster_scanner.dwell_stream.valid.eq(1),
+                            ]
+
 
                     with m.Case(Command.Type.VectorPixel):
                         m.d.comb += vector_stream.valid.eq(1)
