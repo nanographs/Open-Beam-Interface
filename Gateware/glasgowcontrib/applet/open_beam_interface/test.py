@@ -343,18 +343,14 @@ class OBIAppletTestCase(unittest.TestCase):
         dut = CommandExecutor(loopback=False)
 
         def test_sync_exec():
-            command = Signal(Command)
-            command.type = Command.Type.Synchronize
-            command.payload.synchronize.raster_mode = 1
             cookie = 123*256 + 234
-            command.payload.synchronize.cookie = cookie
 
             def put_testbench():
                 yield from put_stream(dut.cmd_stream, {
                     "type": Command.Type.Synchronize,
                     "payload": {
                         "synchronize": {
-                            "cookie": 123*256 + 234,
+                            "cookie": cookie,
                             "raster_mode": 1
                         }
                     }
@@ -367,27 +363,35 @@ class OBIAppletTestCase(unittest.TestCase):
             self.simulate(dut, [put_testbench, get_testbench], name = "exec_sync")  
 
         def test_rasterregion_exec():
-            region = Signal(RasterRegion)
-            region.x_start = 5
-            region.x_count = 2
-            region.x_step = 0x2_00
-            region.y_start = 9
-            region.y_count = 1
-            region.y_step = 0x5_00
-            command = Signal(Command)
-            command.type = Command.Type.RasterRegion
-            command.payload.raster_region = region
 
             def put_testbench():
-                yield from put_stream(dut.cmd_stream, command)
+                yield from put_stream(dut.cmd_stream, {
+                    "type": Command.Type.RasterRegion,
+                    "payload": {
+                        "raster_region": {
+                            "x_start": 5,
+                            "x_count": 2,
+                            "x_step": 0x2_00,
+                            "y_start": 9,
+                            "y_count": 1,
+                            "y_step": 0x5_00,
+                        }
+                    }
+                })
 
             def get_testbench():
-                yield from get_stream(dut.raster_scanner.roi_stream, region)
+                yield from get_stream(dut.raster_scanner.roi_stream, 
+                        {   "x_start": 5,
+                            "x_count": 2,
+                            "x_step": 0x2_00,
+                            "y_start": 9,
+                            "y_count": 1,
+                            "y_step": 0x5_00}, timeout_steps=30)
 
             self.simulate(dut, [get_testbench,put_testbench], name = "exec_rasterregion")  
 
         test_sync_exec()
-        # test_rasterregion_exec() # doesn't work yet
+        test_rasterregion_exec()
 
 
 
