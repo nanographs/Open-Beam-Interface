@@ -340,7 +340,7 @@ class OBIAppletTestCase(unittest.TestCase):
     
 
     def test_command_executor_individual(self):
-        dut = CommandExecutor(loopback=False)
+        dut = CommandExecutor()
 
         def test_sync_exec():
             cookie = 123*256 + 234
