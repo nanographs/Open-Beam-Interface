@@ -4,6 +4,7 @@ from amaranth.lib import enum, data, wiring
 from amaranth.lib.fifo import SyncFIFOBuffered
 from amaranth.lib.wiring import In, Out, flipped
 
+from glasgow.support.logging import dump_hex
 from glasgow.support.endpoint import ServerEndpoint
 
 
@@ -337,9 +338,9 @@ class RasterScanner(wiring.Component):
                     m.d.sync += [
                         region.eq(self.roi_stream.payload),
                         x_accum.eq(self.roi_stream.payload.x_start << self.FRAC_BITS),
-                        x_count.eq(0),
+                        x_count.eq(self.roi_stream.payload.x_count - 1),
                         y_accum.eq(self.roi_stream.payload.y_start << self.FRAC_BITS),
-                        y_count.eq(0),
+                        y_count.eq(self.roi_stream.payload.y_count - 1),
                     ]
                     m.next = "Scan"
 
@@ -352,18 +353,18 @@ class RasterScanner(wiring.Component):
                     with m.If(self.abort):
                         m.next = "Get-ROI"
 
-                    with m.If(x_count == region.x_count):
-                        with m.If(y_count == region.y_count):
+                    with m.If(x_count == 0):
+                        with m.If(y_count == 0):
                             m.next = "Get-ROI"
                         with m.Else():
                             m.d.sync += y_accum.eq(y_accum + region.y_step)
-                            m.d.sync += y_count.eq(y_count + 1)
+                            m.d.sync += y_count.eq(y_count - 1)
 
-                        m.d.sync += x_accum.eq(self.roi_stream.payload.x_start << self.FRAC_BITS)
-                        m.d.sync += x_count.eq(0)
+                        m.d.sync += x_accum.eq(region.x_start << self.FRAC_BITS)
+                        m.d.sync += x_count.eq(region.x_count - 1)
                     with m.Else():
                         m.d.sync += x_accum.eq(x_accum + region.x_step)
-                        m.d.sync += x_count.eq(x_count + 1)
+                        m.d.sync += x_count.eq(x_count - 1)
 
         return m
 
@@ -748,7 +749,7 @@ class OBISubtarget(wiring.Component):
             self.in_fifo.w_data.eq(serializer.usb_stream.payload),
             self.in_fifo.w_en.eq(serializer.usb_stream.valid),
             serializer.usb_stream.ready.eq(self.in_fifo.w_rdy),
-            # self.in_fifo.flush.eq(executor.flush),
+            self.in_fifo.flush.eq(executor.flush),
         ]
 
         if not self.sim:
@@ -801,9 +802,9 @@ class OBIApplet(GlasgowApplet):
             target.multiplexer.claim_interface(self, args=None, throttle="none")
 
         subtarget = OBISubtarget(
-            in_fifo=iface.get_in_fifo(depth=9000, auto_flush=True),
-            out_fifo=iface.get_out_fifo(depth=128),
-            loopback=args.loopback
+            in_fifo=iface.get_in_fifo(depth=512, auto_flush=False),
+            out_fifo=iface.get_out_fifo(depth=512),
+            loopback=args.loopback,
         )
         return iface.add_subtarget(subtarget)
 
@@ -816,25 +817,39 @@ class OBIApplet(GlasgowApplet):
         ServerEndpoint.add_argument(parser, "endpoint")
 
     async def interact(self, device, args, iface):
-        endpoint = await ServerEndpoint("socket", self.logger, args.endpoint)
-        async def forward_out():
-            while True:
-                try:
-                    data = await endpoint.recv()
-                    await iface.write(data)
-                    await iface.flush()
-                except asyncio.CancelledError:
-                    pass
-        async def forward_in():
-            while True:
-                try:
-                    data = await iface.read()
-                    print(f"wrote {len(data)} bytes")
-                    await endpoint.send(data)
-                except asyncio.CancelledError:
-                    pass
-        forward_out_fut = asyncio.ensure_future(forward_out())
-        forward_in_fut  = asyncio.ensure_future(forward_in())
-        await asyncio.wait([forward_out_fut, forward_in_fut],
-                           return_when=asyncio.FIRST_EXCEPTION)
+        class ForwardProtocol(asyncio.Protocol):
+            logger = self.logger
 
+            def connection_made(self, transport):
+                self.transport = transport
+
+                peername = self.transport.get_extra_info("peername")
+                self.logger.info("new connection from [%s]:%d", *peername[0:2])
+
+                async def initialize():
+                    self.logger.debug("reset")
+                    await iface.reset()
+
+                    async def send_data():
+                        data = await iface.read(flush=False)
+                        self.logger.debug("dev->ui <%s>", dump_hex(data))
+                        transport.write(data)
+                        asyncio.create_task(send_data())
+                    asyncio.create_task(send_data())
+                self.init_fut = asyncio.create_task(initialize())
+            
+            def connection_lost(self, exc):
+                peername = self.transport.get_extra_info("peername")
+                self.logger.info("connection from [%s]:%d lost", *peername[0:2], exc_info=exc)
+
+            def data_received(self, data):
+                async def recv_data():
+                    await self.init_fut
+                    self.logger.debug("ui->dev <%s>", dump_hex(data))
+                    await iface.write(data)
+                    await iface.flush(wait=False)
+                asyncio.create_task(recv_data())
+
+        proto, *proto_args = args.endpoint
+        server = await asyncio.get_event_loop().create_server(ForwardProtocol, *proto_args, backlog=1)
+        await server.serve_forever()

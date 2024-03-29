@@ -165,8 +165,8 @@ class OBIAppletTestCase(unittest.TestCase):
 
         def put_testbench():
             yield from put_stream(dut.roi_stream, {
-                "x_start": 5, "x_count": 2, "x_step": 0x2_00,
-                "y_start": 9, "y_count": 1, "y_step": 0x5_00,
+                "x_start": 5, "x_count": 3, "x_step": 0x2_00,
+                "y_start": 9, "y_count": 2, "y_step": 0x5_00,
             })
             yield from put_stream(dut.dwell_stream, 1)
             yield from put_stream(dut.dwell_stream, 2)
