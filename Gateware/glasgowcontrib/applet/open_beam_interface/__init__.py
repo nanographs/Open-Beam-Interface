@@ -443,7 +443,7 @@ class CommandParser(wiring.Component):
                             m.next = "Payload_Raster_Pixel_Run_1_High"
                         
                         with m.Case(Command.Type.RasterFreeScan):
-+                            m.next = "Payload_Raster_Free_Scan"
+                            m.next = "Payload_Raster_Free_Scan"
 
                         with m.Case(Command.Type.VectorPixel):
                             m.next = "Payload_Vector_Pixel_1_High"
@@ -501,7 +501,7 @@ class CommandParser(wiring.Component):
                 "Payload_Raster_Pixel_Run_2", "Submit")
 
             DeserializeWord(command.payload.raster_pixel,
-+                "Payload_Raster_Free_Scan", "Submit")
+                "Payload_Raster_Free_Scan", "Submit")
 
             DeserializeWord(command.payload.vector_pixel.x_coord,
                 "Payload_Vector_Pixel_1", "Payload_Vector_Pixel_2_High")

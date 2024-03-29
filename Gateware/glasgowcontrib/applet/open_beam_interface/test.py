@@ -278,7 +278,7 @@ class OBIAppletTestCase(unittest.TestCase):
         
         def test_vectorpixel_cmd():
             def put_testbench():
-                cmd = struct.pack('>BHHH', 0x13, 1, 2, 3)
+                cmd = struct.pack('>BHHH', 0x14, 1, 2, 3)
                 for b in cmd:
                     yield from put_stream(dut.usb_stream, b)
 
