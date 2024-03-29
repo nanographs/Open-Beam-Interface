@@ -339,7 +339,7 @@ class OBIAppletTestCase(unittest.TestCase):
         test_vectorpixel_cmd()
     
 
-    def test_command_executor(self):
+    def test_command_executor_individual(self):
         dut = CommandExecutor(loopback=False)
 
         def test_sync_exec():
@@ -428,6 +428,54 @@ class OBIAppletTestCase(unittest.TestCase):
         test_rasterregion_exec()
         test_rasterpixel_exec()
         test_rasterpixelrun_exec()
+    
+    def test_command_executor_rasterframesequence(self):
+            dut = CommandExecutor()
+            cookie = 123*256 + 234
+
+            def put_testbench():
+                yield from put_stream(dut.cmd_stream, {
+                    "type": Command.Type.Synchronize,
+                    "payload": {
+                        "synchronize": {
+                            "cookie": cookie,
+                            "raster_mode": 1
+                        }
+                    }
+                })
+                yield from put_stream(dut.cmd_stream, {
+                    "type": Command.Type.RasterRegion,
+                    "payload": {
+                        "raster_region": {
+                            "x_start": 5,
+                            "x_count": 3,
+                            "x_step": 0x2_00,
+                            "y_start": 9,
+                            "y_count": 2,
+                            "y_step": 0x5_00,
+                        }
+                    }
+                })
+                yield from put_stream(dut.cmd_stream, {
+                    "type": Command.Type.RasterPixelRun,
+                    "payload": {
+                        "raster_pixel_run": {
+                            "length": 6,
+                            "dwell_time": 1,
+                        } 
+                    }
+                })
+                
+            
+            def get_testbench():
+                yield from get_stream(dut.img_stream, 65535) # FFFF
+                yield from get_stream(dut.img_stream, cookie)
+                for n in range(6):
+                    yield from get_stream(dut.img_stream, 0, timeout_steps=100)
+
+            self.simulate(dut, [put_testbench, get_testbench], name = "exec_seq_rasterframe")  
+
+
 
 
 
