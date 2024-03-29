@@ -186,7 +186,8 @@ class CommandType(enum.IntEnum):
     RasterRegion    = 0x10
     RasterPixels    = 0x11
     RasterPixelRun  = 0x12
-    VectorPixel     = 0x13
+    RasterFreeScan  = 0x13
+    VectorPixel     = 0x14
 
 
 class SynchronizeCommand(Command):
