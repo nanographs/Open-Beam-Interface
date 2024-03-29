@@ -1,4 +1,0 @@
-# !/bin/zsh
-
-export GLASGOW_OUT_OF_TREE_APPLETS=I-am-okay-with-breaking-changes
-glasgow run open_beam_interface -V 3.3 tcp::2222
