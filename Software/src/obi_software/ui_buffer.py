@@ -1,6 +1,9 @@
 import array
 import numpy as np
-from beam_interface import RasterScanCommand
+import logging
+from beam_interface import RasterScanCommand, RasterFreeScanCommand, setup_logging
+
+setup_logging({"Command": logging.DEBUG, "Stream": logging.DEBUG})
 
 class FrameBuffer():
     def __init__(self, conn):
@@ -13,6 +16,19 @@ class FrameBuffer():
             x_range=x_range, y_range=y_range, dwell=dwell)
         async for chunk in self.conn.transfer_multiple(cmd, latency=latency):
             self._raster_scan_buffer.extend(chunk)
+
+    async def free_scan(self, x_range, y_range, *, dwell, latency):
+        cmd = RasterFreeScanCommand(cookie=self.conn.get_cookie(), 
+            x_range=x_range, y_range=y_range, dwell=dwell, interrupt=self.conn._interrupt)
+        res = array.array('H')
+        async for chunk in self.conn.transfer_multiple(cmd, latency=latency):
+            # res.extend(chunk)
+            print(f"free scan yielded chunk of size {len(chunk)}")
+            # if self.conn._interrupt.is_set():
+            #     await asyncio.sleep(1)
+            #     print("interrupted")
+            #     break
+        print("freescan concluded")
 
     def output_ndarray(self, x_range, y_range):
         ar = np.array(self._raster_scan_buffer)

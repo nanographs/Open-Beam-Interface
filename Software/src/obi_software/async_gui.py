@@ -44,6 +44,8 @@ class Settings(QHBoxLayout):
         self.connect_btn = QPushButton("Connect")
         self.connect_btn.setCheckable(True)
         self.addWidget(self.connect_btn)
+        self.sync_btn = QPushButton("Sync")
+        self.addWidget(self.sync_btn)
         self.rx = SettingBox("X Resolution",128, 16384, 512)
         self.addLayout(self.rx)
         self.ry = SettingBox("Y Resolution",128, 16384, 512)
@@ -54,6 +56,11 @@ class Settings(QHBoxLayout):
         self.addLayout(self.latency)
         self.capture_btn = QPushButton("Capture")
         self.addWidget(self.capture_btn)
+        self.freescan_btn = QPushButton("Free Scan")
+        self.addWidget(self.freescan_btn)
+        self.interrupt_btn = QPushButton("Interrupt")
+        self.addWidget(self.interrupt_btn)
+
 
 class Window(QVBoxLayout):
     def __init__(self):
@@ -61,7 +68,10 @@ class Window(QVBoxLayout):
         self.settings = Settings()
         self.addLayout(self.settings)
         self.settings.connect_btn.clicked.connect(self.toggle_connection)
+        self.settings.sync_btn.clicked.connect(self.request_sync)
         self.settings.capture_btn.clicked.connect(self.capture_image)
+        self.settings.freescan_btn.clicked.connect(self.free_scan)
+        self.settings.interrupt_btn.clicked.connect(self.interrupt)
         self.image_display = ImageDisplay(512,512)
         self.addWidget(self.image_display)
         self.conn = Connection('localhost', 2223)
@@ -75,8 +85,11 @@ class Window(QVBoxLayout):
         else:
             self.conn._disconnect()
             self.settings.connect_btn.setText("Connect")
-            
 
+    @asyncSlot()
+    async def request_sync(self):
+        await self.conn._synchronize()
+            
     @asyncSlot()
     async def capture_image(self):
         x_res = self.settings.rx.getval()
@@ -92,6 +105,22 @@ class Window(QVBoxLayout):
         x_width, y_height = array.shape
         print(f'x width {x_width}, y height {y_height}')
         self.image_display.setImage(y_height, x_width, array)
+    
+    @asyncSlot()
+    async def free_scan(self):
+        x_res = self.settings.rx.getval()
+        y_res = self.settings.ry.getval()
+        dwell = self.settings.dwell.getval()
+        latency = self.settings.latency.getval()
+        x_range = DACCodeRange(0, x_res, int((16384/x_res)*256))
+        print(f'x step size: {(16384/x_res)}')
+        y_range = DACCodeRange(0, y_res, int((16384/y_res)*256))
+        await self.fb.free_scan(x_range, y_range, dwell=dwell, latency=latency)
+    
+    def interrupt(self):
+        self.conn._interrupt_scan()
+
+        
     
 
 def run_gui():

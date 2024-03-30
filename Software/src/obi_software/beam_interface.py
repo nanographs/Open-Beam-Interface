@@ -102,6 +102,8 @@ class Connection:
         self._synchronized = False
         self._next_cookie = random.randrange(0, 0x10000, 2) # even cookies only
 
+        self._interrupt = asyncio.Event()
+
     @property
     def connected(self):
         """`True` if the TCP connection with the instrument is open, `False` otherwise."""
@@ -124,6 +126,14 @@ class Connection:
         assert self.connected
         self._stream = None
         self._synchronized = False
+    
+    def _interrupt_scan(self):
+        self._logger.debug(f'Scan interrupted externally')
+        self._interrupt.set()
+        # await asyncio.sleep(0) #give last reads a chance to complete
+        # await self._synchronize()
+        # # self._interrupt.clear()
+        
 
     async def _synchronize(self):
         if not self.connected:
@@ -150,6 +160,8 @@ class Connection:
                 # in it (set by the `open_connection(limit=)` argument). A partial response could
                 # still be at the very end of the buffer, so read less than that.
                 await self._stream._reader.readexactly(self.read_buffer_size - len(res))
+        self._interrupt.clear()
+        
 
     def _handle_incomplete_read(self, exc):
         self._disconnect()
@@ -358,9 +370,11 @@ class _RasterPixelRunCommand(Command):
 
 
 class _RasterFreeScanCommand(Command):
-    def __init__(self, *, dwell: DwellTime, length: int):
+    def __init__(self, *, dwell: DwellTime, length: int, interrupt: asyncio.Event):
         self._dwell   = dwell
         self._length  = length
+        self._interrupt = interrupt
+
     def __repr__(self):
         return f"_RasterFreeScanCommand(dwell={self._dwell})"
 
@@ -369,12 +383,12 @@ class _RasterFreeScanCommand(Command):
 
         pixel_count = 0
         total_dwell = 0
-        while True:
+        while not self._interrupt.is_set():
             for _ in range(self._length):
                 pixel_count += 1
                 total_dwell += self._dwell
                 if total_dwell >= latency:
-                    self._logger.debug(f"yielding free run, pixel count {pixel_count}")
+                    self._logger.debug(f"yielding pixel count {pixel_count}")
                     yield pixel_count
                     pixel_count = 0
                     total_dwell = 0
@@ -384,15 +398,9 @@ class _RasterFreeScanCommand(Command):
 
     @Command.log_transfer
     async def transfer(self, stream: Stream, latency: int):
-        MAX_PIPELINE = 32
-
-        tokens = MAX_PIPELINE
-        token_fut = asyncio.Future()
 
         async def sender():
-            nonlocal tokens
-            command = struct.pack(">BH", CommandType.RasterFreeScan, self._dwell)
-            stream.send(command)
+            stream.send(struct.pack('>BH', CommandType.RasterFreeScan, self._dwell))
 
         asyncio.create_task(sender())
 
@@ -400,13 +408,11 @@ class _RasterFreeScanCommand(Command):
             res = array.array('H', await stream.recv(pixel_count))
             if not BIG_ENDIAN:
                 res.byteswap()
-            tokens += 1
-            if tokens == 1:
-                token_fut.set_result(None)
-                token_fut = asyncio.Future()
-            self._logger.debug(f"recver: tokens={tokens}")
             await asyncio.sleep(0)
             yield res
+        
+        abort_cmd = struct.pack(">B", CommandType.Abort)
+        stream.send(abort_cmd)
     
 
 class _VectorPixelCommand(Command):
@@ -470,11 +476,12 @@ class RasterScanCommand(Command):
             self._logger.debug(f"total={total} done={done}")
 
 class RasterFreeScanCommand(Command):
-    def __init__(self, *, cookie: int, x_range: DACCodeRange, y_range: DACCodeRange, dwell: DwellTime):
+    def __init__(self, *, cookie: int, x_range: DACCodeRange, y_range: DACCodeRange, dwell: DwellTime, interrupt: asyncio.Event):
         self._cookie  = cookie
         self._x_range = x_range
         self._y_range = y_range
         self._dwell   = dwell
+        self._interrupt = interrupt
 
     def __repr__(self):
         return f"RasterFreeScanCommand(cookie={self._cookie}, x_range={self._x_range}, y_range={self._y_range}, dwell={self._dwell}>)"
@@ -484,10 +491,11 @@ class RasterFreeScanCommand(Command):
         await SynchronizeCommand(cookie=self._cookie, raster_mode=True).transfer(stream)
         await _RasterRegionCommand(x_range=self._x_range, y_range=self._y_range).transfer(stream)
         total, done = self._x_range.count * self._y_range.count, 0
-        async for chunk in _RasterFreeScanCommand(dwell=self._dwell, length = total).transfer(stream, latency):
+        async for chunk in _RasterFreeScanCommand(dwell=self._dwell, length = total, interrupt=self._interrupt).transfer(stream, latency):
             yield chunk
             done += len(chunk)
             self._logger.debug(f"total={total} done={done}")
+            # await asyncio.sleep(0) #give interrupts a chance to interrupt
 
 
 
@@ -496,14 +504,6 @@ import numpy as np
 class FrameBuffer():
     def __init__(self, conn):
         self.conn = conn
-    
-    async def free_scan(self, x_range, y_range, *, dwell, latency):
-        cmd = RasterFreeScanCommand(cookie=self.conn.get_cookie(), 
-            x_range=x_range, y_range=y_range, dwell=dwell)
-        res = array.array('H')
-        async for chunk in self.conn.transfer_multiple(cmd, latency=latency):
-            # res.extend(chunk)
-            print(f"free scan yielded chunk of size {len(chunk)}")
 
     async def capture_image(self, x_range, y_range, *, dwell, latency):
         cmd = RasterScanCommand(cookie=self.conn.get_cookie(), 
