@@ -18,6 +18,7 @@ class FrameBuffer():
             self._raster_scan_buffer.extend(chunk)
 
     async def free_scan(self, x_range, y_range, *, dwell, latency):
+        
         cmd = RasterFreeScanCommand(cookie=self.conn.get_cookie(), 
             x_range=x_range, y_range=y_range, dwell=dwell, interrupt=self.conn._interrupt)
         res = array.array('H')
@@ -28,7 +29,10 @@ class FrameBuffer():
             #     await asyncio.sleep(1)
             #     print("interrupted")
             #     break
-        print("freescan concluded")
+        # await self.conn._stream.flush()
+        self.conn._synchronized = False
+        await self.conn._synchronize()
+        print("resynchronized")
 
     def output_ndarray(self, x_range, y_range):
         ar = np.array(self._raster_scan_buffer)

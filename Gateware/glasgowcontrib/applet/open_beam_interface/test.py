@@ -563,9 +563,12 @@ class OBIAppletTestCase(unittest.TestCase):
                 
                 yield from limited_raster_free_stream()
                 yield from raster_pixel_run()
+                yield from put_stream(dut.cmd_stream, {"type": Command.Type.Abort},timeout_steps=500)
+                yield from limited_raster_free_stream()
+                # yield from put_stream(dut.cmd_stream, {"type": Command.Type.Abort},timeout_steps=500)
+                # yield from limited_raster_free_stream()
 
-                
-            
+
             def get_testbench():
                 def get_sync_and_img_stream():
                     yield from get_stream(dut.img_stream, 65535, timeout_steps=100) # FFFF
@@ -574,8 +577,14 @@ class OBIAppletTestCase(unittest.TestCase):
                         yield from get_stream(dut.img_stream, 0, timeout_steps=1000)
                         print(f"got {n+1}")
                 
+                print("start raster free scan")
                 yield from get_sync_and_img_stream()
+                print("interrupt w rasterpixelrun")
                 yield from get_sync_and_img_stream()
+                print("abort and start new free scan")
+                yield from get_sync_and_img_stream()
+                # print("abort and start new free scan 2")
+                # yield from get_sync_and_img_stream()
 
             self.simulate(dut, [put_testbench, get_testbench], name = "exec_seq_rasterabort")  
 

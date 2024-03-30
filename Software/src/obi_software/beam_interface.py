@@ -128,18 +128,23 @@ class Connection:
         self._synchronized = False
     
     def _interrupt_scan(self):
-        self._logger.debug(f'Scan interrupted externally')
+        print(f'Scan interrupted externally')
         self._interrupt.set()
         
 
     async def _synchronize(self):
+        print("synchronizing")
         if not self.connected:
             await self._connect()
         if self.synchronized:
+            print("already synced")
             return
+        
+        print("not synced")
 
         cookie, self._next_cookie = self._next_cookie, self._next_cookie + 2 # even cookie
         self._logger.debug(f'synchronizing with cookie {cookie:#06x}')
+        print("synchronizing with cookie")
 
         cmd = struct.pack(">BHBB", 
             CommandType.Synchronize, cookie, 0,
@@ -147,6 +152,7 @@ class Connection:
         res = struct.pack(">HH", 0xffff, cookie)
         self._stream.send(cmd)
         while True:
+            print("trying to synchronize...")
             try:
                 flushed = await self._stream._reader.readuntil(res)
                 self._logger.debug(f"synchronized after {len(flushed)} bytes")
@@ -157,6 +163,8 @@ class Connection:
                 # in it (set by the `open_connection(limit=)` argument). A partial response could
                 # still be at the very end of the buffer, so read less than that.
                 await self._stream._reader.readexactly(self.read_buffer_size - len(res))
+            except Exception as e:
+                print(f"sync error: {e}")
         
 
     def _handle_incomplete_read(self, exc):
@@ -379,33 +387,35 @@ class _RasterFreeScanCommand(Command):
 
         pixel_count = 0
         total_dwell = 0
-        while not self._interrupt.is_set():
-            for _ in range(self._length):
-                pixel_count += 1
-                total_dwell += self._dwell
-                if total_dwell >= latency:
-                    self._logger.debug(f"yielding pixel count {pixel_count}")
-                    yield pixel_count
-                    pixel_count = 0
-                    total_dwell = 0
-            if pixel_count > 0:
+
+        for _ in range(self._length):
+            pixel_count += 1
+            total_dwell += self._dwell
+            if total_dwell >= latency:
+                self._logger.debug(f"yielding pixel count {pixel_count}")
                 yield pixel_count
                 pixel_count = 0
+                total_dwell = 0
+        if pixel_count > 0:
+            yield pixel_count
+            pixel_count = 0
 
     @Command.log_transfer
     async def transfer(self, stream: Stream, latency: int):
 
         async def sender():
             stream.send(struct.pack('>BH', CommandType.RasterFreeScan, self._dwell))
+            await stream.flush()
 
         asyncio.create_task(sender())
 
-        for pixel_count in self._iter_chunks(latency):
-            res = array.array('H', await stream.recv(pixel_count))
-            if not BIG_ENDIAN:
-                res.byteswap()
-            await asyncio.sleep(0)
-            yield res 
+        while not self._interrupt.is_set():
+            for pixel_count in self._iter_chunks(latency):
+                res = array.array('H', await stream.recv(pixel_count))
+                if not BIG_ENDIAN:
+                    res.byteswap()
+                await asyncio.sleep(0)
+                yield res 
     
 
 class _VectorPixelCommand(Command):
@@ -490,6 +500,7 @@ class RasterFreeScanCommand(Command):
             yield chunk
             done += len(chunk)
             self._logger.debug(f"total={total} done={done}")
+        print("End of RasterFreeScan async for")
         await AbortCommand().transfer(stream)
         self._interrupt.clear()
 
