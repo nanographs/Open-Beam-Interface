@@ -480,39 +480,54 @@ class OBIAppletTestCase(unittest.TestCase):
             cookie = 123*256 + 234
 
             def put_testbench():
-                yield from put_stream(dut.cmd_stream, {
-                    "type": Command.Type.Synchronize,
-                    "payload": {
-                        "synchronize": {
-                            "cookie": cookie,
-                            "raster_mode": 1
+                def limited_raster_free_stream():
+                    yield from put_stream(dut.cmd_stream, {
+                        "type": Command.Type.Synchronize,
+                        "payload": {
+                            "synchronize": {
+                                "cookie": cookie,
+                                "raster_mode": 1
+                            }
                         }
-                    }
-                })
-                yield from put_stream(dut.cmd_stream, {
-                    "type": Command.Type.RasterRegion,
-                    "payload": {
-                        "raster_region": {
-                            "x_start": 5,
-                            "x_count": 3,
-                            "x_step": 0x2_00,
-                            "y_start": 9,
-                            "y_count": 2,
-                            "y_step": 0x5_00,
+                    })
+                    yield from put_stream(dut.cmd_stream, {
+                        "type": Command.Type.RasterRegion,
+                        "payload": {
+                            "raster_region": {
+                                "x_start": 5,
+                                "x_count": 3,
+                                "x_step": 0x2_00,
+                                "y_start": 9,
+                                "y_count": 2,
+                                "y_step": 0x5_00,
+                            }
                         }
-                    }
-                })
-                yield from put_stream(dut.cmd_stream, {
-                    "type": Command.Type.RasterFreeScan,
-                    "payload": {
-                        "raster_pixel_run": {
-                            "length": 6,
-                            "dwell_time": 1,
-                        } 
-                    }
-                })
-                for _ in range(6):
-                    yield Tick()
+                    })
+                    yield from put_stream(dut.cmd_stream, {
+                        "type": Command.Type.RasterFreeScan,
+                        "payload": {
+                            "raster_pixel_run": {
+                                "length": 6,
+                                "dwell_time": 1,
+                            } 
+                        }
+                    })
+
+                    def wait_for_n_samples(samples):
+                        n = 1
+                        while True:
+                            if n == samples:
+                                break
+                            if not (yield dut.img_stream.valid):
+                                yield Tick()
+                            else:
+                                n += 1
+                                print(f"{n} valid samples")
+                                yield Tick()
+
+                    yield from wait_for_n_samples(6)
+                
+                yield from limited_raster_free_stream()
                 yield from put_stream(dut.cmd_stream,{"type":Command.Type.Abort})
                 
             
@@ -520,8 +535,9 @@ class OBIAppletTestCase(unittest.TestCase):
                 yield from get_stream(dut.img_stream, 65535) # FFFF
                 yield from get_stream(dut.img_stream, cookie)
                 for n in range(6):
-                    yield from get_stream(dut.img_stream, 0, timeout_steps=100)
+                    yield from get_stream(dut.img_stream, 0, timeout_steps=600)
                     print(f"got {n}")
+                # yield from get_stream(dut.cmd_stream, {"type": Command.Type.Abort})
 
             self.simulate(dut, [put_testbench, get_testbench], name = "exec_seq_rasterabort")  
 
