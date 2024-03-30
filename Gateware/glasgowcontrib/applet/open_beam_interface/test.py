@@ -495,10 +495,10 @@ class OBIAppletTestCase(unittest.TestCase):
                         "payload": {
                             "raster_region": {
                                 "x_start": 5,
-                                "x_count": 3,
+                                "x_count": 10,
                                 "x_step": 0x2_00,
                                 "y_start": 9,
-                                "y_count": 2,
+                                "y_count": 20,
                                 "y_step": 0x5_00,
                             }
                         }
@@ -514,11 +514,11 @@ class OBIAppletTestCase(unittest.TestCase):
                     })
 
                     def wait_for_n_samples(samples):
-                        n = 1
+                        n = 0
                         while True:
                             if n == samples:
                                 break
-                            if not (yield dut.img_stream.valid):
+                            if not (yield dut.supersampler.dac_stream.ready):
                                 yield Tick()
                             else:
                                 n += 1
@@ -527,21 +527,55 @@ class OBIAppletTestCase(unittest.TestCase):
 
                     yield from wait_for_n_samples(6)
                 
+                def raster_pixel_run():
+                    yield from put_stream(dut.cmd_stream, {
+                        "type": Command.Type.Synchronize,
+                        "payload": {
+                            "synchronize": {
+                                "cookie": cookie,
+                                "raster_mode": 1
+                            }
+                        }
+                    }, timeout_steps=300)
+                    yield from put_stream(dut.cmd_stream, {
+                        "type": Command.Type.RasterRegion,
+                        "payload": {
+                            "raster_region": {
+                                "x_start": 7,
+                                "x_count": 3,
+                                "x_step": 0x2_00,
+                                "y_start": 11,
+                                "y_count": 2,
+                                "y_step": 0x5_00,
+                            }
+                        }
+                    })
+                    yield from put_stream(dut.cmd_stream, {
+                        "type": Command.Type.RasterPixelRun,
+                        "payload": {
+                            "raster_pixel_run": {
+                                "length": 6,
+                                "dwell_time": 1,
+                            } 
+                        }
+                    })
+                    
+                
                 yield from limited_raster_free_stream()
-                yield from put_stream(dut.cmd_stream,{"type":Command.Type.Abort})
-                yield from limited_raster_free_stream()
+                yield from raster_pixel_run()
+
                 
             
             def get_testbench():
-                yield from get_stream(dut.img_stream, 65535) # FFFF
-                yield from get_stream(dut.img_stream, cookie)
-                for n in range(6):
-                    yield from get_stream(dut.img_stream, 0, timeout_steps=600)
-                    print(f"got {n}")
-                yield from get_stream(dut.cmd_stream, {"type": Command.Type.Abort})
-                for n in range(6):
-                    yield from get_stream(dut.img_stream, 0, timeout_steps=600)
-                    print(f"got {n}")
+                def get_sync_and_img_stream():
+                    yield from get_stream(dut.img_stream, 65535, timeout_steps=100) # FFFF
+                    yield from get_stream(dut.img_stream, cookie)
+                    for n in range(6):
+                        yield from get_stream(dut.img_stream, 0, timeout_steps=1000)
+                        print(f"got {n+1}")
+                
+                yield from get_sync_and_img_stream()
+                yield from get_sync_and_img_stream()
 
             self.simulate(dut, [put_testbench, get_testbench], name = "exec_seq_rasterabort")  
 

@@ -636,18 +636,18 @@ class CommandExecutor(wiring.Component):
                         m.d.comb += [
                             self.raster_scanner.roi_stream.payload.eq(raster_region),
                             self.raster_scanner.dwell_stream.payload.eq(command.payload.raster_pixel),
+                            self.raster_scanner.dwell_stream.valid.eq(1)
                         ]
                         with m.If(self.cmd_stream.valid):
                             m.d.comb += self.raster_scanner.abort.eq(1)
                             # `abort` only takes effect on the next opportunity!
-                            with m.If(self.raster_scanner.dac_stream.ready):
+                            with m.If(in_flight_pixels == 0):
                                 m.next = "Fetch"
                         with m.Else():
                             # don't count pixels; resynchronization is mandatory after this command
-                            m.d.comb += [
-                                self.raster_scanner.roi_stream.valid.eq(1),
-                                self.raster_scanner.dwell_stream.valid.eq(1),
-                            ]
+                            m.d.comb += self.raster_scanner.roi_stream.valid.eq(1)
+                            with m.If(self.raster_scanner.dwell_stream.ready):
+                                m.d.comb += submit_pixel.eq(1)
 
 
                     with m.Case(Command.Type.VectorPixel):
