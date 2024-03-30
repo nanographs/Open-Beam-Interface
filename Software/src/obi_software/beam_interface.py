@@ -130,9 +130,6 @@ class Connection:
     def _interrupt_scan(self):
         self._logger.debug(f'Scan interrupted externally')
         self._interrupt.set()
-        # await asyncio.sleep(0) #give last reads a chance to complete
-        # await self._synchronize()
-        # # self._interrupt.clear()
         
 
     async def _synchronize(self):
@@ -160,7 +157,6 @@ class Connection:
                 # in it (set by the `open_connection(limit=)` argument). A partial response could
                 # still be at the very end of the buffer, so read less than that.
                 await self._stream._reader.readexactly(self.read_buffer_size - len(res))
-        self._interrupt.clear()
         
 
     def _handle_incomplete_read(self, exc):
@@ -409,10 +405,7 @@ class _RasterFreeScanCommand(Command):
             if not BIG_ENDIAN:
                 res.byteswap()
             await asyncio.sleep(0)
-            yield res
-        
-        abort_cmd = struct.pack(">B", CommandType.Abort)
-        stream.send(abort_cmd)
+            yield res 
     
 
 class _VectorPixelCommand(Command):
@@ -491,11 +484,17 @@ class RasterFreeScanCommand(Command):
         await SynchronizeCommand(cookie=self._cookie, raster_mode=True).transfer(stream)
         await _RasterRegionCommand(x_range=self._x_range, y_range=self._y_range).transfer(stream)
         total, done = self._x_range.count * self._y_range.count, 0
-        async for chunk in _RasterFreeScanCommand(dwell=self._dwell, length = total, interrupt=self._interrupt).transfer(stream, latency):
+        async for chunk in _RasterFreeScanCommand(dwell=self._dwell, 
+                                                length = total, interrupt=self._interrupt)\
+                                                .transfer(stream, latency):
             yield chunk
             done += len(chunk)
             self._logger.debug(f"total={total} done={done}")
-            # await asyncio.sleep(0) #give interrupts a chance to interrupt
+        await AbortCommand().transfer(stream)
+        self._interrupt.clear()
+
+        
+        
 
 
 
