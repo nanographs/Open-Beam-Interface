@@ -5,7 +5,7 @@
 groups = ["default"]
 strategy = ["cross_platform", "inherit_metadata"]
 lock_version = "4.4.1"
-content_hash = "sha256:669f792031882964041447a82fb2b7ce4207b282133177843048f67b90d94d6d"
+content_hash = "sha256:a8c4c5863b301c71939f44690b0a1b5063e60862c344151f020f6dfaeabcd238"
 
 [[package]]
 name = "numpy"
@@ -117,6 +117,17 @@ dependencies = [
 files = [
     {file = "pyqtgraph-0.13.4-py3-none-any.whl", hash = "sha256:1dc9a786aa43cd787114366058dc3b4b8cb96a0e318f334720c7e6cc6c285940"},
     {file = "pyqtgraph-0.13.4.tar.gz", hash = "sha256:67b0d371405c4fd5f35afecfeb37d4b73bc118f187c52a965ed68d62f59b67b3"},
+]
+
+[[package]]
+name = "qasync"
+version = "0.27.1"
+requires_python = ">=3.8,<4.0"
+summary = "Python library for using asyncio in Qt-based applications"
+groups = ["default"]
+files = [
+    {file = "qasync-0.27.1-py3-none-any.whl", hash = "sha256:5d57335723bc7d9b328dadd8cb2ed7978640e4bf2da184889ce50ee3ad2602c7"},
+    {file = "qasync-0.27.1.tar.gz", hash = "sha256:8dc768fd1ee5de1044c7c305eccf2d39d24d87803ea71189d4024fb475f4985f"},
 ]
 
 [[package]]

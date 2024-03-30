@@ -9,6 +9,7 @@ dependencies = ["numpy",
                 "Pillow",
                 "PyQt6",
                 "pyqtgraph",
+                "qasync",
                 "tifffile"]
 requires-python = ">=3.12"
 readme = "README.md"
