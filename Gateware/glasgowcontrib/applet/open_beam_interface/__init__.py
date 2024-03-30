@@ -747,7 +747,7 @@ class OBISubtarget(wiring.Component):
         m = Module()
 
         m.submodules.parser     = parser     = CommandParser()
-        m.submodules.executor   = executor   = CommandExecutor(loopback = self.loopback)
+        m.submodules.executor   = executor   = CommandExecutor()
         m.submodules.serializer = serializer = ImageSerializer()
 
         if self.loopback:
