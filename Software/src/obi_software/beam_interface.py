@@ -355,6 +355,58 @@ class _RasterPixelRunCommand(Command):
             self._logger.debug(f"recver: tokens={tokens}")
             await asyncio.sleep(0)
             yield res
+
+
+class _RasterFreeScanCommand(Command):
+    def __init__(self, *, dwell: DwellTime, length: int):
+        self._dwell   = dwell
+        self._length  = length
+    def __repr__(self):
+        return f"_RasterFreeScanCommand(dwell={self._dwell})"
+
+    def _iter_chunks(self, latency: int):
+        assert not (self._dwell > latency), "Pixel dwell time higher than latency"
+
+        pixel_count = 0
+        total_dwell = 0
+        while True:
+            for _ in range(self._length):
+                pixel_count += 1
+                total_dwell += self._dwell
+                if total_dwell >= latency:
+                    self._logger.debug(f"yielding free run, pixel count {pixel_count}")
+                    yield pixel_count
+                    pixel_count = 0
+                    total_dwell = 0
+            if pixel_count > 0:
+                yield pixel_count
+                pixel_count = 0
+
+    @Command.log_transfer
+    async def transfer(self, stream: Stream, latency: int):
+        MAX_PIPELINE = 32
+
+        tokens = MAX_PIPELINE
+        token_fut = asyncio.Future()
+
+        async def sender():
+            nonlocal tokens
+            command = struct.pack(">BH", CommandType.RasterFreeScan, self._dwell)
+            stream.send(command)
+
+        asyncio.create_task(sender())
+
+        for pixel_count in self._iter_chunks(latency):
+            res = array.array('H', await stream.recv(pixel_count))
+            if not BIG_ENDIAN:
+                res.byteswap()
+            tokens += 1
+            if tokens == 1:
+                token_fut.set_result(None)
+                token_fut = asyncio.Future()
+            self._logger.debug(f"recver: tokens={tokens}")
+            await asyncio.sleep(0)
+            yield res
     
 
 class _VectorPixelCommand(Command):
@@ -417,12 +469,41 @@ class RasterScanCommand(Command):
             done += len(chunk)
             self._logger.debug(f"total={total} done={done}")
 
+class RasterFreeScanCommand(Command):
+    def __init__(self, *, cookie: int, x_range: DACCodeRange, y_range: DACCodeRange, dwell: DwellTime):
+        self._cookie  = cookie
+        self._x_range = x_range
+        self._y_range = y_range
+        self._dwell   = dwell
+
+    def __repr__(self):
+        return f"RasterFreeScanCommand(cookie={self._cookie}, x_range={self._x_range}, y_range={self._y_range}, dwell={self._dwell}>)"
+    
+    @Command.log_transfer
+    async def transfer(self, stream: Stream, latency: int):
+        await SynchronizeCommand(cookie=self._cookie, raster_mode=True).transfer(stream)
+        await _RasterRegionCommand(x_range=self._x_range, y_range=self._y_range).transfer(stream)
+        total, done = self._x_range.count * self._y_range.count, 0
+        async for chunk in _RasterFreeScanCommand(dwell=self._dwell, length = total).transfer(stream, latency):
+            yield chunk
+            done += len(chunk)
+            self._logger.debug(f"total={total} done={done}")
+
+
 
 import numpy as np
 #import PIL
 class FrameBuffer():
     def __init__(self, conn):
         self.conn = conn
+    
+    async def free_scan(self, x_range, y_range, *, dwell, latency):
+        cmd = RasterFreeScanCommand(cookie=self.conn.get_cookie(), 
+            x_range=x_range, y_range=y_range, dwell=dwell)
+        res = array.array('H')
+        async for chunk in self.conn.transfer_multiple(cmd, latency=latency):
+            # res.extend(chunk)
+            print(f"free scan yielded chunk of size {len(chunk)}")
 
     async def capture_image(self, x_range, y_range, *, dwell, latency):
         cmd = RasterScanCommand(cookie=self.conn.get_cookie(), 
@@ -463,21 +544,20 @@ def setup_logging(levels=None):
 
 async def main():
     # setup_logging()
-    setup_logging({"Command": logging.DEBUG})
-    # setup_logging({"Command": logging.DEBUG, "Stream": logging.DEBUG})
+    #setup_logging({"Command": logging.DEBUG})
+    setup_logging({"Command": logging.DEBUG, "Stream": logging.DEBUG})
 
-    conn = Connection('localhost', 2222)
+    conn = Connection('localhost', 2223)
     fb = FrameBuffer(conn)
 
     # x_range = y_range = DACCodeRange(0, 16384, 1)
     x_range = y_range = DACCodeRange(0, 2048, int((16384/2048)*256))
     # x_range = y_range = DACCodeRange(0, 192, 21845)
 
-    res = await fb.capture_image(x_range, y_range, dwell=2, latency=0x10000)
-    fb.output_pgm(res, x_range, y_range)
+    #res = await fb.capture_image(x_range, y_range, dwell=2, latency=0x10000)
+    # fb.output_pgm(res, x_range, y_range)
 
-    #ar = fb.output_ndarray(res, x_range, y_range)
-    #print(ar)
+    await fb.free_scan(x_range, y_range, dwell=2, latency=0x10000)
 
 
 
