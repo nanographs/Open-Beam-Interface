@@ -1,0 +1,23 @@
+[project]
+name = "obi_software"
+version = "0"
+description = "Software for electron microscope image capture with Glasgow and Open Beam Interface hardware"
+authors = [
+    {name = "isabelburgos", email = "isabel@nanographs.io"},
+]
+dependencies = ["numpy",
+                "Pillow",
+                "PyQt6",
+                "pyqtgraph",
+                "tifffile"]
+requires-python = ">=3.12"
+readme = "README.md"
+license = {text = "\"0BSD OR Apache-2.0\""}
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+
+[tool.pdm]
+distribution = true

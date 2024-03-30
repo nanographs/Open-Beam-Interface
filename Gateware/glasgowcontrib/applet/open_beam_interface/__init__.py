@@ -178,7 +178,6 @@ class BusController(wiring.Component):
                 m.d.comb += [
                     self.bus.data_o.eq(dac_stream_data.dac_x_code),
                     self.bus.data_oe.eq(1),
-                    self.bus.dac_x_le.eq(1),
                 ]
                 m.next = "X_DAC_Write_2"
 
@@ -186,6 +185,7 @@ class BusController(wiring.Component):
                 m.d.comb += [
                     self.bus.data_o.eq(dac_stream_data.dac_x_code),
                     self.bus.data_oe.eq(1),
+                    self.bus.dac_x_le.eq(1),
                 ]
                 m.next = "Y_DAC_Write"
 
@@ -193,7 +193,6 @@ class BusController(wiring.Component):
                 m.d.comb += [
                     self.bus.data_o.eq(dac_stream_data.dac_y_code),
                     self.bus.data_oe.eq(1),
-                    self.bus.dac_y_le.eq(1),
                 ]
                 m.next = "Y_DAC_Write_2"
 
@@ -201,6 +200,7 @@ class BusController(wiring.Component):
                 m.d.comb += [
                     self.bus.data_o.eq(dac_stream_data.dac_y_code),
                     self.bus.data_oe.eq(1),
+                    self.bus.dac_y_le.eq(1),
                 ]
                 m.next = "ADC_Wait"
 
@@ -747,7 +747,7 @@ class OBISubtarget(wiring.Component):
         m = Module()
 
         m.submodules.parser     = parser     = CommandParser()
-        m.submodules.executor   = executor   = CommandExecutor(loopback = self.loopback)
+        m.submodules.executor   = executor   = CommandExecutor()
         m.submodules.serializer = serializer = ImageSerializer()
 
         if self.loopback:

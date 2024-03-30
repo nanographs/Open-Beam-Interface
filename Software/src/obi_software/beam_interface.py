@@ -473,7 +473,7 @@ async def main():
     x_range = y_range = DACCodeRange(0, 2048, int((16384/2048)*256))
     # x_range = y_range = DACCodeRange(0, 192, 21845)
 
-    res = await fb.capture_image(x_range, y_range, dwell=1, latency=0x10000)
+    res = await fb.capture_image(x_range, y_range, dwell=2, latency=0x10000)
     fb.output_pgm(res, x_range, y_range)
 
     #ar = fb.output_ndarray(res, x_range, y_range)
