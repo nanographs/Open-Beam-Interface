@@ -7,11 +7,16 @@ from PyQt6.QtWidgets import (QHBoxLayout, QMainWindow,
                              QVBoxLayout, QWidget, QLabel, QGridLayout,
                              QSpinBox)
 
-from beam_interface import Connection, FrameBuffer, DACCodeRange
+from beam_interface import Connection, DACCodeRange
+from ui_buffer import FrameBuffer
 from image_display import ImageDisplay
 
 import qasync
 from qasync import asyncSlot, asyncClose, QApplication, QEventLoop
+
+
+
+
 
 
 class SettingBox(QGridLayout):
@@ -81,8 +86,8 @@ class Window(QVBoxLayout):
         x_range = DACCodeRange(0, x_res, int((16384/x_res)*256))
         print(f'x step size: {(16384/x_res)}')
         y_range = DACCodeRange(0, y_res, int((16384/y_res)*256))
-        res = await self.fb.capture_image(x_range, y_range, dwell=dwell, latency=latency)
-        self.display_image(self.fb.output_ndarray(res, x_range, y_range))
+        await self.fb.capture_image(x_range, y_range, dwell=dwell, latency=latency)
+        self.display_image(self.fb.output_ndarray(x_range, y_range))
     def display_image(self, array):
         x_width, y_height = array.shape
         print(f'x width {x_width}, y height {y_height}')
