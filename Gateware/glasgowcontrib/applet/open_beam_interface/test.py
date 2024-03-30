@@ -529,6 +529,7 @@ class OBIAppletTestCase(unittest.TestCase):
                 
                 yield from limited_raster_free_stream()
                 yield from put_stream(dut.cmd_stream,{"type":Command.Type.Abort})
+                yield from limited_raster_free_stream()
                 
             
             def get_testbench():
@@ -537,7 +538,10 @@ class OBIAppletTestCase(unittest.TestCase):
                 for n in range(6):
                     yield from get_stream(dut.img_stream, 0, timeout_steps=600)
                     print(f"got {n}")
-                # yield from get_stream(dut.cmd_stream, {"type": Command.Type.Abort})
+                yield from get_stream(dut.cmd_stream, {"type": Command.Type.Abort})
+                for n in range(6):
+                    yield from get_stream(dut.img_stream, 0, timeout_steps=600)
+                    print(f"got {n}")
 
             self.simulate(dut, [put_testbench, get_testbench], name = "exec_seq_rasterabort")  
 
