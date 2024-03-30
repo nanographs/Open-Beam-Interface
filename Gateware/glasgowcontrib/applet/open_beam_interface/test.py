@@ -6,6 +6,7 @@ from amaranth import Signal, ShapeCastable, Const
 from . import StreamSignature
 from . import Supersampler, RasterScanner, RasterRegion
 from . import CommandParser, CommandExecutor, Command
+from . import BusController
 
 
 def put_dict(stream, signal):
@@ -124,6 +125,16 @@ class OBIAppletTestCase(unittest.TestCase):
             sim.add_testbench(testbench)
         with sim.write_vcd(f"{name}.vcd"), sim.write_vcd(f"{name}+d.vcd", fs_per_delta=250_000):
             sim.run()
+
+    def test_bus_controller(self):
+        dut = BusController(adc_half_period=3, adc_latency=6)
+        def put_testbench():
+            yield from put_stream(dut.dac_stream, {"dac_x_code": 123, "dac_y_code": 456, "last": 1})
+
+        def get_testbench():
+            yield from get_stream(dut.adc_stream, {"adc_code": 0, "last": 1}, timeout_steps=30)
+
+        self.simulate(dut, [put_testbench, get_testbench], name="bus_controller")
 
     def test_supersampler_expand(self):
         def run_test(dwell):
