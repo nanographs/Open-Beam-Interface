@@ -33,12 +33,12 @@ def StreamSignature(data_layout):
 
 BusSignature = wiring.Signature({
     "adc_clk":  Out(1),
-    "adc_le":   Out(1),
+    "adc_le_clk":   Out(1),
     "adc_oe":   Out(1),
 
     "dac_clk":  Out(1),
-    "dac_x_le": Out(1),
-    "dac_y_le": Out(1),
+    "dac_x_le_clk": Out(1),
+    "dac_y_le_clk": Out(1),
 
     "data_i":   In(15),
     "data_o":   Out(15),
@@ -150,12 +150,12 @@ class BusController(wiring.Component):
         with m.FSM():
             with m.State("ADC_Wait"):
                 with m.If(self.bus.adc_clk & (adc_cycles == 0)):
-                    m.d.comb += self.bus.adc_le.eq(1)
+                    #m.d.comb += self.bus.adc_le_clk.eq(1)
                     m.d.comb += self.bus.adc_oe.eq(1) #give bus time to stabilize before sampling
                     m.next = "ADC_Read"
 
             with m.State("ADC_Read"):
-                m.d.comb += self.bus.adc_le.eq(1)
+                m.d.comb += self.bus.adc_le_clk.eq(1)
                 m.d.comb += self.bus.adc_oe.eq(1)
                 m.d.comb += adc_stream_fifo.w_en.eq(accept_sample[self.adc_latency-1]) # does nothing if ~adc_stream_fifo.w_rdy
                 with m.If(self.dac_stream.valid & adc_stream_fifo.w_rdy):
@@ -185,7 +185,7 @@ class BusController(wiring.Component):
                 m.d.comb += [
                     self.bus.data_o.eq(dac_stream_data.dac_x_code),
                     self.bus.data_oe.eq(1),
-                    self.bus.dac_x_le.eq(1),
+                    self.bus.dac_x_le_clk.eq(1),
                 ]
                 m.next = "Y_DAC_Write"
 
@@ -200,7 +200,7 @@ class BusController(wiring.Component):
                 m.d.comb += [
                     self.bus.data_o.eq(dac_stream_data.dac_y_code),
                     self.bus.data_oe.eq(1),
-                    self.bus.dac_y_le.eq(1),
+                    self.bus.dac_y_le_clk.eq(1),
                 ]
                 m.next = "ADC_Wait"
 
