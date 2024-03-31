@@ -561,11 +561,15 @@ class OBIAppletTestCase(unittest.TestCase):
                 pass
 
             def _put_testbench(self, dut):
-                yield from put_stream(dut.cmd_stream, self._command)
+                yield from put_stream(dut.cmd_stream, self._command, timeout_steps=200)
             
             def _get_testbench(self, dut):
+                n = 0
+                print(f"getting {len(self._response)} responses")
                 for res in self._response:
                     yield from get_stream(dut.img_stream, res, timeout_steps=100)
+                    n += 1
+                    print(f"got {n} responses")
 
         class TestCommandSequence:
             dut =  CommandExecutor()
@@ -642,7 +646,7 @@ class OBIAppletTestCase(unittest.TestCase):
                 return {"type": Command.Type.RasterPixelRun,
                         "payload": {
                             "raster_pixel_run": {
-                                "length": self._length,
+                                "length": self._length - 1,
                                 "dwell_time": self._dwell_time
                             } 
                         }
@@ -653,13 +657,13 @@ class OBIAppletTestCase(unittest.TestCase):
                 return [0]*self._length
 
         class TestRasterFreeScanCommand(TestCommand):
-            def __init__(self, dwell_time, test_samples):
+            def __init__(self, dwell_time: int, *, test_samples=6):
                 self._dwell_time = dwell_time
                 self._test_samples = test_samples
             
             @property
             def _command(self):
-                return {"type": Command.Type.RasterFreeRun,
+                return {"type": Command.Type.RasterFreeScan,
                         "payload": {
                             "raster_pixel":self._dwell_time
                         }
@@ -668,13 +672,9 @@ class OBIAppletTestCase(unittest.TestCase):
             @property
             def _response(self):
                 return [0]*self._test_samples
-
-            def __init__(self, length, dwell_time):
-                self._length = length
-                self._dwell_time = dwell_time
             
             def _put_testbench(self, dut):
-                yield from put_stream(dut.cmd_stream, self._command)
+                yield from put_stream(dut.cmd_stream, self._command, timeout_steps=100)
                 n = 0
                 while True:
                     if n == self._test_samples:
@@ -692,7 +692,9 @@ class OBIAppletTestCase(unittest.TestCase):
             test_seq.add(TestSyncCommand(502, 1))
             test_seq.add(TestSyncCommand(505, 1))
             test_seq.add(TestRasterRegionCommand(5, 3, 0x2_00, 9, 2, 0x5_00))
-            test_seq.add(TestRasterPixelRunCommand(6, 1))
+            test_seq.add(TestRasterPixelRunCommand(5, 1))
+            test_seq.add(TestSyncCommand(502, 1))
+            # test_seq.add(TestRasterFreeScanCommand(1, test_samples=6))
 
             self.simulate(test_seq.dut, [test_seq._put_testbench, test_seq._get_testbench], name="exec_rasterscan")
         
