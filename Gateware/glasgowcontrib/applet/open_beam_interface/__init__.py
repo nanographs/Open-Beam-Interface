@@ -150,12 +150,12 @@ class BusController(wiring.Component):
         with m.FSM():
             with m.State("ADC_Wait"):
                 with m.If(self.bus.adc_clk & (adc_cycles == 0)):
-                    #m.d.comb += self.bus.adc_le_clk.eq(1)
+                    m.d.comb += self.bus.adc_le_clk.eq(1)
                     m.d.comb += self.bus.adc_oe.eq(1) #give bus time to stabilize before sampling
                     m.next = "ADC_Read"
 
             with m.State("ADC_Read"):
-                m.d.comb += self.bus.adc_le_clk.eq(1)
+                #m.d.comb += self.bus.adc_le_clk.eq(1)
                 m.d.comb += self.bus.adc_oe.eq(1)
                 m.d.comb += adc_stream_fifo.w_en.eq(accept_sample[self.adc_latency-1]) # does nothing if ~adc_stream_fifo.w_rdy
                 with m.If(self.dac_stream.valid & adc_stream_fifo.w_rdy):
@@ -726,8 +726,8 @@ obi_resources  = [
         Subsignal("y_latch", Pins("H1", dir="o")), # D20
         Subsignal("a_enable", Pins("G3", dir="o", invert=True)), # D21
         Subsignal("a_latch", Pins("H2", dir="o")), # D22
-        Subsignal("d_clock", Pins("F3", dir="o")), # D23
-        Subsignal("a_clock", Pins("G1", dir="o")), # D24
+        Subsignal("d_clock", Pins("F3", dir="o", invert=True)), # D23
+        Subsignal("a_clock", Pins("G1", dir="o", invert=True)), # D24
         Attrs(IO_STANDARD="SB_LVCMOS33")
     ),
 
@@ -786,9 +786,9 @@ class OBISubtarget(wiring.Component):
             data = platform.request("data")
 
             m.d.comb += [
-                control.x_latch.o.eq(executor.bus.dac_x_le),
-                control.y_latch.o.eq(executor.bus.dac_y_le),
-                control.a_latch.o.eq(executor.bus.adc_le),
+                control.x_latch.o.eq(executor.bus.dac_x_le_clk),
+                control.y_latch.o.eq(executor.bus.dac_y_le_clk),
+                control.a_latch.o.eq(executor.bus.adc_le_clk),
                 control.a_enable.o.eq(executor.bus.adc_oe),
                 control.d_clock.o.eq(executor.bus.dac_clk),
                 control.a_clock.o.eq(executor.bus.adc_clk),
