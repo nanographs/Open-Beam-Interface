@@ -731,7 +731,7 @@ obi_resources  = [
         Attrs(IO_STANDARD="SB_LVCMOS33")
     ),
 
-    Resource("data", 0, Pins("B2 B1 C4 C3 C2 C1 D1 D3 F4 G2 E3 F1 E2 F2", dir="io"), # ; E1 D2
+    Resource("data", 0, Pins("B2 C4 B1 C3 C2 C1 D3 D1 F4 G2 E3 F1 E2 F2", dir="io"), # ; E1 D2
         Attrs(IO_STANDARD="SB_LVCMOS33")
     ),
 ]

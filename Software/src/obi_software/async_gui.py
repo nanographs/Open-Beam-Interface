@@ -74,7 +74,7 @@ class Window(QVBoxLayout):
         self.settings.interrupt_btn.clicked.connect(self.interrupt)
         self.image_display = ImageDisplay(512,512)
         self.addWidget(self.image_display)
-        self.conn = Connection('localhost', 2222)
+        self.conn = Connection('localhost', 2223)
         self.fb = FrameBuffer(self.conn)
     
     @asyncSlot()
@@ -115,7 +115,8 @@ class Window(QVBoxLayout):
         x_range = DACCodeRange(0, x_res, int((16384/x_res)*256))
         print(f'x step size: {(16384/x_res)}')
         y_range = DACCodeRange(0, y_res, int((16384/y_res)*256))
-        await self.fb.free_scan(x_range, y_range, dwell=dwell, latency=latency)
+        async for frame in self.fb.free_scan(x_range, y_range, dwell=dwell, latency=latency):
+            self.display_image(self.fb.output_ndarray(x_range, y_range))
     
     def interrupt(self):
         self.conn._interrupt_scan()
