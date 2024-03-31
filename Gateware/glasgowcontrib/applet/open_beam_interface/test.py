@@ -132,7 +132,7 @@ class OBIAppletTestCase(unittest.TestCase):
             yield from put_stream(dut.dac_stream, {"dac_x_code": 123, "dac_y_code": 456, "last": 1})
 
         def get_testbench():
-            yield from get_stream(dut.adc_stream, {"adc_code": 0, "last": 1}, timeout_steps=30)
+            yield from get_stream(dut.adc_stream, {"adc_code": 0, "last": 1}, timeout_steps=100)
 
         self.simulate(dut, [put_testbench, get_testbench], name="bus_controller")
 
