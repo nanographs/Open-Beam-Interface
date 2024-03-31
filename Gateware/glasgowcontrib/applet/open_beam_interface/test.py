@@ -2,6 +2,7 @@ import unittest
 import struct
 from amaranth.sim import Simulator, Tick
 from amaranth import Signal, ShapeCastable, Const
+from abc import ABCMeta, abstractmethod
 
 from . import StreamSignature
 from . import Supersampler, RasterScanner, RasterRegion
@@ -113,8 +114,6 @@ def get_stream(stream, payload, timeout_steps=10):
         wrapped_payload = payload
     assert data == wrapped_payload,\
         f"payload: {prettier_print(data)} != {prettier_print(payload)} (expected)"
-
-
 
 
 class OBIAppletTestCase(unittest.TestCase):
@@ -439,7 +438,7 @@ class OBIAppletTestCase(unittest.TestCase):
         test_rasterregion_exec()
         test_rasterpixel_exec()
         test_rasterpixelrun_exec()
-    
+
     def test_command_executor_rasterframesequence(self):
             dut = CommandExecutor()
             cookie = 123*256 + 234
@@ -486,7 +485,7 @@ class OBIAppletTestCase(unittest.TestCase):
 
             self.simulate(dut, [put_testbench, get_testbench], name = "exec_seq_rasterframe")  
 
-    def test_command_executor_abort(self):
+    def test_command_executor_rasterabort(self):
             dut = CommandExecutor()
             cookie = 123*256 + 234
 
@@ -570,14 +569,9 @@ class OBIAppletTestCase(unittest.TestCase):
                             } 
                         }
                     })
-                    
                 
                 yield from limited_raster_free_stream()
                 yield from raster_pixel_run()
-                yield from put_stream(dut.cmd_stream, {"type": Command.Type.Abort},timeout_steps=500)
-                yield from limited_raster_free_stream()
-                # yield from put_stream(dut.cmd_stream, {"type": Command.Type.Abort},timeout_steps=500)
-                # yield from limited_raster_free_stream()
 
 
             def get_testbench():
@@ -592,16 +586,85 @@ class OBIAppletTestCase(unittest.TestCase):
                 yield from get_sync_and_img_stream()
                 print("interrupt w rasterpixelrun")
                 yield from get_sync_and_img_stream()
-                print("abort and start new free scan")
-                yield from get_sync_and_img_stream()
+                # print("start new free scan")
+                # yield from get_sync_and_img_stream()
                 # print("abort and start new free scan 2")
                 # yield from get_sync_and_img_stream()
 
             self.simulate(dut, [put_testbench, get_testbench], name = "exec_seq_rasterabort")  
 
+    def test_command_executor_test(self):
+
+        class TestCommand:
+            @property
+            @abstractmethod
+            def _command(self):
+                pass
+
+            @property
+            @abstractmethod
+            def _response(self):
+                pass
+
+            # @property
+            # def _testbenches(self, dut):
+            #     return self._put_testbench(dut), self._get_testbench(dut)
+            
+            def _put_testbench(self, dut):
+                yield from put_stream(dut.cmd_stream, self._command)
+            
+            def _get_testbench(self, dut):
+                for res in self._response:
+                    yield from get_stream(dut.img_stream, res)
+
+        class TestCommandSequence:
+            dut =  CommandExecutor()
+            _put_testbenches = []
+            _get_testbenches = []
+        
+            def add(self, command: TestCommand):
+                self._put_testbenches.append(command._put_testbench(self.dut))
+                self._get_testbenches.append(command._get_testbench(self.dut))
+            
+            def _put_testbench(self):
+                for testbench in self._put_testbenches:
+                    yield from testbench
+            
+            def _get_testbench(self):
+                for testbench in self._get_testbenches:
+                    yield from testbench
+
+        class TestSyncCommand(TestCommand):
+            def __init__(self, cookie, raster_mode):
+                self._cookie = cookie
+                self._raster_mode = raster_mode
+            
+            @property
+            def _command(self):
+                return {"type": Command.Type.Synchronize,
+                        "payload": {
+                            "synchronize": {
+                                "cookie": self._cookie,
+                                "raster_mode": self._raster_mode
+                                }
+                            }
+                        }
+                    
+            @property
+            def _response(self):
+                return [65535, self._cookie]
+        
+        
+        test_seq = TestCommandSequence()
+        test_seq.add(TestSyncCommand(502, 1))
+        test_seq.add(TestSyncCommand(505, 1))
+
+        self.simulate(test_seq.dut, [test_seq._put_testbench, test_seq._get_testbench])
+
+        
 
 
-
+        
 
 
 
