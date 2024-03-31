@@ -439,52 +439,6 @@ class OBIAppletTestCase(unittest.TestCase):
         test_rasterpixel_exec()
         test_rasterpixelrun_exec()
 
-    def test_command_executor_rasterframesequence(self):
-            dut = CommandExecutor()
-            cookie = 123*256 + 234
-
-            def put_testbench():
-                yield from put_stream(dut.cmd_stream, {
-                    "type": Command.Type.Synchronize,
-                    "payload": {
-                        "synchronize": {
-                            "cookie": cookie,
-                            "raster_mode": 1
-                        }
-                    }
-                })
-                yield from put_stream(dut.cmd_stream, {
-                    "type": Command.Type.RasterRegion,
-                    "payload": {
-                        "raster_region": {
-                            "x_start": 5,
-                            "x_count": 3,
-                            "x_step": 0x2_00,
-                            "y_start": 9,
-                            "y_count": 2,
-                            "y_step": 0x5_00,
-                        }
-                    }
-                })
-                yield from put_stream(dut.cmd_stream, {
-                    "type": Command.Type.RasterPixelRun,
-                    "payload": {
-                        "raster_pixel_run": {
-                            "length": 6,
-                            "dwell_time": 1,
-                        } 
-                    }
-                })
-                
-            
-            def get_testbench():
-                yield from get_stream(dut.img_stream, 65535) # FFFF
-                yield from get_stream(dut.img_stream, cookie)
-                for n in range(6):
-                    yield from get_stream(dut.img_stream, 0, timeout_steps=100)
-
-            self.simulate(dut, [put_testbench, get_testbench], name = "exec_seq_rasterframe")  
-
     def test_command_executor_rasterabort(self):
             dut = CommandExecutor()
             cookie = 123*256 + 234
@@ -606,10 +560,6 @@ class OBIAppletTestCase(unittest.TestCase):
             def _response(self):
                 pass
 
-            # @property
-            # def _testbenches(self, dut):
-            #     return self._put_testbench(dut), self._get_testbench(dut)
-            
             def _put_testbench(self, dut):
                 yield from put_stream(dut.cmd_stream, self._command)
             
@@ -654,12 +604,63 @@ class OBIAppletTestCase(unittest.TestCase):
             def _response(self):
                 return [65535, self._cookie]
         
+        class TestRasterRegionCommand(TestCommand):
+            def __init__(self, x_start, x_count, x_step, y_start, y_count, y_step):
+                self._x_start = x_start
+                self._x_count = x_count
+                self._x_step = x_step
+                self._y_start = y_start
+                self._y_count = y_count
+                self._y_step = y_step
+            
+            @property
+            def _command(self):
+                return {"type": Command.Type.RasterRegion,
+                            "payload": {
+                            "raster_region": {
+                                "x_start": self._x_start,
+                                "x_count": self._x_count,
+                                "x_step": self._x_step,
+                                "y_start": self._y_start,
+                                "y_count": self._y_count,
+                                "y_step": self._y_step,
+                            }
+                        }
+                    }
+                    
+            @property
+            def _response(self):
+                return []
         
-        test_seq = TestCommandSequence()
-        test_seq.add(TestSyncCommand(502, 1))
-        test_seq.add(TestSyncCommand(505, 1))
+        class TestRasterPixelRunCommand(TestCommand):
+            def __init__(self, length, dwell_time):
+                self._length = length
+                self._dwell_time = dwell_time
+            
+            @property
+            def _command(self):
+                return {"type": Command.Type.RasterPixelRun,
+                        "payload": {
+                            "raster_pixel_run": {
+                                "length": self._length,
+                                "dwell_time": self._dwell_time
+                            } 
+                        }
+                }
+                    
+            @property
+            def _response(self):
+                return [0]*self.length
+        
+        def test_exec_rasterscan():
+            test_seq = TestCommandSequence()
+            test_seq.add(TestSyncCommand(502, 1))
+            test_seq.add(TestSyncCommand(505, 1))
+            test_seq.add(TestRasterRegionCommand(5, 3, 0x2_00, 9, 2, 0x5_00))
 
-        self.simulate(test_seq.dut, [test_seq._put_testbench, test_seq._get_testbench])
+            self.simulate(test_seq.dut, [test_seq._put_testbench, test_seq._get_testbench], "exec_rasterscan")
+        
+        test_exec_rasterscan()
 
         
 
