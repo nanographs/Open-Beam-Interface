@@ -1,4 +1,5 @@
 import array
+import asyncio
 import numpy as np
 import logging
 from beam_interface import RasterScanCommand, RasterFreeScanCommand, setup_logging
@@ -11,14 +12,19 @@ class FrameBuffer():
         self._raster_scan_buffer = array.array('H') #this is where raw data is moved through
         self._current_frame = array.array('H') #this is what is displayed on the viewer
         # the size of _current_frame should always match the x and y range of the viewer
+        self._interrupt = asyncio.Event()
 
-    async def capture_image(self, x_range, y_range, *, dwell, latency):
+    async def capture_frame(self, x_range, y_range, *, dwell, latency):
         self._current_frame = array.array('H')
         self.buffer = np.zeros(shape=(y_range.count, x_range.count), dtype = np.uint16)
         cmd = RasterScanCommand(cookie=self.conn.get_cookie(), 
             x_range=x_range, y_range=y_range, dwell=dwell)
         async for chunk in self.conn.transfer_multiple(cmd, latency=latency):
             self._current_frame.extend(chunk)
+    
+    # async def capture_continous(self, x_range, y_range, *, dwell, latency):
+    #     while not self._interrupt.set():
+    #         await self.capture_frame(x_range, y_range, dwell=dwell, latency=latency)
 
     async def free_scan(self, x_range, y_range, *, dwell, latency):
         self._raster_scan_buffer = array.array('H')

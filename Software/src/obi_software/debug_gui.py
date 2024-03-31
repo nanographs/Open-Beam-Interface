@@ -8,14 +8,11 @@ from PyQt6.QtWidgets import (QHBoxLayout, QMainWindow,
                              QSpinBox)
 
 from beam_interface import Connection, DACCodeRange
-from ui_buffer import FrameBuffer
+from frame_buffer import FrameBuffer
 from gui_modules.image_display import ImageDisplay
 
 import qasync
 from qasync import asyncSlot, asyncClose, QApplication, QEventLoop
-
-
-
 
 
 
@@ -54,8 +51,10 @@ class Settings(QHBoxLayout):
         self.addLayout(self.dwell)
         self.latency = SettingBox("Latency",0, pow(2,28), pow(2,16))
         self.addLayout(self.latency)
-        self.capture_btn = QPushButton("Capture")
+        self.capture_btn = QPushButton("Capture 1")
         self.addWidget(self.capture_btn)
+        self.capture_live_btn = QPushButton("Capture Live")
+        self.addWidget(self.capture_live_btn)
         self.freescan_btn = QPushButton("Free Scan")
         self.addWidget(self.freescan_btn)
         self.interrupt_btn = QPushButton("Interrupt")
@@ -69,7 +68,8 @@ class Window(QVBoxLayout):
         self.addLayout(self.settings)
         self.settings.connect_btn.clicked.connect(self.toggle_connection)
         self.settings.sync_btn.clicked.connect(self.request_sync)
-        self.settings.capture_btn.clicked.connect(self.capture_image)
+        self.settings.capture_btn.clicked.connect(self.capture_single_frame)
+        self.settings.capture_live_btn.clicked.connect(self.capture_live)
         self.settings.freescan_btn.clicked.connect(self.free_scan)
         self.settings.interrupt_btn.clicked.connect(self.interrupt)
         self.image_display = ImageDisplay(512,512)
@@ -77,6 +77,16 @@ class Window(QVBoxLayout):
         self.conn = Connection('localhost', 2223)
         self.fb = FrameBuffer(self.conn)
     
+    @property
+    def parameters(self):
+        x_res = self.settings.rx.getval()
+        y_res = self.settings.ry.getval()
+        dwell = self.settings.dwell.getval()
+        latency = self.settings.latency.getval()
+        x_range = DACCodeRange(0, x_res, int((16384/x_res)*256))
+        y_range = DACCodeRange(0, y_res, int((16384/y_res)*256))
+        return x_range, y_range, dwell, latency
+
     @asyncSlot()
     async def toggle_connection(self):
         if self.settings.connect_btn.isChecked():
@@ -89,36 +99,32 @@ class Window(QVBoxLayout):
     @asyncSlot()
     async def request_sync(self):
         await self.conn._synchronize()
-            
-    @asyncSlot()
-    async def capture_image(self):
-        x_res = self.settings.rx.getval()
-        y_res = self.settings.ry.getval()
-        dwell = self.settings.dwell.getval()
-        latency = self.settings.latency.getval()
-        x_range = DACCodeRange(0, x_res, int((16384/x_res)*256))
-        print(f'x step size: {(16384/x_res)}')
-        y_range = DACCodeRange(0, y_res, int((16384/y_res)*256))
-        await self.fb.capture_image(x_range, y_range, dwell=dwell, latency=latency)
-        self.display_image(self.fb.output_ndarray(x_range, y_range))
+    
     def display_image(self, array):
         x_width, y_height = array.shape
-        print(f'x width {x_width}, y height {y_height}')
         self.image_display.setImage(y_height, x_width, array)
     
     @asyncSlot()
+    async def capture_single_frame(self):
+        x_range, y_range, dwell, latency = self.parameters
+        await self.fb.capture_frame(x_range, y_range, dwell=dwell, latency=latency)
+        self.display_image(self.fb.output_ndarray(x_range, y_range))
+    
+    @asyncSlot()
+    async def capture_live(self):
+        x_range, y_range, dwell, latency = self.parameters
+        # async for frame in self.fb.capture_continous(x_range, y_range, dwell=dwell, latency=latency):
+        while not self.fb._interrupt.set():
+            await self.capture_single_frame()
+    
+    @asyncSlot()
     async def free_scan(self):
-        x_res = self.settings.rx.getval()
-        y_res = self.settings.ry.getval()
-        dwell = self.settings.dwell.getval()
-        latency = self.settings.latency.getval()
-        x_range = DACCodeRange(0, x_res, int((16384/x_res)*256))
-        print(f'x step size: {(16384/x_res)}')
-        y_range = DACCodeRange(0, y_res, int((16384/y_res)*256))
+        x_range, y_range, dwell, latency = self.parameters
         async for frame in self.fb.free_scan(x_range, y_range, dwell=dwell, latency=latency):
             self.display_image(self.fb.output_ndarray(x_range, y_range))
     
     def interrupt(self):
+        self.fb._interrupt.set()
         self.conn._interrupt_scan()
 
         
