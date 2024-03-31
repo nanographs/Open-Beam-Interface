@@ -695,6 +695,7 @@ class OBIAppletTestCase(unittest.TestCase):
             test_seq.add(TestRasterPixelRunCommand(5, 1))
             test_seq.add(TestSyncCommand(502, 1))
             test_seq.add(TestRasterFreeScanCommand(1, test_samples=6))
+            test_seq.add(TestSyncCommand(502, 1))
 
             self.simulate(test_seq.dut, [test_seq._put_testbench, test_seq._get_testbench], name="exec_rasterscan")
         
