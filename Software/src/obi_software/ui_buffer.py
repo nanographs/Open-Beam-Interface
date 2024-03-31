@@ -8,10 +8,12 @@ setup_logging({"Command": logging.DEBUG, "Stream": logging.DEBUG})
 class FrameBuffer():
     def __init__(self, conn):
         self.conn = conn
-        self._raster_scan_buffer = array.array('H')
-        self._current_frame = array.array('H')
+        self._raster_scan_buffer = array.array('H') #this is where raw data is moved through
+        self._current_frame = array.array('H') #this is what is displayed on the viewer
+        # the size of _current_frame should always match the x and y range of the viewer
 
     async def capture_image(self, x_range, y_range, *, dwell, latency):
+        self._current_frame = array.array('H')
         self.buffer = np.zeros(shape=(y_range.count, x_range.count), dtype = np.uint16)
         cmd = RasterScanCommand(cookie=self.conn.get_cookie(), 
             x_range=x_range, y_range=y_range, dwell=dwell)
@@ -19,10 +21,9 @@ class FrameBuffer():
             self._current_frame.extend(chunk)
 
     async def free_scan(self, x_range, y_range, *, dwell, latency):
-        
+        self._raster_scan_buffer = array.array('H')
         cmd = RasterFreeScanCommand(cookie=self.conn.get_cookie(), 
             x_range=x_range, y_range=y_range, dwell=dwell, interrupt=self.conn._interrupt)
-        # res = array.array('H')
         async for chunk in self.conn.transfer_multiple(cmd, latency=latency):
             self._raster_scan_buffer.extend(chunk)
             print(f"free scan yielded chunk of size {len(chunk)}")
@@ -32,23 +33,15 @@ class FrameBuffer():
                 print(f'yielding frame of length {len(frame)}')
                 self._current_frame = frame
                 yield 
-                
-            # if self.conn._interrupt.is_set():
-            #     await asyncio.sleep(1)
-            #     print("interrupted")
-            #     break
-        # await self.conn._stream.flush()
-        self.conn._synchronized = False
-        await self.conn._synchronize()
-        print("resynchronized")
+
+        self._raster_scan_buffer = array.array('H')
+        self._current_frame = array.array('H')
+
 
     def output_ndarray(self, x_range, y_range):
         ar = np.array(self._current_frame)
-        # ar = [x for x in range(x_range.count)]*y_range.count
-        # ar = array.array('H', ar)
-        # ar = np.array(ar)
-        ar = np.left_shift(ar, 2)
-        ar = ar.byteswap()
+        ar = np.left_shift(ar, 2) # align MSB of 14-bit ADC with MSB of int16
+        ar = ar.byteswap() # whyyyyy is this necessary?
         ar = ar.astype(np.uint8)
         ar = ar.reshape(x_range.count, y_range.count)
         return ar

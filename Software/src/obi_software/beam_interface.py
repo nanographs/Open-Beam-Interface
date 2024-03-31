@@ -405,7 +405,11 @@ class _RasterFreeScanCommand(Command):
 
         async def sender():
             stream.send(struct.pack('>BH', CommandType.RasterFreeScan, self._dwell))
+            await self._interrupt.wait()
+            stream.send(struct.pack('>BHB', CommandType.Synchronize, 666, 1))
+            stream.send(struct.pack(">B", CommandType.Flush))
             await stream.flush()
+
 
         asyncio.create_task(sender())
 
@@ -500,9 +504,8 @@ class RasterFreeScanCommand(Command):
             yield chunk
             done += len(chunk)
             self._logger.debug(f"total={total} done={done}")
-        print("End of RasterFreeScan async for")
-        await AbortCommand().transfer(stream)
         self._interrupt.clear()
+        self._logger.debug("RasterFreeScanCommand exited and interrupt cleared.")
 
         
         
