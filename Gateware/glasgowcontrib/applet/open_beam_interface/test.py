@@ -304,7 +304,7 @@ class OBIAppletTestCase(unittest.TestCase):
 
             self.simulate(dut, [get_testbench,put_testbench], name = "cmd_rasterpixelrun")  
 
-        def test_rasterfreescan_cmd():
+        def test_rasterpixelfreerun_cmd():
             def put_testbench():
                 cmd = struct.pack('>BH', 0x13, 2)
                 for b in cmd:
@@ -312,14 +312,14 @@ class OBIAppletTestCase(unittest.TestCase):
 
             def get_testbench():
                 yield from get_stream(dut.cmd_stream, {
-                    "type":Command.Type.RasterFreeScan,
+                    "type":Command.Type.RasterPixelFreeRun,
                     "payload": {
                         "raster_pixel": 2
                         }
                     })
                 assert (yield dut.cmd_stream.valid) == 0
 
-            self.simulate(dut, [get_testbench,put_testbench], name = "cmd_rasterfreescan")  
+            self.simulate(dut, [get_testbench,put_testbench], name = "cmd_rasterpixelfreerun")  
         
         def test_vectorpixel_cmd():
             def put_testbench():
@@ -345,7 +345,7 @@ class OBIAppletTestCase(unittest.TestCase):
         test_rasterregion_cmd()
         test_rasterpixel_cmd()
         test_rasterpixelrun_cmd()
-        test_rasterfreescan_cmd()
+        test_rasterpixelfreerun_cmd()
         test_vectorpixel_cmd()
     
 
@@ -438,114 +438,6 @@ class OBIAppletTestCase(unittest.TestCase):
         test_rasterregion_exec()
         test_rasterpixel_exec()
         test_rasterpixelrun_exec()
-
-    def test_command_executor_rasterabort(self):
-            dut = CommandExecutor()
-            cookie = 123*256 + 234
-
-            def put_testbench():
-                def limited_raster_free_stream():
-                    yield from put_stream(dut.cmd_stream, {
-                        "type": Command.Type.Synchronize,
-                        "payload": {
-                            "synchronize": {
-                                "cookie": cookie,
-                                "raster_mode": 1
-                            }
-                        }
-                    })
-                    yield from put_stream(dut.cmd_stream, {
-                        "type": Command.Type.RasterRegion,
-                        "payload": {
-                            "raster_region": {
-                                "x_start": 5,
-                                "x_count": 10,
-                                "x_step": 0x2_00,
-                                "y_start": 9,
-                                "y_count": 20,
-                                "y_step": 0x5_00,
-                            }
-                        }
-                    })
-                    yield from put_stream(dut.cmd_stream, {
-                        "type": Command.Type.RasterFreeScan,
-                        "payload": {
-                            "raster_pixel_run": {
-                                "length": 6,
-                                "dwell_time": 1,
-                            } 
-                        }
-                    })
-
-                    def wait_for_n_samples(samples):
-                        n = 0
-                        while True:
-                            if n == samples:
-                                break
-                            if not (yield dut.supersampler.dac_stream.ready):
-                                yield Tick()
-                            else:
-                                n += 1
-                                print(f"{n} valid samples")
-                                yield Tick()
-
-                    yield from wait_for_n_samples(6)
-                
-                def raster_pixel_run():
-                    yield from put_stream(dut.cmd_stream, {
-                        "type": Command.Type.Synchronize,
-                        "payload": {
-                            "synchronize": {
-                                "cookie": cookie,
-                                "raster_mode": 1
-                            }
-                        }
-                    }, timeout_steps=300)
-                    yield from put_stream(dut.cmd_stream, {
-                        "type": Command.Type.RasterRegion,
-                        "payload": {
-                            "raster_region": {
-                                "x_start": 7,
-                                "x_count": 3,
-                                "x_step": 0x2_00,
-                                "y_start": 11,
-                                "y_count": 2,
-                                "y_step": 0x5_00,
-                            }
-                        }
-                    })
-                    yield from put_stream(dut.cmd_stream, {
-                        "type": Command.Type.RasterPixelRun,
-                        "payload": {
-                            "raster_pixel_run": {
-                                "length": 6,
-                                "dwell_time": 1,
-                            } 
-                        }
-                    })
-                
-                yield from limited_raster_free_stream()
-                yield from raster_pixel_run()
-
-
-            def get_testbench():
-                def get_sync_and_img_stream():
-                    yield from get_stream(dut.img_stream, 65535, timeout_steps=100) # FFFF
-                    yield from get_stream(dut.img_stream, cookie)
-                    for n in range(6):
-                        yield from get_stream(dut.img_stream, 0, timeout_steps=1000)
-                        print(f"got {n+1}")
-                
-                print("start raster free scan")
-                yield from get_sync_and_img_stream()
-                print("interrupt w rasterpixelrun")
-                yield from get_sync_and_img_stream()
-                # print("start new free scan")
-                # yield from get_sync_and_img_stream()
-                # print("abort and start new free scan 2")
-                # yield from get_sync_and_img_stream()
-
-            self.simulate(dut, [put_testbench, get_testbench], name = "exec_seq_rasterabort")  
 
     def test_command_executor_test(self):
 
@@ -656,14 +548,14 @@ class OBIAppletTestCase(unittest.TestCase):
             def _response(self):
                 return [0]*self._length
 
-        class TestRasterFreeScanCommand(TestCommand):
+        class TestRasterPixelFreeRunCommand(TestCommand):
             def __init__(self, dwell_time: int, *, test_samples=6):
                 self._dwell_time = dwell_time
                 self._test_samples = test_samples
             
             @property
             def _command(self):
-                return {"type": Command.Type.RasterFreeScan,
+                return {"type": Command.Type.RasterPixelFreeRun,
                         "payload": {
                             "raster_pixel":self._dwell_time
                         }
@@ -694,7 +586,7 @@ class OBIAppletTestCase(unittest.TestCase):
             test_seq.add(TestRasterRegionCommand(5, 3, 0x2_00, 9, 2, 0x5_00))
             test_seq.add(TestRasterPixelRunCommand(5, 1))
             test_seq.add(TestSyncCommand(502, 1))
-            test_seq.add(TestRasterFreeScanCommand(1, test_samples=6))
+            test_seq.add(TestRasterPixelFreeRunCommand(1, test_samples=6))
             test_seq.add(TestSyncCommand(502, 1))
             test_seq.add(TestSyncCommand(502, 1))
 

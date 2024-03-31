@@ -377,15 +377,15 @@ Cookie = unsigned(16)
 
 class Command(data.Struct):
     class Type(enum.Enum, shape=8):
-        Synchronize     = 0x00
-        Abort           = 0x01
-        Flush           = 0x02
+        Synchronize         = 0x00
+        Abort               = 0x01
+        Flush               = 0x02
 
-        RasterRegion    = 0x10
-        RasterPixel     = 0x11
-        RasterPixelRun  = 0x12
-        RasterFreeScan  = 0x13
-        VectorPixel     = 0x14
+        RasterRegion        = 0x10
+        RasterPixel         = 0x11
+        RasterPixelRun      = 0x12
+        RasterPixelFreeRun  = 0x13
+        VectorPixel         = 0x14
 
     type: Type
 
@@ -442,8 +442,8 @@ class CommandParser(wiring.Component):
                         with m.Case(Command.Type.RasterPixelRun):
                             m.next = "Payload_Raster_Pixel_Run_1_High"
                         
-                        with m.Case(Command.Type.RasterFreeScan):
-                            m.next = "Payload_Raster_Free_Scan_High"
+                        with m.Case(Command.Type.RasterPixelFreeRun):
+                            m.next = "Payload_Raster_Pixel_FreeRun_High"
 
                         with m.Case(Command.Type.VectorPixel):
                             m.next = "Payload_Vector_Pixel_1_High"
@@ -501,7 +501,7 @@ class CommandParser(wiring.Component):
                 "Payload_Raster_Pixel_Run_2", "Submit")
 
             DeserializeWord(command.payload.raster_pixel,
-                "Payload_Raster_Free_Scan", "Submit")
+                "Payload_Raster_Pixel_FreeRun", "Submit")
 
             DeserializeWord(command.payload.vector_pixel.x_coord,
                 "Payload_Vector_Pixel_1", "Payload_Vector_Pixel_2_High")
@@ -632,7 +632,7 @@ class CommandExecutor(wiring.Component):
                             with m.Else():
                                 m.d.sync += run_length.eq(run_length + 1)
 
-                    with m.Case(Command.Type.RasterFreeScan):
+                    with m.Case(Command.Type.RasterPixelFreeRun):
                         m.d.comb += [
                             self.raster_scanner.roi_stream.payload.eq(raster_region),
                             self.raster_scanner.dwell_stream.payload.eq(command.payload.raster_pixel),

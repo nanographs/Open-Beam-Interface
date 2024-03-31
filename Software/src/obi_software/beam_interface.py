@@ -195,15 +195,15 @@ class Connection:
 
 
 class CommandType(enum.IntEnum):
-    Synchronize     = 0x00
-    Abort           = 0x01
-    Flush           = 0x02
+    Synchronize         = 0x00
+    Abort               = 0x01
+    Flush               = 0x02
 
-    RasterRegion    = 0x10
-    RasterPixels    = 0x11
-    RasterPixelRun  = 0x12
-    RasterFreeScan  = 0x13
-    VectorPixel     = 0x14
+    RasterRegion        = 0x10
+    RasterPixels        = 0x11
+    RasterPixelRun      = 0x12
+    RasterPixelFreeRun  = 0x13
+    VectorPixel         = 0x14
 
 
 class SynchronizeCommand(Command):
@@ -373,14 +373,14 @@ class _RasterPixelRunCommand(Command):
             yield res
 
 
-class _RasterFreeScanCommand(Command):
+class _RasterPixelFreeRunCommand(Command):
     def __init__(self, *, dwell: DwellTime, length: int, interrupt: asyncio.Event):
         self._dwell   = dwell
         self._length  = length
         self._interrupt = interrupt
 
     def __repr__(self):
-        return f"_RasterFreeScanCommand(dwell={self._dwell})"
+        return f"_RasterPixelFreeRunCommand(dwell={self._dwell})"
 
     def _iter_chunks(self, latency: int):
         assert not (self._dwell > latency), "Pixel dwell time higher than latency"
@@ -404,7 +404,7 @@ class _RasterFreeScanCommand(Command):
     async def transfer(self, stream: Stream, latency: int):
 
         async def sender():
-            stream.send(struct.pack('>BH', CommandType.RasterFreeScan, self._dwell))
+            stream.send(struct.pack('>BH', CommandType.RasterPixelFreeRun, self._dwell))
             await self._interrupt.wait()
             stream.send(struct.pack('>BHB', CommandType.Synchronize, 666, 1))
             stream.send(struct.pack(">B", CommandType.Flush))
@@ -498,7 +498,7 @@ class RasterFreeScanCommand(Command):
         await SynchronizeCommand(cookie=self._cookie, raster_mode=True).transfer(stream)
         await _RasterRegionCommand(x_range=self._x_range, y_range=self._y_range).transfer(stream)
         total, done = self._x_range.count * self._y_range.count, 0
-        async for chunk in _RasterFreeScanCommand(dwell=self._dwell, 
+        async for chunk in _RasterPixelFreeRunCommand(dwell=self._dwell, 
                                                 length = total, interrupt=self._interrupt)\
                                                 .transfer(stream, latency):
             yield chunk
