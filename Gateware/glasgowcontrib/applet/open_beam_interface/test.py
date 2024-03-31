@@ -565,7 +565,7 @@ class OBIAppletTestCase(unittest.TestCase):
             
             def _get_testbench(self, dut):
                 for res in self._response:
-                    yield from get_stream(dut.img_stream, res)
+                    yield from get_stream(dut.img_stream, res, timeout_steps=100)
 
         class TestCommandSequence:
             dut =  CommandExecutor()
@@ -636,7 +636,7 @@ class OBIAppletTestCase(unittest.TestCase):
             def __init__(self, length, dwell_time):
                 self._length = length
                 self._dwell_time = dwell_time
-            
+
             @property
             def _command(self):
                 return {"type": Command.Type.RasterPixelRun,
@@ -646,19 +646,55 @@ class OBIAppletTestCase(unittest.TestCase):
                                 "dwell_time": self._dwell_time
                             } 
                         }
-                }
+                    }
                     
             @property
             def _response(self):
-                return [0]*self.length
+                return [0]*self._length
+
+        class TestRasterFreeScanCommand(TestCommand):
+            def __init__(self, dwell_time, test_samples):
+                self._dwell_time = dwell_time
+                self._test_samples = test_samples
+            
+            @property
+            def _command(self):
+                return {"type": Command.Type.RasterFreeRun,
+                        "payload": {
+                            "raster_pixel":self._dwell_time
+                        }
+                    }
+                    
+            @property
+            def _response(self):
+                return [0]*self._test_samples
+
+            def __init__(self, length, dwell_time):
+                self._length = length
+                self._dwell_time = dwell_time
+            
+            def _put_testbench(self, dut):
+                yield from put_stream(dut.cmd_stream, self._command)
+                n = 0
+                while True:
+                    if n == self._test_samples:
+                        break
+                    if not (yield dut.supersampler.dac_stream.ready):
+                        yield Tick()
+                    else:
+                        n += 1
+                        print(f"{n} valid samples")
+                        yield Tick()
+
         
         def test_exec_rasterscan():
             test_seq = TestCommandSequence()
             test_seq.add(TestSyncCommand(502, 1))
             test_seq.add(TestSyncCommand(505, 1))
             test_seq.add(TestRasterRegionCommand(5, 3, 0x2_00, 9, 2, 0x5_00))
+            test_seq.add(TestRasterPixelRunCommand(6, 1))
 
-            self.simulate(test_seq.dut, [test_seq._put_testbench, test_seq._get_testbench], "exec_rasterscan")
+            self.simulate(test_seq.dut, [test_seq._put_testbench, test_seq._get_testbench], name="exec_rasterscan")
         
         test_exec_rasterscan()
 
