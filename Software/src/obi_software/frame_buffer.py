@@ -36,7 +36,6 @@ class FrameBuffer():
     async def capture_frame(self, x_range, y_range, *, dwell, latency):
         frame = Frame(x_range, x_range)
         res = array.array('H')
-        self.buffer = np.zeros(shape=(y_range.count, x_range.count), dtype = np.uint16)
         cmd = RasterScanCommand(cookie=self.conn.get_cookie(), 
             x_range=x_range, y_range=y_range, dwell=dwell)
         async for chunk in self.conn.transfer_multiple(cmd, latency=latency):
