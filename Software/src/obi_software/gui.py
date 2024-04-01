@@ -49,6 +49,8 @@ class Settings(QHBoxLayout):
         self.live_capture_btn = QPushButton("Start Live Scan")
         self.live_capture_btn.setCheckable(True)
         self.addWidget(self.live_capture_btn)
+        self.save_btn = QPushButton("Save Image")
+        self.addWidget(self.save_btn)
     def disable_input(self):
         self.rx.spinbox.setEnabled(False)
         self.ry.spinbox.setEnabled(False)
@@ -68,6 +70,7 @@ class Window(QVBoxLayout):
         self.addLayout(self.settings)
         self.settings.single_capture_btn.clicked.connect(self.capture_single_frame)
         self.settings.live_capture_btn.clicked.connect(self.capture_live)
+        self.settings.save_btn.clicked.connect(self.save_image)
         self.image_display = ImageDisplay(512,512)
         self.addWidget(self.image_display)
         self.conn = Connection('localhost', 2223)
@@ -86,6 +89,9 @@ class Window(QVBoxLayout):
     def display_image(self, array):
         x_width, y_height = array.shape
         self.image_display.setImage(y_height, x_width, array)
+    
+    def save_image(self):
+        self.fb.frame.save_image()
     
     @asyncSlot()
     async def capture_single_frame(self):
