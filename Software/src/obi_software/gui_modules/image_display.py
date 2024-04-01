@@ -26,7 +26,6 @@ class ImageDisplay(pg.GraphicsLayoutWidget):
         #     minXRange=0, maxXRange=self.x_width, 
         #     yMin=0, yMax=self.x_width,
         #     minYRange=0, maxYRange=self.x_width)
-        self.image_view.autoRange(padding=.1)
         
         self.live_img = pg.ImageItem(border='w',axisOrder="row-major")
         self.live_img.setImage(np.full((y_height, x_width), 0, np.uint8), rect = (0,0,x_width, y_height), autoLevels=False, autoHistogramRange=True)
@@ -109,8 +108,8 @@ class ImageDisplay(pg.GraphicsLayoutWidget):
 if __name__ == "__main__":
     app = pg.mkQApp()
     image_display = ImageDisplay(512, 512)
-    image_display.showTest()
-    image_display.add_ROI()
+    # image_display.showTest()
+    # image_display.add_ROI()
     #image_display.remove_ROI()
     image_display.show()
     pg.exec()
