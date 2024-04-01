@@ -108,12 +108,6 @@ class Window(QVBoxLayout):
             self.settings.live_capture_btn.setText("Start Live Scan")
             self.settings.enable_input()
     
-    @asyncSlot()
-    async def free_scan(self):
-        x_range, y_range, dwell, latency = self.parameters
-        async for frame in self.fb.free_scan(x_range, y_range, dwell=dwell, latency=latency):
-            self.display_image(self.fb.output_ndarray(x_range, y_range))
-    
     def interrupt(self):
         self.fb._interrupt.set()
 
