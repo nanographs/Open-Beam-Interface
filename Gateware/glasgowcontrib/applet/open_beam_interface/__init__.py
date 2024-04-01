@@ -644,7 +644,7 @@ class CommandExecutor(wiring.Component):
                             with m.If(in_flight_pixels == 0):
                                 m.next = "Fetch"
                         with m.Else():
-                            # don't count pixels; resynchronization is mandatory after this command
+                            # resynchronization is mandatory after this command
                             m.d.comb += self.raster_scanner.roi_stream.valid.eq(1)
                             with m.If(self.raster_scanner.dwell_stream.ready):
                                 m.d.comb += submit_pixel.eq(1)
