@@ -61,13 +61,3 @@ class FrameBuffer():
                 res = self._raster_scan_buffer[frame.pixels:]
                 print(f'yielding frame of length {len(frame)}')
                 yield frame
-
-
-
-    def output_ndarray(self, x_range, y_range):
-        ar = np.array(self._current_frame)
-        ar = np.left_shift(ar, 2) # align MSB of 14-bit ADC with MSB of int16
-        ar = ar.byteswap() # whyyyyy is this necessary?
-        ar = ar.astype(np.uint8)
-        ar = ar.reshape(x_range.count, y_range.count)
-        return ar
