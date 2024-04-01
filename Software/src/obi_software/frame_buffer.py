@@ -17,7 +17,7 @@ class Frame:
     
     @property
     def _empty(self):
-        return np.zeros(shape = self._shape, dtype = np.uint16)
+        return np.zeros(shape = self.shape, dtype = np.uint16)
     
     def fill(self, pixels: array.array):
         assert len(pixels) == self.pixels
@@ -42,7 +42,7 @@ class FrameBuffer():
         async for chunk in self.conn.transfer_multiple(cmd, latency=latency):
             res.extend(chunk)
         frame.fill(res)
-        return frame.prepare_for_display()
+        return frame
     
     # async def capture_continous(self, x_range, y_range, *, dwell, latency):
     #     while not self._interrupt.set():

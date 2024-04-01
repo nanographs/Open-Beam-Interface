@@ -108,17 +108,15 @@ class Window(QVBoxLayout):
     async def capture_single_frame(self):
         x_range, y_range, dwell, latency = self.parameters
         frame = await self.fb.capture_frame(x_range, y_range, dwell=dwell, latency=latency)
-        self.display_image(frame)
+        self.display_image(frame.prepare_for_display())
         # self.display_image(self.fb.output_ndarray(x_range, y_range))
     
     @asyncSlot()
     async def capture_live(self):
         self.fb._interrupt.clear()
-        #x_range, y_range, dwell, latency = self.parameters
-        # async for frame in self.fb.capture_continous(x_range, y_range, dwell=dwell, latency=latency):
         while True:
             await self.capture_single_frame()
-            if self.fb._interrupt.set():
+            if self.fb._interrupt.is_set():
                 break
     
     @asyncSlot()
