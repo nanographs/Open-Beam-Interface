@@ -2,6 +2,7 @@ import array
 import asyncio
 import numpy as np
 import logging
+import tifffile
 from beam_interface import RasterScanCommand, RasterFreeScanCommand, setup_logging, DACCodeRange
 
 setup_logging({"Command": logging.DEBUG, "Stream": logging.DEBUG})
@@ -28,6 +29,10 @@ class Frame:
         ar = ar.byteswap() # whyyyyy is this necessary?
         ar = ar.astype(np.uint8)
         return ar
+    
+    def saveImage_tifffile(self):
+        img_name = "saved" + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + ".tif"
+        tifffile.imwrite(img_name, self.canvas, shape = (self.x_width, self.y_height), dtype = np.uint16)
 class FrameBuffer():
     def __init__(self, conn):
         self.conn = conn

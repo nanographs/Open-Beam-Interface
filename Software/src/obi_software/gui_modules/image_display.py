@@ -10,8 +10,6 @@ from PyQt6.QtWidgets import (QHBoxLayout, QMainWindow,
                              QVBoxLayout, QWidget, QLabel, QGridLayout,
                              QSpinBox)
 
-import tifffile
-
 class ImageDisplay(pg.GraphicsLayoutWidget):
     def __init__(self, y_height, x_width):
         super().__init__()
@@ -104,11 +102,6 @@ class ImageDisplay(pg.GraphicsLayoutWidget):
 
 
 
-    def saveImage_tifffile(self):
-        image = self.live_img.image
-        metadata = [(3, 1, 1, 100)]
-        img_name = "saved" + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + ".tif"
-        tifffile.imwrite(img_name, image, shape = (self.x_width, self.y_height), dtype = np.uint8, extratags = metadata)
 
 
 
@@ -120,5 +113,4 @@ if __name__ == "__main__":
     image_display.add_ROI()
     #image_display.remove_ROI()
     image_display.show()
-    image_display.saveImage_tifffile()
     pg.exec()
