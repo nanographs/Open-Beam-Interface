@@ -55,19 +55,6 @@ class ImageDisplay(pg.GraphicsLayoutWidget):
         # lut = np.array(lut, dtype = np.uint8)
         # self.live_img.setLookupTable(lut)
 
-
-        self.exporter = pg.exporters.ImageExporter(self.live_img)
-
-        self.pixel_size = .001
-
-        # border = pg.mkPen(color = "#00ff00", width = 2)
-        # self.scaleBar = MicroScaleBar(self.pixel_size, pen = border, width = 5)
-        # self.scaleBar.setParentItem(self.image_view)
-        # self.scaleBar.anchor((1,1),(1,1),offset = (-200,-20))
-
-
-        #self.add_ROI()
-
     def add_ROI(self):
         border = pg.mkPen(color = "#00ff00", width = 2)
         # Custom ROI for selecting an image region

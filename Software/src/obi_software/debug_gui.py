@@ -14,6 +14,8 @@ from gui_modules.image_display import ImageDisplay
 import qasync
 from qasync import asyncSlot, asyncClose, QApplication, QEventLoop
 
+from gui import Window, Settings
+
 
 
 class SettingBox(QGridLayout):
@@ -35,56 +37,35 @@ class SettingBox(QGridLayout):
     def setval(self, val):
         self.spinbox.setValue(val)
 
-class Settings(QHBoxLayout):
+class DebugSettings(QHBoxLayout):
     def __init__(self):
         super().__init__()
         self.connect_btn = QPushButton("Connect")
         self.connect_btn.setCheckable(True)
         self.addWidget(self.connect_btn)
         self.sync_btn = QPushButton("Sync")
-        self.addWidget(self.sync_btn)
-        self.rx = SettingBox("X Resolution",128, 16384, 512)
-        self.addLayout(self.rx)
-        self.ry = SettingBox("Y Resolution",128, 16384, 512)
-        self.addLayout(self.ry)
-        self.dwell = SettingBox("Dwell Time",0, 65536, 2)
-        self.addLayout(self.dwell)
         self.latency = SettingBox("Latency",0, pow(2,28), pow(2,16))
         self.addLayout(self.latency)
-        self.capture_btn = QPushButton("Capture 1")
-        self.addWidget(self.capture_btn)
-        self.capture_live_btn = QPushButton("Capture Live")
-        self.addWidget(self.capture_live_btn)
         self.freescan_btn = QPushButton("Free Scan")
         self.addWidget(self.freescan_btn)
         self.interrupt_btn = QPushButton("Interrupt")
         self.addWidget(self.interrupt_btn)
 
 
-class Window(QVBoxLayout):
+class DebugWindow(Window):
     def __init__(self):
         super().__init__()
-        self.settings = Settings()
-        self.addLayout(self.settings)
-        self.settings.connect_btn.clicked.connect(self.toggle_connection)
-        self.settings.sync_btn.clicked.connect(self.request_sync)
-        self.settings.capture_btn.clicked.connect(self.capture_single_frame)
-        self.settings.capture_live_btn.clicked.connect(self.capture_live)
-        self.settings.freescan_btn.clicked.connect(self.free_scan)
-        self.settings.interrupt_btn.clicked.connect(self.interrupt)
-        self.image_display = ImageDisplay(512,512)
-        self.addWidget(self.image_display)
-        self.conn = Connection('localhost', 2223)
-        self.fb = FrameBuffer(self.conn)
-    
+        self.debug_settings = DebugSettings()
+        self.addLayout(self.debug_settings)
+        self.debug_settings.connect_btn.clicked.connect(self.toggle_connection)
+        self.debug_settings.sync_btn.clicked.connect(self.request_sync)
+        self.debug_settings.freescan_btn.clicked.connect(self.free_scan)
+        self.debug_settings.interrupt_btn.clicked.connect(self.interrupt)
+
     @property
     def parameters(self):
-        x_res = self.settings.rx.getval()
-        y_res = self.settings.ry.getval()
-        dwell = self.settings.dwell.getval()
+        x_range, y_range, dwell = super().parameters
         latency = self.settings.latency.getval()
-        x_range = DACCodeRange(0, x_res, int((16384/x_res)*256))
-        y_range = DACCodeRange(0, y_res, int((16384/y_res)*256))
         return x_range, y_range, dwell, latency
 
     @asyncSlot()
@@ -103,21 +84,6 @@ class Window(QVBoxLayout):
     def display_image(self, array):
         x_width, y_height = array.shape
         self.image_display.setImage(y_height, x_width, array)
-    
-    @asyncSlot()
-    async def capture_single_frame(self):
-        x_range, y_range, dwell, latency = self.parameters
-        frame = await self.fb.capture_frame(x_range, y_range, dwell=dwell, latency=latency)
-        self.display_image(frame.prepare_for_display())
-        # self.display_image(self.fb.output_ndarray(x_range, y_range))
-    
-    @asyncSlot()
-    async def capture_live(self):
-        self.fb._interrupt.clear()
-        while True:
-            await self.capture_single_frame()
-            if self.fb._interrupt.is_set():
-                break
     
     @asyncSlot()
     async def free_scan(self):
@@ -142,7 +108,7 @@ def run_gui():
     app.aboutToQuit.connect(app_close_event.set)
 
     w = QWidget()
-    window = Window()
+    window = DebugWindow()
     w.setLayout(window)
     w.show() 
 
