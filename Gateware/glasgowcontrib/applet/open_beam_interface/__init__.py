@@ -374,6 +374,9 @@ class RasterScanner(wiring.Component):
 Cookie = unsigned(16)
 #: Arbitrary value for synchronization. When received, returned as-is in an USB IN frame.
 
+class BeamType(enum.Enum, shape = 8):
+        Electron            = 0x01
+        Ion                 = 0x02
 
 class Command(data.Struct):
     class Type(enum.Enum, shape=8):
@@ -387,10 +390,6 @@ class Command(data.Struct):
         RasterPixelRun      = 0x12
         RasterPixelFreeRun  = 0x13
         VectorPixel         = 0x14
-    
-    class BeamType(enum.Enum, shape = 8):
-        Electron            = 0x01
-        Ion                 = 0x02
 
     type: Type
 
@@ -412,7 +411,7 @@ class Command(data.Struct):
         }),
         "external_ctrl":       data.StructLayout({
             "enable": 1,
-            "beam_type": 3,
+            "beam_type": BeamType,
         })
     })
 
@@ -545,7 +544,7 @@ class CommandExecutor(wiring.Component):
     flush: Out(1)
 
     # Input to Scan Selector Relay Board
-    electron_beam_enable: Out(1)
+    ext_ebeam_enable: Out(1)
 
     def __init__(self, *, adc_latency=6, switch_delay_ms = 20):
         self.adc_latency = 6
@@ -772,7 +771,8 @@ obi_resources  = [
 ]
 
 class OBISubtarget(wiring.Component):
-    def __init__(self, *, out_fifo, in_fifo, sim=False, loopback=False):
+    def __init__(self, *, pads, out_fifo, in_fifo, sim=False, loopback=False):
+        self.pads = pads
         self.out_fifo = out_fifo
         self.in_fifo  = in_fifo
         self.sim = sim
@@ -817,6 +817,8 @@ class OBISubtarget(wiring.Component):
         ]
 
         if not self.sim:
+            self.pads.o.ext_ebeam_enable.eq(executor.ext_ebeam_enable)
+
             control = platform.request("control")
             data = platform.request("data")
 
@@ -851,9 +853,14 @@ class OBIApplet(GlasgowApplet):
     Scanning beam control applet
     """
 
+    __pins = ("ext_ebeam_enable", "ext_ibeam_enable")
+
     @classmethod
     def add_build_arguments(cls, parser, access):
         super().add_build_arguments(parser, access)
+
+        access.add_pin_argument(parser, "ext_ebeam_enable", default=True)
+        access.add_pin_argument(parser, "ext_i beam_enable", default=True)
 
         parser.add_argument("--loopback",
             dest = "loopback", action = 'store_true',
@@ -863,9 +870,12 @@ class OBIApplet(GlasgowApplet):
         target.platform.add_resources(obi_resources)
 
         self.mux_interface = iface = \
-            target.multiplexer.claim_interface(self, args=None, throttle="none")
+            target.multiplexer.claim_interface(self, args, throttle="none")
+        
+        pads = iface.get_pads(args, pins=self.__pins)
 
         subtarget = OBISubtarget(
+            pads = pads,
             in_fifo=iface.get_in_fifo(depth=512, auto_flush=False),
             out_fifo=iface.get_out_fifo(depth=512),
             loopback=args.loopback,
