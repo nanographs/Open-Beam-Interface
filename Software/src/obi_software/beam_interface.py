@@ -229,6 +229,21 @@ class AbortCommand(Command):
         stream.send(cmd)
         await stream.flush()
 
+class BeamType(enum.IntEnum):
+    Electron = 0x01
+    Ion = 0x02
+class ExternalCtrlCommand(Command):
+    def __init__(self, enable, beam_type):
+        assert enable <= 1
+        assert (beam_type == BeamType.Electron) | (beam_type == BeamType.Ion)
+        self._enable = enable
+        self._beam_type = beam_type
+
+    async def transfer(self, stream: Stream):
+        cmd = struct.pack(">BBB", CommandType.ExternalCtrl, self._enable, self._beam_type)
+        stream.send(cmd)
+        await stream.flush()
+
 
 @dataclass
 class DACCodeRange:

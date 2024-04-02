@@ -380,12 +380,17 @@ class Command(data.Struct):
         Synchronize         = 0x00
         Abort               = 0x01
         Flush               = 0x02
+        ExternalCtrl        = 0x03
 
         RasterRegion        = 0x10
         RasterPixel         = 0x11
         RasterPixelRun      = 0x12
         RasterPixelFreeRun  = 0x13
         VectorPixel         = 0x14
+    
+    class BeamType(enum.Enum, shape = 8):
+        Electron            = 0x01
+        Ion                 = 0x02
 
     type: Type
 
@@ -404,6 +409,10 @@ class Command(data.Struct):
             "x_coord":          14,
             "y_coord":          14,
             "dwell_time":       DwellTime,
+        }),
+        "external_ctrl":       data.StructLayout({
+            "enable": 1,
+            "beam_type": 3,
         })
     })
 
@@ -432,6 +441,9 @@ class CommandParser(wiring.Component):
 
                         with m.Case(Command.Type.Flush):
                             m.next = "Submit"
+                        
+                        with m.Case(Command.Type.ExternalCtrl):
+                            m.next = "Payload_ExternalCtrl_1"
 
                         with m.Case(Command.Type.RasterRegion):
                             m.next = "Payload_Raster_Region_1_High"
@@ -467,6 +479,11 @@ class CommandParser(wiring.Component):
                 "Payload_Synchronize_1", "Payload_Synchronize_2")
             Deserialize(command.payload.synchronize.raster_mode,
                 "Payload_Synchronize_2", "Submit")
+            
+            Deserialize(command.payload.external_ctrl.enable,
+                "Payload_ExternalCtrl_1", "Payload_ExternalCtrl_2")
+            Deserialize(command.payload.external_ctrl.beam_type,
+                "Payload_ExternalCtrl_2", "Submit")
 
             DeserializeWord(command.payload.raster_region.x_start,
                 "Payload_Raster_Region_1", "Payload_Raster_Region_2_High")
@@ -527,13 +544,21 @@ class CommandExecutor(wiring.Component):
     #: Active if `Synchronize`, `Flush`, or `Abort` was the last received command.
     flush: Out(1)
 
-    def __init__(self, *, adc_latency=6):
+    # Input to Scan Selector Relay Board
+    electron_beam_enable: Out(1)
+
+    def __init__(self, *, adc_latency=6, switch_delay_ms = 20):
         self.adc_latency = 6
+        self.switch_delay_ms = switch_delay_ms
         self.supersampler = Supersampler()
         super().__init__()
 
     def elaborate(self, platform):
         m = Module()
+
+        # Scan Selector board uses TE 1462051-2 Relay
+        relay_delay_cycles = int(self.switch_delay_ms * (1/(48 * pow(10,6)))) + 1
+        relay_delay_counter = Signal()
 
         m.submodules.bus_controller = bus_controller = BusController(adc_half_period=3, adc_latency=self.adc_latency)
         m.submodules.supersampler   = self.supersampler
@@ -600,6 +625,16 @@ class CommandExecutor(wiring.Component):
                     with m.Case(Command.Type.Flush):
                         m.d.sync += self.flush.eq(1)
                         m.next = "Fetch"
+                    
+                    with m.Case(Command.Type.ExternalCtrl):
+                        with m.If(command.payload.external_ctrl.beam_type == BeamType.Electron):
+                            m.d.sync += self.electron_beam_enable.eq(command.payload.external_ctrl.enable)
+                        with m.If(relay_delay_counter == relay_delay_cycles):
+                            m.d.sync += relay_delay_counter.eq(0)
+                            m.next = "Fetch"
+                        with m.Else():
+                            m.d.sync += relay_delay_counter.eq(relay_delay_counter - 1)
+
 
                     with m.Case(Command.Type.RasterRegion):
                         m.d.sync += raster_region.eq(command.payload.raster_region)
