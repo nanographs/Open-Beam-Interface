@@ -32,20 +32,23 @@ class Frame:
     
     def saveImage_tifffile(self):
         img_name = "saved" + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + ".tif"
-        tifffile.imwrite(img_name, self.canvas, shape = (self.x_width, self.y_height), dtype = np.uint16)
+        tifffile.imwrite(f"{img_name}_16bit", self.canvas, shape = (self.x_width, self.y_height), dtype = np.uint16)
+        tifffile.imwrite(f"{img_name}_8bit", self.prepare_for_display(), shape = (self.x_width, self.y_height), dtype = np.uint8)
 class FrameBuffer():
     def __init__(self, conn):
         self.conn = conn
         self._interrupt = asyncio.Event()
+        self.current_frame = None
 
     async def capture_frame(self, x_range, y_range, *, dwell, latency):
-        frame = Frame(x_range, x_range)
+        frame = Frame(x_range, y_range)
         res = array.array('H')
         cmd = RasterScanCommand(cookie=self.conn.get_cookie(), 
             x_range=x_range, y_range=y_range, dwell=dwell)
         async for chunk in self.conn.transfer_multiple(cmd, latency=latency):
             res.extend(chunk)
         frame.fill(res)
+        self.current_frame = frame
         return frame
     
     # async def capture_continous(self, x_range, y_range, *, dwell, latency):
@@ -64,4 +67,5 @@ class FrameBuffer():
                 frame = res[:frame.pixels]
                 res = self._raster_scan_buffer[frame.pixels:]
                 print(f'yielding frame of length {len(frame)}')
+                self.current_frame = frame
                 yield frame

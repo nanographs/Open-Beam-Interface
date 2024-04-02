@@ -91,7 +91,7 @@ class Window(QVBoxLayout):
         self.image_display.setImage(y_height, x_width, array)
     
     def save_image(self):
-        self.fb.frame.save_image()
+        self.fb.current_frame.save_image()
     
     @asyncSlot()
     async def capture_single_frame(self):
