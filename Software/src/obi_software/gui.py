@@ -73,7 +73,7 @@ class Window(QVBoxLayout):
         self.settings.save_btn.clicked.connect(self.save_image)
         self.image_display = ImageDisplay(512,512)
         self.addWidget(self.image_display)
-        self.conn = Connection('localhost', 2223)
+        self.conn = Connection('localhost', 2222)
         self.fb = FrameBuffer(self.conn)
     
     @property
@@ -95,6 +95,11 @@ class Window(QVBoxLayout):
     
     @asyncSlot()
     async def capture_single_frame(self):
+        await self.fb.set_ext_ctrl(1)
+        await self.capture_frame()
+        await self.fb.set_ext_ctrl(0)
+    
+    async def capture_frame(self):
         x_range, y_range, dwell, latency = self.parameters
         frame = await self.fb.capture_frame(x_range, y_range, dwell=dwell, latency=latency)
         self.display_image(frame.prepare_for_display())
@@ -102,13 +107,15 @@ class Window(QVBoxLayout):
     @asyncSlot()
     async def capture_live(self):
         if self.settings.live_capture_btn.isChecked():
+            await self.fb.set_ext_ctrl(1)
             self.fb._interrupt.clear()
             self.settings.disable_input()
             self.settings.live_capture_btn.setText("Stop Live Scan")
             while True:
-                await self.capture_single_frame()
+                await self.capture_frame()
                 if self.fb._interrupt.is_set():
                     break
+            await self.fb.set_ext_ctrl(0)
         else:
             self.fb._interrupt.set()
             self.settings.live_capture_btn.setText("Start Live Scan")

@@ -235,14 +235,32 @@ class DelayCommand(Command):
     def __init__(self, delay):
         assert delay <= 65536
         self._delay = delay
+    def __repr__(self):
+        return f"DelayCommand(delay={self._delay})"
+    @Command.log_transfer
     async def transfer(self, stream: Stream):
         cmd = struct.pack(">BH", CommandType.Delay, self._delay)
         stream.send(cmd)
-        await stream.flush()
+        # await stream.flush()
 
 class BeamType(enum.IntEnum):
     Electron = 0x01
     Ion = 0x02
+class _ExternalCtrlCommand(Command):
+    def __init__(self, enable, beam_type):
+        assert enable <= 1
+        assert (beam_type == BeamType.Electron) | (beam_type == BeamType.Ion)
+        self._enable = enable
+        self._beam_type = beam_type
+    
+    def __repr__(self):
+        return f"_ExternalCtrlCommand(enable={self._enable}, beam_type={self._beam_type})"
+
+    @Command.log_transfer
+    async def transfer(self, stream: Stream):
+        cmd = struct.pack(">BBB", CommandType.ExternalCtrl, self._enable, self._beam_type)
+        stream.send(cmd)
+        await stream.flush()
 
 # Scan Selector board uses TE 1462051-2 Relay
 # Switching delay is 20 ms
@@ -253,11 +271,14 @@ class ExternalCtrlCommand(Command):
         assert (beam_type == BeamType.Electron) | (beam_type == BeamType.Ion)
         self._enable = enable
         self._beam_type = beam_type
+    
+    def __repr__(self):
+        return f"ExternalCtrlCommand(enable={self._enable}, beam_type={self._beam_type})"
 
+    @Command.log_transfer
     async def transfer(self, stream: Stream):
-        cmd = struct.pack(">BBB", CommandType.ExternalCtrl, self._enable, self._beam_type)
+        await _ExternalCtrlCommand(self._enable, self._beam_type).transfer(stream)
         await DelayCommand(RELAY_DELAY_CYCLES).transfer(stream)
-        await stream.flush()
 
 
 
@@ -403,7 +424,6 @@ class _RasterPixelRunCommand(Command):
             await asyncio.sleep(0)
             yield res
 
-
 class _RasterPixelFreeRunCommand(Command):
     def __init__(self, *, dwell: DwellTime, length: int, interrupt: asyncio.Event):
         self._dwell   = dwell
@@ -494,18 +514,18 @@ class RasterStreamCommand(Command):
 
 
 class RasterScanCommand(Command):
-    def __init__(self, *, cookie: int, x_range: DACCodeRange, y_range: DACCodeRange, dwell: DwellTime):
+    def __init__(self, *, cookie: int, x_range: DACCodeRange, y_range: DACCodeRange, dwell: DwellTime, beam_type: BeamType):
         self._cookie  = cookie
         self._x_range = x_range
         self._y_range = y_range
         self._dwell   = dwell
+        self._beam_type = beam_type
     
     def __repr__(self):
-        return f"RasterScanCommand(cookie={self._cookie}, x_range={self._x_range}, y_range={self._y_range}, dwell={self._dwell}>)"
+        return f"RasterScanCommand(cookie={self._cookie}, x_range={self._x_range}, y_range={self._y_range}, dwell={self._dwell}, beam_type={self._beam_type}>)"
 
     @Command.log_transfer
     async def transfer(self, stream: Stream, latency: int):
-        await ExternalCtrlCommand(enable=1).transfer(stream)
         await SynchronizeCommand(cookie=self._cookie, raster_mode=True).transfer(stream)
         await _RasterRegionCommand(x_range=self._x_range, y_range=self._y_range).transfer(stream)
         total, done = self._x_range.count * self._y_range.count, 0
@@ -513,7 +533,6 @@ class RasterScanCommand(Command):
             yield chunk
             done += len(chunk)
             self._logger.debug(f"total={total} done={done}")
-        await ExternalCtrlCommand(enable=0).transfer(stream)
 
 class RasterFreeScanCommand(Command):
     def __init__(self, *, cookie: int, x_range: DACCodeRange, y_range: DACCodeRange, dwell: DwellTime, interrupt: asyncio.Event):

@@ -3,7 +3,7 @@ import asyncio
 import numpy as np
 import logging
 import tifffile
-from beam_interface import RasterScanCommand, RasterFreeScanCommand, setup_logging, DACCodeRange
+from beam_interface import RasterScanCommand, RasterFreeScanCommand, setup_logging, DACCodeRange, BeamType, ExternalCtrlCommand
 
 setup_logging({"Command": logging.DEBUG, "Stream": logging.DEBUG})
 
@@ -40,11 +40,14 @@ class FrameBuffer():
         self._interrupt = asyncio.Event()
         self.current_frame = None
 
+    async def set_ext_ctrl(self, enable):
+        await self.conn.transfer(ExternalCtrlCommand(enable=enable, beam_type=1))
+
     async def capture_frame(self, x_range, y_range, *, dwell, latency):
         frame = Frame(x_range, y_range)
         res = array.array('H')
         cmd = RasterScanCommand(cookie=self.conn.get_cookie(), 
-            x_range=x_range, y_range=y_range, dwell=dwell)
+            x_range=x_range, y_range=y_range, dwell=dwell, beam_type=BeamType.Electron)
         async for chunk in self.conn.transfer_multiple(cmd, latency=latency):
             res.extend(chunk)
         frame.fill(res)
