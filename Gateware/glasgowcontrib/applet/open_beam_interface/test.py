@@ -6,7 +6,7 @@ from abc import ABCMeta, abstractmethod
 
 from . import StreamSignature
 from . import Supersampler, RasterScanner, RasterRegion
-from . import CommandParser, CommandExecutor, Command
+from . import CommandParser, CommandExecutor, Command, BeamType
 from . import BusController
 
 
@@ -238,6 +238,41 @@ class OBIAppletTestCase(unittest.TestCase):
 
             self.simulate(dut, [get_testbench,put_testbench], name = "cmd_sync")  
         
+        def test_delay_cmd():
+            def put_testbench():
+                yield from put_stream(dut.usb_stream, 3) #Type
+                yield from put_stream(dut.usb_stream, 123) #Delay
+                yield from put_stream(dut.usb_stream, 234) 
+
+            def get_testbench():
+                yield from get_stream(dut.cmd_stream, {
+                            "type": Command.Type.Delay, 
+                            "payload": {
+                                "delay": 123*256 + 234
+                            }})
+                assert (yield dut.cmd_stream.valid) == 0
+
+            self.simulate(dut, [get_testbench,put_testbench], name = "cmd_delay")  
+        
+        def test_extctrl_cmd():
+            def put_testbench():
+                yield from put_stream(dut.usb_stream, 4) #Type
+                yield from put_stream(dut.usb_stream, 1) #Enable
+                yield from put_stream(dut.usb_stream, 1) #BeamType
+
+            def get_testbench():
+                yield from get_stream(dut.cmd_stream, {
+                            "type": Command.Type.ExternalCtrl, 
+                            "payload": {
+                                "external_ctrl": {
+                                    "enable": 1,
+                                    "beam_type": BeamType.Electron
+                                }
+                            }})
+                assert (yield dut.cmd_stream.valid) == 0
+
+            self.simulate(dut, [get_testbench,put_testbench], name = "cmd_extctrl")  
+        
         def test_rasterregion_cmd():
             def put_testbench():
                 cmd = struct.pack('>BHHHHHH', 0x10, 5, 2, 0x2_00, 9, 1, 0x5_00)
@@ -342,6 +377,8 @@ class OBIAppletTestCase(unittest.TestCase):
             self.simulate(dut, [get_testbench,put_testbench], name = "cmd_vectorpixel")  
 
         test_synchronize_cmd()
+        test_delay_cmd()
+        test_extctrl_cmd()
         test_rasterregion_cmd()
         test_rasterpixel_cmd()
         test_rasterpixelrun_cmd()
