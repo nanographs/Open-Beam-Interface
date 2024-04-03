@@ -563,7 +563,7 @@ class CommandExecutor(wiring.Component):
     def elaborate(self, platform):
         m = Module()
 
-        delay_counter = Signal()
+        delay_counter = Signal(DwellTime)
 
         m.submodules.bus_controller = bus_controller = BusController(adc_half_period=3, adc_latency=self.adc_latency)
         m.submodules.supersampler   = self.supersampler
@@ -641,7 +641,7 @@ class CommandExecutor(wiring.Component):
                     with m.Case(Command.Type.ExternalCtrl):
                         with m.If(command.payload.external_ctrl.beam_type == BeamType.Electron):
                             m.d.sync += self.ext_ebeam_enable.eq(command.payload.external_ctrl.enable)
-                        with m.If(command.payload.external_ctrl.beam_type == BeamType.Ion):
+                        with m.Elif(command.payload.external_ctrl.beam_type == BeamType.Ion):
                             m.d.sync += self.ext_ibeam_enable.eq(command.payload.external_ctrl.enable)
                         m.next = "Fetch"
 
