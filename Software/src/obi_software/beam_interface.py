@@ -198,6 +198,8 @@ class CommandType(enum.IntEnum):
     Synchronize         = 0x00
     Abort               = 0x01
     Flush               = 0x02
+    Delay               = 0x03
+    ExternalCtrl        = 0x04
 
     RasterRegion        = 0x10
     RasterPixels        = 0x11
@@ -229,9 +231,22 @@ class AbortCommand(Command):
         stream.send(cmd)
         await stream.flush()
 
+class DelayCommand(Command):
+    def __init__(self, delay):
+        assert delay <= 65536
+        self._delay = delay
+    async def transfer(self, stream: Stream):
+        cmd = struct.pack(">BH", CommandType.Delay, self._delay)
+        stream.send(cmd)
+        await stream.flush()
+
 class BeamType(enum.IntEnum):
     Electron = 0x01
     Ion = 0x02
+
+# Scan Selector board uses TE 1462051-2 Relay
+# Switching delay is 20 ms
+RELAY_DELAY_CYCLES = int(20 * pow(10, -6) / (1/(48 * pow(10,6))))
 class ExternalCtrlCommand(Command):
     def __init__(self, enable, beam_type):
         assert enable <= 1
@@ -241,8 +256,9 @@ class ExternalCtrlCommand(Command):
 
     async def transfer(self, stream: Stream):
         cmd = struct.pack(">BBB", CommandType.ExternalCtrl, self._enable, self._beam_type)
-        stream.send(cmd)
+        await DelayCommand(RELAY_DELAY_CYCLES).transfer(stream)
         await stream.flush()
+
 
 
 @dataclass
@@ -489,6 +505,7 @@ class RasterScanCommand(Command):
 
     @Command.log_transfer
     async def transfer(self, stream: Stream, latency: int):
+        await ExternalCtrlCommand(enable=1).transfer(stream)
         await SynchronizeCommand(cookie=self._cookie, raster_mode=True).transfer(stream)
         await _RasterRegionCommand(x_range=self._x_range, y_range=self._y_range).transfer(stream)
         total, done = self._x_range.count * self._y_range.count, 0
@@ -496,6 +513,7 @@ class RasterScanCommand(Command):
             yield chunk
             done += len(chunk)
             self._logger.debug(f"total={total} done={done}")
+        await ExternalCtrlCommand(enable=0).transfer(stream)
 
 class RasterFreeScanCommand(Command):
     def __init__(self, *, cookie: int, x_range: DACCodeRange, y_range: DACCodeRange, dwell: DwellTime, interrupt: asyncio.Event):
@@ -586,7 +604,6 @@ async def main():
     # fb.output_pgm(res, x_range, y_range)
 
     await fb.free_scan(x_range, y_range, dwell=2, latency=0x10000)
-
 
 
 if __name__ == '__main__':

@@ -383,7 +383,8 @@ class Command(data.Struct):
         Synchronize         = 0x00
         Abort               = 0x01
         Flush               = 0x02
-        ExternalCtrl        = 0x03
+        Delay               = 0x03
+        ExternalCtrl        = 0x04
 
         RasterRegion        = 0x10
         RasterPixel         = 0x11
@@ -398,6 +399,11 @@ class Command(data.Struct):
             "cookie":           Cookie,
             "raster_mode":      1,
         }),
+        "delay": DwellTime,
+        "external_ctrl":       data.StructLayout({
+            "enable": 1,
+            "beam_type": BeamType,
+        }),
         "raster_region":    RasterRegion,
         "raster_pixel":     DwellTime,
         "raster_pixel_run": data.StructLayout({
@@ -408,10 +414,6 @@ class Command(data.Struct):
             "x_coord":          14,
             "y_coord":          14,
             "dwell_time":       DwellTime,
-        }),
-        "external_ctrl":       data.StructLayout({
-            "enable": 1,
-            "beam_type": BeamType,
         })
     })
 
@@ -440,10 +442,13 @@ class CommandParser(wiring.Component):
 
                         with m.Case(Command.Type.Flush):
                             m.next = "Submit"
+
+                        with m.Case(Command.Type.Delay):
+                            m.next = "Payload_Delay_High"
                         
                         with m.Case(Command.Type.ExternalCtrl):
                             m.next = "Payload_ExternalCtrl_1"
-
+                        
                         with m.Case(Command.Type.RasterRegion):
                             m.next = "Payload_Raster_Region_1_High"
 
@@ -478,6 +483,9 @@ class CommandParser(wiring.Component):
                 "Payload_Synchronize_1", "Payload_Synchronize_2")
             Deserialize(command.payload.synchronize.raster_mode,
                 "Payload_Synchronize_2", "Submit")
+            
+            DeserializeWord(command.payload.delay,
+                "Payload_Delay", "Submit")
             
             Deserialize(command.payload.external_ctrl.enable,
                 "Payload_ExternalCtrl_1", "Payload_ExternalCtrl_2")
@@ -545,19 +553,17 @@ class CommandExecutor(wiring.Component):
 
     # Input to Scan Selector Relay Board
     ext_ebeam_enable: Out(1)
+    ext_ibeam_enable: Out(1)
 
-    def __init__(self, *, adc_latency=6, switch_delay_ms = 20):
+    def __init__(self, *, adc_latency=6):
         self.adc_latency = 6
-        self.switch_delay_ms = switch_delay_ms
         self.supersampler = Supersampler()
         super().__init__()
 
     def elaborate(self, platform):
         m = Module()
 
-        # Scan Selector board uses TE 1462051-2 Relay
-        relay_delay_cycles = int(self.switch_delay_ms * (1/(48 * pow(10,6)))) + 1
-        relay_delay_counter = Signal()
+        delay_counter = Signal()
 
         m.submodules.bus_controller = bus_controller = BusController(adc_half_period=3, adc_latency=self.adc_latency)
         m.submodules.supersampler   = self.supersampler
@@ -625,14 +631,19 @@ class CommandExecutor(wiring.Component):
                         m.d.sync += self.flush.eq(1)
                         m.next = "Fetch"
                     
-                    with m.Case(Command.Type.ExternalCtrl):
-                        with m.If(command.payload.external_ctrl.beam_type == BeamType.Electron):
-                            m.d.sync += self.electron_beam_enable.eq(command.payload.external_ctrl.enable)
-                        with m.If(relay_delay_counter == relay_delay_cycles):
-                            m.d.sync += relay_delay_counter.eq(0)
+                    with m.Case(Command.Type.Delay):
+                        with m.If(delay_counter == command.payload.delay):
+                            m.d.sync += delay_counter.eq(0)
                             m.next = "Fetch"
                         with m.Else():
-                            m.d.sync += relay_delay_counter.eq(relay_delay_counter - 1)
+                            m.d.sync += delay_counter.eq(delay_counter + 1)
+
+                    with m.Case(Command.Type.ExternalCtrl):
+                        with m.If(command.payload.external_ctrl.beam_type == BeamType.Electron):
+                            m.d.sync += self.ext_ebeam_enable.eq(command.payload.external_ctrl.enable)
+                        with m.If(command.payload.external_ctrl.beam_type == BeamType.Ion):
+                            m.d.sync += self.ext_ibeam_enable.eq(command.payload.external_ctrl.enable)
+                        m.next = "Fetch"
 
 
                     with m.Case(Command.Type.RasterRegion):
@@ -817,7 +828,8 @@ class OBISubtarget(wiring.Component):
         ]
 
         if not self.sim:
-            self.pads.o.ext_ebeam_enable.eq(executor.ext_ebeam_enable)
+            self.pads.ext_ebeam_enable_t.o.eq(executor.ext_ebeam_enable)
+            self.pads.ext_ibeam_enable_t.o.eq(executor.ext_ibeam_enable)
 
             control = platform.request("control")
             data = platform.request("data")
@@ -860,7 +872,7 @@ class OBIApplet(GlasgowApplet):
         super().add_build_arguments(parser, access)
 
         access.add_pin_argument(parser, "ext_ebeam_enable", default=True)
-        access.add_pin_argument(parser, "ext_i beam_enable", default=True)
+        access.add_pin_argument(parser, "ext_ibeam_enable", default=True)
 
         parser.add_argument("--loopback",
             dest = "loopback", action = 'store_true',
