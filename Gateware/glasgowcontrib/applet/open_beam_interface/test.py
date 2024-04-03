@@ -479,6 +479,14 @@ class OBIAppletTestCase(unittest.TestCase):
     def test_command_executor_test(self):
 
         class TestCommand:
+
+            @property
+            def _timeout_steps(self):
+                if hasattr(self, "timeout_steps"):
+                    return self.timeout_steps
+                else:
+                    return 100
+            
             @property
             @abstractmethod
             def _command(self):
@@ -490,13 +498,13 @@ class OBIAppletTestCase(unittest.TestCase):
                 pass
 
             def _put_testbench(self, dut):
-                yield from put_stream(dut.cmd_stream, self._command, timeout_steps=200)
+                yield from put_stream(dut.cmd_stream, self._command, timeout_steps=2*self._timeout_steps)
             
             def _get_testbench(self, dut):
                 n = 0
                 print(f"getting {len(self._response)} responses")
                 for res in self._response:
-                    yield from get_stream(dut.img_stream, res, timeout_steps=100)
+                    yield from get_stream(dut.img_stream, res, timeout_steps=self._timeout_steps)
                     n += 1
                     print(f"got {n} responses")
 
@@ -518,9 +526,10 @@ class OBIAppletTestCase(unittest.TestCase):
                     yield from testbench
 
         class TestSyncCommand(TestCommand):
-            def __init__(self, cookie, raster_mode):
+            def __init__(self, cookie, raster_mode, timeout_steps=100):
                 self._cookie = cookie
                 self._raster_mode = raster_mode
+                self.timeout_steps = timeout_steps
             
             @property
             def _command(self):
@@ -540,6 +549,7 @@ class OBIAppletTestCase(unittest.TestCase):
         class TestDelayCommand(TestCommand):
             def __init__(self, delay):
                 self._delay = delay
+                self.timeout_steps = delay
             
             @property
             def _command(self):
@@ -552,6 +562,7 @@ class OBIAppletTestCase(unittest.TestCase):
             @property
             def _response(self):
                 return []
+
         
         class TestExtCtrlCommand(TestCommand):
             def __init__(self, enable, beam_type):
@@ -669,12 +680,15 @@ class OBIAppletTestCase(unittest.TestCase):
             test_seq = TestCommandSequence()
             test_seq.add(TestExtCtrlCommand(1, BeamType.Electron))
             test_seq.add(TestDelayCommand(960))
-            test_seq.add(TestSyncCommand(505, 1))
+            test_seq.add(TestSyncCommand(505, 1, timeout_steps = 1000))
             test_seq.add(TestRasterRegionCommand(5, 3, 0x2_00, 9, 2, 0x5_00))
             test_seq.add(TestRasterPixelRunCommand(5, 1))
 
+            self.simulate(test_seq.dut, [test_seq._put_testbench, test_seq._get_testbench], name="exec_extenable")
+
         
         test_exec_rasterscan()
+        test_ext_enable_scan()
 
         
 
