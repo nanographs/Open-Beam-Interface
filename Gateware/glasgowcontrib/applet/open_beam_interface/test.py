@@ -537,6 +537,42 @@ class OBIAppletTestCase(unittest.TestCase):
             def _response(self):
                 return [65535, self._cookie]
         
+        class TestDelayCommand(TestCommand):
+            def __init__(self, delay):
+                self._delay = delay
+            
+            @property
+            def _command(self):
+                return {"type": Command.Type.Delay,
+                        "payload": {
+                            "delay": self._delay
+                            }
+                        }
+                    
+            @property
+            def _response(self):
+                return []
+        
+        class TestExtCtrlCommand(TestCommand):
+            def __init__(self, enable, beam_type):
+                self._enable = enable
+                self._beam_type = beam_type
+            
+            @property
+            def _command(self):
+                return {"type": Command.Type.ExternalCtrl,
+                        "payload": {
+                            "external_ctrl": {
+                                "enable": self._enable,
+                                "beam_type": self._beam_type
+                                }
+                            }
+                        }
+                    
+            @property
+            def _response(self):
+                return []
+        
         class TestRasterRegionCommand(TestCommand):
             def __init__(self, x_start, x_count, x_step, y_start, y_count, y_step):
                 self._x_start = x_start
@@ -628,6 +664,15 @@ class OBIAppletTestCase(unittest.TestCase):
             test_seq.add(TestSyncCommand(502, 1))
 
             self.simulate(test_seq.dut, [test_seq._put_testbench, test_seq._get_testbench], name="exec_rasterscan")
+        
+        def test_ext_enable_scan():
+            test_seq = TestCommandSequence()
+            test_seq.add(TestExtCtrlCommand(1, BeamType.Electron))
+            test_seq.add(TestDelayCommand(960))
+            test_seq.add(TestSyncCommand(505, 1))
+            test_seq.add(TestRasterRegionCommand(5, 3, 0x2_00, 9, 2, 0x5_00))
+            test_seq.add(TestRasterPixelRunCommand(5, 1))
+
         
         test_exec_rasterscan()
 
