@@ -3,7 +3,12 @@ import asyncio
 import numpy as np
 import logging
 import tifffile
-from beam_interface import RasterScanCommand, RasterFreeScanCommand, setup_logging, DACCodeRange, BeamType, ExternalCtrlCommand
+
+if __name__ == "__main__":
+    from beam_interface import RasterScanCommand, RasterFreeScanCommand, setup_logging, DACCodeRange, BeamType, ExternalCtrlCommand
+else:
+    from obi_software.beam_interface import RasterScanCommand, RasterFreeScanCommand, setup_logging, DACCodeRange, BeamType, ExternalCtrlCommand
+
 
 setup_logging({"Command": logging.DEBUG, "Stream": logging.DEBUG})
 

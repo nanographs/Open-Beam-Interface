@@ -15,6 +15,9 @@ requires-python = ">=3.12"
 readme = "README.md"
 license = {text = "\"0BSD OR Apache-2.0\""}
 
+[project.scripts]
+obi_gui = "obi_software.gui:run_gui"
+
 [build-system]
 requires = ["pdm-backend"]
 build-backend = "pdm.backend"

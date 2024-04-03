@@ -7,9 +7,14 @@ from PyQt6.QtWidgets import (QHBoxLayout, QMainWindow,
                              QVBoxLayout, QWidget, QLabel, QGridLayout,
                              QSpinBox)
 
-from beam_interface import Connection, DACCodeRange
-from frame_buffer import FrameBuffer
-from gui_modules.image_display import ImageDisplay
+if __name__ == "__main__":
+    from beam_interface import Connection, DACCodeRange
+    from frame_buffer import FrameBuffer
+    from gui_modules.image_display import ImageDisplay
+else:
+    from obi_software.beam_interface import Connection, DACCodeRange
+    from obi_software.frame_buffer import FrameBuffer
+    from obi_software.gui_modules.image_display import ImageDisplay
 
 import qasync
 from qasync import asyncSlot, asyncClose, QApplication, QEventLoop
