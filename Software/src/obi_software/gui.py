@@ -78,7 +78,7 @@ class Window(QVBoxLayout):
         self.settings.save_btn.clicked.connect(self.save_image)
         self.image_display = ImageDisplay(512,512)
         self.addWidget(self.image_display)
-        self.conn = Connection('localhost', 2222)
+        self.conn = Connection('localhost', 2223)
         self.fb = FrameBuffer(self.conn)
     
     @property
