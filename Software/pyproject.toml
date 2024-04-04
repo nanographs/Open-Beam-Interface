@@ -27,5 +27,5 @@ build-backend = "pdm.backend"
 distribution = true
 
 [tool.pdm.scripts]
-gui.cmd = "python src/obi_software/gui.py"
-debug_gui.cmd = "python src/obi_software/debug_gui.py"
+gui.cmd = "python src/obi_software/gui.py 2223"
+debug_gui.cmd = "python src/obi_software/debug_gui.py 2223"

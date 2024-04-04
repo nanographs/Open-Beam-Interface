@@ -19,6 +19,12 @@ else:
 import qasync
 from qasync import asyncSlot, asyncClose, QApplication, QEventLoop
 
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument("port")
+args = parser.parse_args()
+
 
 
 class SettingBox(QGridLayout):
@@ -78,7 +84,7 @@ class Window(QVBoxLayout):
         self.settings.save_btn.clicked.connect(self.save_image)
         self.image_display = ImageDisplay(512,512)
         self.addWidget(self.image_display)
-        self.conn = Connection('localhost', 2223)
+        self.conn = Connection('localhost', int(args.port))
         self.fb = FrameBuffer(self.conn)
     
     @property
