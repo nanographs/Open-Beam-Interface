@@ -1,0 +1,5 @@
+# !/bin/sh
+
+pipx inject glasgow ./gateware
+pipx install ./software
+
