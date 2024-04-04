@@ -828,10 +828,12 @@ class OBISubtarget(wiring.Component):
         ]
 
         if not self.sim:
-            m.d.comb += self.pads.ext_ebeam_enable_t.oe.eq(1)
-            m.d.comb += self.pads.ext_ebeam_enable_t.o.eq(executor.ext_ebeam_enable)
-            m.d.comb += self.pads.ext_ibeam_enable_t.oe.eq(1)
-            m.d.comb += self.pads.ext_ibeam_enable_t.o.eq(executor.ext_ibeam_enable)
+            if hasattr(self.pads, "ext_ebeam_enable_t"):
+                m.d.comb += self.pads.ext_ebeam_enable_t.oe.eq(1)
+                m.d.comb += self.pads.ext_ebeam_enable_t.o.eq(executor.ext_ebeam_enable)
+            if hasattr(self.pads, "ext_ibeam_enable_t"):
+                m.d.comb += self.pads.ext_ibeam_enable_t.oe.eq(1)
+                m.d.comb += self.pads.ext_ibeam_enable_t.o.eq(executor.ext_ibeam_enable)
 
             control = platform.request("control")
             data = platform.request("data")
@@ -873,8 +875,8 @@ class OBIApplet(GlasgowApplet):
     def add_build_arguments(cls, parser, access):
         super().add_build_arguments(parser, access)
 
-        access.add_pin_argument(parser, "ext_ebeam_enable", default=True)
-        access.add_pin_argument(parser, "ext_ibeam_enable", default=True)
+        access.add_pin_argument(parser, "ext_ebeam_enable", default=None)
+        access.add_pin_argument(parser, "ext_ibeam_enable", default=None)
 
         parser.add_argument("--loopback",
             dest = "loopback", action = 'store_true',
@@ -897,6 +899,8 @@ class OBIApplet(GlasgowApplet):
         return iface.add_subtarget(subtarget)
 
     async def run(self, device, args):
+        await device.set_voltage("AB", 0)
+        await asyncio.sleep(5) 
         iface = await device.demultiplexer.claim_interface(self, self.mux_interface, args)
         return iface
 
