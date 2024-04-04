@@ -828,8 +828,10 @@ class OBISubtarget(wiring.Component):
         ]
 
         if not self.sim:
-            self.pads.ext_ebeam_enable_t.o.eq(executor.ext_ebeam_enable)
-            self.pads.ext_ibeam_enable_t.o.eq(executor.ext_ibeam_enable)
+            m.d.comb += self.pads.ext_ebeam_enable_t.oe.eq(1)
+            m.d.comb += self.pads.ext_ebeam_enable_t.o.eq(executor.ext_ebeam_enable)
+            m.d.comb += self.pads.ext_ibeam_enable_t.oe.eq(1)
+            m.d.comb += self.pads.ext_ibeam_enable_t.o.eq(executor.ext_ibeam_enable)
 
             control = platform.request("control")
             data = platform.request("data")
@@ -895,7 +897,7 @@ class OBIApplet(GlasgowApplet):
         return iface.add_subtarget(subtarget)
 
     async def run(self, device, args):
-        iface = await device.demultiplexer.claim_interface(self, self.mux_interface, args=None)
+        iface = await device.demultiplexer.claim_interface(self, self.mux_interface, args)
         return iface
 
     @classmethod
