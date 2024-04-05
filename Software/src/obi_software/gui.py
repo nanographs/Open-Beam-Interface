@@ -34,7 +34,7 @@ class SettingBox(QGridLayout):
 
     def getval(self):
         return int(self.spinbox.cleanText())
-    
+
     def setval(self, val):
         self.spinbox.setValue(val)
 
@@ -91,7 +91,7 @@ class Window(QVBoxLayout):
         self.fb = FrameBuffer(self.conn)
         self.image_data = ImageData()
         self.addLayout(self.image_data)
-    
+
     # @property
     def parameters(self):
         x_res = self.settings.rx.getval()
@@ -101,25 +101,25 @@ class Window(QVBoxLayout):
         x_range = DACCodeRange(0, x_res, int((16384/x_res)*256))
         y_range = DACCodeRange(0, y_res, int((16384/y_res)*256))
         return x_range, y_range, dwell, latency
-    
+
     def display_image(self, array):
         x_width, y_height = array.shape
         self.image_display.setImage(y_height, x_width, array)
-    
+
     def save_image(self):
         self.fb.current_frame.saveImage_tifffile()
-    
+
     @asyncSlot()
     async def capture_single_frame(self):
         await self.fb.set_ext_ctrl(1)
         await self.capture_frame()
         await self.fb.set_ext_ctrl(0)
-    
+
     async def capture_frame(self):
         x_range, y_range, dwell, latency = self.parameters()
         frame = await self.fb.capture_frame(x_range, y_range, dwell=dwell, latency=latency)
         self.display_image(frame.prepare_for_display())
-    
+
     @asyncSlot()
     async def capture_live(self):
         if self.settings.live_capture_btn.isChecked():
@@ -136,23 +136,29 @@ class Window(QVBoxLayout):
             self.fb._interrupt.set()
             self.settings.live_capture_btn.setText("Start Live Scan")
             self.settings.enable_input()
-    
+
     def interrupt(self):
         self.fb._interrupt.set()
 
-        
-    
+
+
 
 def run_gui():
     app = QApplication(sys.argv)
-    asyncio.set_event_loop(QEventLoop(app))
+
+    event_loop = QEventLoop(app)
+    asyncio.set_event_loop(event_loop)
+
+    app_close_event = asyncio.Event()
+    app.aboutToQuit.connect(app_close_event.set)
 
     w = QWidget()
     window = Window()
     w.setLayout(window)
-    w.show()   
- 
-    app.exec_()
+    w.show()
+
+    with event_loop:
+        event_loop.run_until_complete(app_close_event.wait())
 
 
 if __name__ == "__main__":
