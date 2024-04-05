@@ -99,7 +99,7 @@ class Window(QVBoxLayout):
         self.image_data = ImageData()
         self.addLayout(self.image_data)
     
-    @property
+    # @property
     def parameters(self):
         x_res = self.settings.rx.getval()
         y_res = self.settings.ry.getval()
@@ -123,7 +123,7 @@ class Window(QVBoxLayout):
         await self.fb.set_ext_ctrl(0)
     
     async def capture_frame(self):
-        x_range, y_range, dwell, latency = self.parameters
+        x_range, y_range, dwell, latency = self.parameters()
         frame = await self.fb.capture_frame(x_range, y_range, dwell=dwell, latency=latency)
         self.display_image(frame.prepare_for_display())
     
