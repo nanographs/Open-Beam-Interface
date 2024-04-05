@@ -149,7 +149,7 @@ class Window(QVBoxLayout):
         if self.image_data.measure_btn.isChecked():
             self.image_display.add_line()
             self.image_display.line.sigRegionChanged.connect(self.measure)
-            self.image_data.mag.sigValueChanged.connect(self.measure)
+            self.image_data.mag.spinbox.valueChanged.connect(self.measure)
         else:
             self.image_display.remove_line()
             self.image_data.measure_length.setText("      ")
@@ -184,8 +184,12 @@ class Window(QVBoxLayout):
 
     async def capture_frame(self):
         x_range, y_range, dwell, latency = self.parameters
-        frame = await self.fb.capture_frame(x_range, y_range, dwell=dwell, latency=latency)
-        self.display_image(frame.as_uint8())
+        if self.debug:
+            async for frame in self.fb.capture_frame(x_range, y_range, dwell=dwell, latency=latency):
+                self.display_image(frame.as_uint8())
+        else:
+            frame = await self.fb.capture_frame(x_range, y_range, dwell=dwell, latency=latency)
+            self.display_image(frame.as_uint8())
 
     @asyncSlot()
     async def capture_live(self):
@@ -228,6 +232,7 @@ class Window(QVBoxLayout):
         x_range, y_range, dwell, latency = self.parameters
         await self.fb.set_ext_ctrl(1)
         async for frame in self.fb.free_scan(x_range, y_range, dwell=dwell, latency=latency):
+            print("Got frame")
             self.display_image(frame.as_uint8())
 
 
