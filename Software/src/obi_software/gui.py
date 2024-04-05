@@ -149,22 +149,24 @@ class Window(QVBoxLayout):
         if self.image_data.measure_btn.isChecked():
             self.image_display.add_line()
             self.image_display.line.sigRegionChanged.connect(self.measure)
+            self.image_data.mag.sigValueChanged.connect(self.measure)
         else:
             self.image_display.remove_line()
             self.image_data.measure_length.setText("      ")
 
     def get_pixel_size(self):
         mag = self.image_data.mag.getval()
-        cal = self.config["magnification"]
+        cal = self.config["mag_cal"]
         cal_factor = cal["m_per_pixel"]
         pixel_size = cal_factor/mag
         return pixel_size
 
     def measure(self):
-        pixel_size = self.get_pixel_size()
-        line_length = self.image_display.get_line_length()
-        line_actual_size = line_length*pixel_size
-        self.image_data.measure_length.setText(si_prefix(line_actual_size))
+        if not self.image_display.line == None:
+            pixel_size = self.get_pixel_size()
+            line_length = self.image_display.get_line_length()
+            line_actual_size = line_length*pixel_size
+            self.image_data.measure_length.setText(si_prefix(line_actual_size))
         
 
     def display_image(self, array):

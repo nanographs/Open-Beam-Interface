@@ -74,6 +74,7 @@ class ImageDisplay(pg.GraphicsLayoutWidget):
     def remove_line(self):
         if not self.line == None:
             self.image_view.removeItem(self.line)
+            self.line = None
     
     def get_line_length(self):
         # the pos() and size() functions for LinearROIRegion do not work
@@ -84,6 +85,7 @@ class ImageDisplay(pg.GraphicsLayoutWidget):
     def remove_ROI(self):
         if not self.roi == None:
             self.image_view.removeItem(self.roi)
+            self.roi = None
 
     def get_ROI(self):
         x0, y0 = self.roi.pos() ## upper left corner

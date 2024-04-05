@@ -1,5 +1,5 @@
 [pinout]
 ext-ebeam-enable = 2
 
-[magnification]
+[mag_cal]
 m_per_pixel = 1.2345e-6
