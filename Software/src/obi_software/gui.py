@@ -185,11 +185,9 @@ class Window(QVBoxLayout):
     @asyncSlot()
     async def free_scan(self):
         x_range, y_range, dwell, latency = self.parameters
+        await self.fb.set_ext_ctrl(1)
         async for frame in self.fb.free_scan(x_range, y_range, dwell=dwell, latency=latency):
-            self.display_image(frame.prepare_for_display())
-
-
-
+            self.display_image(frame.as_uint8())
 
 
 def run_gui():
