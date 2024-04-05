@@ -93,7 +93,7 @@ class DebugWindow(Window):
     async def free_scan(self):
         x_range, y_range, dwell, latency = self.parameters
         async for frame in self.fb.free_scan(x_range, y_range, dwell=dwell, latency=latency):
-            self.display_image(self.fb.output_ndarray(x_range, y_range))
+            self.display_image(frame.prepare_for_display())
 
     def interrupt(self):
         self.fb._interrupt.set()

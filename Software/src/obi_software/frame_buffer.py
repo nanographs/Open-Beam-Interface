@@ -73,7 +73,7 @@ class FrameBuffer():
             print(f"free scan yielded chunk of size {len(chunk)}")
             if len(res) > frame.pixels:
                 frame = res[:frame.pixels]
-                res = self._raster_scan_buffer[frame.pixels:]
+                res = res[frame.pixels:]
                 print(f'yielding frame of length {len(frame)}')
                 self.current_frame = frame
                 yield frame
