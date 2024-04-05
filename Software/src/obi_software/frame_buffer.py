@@ -67,15 +67,25 @@ class FrameBuffer():
 
     async def free_scan(self, x_range, y_range, *, dwell, latency):
         frame = Frame(x_range, x_range)
-        res = array.array('H')
-        cmd = RasterFreeScanCommand(cookie=self.conn.get_cookie(), 
-            x_range=x_range, y_range=y_range, dwell=dwell, interrupt=self.conn._interrupt)
-        async for chunk in self.conn.transfer_multiple(cmd, latency=latency):
-            res.extend(chunk)
-            print(f"free scan yielded chunk of size {len(chunk)}")
-            if len(res) > frame.pixels:
-                frame = res[:frame.pixels]
-                res = res[frame.pixels:]
-                print(f'yielding frame of length {len(frame)}')
+        cmd = RasterFreeScanCommand(cookie=self.conn.get_cookie(),
+            x_range=x_range, y_range=y_range, dwell=dwell, beam_type=BeamType.Electron,
+            interrupt=self.conn._interrupt)
+        res = array.array('H', [0]*frame.pixels)
+        ptr = 0
+        async for chunk in self.conn.transfer_multiple(cmd, latency=65536*16):
+            extend_by = frame.pixels - len(res)
+            if extend_by:
+                res.extend(chunk[:extend_by])
+                chunk = chunk[extend_by:]
+                ptr += extend_by
+            rewrite_by = min(frame.pixels, ptr + len(chunk)) - ptr
+            res[ptr:ptr + rewrite_by] = chunk[:rewrite_by]
+            chunk = chunk[rewrite_by:]
+            ptr += rewrite_by
+            if chunk: # rolled over!
+                res[:len(chunk)] = chunk
+                ptr = len(chunk)
+                print(f'captured frame!')
+                frame.fill(res)
                 self.current_frame = frame
                 yield frame
