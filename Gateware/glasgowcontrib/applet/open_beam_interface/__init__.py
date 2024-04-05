@@ -930,7 +930,8 @@ class OBIApplet(GlasgowApplet):
     async def run(self, device, args):
         await device.set_voltage("AB", 0)
         await asyncio.sleep(5)
-        iface = await device.demultiplexer.claim_interface(self, self.mux_interface, args)
+        iface = await device.demultiplexer.claim_interface(self, self.mux_interface, args,
+            read_buffer_size=131072*16)
         return iface
 
     @classmethod
@@ -941,25 +942,39 @@ class OBIApplet(GlasgowApplet):
         class ForwardProtocol(asyncio.Protocol):
             logger = self.logger
 
+            async def reset(self):
+                await iface.reset()
+                self.logger.debug("reset")
+
             def connection_made(self, transport):
-                self.transport = transport
                 self.backpressure = False
                 self.send_paused = False
 
+                transport.set_write_buffer_limits(131072*16)
+
+                self.transport = transport
                 peername = self.transport.get_extra_info("peername")
                 self.logger.info("connect peer=[%s]:%d", *peername[0:2])
 
-                self.init_fut = asyncio.create_task(self.send_data())
+                async def initialize():
+                    await self.reset()
+                    asyncio.create_task(self.send_data())
+                self.init_fut = asyncio.create_task(initialize())
             
             async def send_data(self):
                 self.send_paused = False
-                data = await iface.read(self.transport.get_write_buffer_size(), flush=False)
-                self.logger.debug("dev->net <%s>", dump_hex(data))
-                self.transport.write(data)
-                if self.backpressure:
-                    self.send_paused = True
+                data = await iface.read(flush=False)
+                if self.transport:
+                    self.logger.debug(f"in-buffer size={len(iface._in_buffer)}")
+                    self.logger.debug("dev->net <%s>", dump_hex(data))
+                    self.transport.write(data)
+                    await asyncio.sleep(0)
+                    if self.backpressure:
+                        self.send_paused = True
+                    else:
+                        asyncio.create_task(self.send_data())
                 else:
-                    asyncio.create_task(self.send_data())
+                    self.logger.debug("dev->🗑️ <%s>", dump_hex(data))
             
             def pause_writing(self):
                 self.backpressure = True
@@ -982,9 +997,9 @@ class OBIApplet(GlasgowApplet):
             def connection_lost(self, exc):
                 peername = self.transport.get_extra_info("peername")
                 self.logger.info("disconnect peer=[%s]:%d", *peername[0:2], exc_info=exc)
+                self.transport = None
 
-                await iface.reset()
-                self.logger.debug("reset")
+                asyncio.create_task(self.reset())
 
 
         proto, *proto_args = args.endpoint
