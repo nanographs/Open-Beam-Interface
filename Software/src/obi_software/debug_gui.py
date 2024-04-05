@@ -66,9 +66,9 @@ class DebugWindow(Window):
         self.debug_settings.freescan_btn.clicked.connect(self.free_scan)
         self.debug_settings.interrupt_btn.clicked.connect(self.interrupt)
 
-    # @property
+    @property
     def parameters(self):
-        x_range, y_range, dwell, default_latency = super().parameters()
+        x_range, y_range, dwell, default_latency = super().parameters
         latency = self.debug_settings.latency.getval()
         return x_range, y_range, dwell, latency
 
