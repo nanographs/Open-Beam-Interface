@@ -31,6 +31,35 @@ def StreamSignature(data_layout):
     })
 
 
+#=========================================================================
+
+class SkidBuffer(wiring.Component):
+    def __init__(self, data_layout, *, depth):
+        self.width = Shape.cast(data_layout).width
+        self.depth = depth
+        super().__init__({
+            "i": In(StreamSignature(data_layout)),
+            "o": Out(StreamSignature(data_layout)),
+        })
+    
+    def elaborate(self, platform):
+        m = Module()
+
+        m.submodules.fifo = fifo = \
+            SyncFIFOBuffered(depth=self.depth, width=self.width)
+        m.d.comb += [
+            fifo.w_data.eq(self.i.payload),
+            fifo.w_en.eq(self.i.valid),
+            self.i.ready.eq(fifo.level <= 1),
+            self.o.payload.eq(fifo.r_data),
+            self.o.valid.eq(fifo.r_rdy),
+            fifo.r_en.eq(self.o.ready),
+        ]
+
+        return m
+
+#=========================================================================
+
 BusSignature = wiring.Signature({
     "adc_clk":  Out(1),
     "adc_le_clk":   Out(1),
@@ -127,20 +156,16 @@ class BusController(wiring.Component):
         # Queue; as above
         last_sample = Signal(self.adc_latency)
 
-        m.submodules.adc_stream_fifo = adc_stream_fifo = \
-            SyncFIFOBuffered(depth=self.adc_latency, width=len(self.adc_stream.payload.as_value()))
-        m.d.comb += [
-            self.adc_stream.payload.eq(adc_stream_fifo.r_data),
-            self.adc_stream.valid.eq(adc_stream_fifo.r_rdy),
-            adc_stream_fifo.r_en.eq(self.adc_stream.ready),
-        ]
+        m.submodules.skid_buffer = skid_buffer = \
+            SkidBuffer(self.adc_stream.payload.shape(), depth=self.adc_latency)
+        wiring.connect(m, flipped(self.adc_stream), skid_buffer.o)
 
         adc_stream_data = Signal.like(self.adc_stream.payload) # FIXME: will not be needed after FIFOs have shapes
         m.d.comb += [
             # Cat(adc_stream_data.adc_code,
             #     adc_stream_data.adc_ovf).eq(self.bus.i),
             adc_stream_data.last.eq(last_sample[self.adc_latency-1]),
-            adc_stream_fifo.w_data.eq(adc_stream_data),
+            skid_buffer.i.payload.eq(adc_stream_data),
         ]
 
         dac_stream_data = Signal.like(self.dac_stream.payload)
@@ -157,8 +182,9 @@ class BusController(wiring.Component):
             with m.State("ADC_Read"):
                 #m.d.comb += self.bus.adc_le_clk.eq(1)
                 m.d.comb += self.bus.adc_oe.eq(1)
-                m.d.comb += adc_stream_fifo.w_en.eq(accept_sample[self.adc_latency-1]) # does nothing if ~adc_stream_fifo.w_rdy
-                with m.If(self.dac_stream.valid & adc_stream_fifo.w_rdy):
+                 # buffers up to self.adc_latency samples if skid_buffer.i.ready
+                m.d.comb += skid_buffer.i.valid.eq(accept_sample[self.adc_latency-1])
+                with m.If(self.dac_stream.valid & skid_buffer.i.ready):
                     # Latch DAC codes from input stream.
                     m.d.comb += self.dac_stream.ready.eq(1)
                     m.d.sync += dac_stream_data.eq(self.dac_stream.payload)
@@ -828,6 +854,9 @@ class OBISubtarget(wiring.Component):
         ]
 
         if not self.sim:
+            led = platform.request("led")
+            m.d.comb += led.o.eq(~serializer.usb_stream.ready)
+
             if hasattr(self.pads, "ext_ebeam_enable_t"):
                 m.d.comb += self.pads.ext_ebeam_enable_t.oe.eq(1)
                 m.d.comb += self.pads.ext_ebeam_enable_t.o.eq(executor.ext_ebeam_enable)
