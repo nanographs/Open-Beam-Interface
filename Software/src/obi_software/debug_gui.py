@@ -1,5 +1,7 @@
-import asyncio
 import sys
+import argparse
+import asyncio
+
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore
 from PyQt6.QtWidgets import (QHBoxLayout, QMainWindow,
@@ -16,7 +18,9 @@ from qasync import asyncSlot, asyncClose, QApplication, QEventLoop
 
 from gui import Window, Settings
 
-
+parser = argparse.ArgumentParser()
+parser.add_argument("port")
+args = parser.parse_args()
 
 class SettingBox(QGridLayout):
     def __init__(self, label, lower_limit, upper_limit, initial_val):

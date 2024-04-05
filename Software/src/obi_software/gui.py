@@ -26,7 +26,6 @@ parser.add_argument("port")
 args = parser.parse_args()
 
 
-
 class SettingBox(QGridLayout):
     def __init__(self, label, lower_limit, upper_limit, initial_val):
         super().__init__()
@@ -95,7 +94,7 @@ class Window(QVBoxLayout):
         self.settings.save_btn.clicked.connect(self.save_image)
         self.image_display = ImageDisplay(512,512)
         self.addWidget(self.image_display)
-        self.conn = Connection('localhost', 2223) #int(args.port)
+        self.conn = Connection('localhost', int(args.port))
         self.fb = FrameBuffer(self.conn)
         self.image_data = ImageData()
         self.addLayout(self.image_data)
