@@ -64,7 +64,7 @@ class DebugWindow(Window):
 
     @property
     def parameters(self):
-        x_range, y_range, dwell = super().parameters
+        x_range, y_range, dwell, default_latency = super().parameters
         latency = self.settings.latency.getval()
         return x_range, y_range, dwell, latency
 
