@@ -1,4 +1,6 @@
 import argparse
+import pathlib
+import tomllib
 import asyncio
 import sys
 import pyqtgraph as pg
@@ -15,10 +17,13 @@ from .frame_buffer import FrameBuffer
 from .gui_modules.image_display import ImageDisplay
 
 parser = argparse.ArgumentParser()
+parser.add_argument('--config_path', required=True, 
+                    type=lambda p: pathlib.Path(p).expanduser(), #expand paths starting with ~ to absolute
+                    help='path to microscope.toml')
 parser.add_argument("port")
 parser.add_argument('--debug',action='store_true')
 args = parser.parse_args()
-
+print(f"loading config from {args.config_path}")
 
 class SettingBox(QGridLayout):
     def __init__(self, label, lower_limit, upper_limit, initial_val):
@@ -66,17 +71,26 @@ class Settings(QHBoxLayout):
         self.dwell.spinbox.setEnabled(True)
         self.single_capture_btn.setEnabled(True)
 
+def si_prefix(distance:float):
+    if pow(10, -3) >= distance > pow(10, -6):
+        return f"{distance*pow(10,3):.5f} mm"
+    if pow(10, -6) >= distance > pow(10, -9):
+        return f"{distance*pow(10,6):.5f} µm"
+    if pow(10, -9) >= distance > pow(10, -12):
+        return f"{distance*pow(10,9):.5f} nm"
+    else:
+        return f"{distance:.5f} m"
+
 class ImageData(QHBoxLayout):
     def __init__(self):
         super().__init__()
-        self.mag = SettingBox("Magnification",0, 0, 1000000)
+        self.mag = SettingBox("Magnification",1, 1000000, 1)
         self.addLayout(self.mag)
         self.measure_btn = QPushButton("Measure")
+        self.measure_btn.setCheckable(True)
         self.addWidget(self.measure_btn)
-    def getdata(self):
-        mag = self.mag.getval()
-        return {"Magnification":mag}
-
+        self.measure_length = QLabel("      ")
+        self.addWidget(self.measure_length)
 class DebugSettings(QHBoxLayout):
     def __init__(self):
         super().__init__()
@@ -96,6 +110,10 @@ class Window(QVBoxLayout):
     def __init__(self,debug=False):
         super().__init__()
         self.debug = debug
+        self.config = tomllib.load(open(args.config_path, "rb") )
+        self.conn = Connection('localhost', int(args.port))
+        self.fb = FrameBuffer(self.conn)
+
         self.settings = Settings()
         self.addLayout(self.settings)
         self.settings.single_capture_btn.clicked.connect(self.capture_single_frame)
@@ -103,10 +121,9 @@ class Window(QVBoxLayout):
         self.settings.save_btn.clicked.connect(self.save_image)
         self.image_display = ImageDisplay(512,512)
         self.addWidget(self.image_display)
-        self.conn = Connection('localhost', int(args.port))
-        self.fb = FrameBuffer(self.conn)
         self.image_data = ImageData()
         self.addLayout(self.image_data)
+        self.image_data.measure_btn.clicked.connect(self.toggle_measure)
         if self.debug:
             self.debug_settings = DebugSettings()
             self.addLayout(self.debug_settings)
@@ -127,6 +144,28 @@ class Window(QVBoxLayout):
         x_range = DACCodeRange(0, x_res, int((16384/x_res)*256))
         y_range = DACCodeRange(0, y_res, int((16384/y_res)*256))
         return x_range, y_range, dwell, latency
+    
+    def toggle_measure(self):
+        if self.image_data.measure_btn.isChecked():
+            self.image_display.add_line()
+            self.image_display.line.sigRegionChanged.connect(self.measure)
+        else:
+            self.image_display.remove_line()
+            self.image_data.measure_length.setText("      ")
+
+    def get_pixel_size(self):
+        mag = self.image_data.mag.getval()
+        cal = self.config["magnification"]
+        cal_factor = cal["m_per_pixel"]
+        pixel_size = cal_factor/mag
+        return pixel_size
+
+    def measure(self):
+        pixel_size = self.get_pixel_size()
+        line_length = self.image_display.get_line_length()
+        line_actual_size = line_length*pixel_size
+        self.image_data.measure_length.setText(si_prefix(line_actual_size))
+        
 
     def display_image(self, array):
         x_width, y_height = array.shape

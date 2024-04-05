@@ -1,4 +1,5 @@
 import datetime
+import math
 import numpy as np
 import pyqtgraph as pg
 from pyqtgraph.exporters import Exporter
@@ -43,6 +44,7 @@ class ImageDisplay(pg.GraphicsLayoutWidget):
         self.hist.setLevels(min=0,max=255)
 
         self.roi = None
+        self.line = None
 
         ### reverse the default LUT
         # lut = []
@@ -68,6 +70,16 @@ class ImageDisplay(pg.GraphicsLayoutWidget):
         self.line = pg.LineSegmentROI(positions = ([.25*self.x_width, .25*self.y_height],[.5*self.x_width, .25*self.y_height]))
         self.image_view.addItem(self.line)
         self.line.setZValue(10)  # make sure line is drawn above image
+
+    def remove_line(self):
+        if not self.line == None:
+            self.image_view.removeItem(self.line)
+    
+    def get_line_length(self):
+        # the pos() and size() functions for LinearROIRegion do not work
+        p1, p2 = [point.pos() for point in self.line.endpoints]
+        d = math.sqrt(pow(p1[0] - p2[0],2) + pow(p1[1] - p2[1],2))
+        return d
 
     def remove_ROI(self):
         if not self.roi == None:

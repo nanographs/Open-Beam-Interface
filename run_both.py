@@ -14,5 +14,5 @@ print(glasgow_cmd)
 env = os.environ._data
 env.update({"GLASGOW_OUT_OF_TREE_APPLETS":"I-am-okay-with-breaking-changes"})
 subprocess.Popen(glasgow_cmd,env=env)
-subprocess.Popen(["obi_gui"])
+subprocess.Popen(["obi_gui", "--config-path", "microscope.toml"])
 

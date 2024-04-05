@@ -27,5 +27,5 @@ build-backend = "pdm.backend"
 distribution = true
 
 [tool.pdm.scripts]
-gui.cmd = "python -m obi_software.gui 2223"
-debug_gui.cmd = "python -m obi_software.gui 2223 --debug"
+gui.cmd = "python -m obi_software.gui 2223 --config_path ~/open-beam-interface/microscope.toml"
+debug_gui.cmd = "python -m obi_software.gui 2223 --debug --config_path ~/open-beam-interface/microscope.toml"
