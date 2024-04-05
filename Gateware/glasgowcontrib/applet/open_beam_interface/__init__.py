@@ -41,7 +41,7 @@ class SkidBuffer(wiring.Component):
             "i": In(StreamSignature(data_layout)),
             "o": Out(StreamSignature(data_layout)),
         })
-    
+
     def elaborate(self, platform):
         m = Module()
 
@@ -471,10 +471,10 @@ class CommandParser(wiring.Component):
 
                         with m.Case(Command.Type.Delay):
                             m.next = "Payload_Delay_High"
-                        
+
                         with m.Case(Command.Type.ExternalCtrl):
                             m.next = "Payload_ExternalCtrl_1"
-                        
+
                         with m.Case(Command.Type.RasterRegion):
                             m.next = "Payload_Raster_Region_1_High"
 
@@ -483,7 +483,7 @@ class CommandParser(wiring.Component):
 
                         with m.Case(Command.Type.RasterPixelRun):
                             m.next = "Payload_Raster_Pixel_Run_1_High"
-                        
+
                         with m.Case(Command.Type.RasterPixelFreeRun):
                             m.next = "Payload_Raster_Pixel_FreeRun_High"
 
@@ -509,10 +509,10 @@ class CommandParser(wiring.Component):
                 "Payload_Synchronize_1", "Payload_Synchronize_2")
             Deserialize(command.payload.synchronize.raster_mode,
                 "Payload_Synchronize_2", "Submit")
-            
+
             DeserializeWord(command.payload.delay,
                 "Payload_Delay", "Submit")
-            
+
             Deserialize(command.payload.external_ctrl.enable,
                 "Payload_ExternalCtrl_1", "Payload_ExternalCtrl_2")
             Deserialize(command.payload.external_ctrl.beam_type,
@@ -656,7 +656,7 @@ class CommandExecutor(wiring.Component):
                     with m.Case(Command.Type.Flush):
                         m.d.sync += self.flush.eq(1)
                         m.next = "Fetch"
-                    
+
                     with m.Case(Command.Type.Delay):
                         with m.If(delay_counter == command.payload.delay):
                             m.d.sync += delay_counter.eq(0)
@@ -916,7 +916,7 @@ class OBIApplet(GlasgowApplet):
 
         self.mux_interface = iface = \
             target.multiplexer.claim_interface(self, args, throttle="none")
-        
+
         pads = iface.get_pads(args, pins=self.__pins)
 
         subtarget = OBISubtarget(
@@ -929,7 +929,7 @@ class OBIApplet(GlasgowApplet):
 
     async def run(self, device, args):
         await device.set_voltage("AB", 0)
-        await asyncio.sleep(5) 
+        await asyncio.sleep(5)
         iface = await device.demultiplexer.claim_interface(self, self.mux_interface, args)
         return iface
 
@@ -943,33 +943,49 @@ class OBIApplet(GlasgowApplet):
 
             def connection_made(self, transport):
                 self.transport = transport
+                self.backpressure = False
+                self.send_paused = False
 
                 peername = self.transport.get_extra_info("peername")
-                self.logger.info("new connection from [%s]:%d", *peername[0:2])
+                self.logger.info("connect peer=[%s]:%d", *peername[0:2])
 
-                async def initialize():
-                    self.logger.debug("reset")
-                    await iface.reset()
-
-                    async def send_data():
-                        data = await iface.read(flush=False)
-                        self.logger.debug("dev->ui <%s>", dump_hex(data))
-                        transport.write(data)
-                        asyncio.create_task(send_data())
-                    asyncio.create_task(send_data())
-                self.init_fut = asyncio.create_task(initialize())
+                self.init_fut = asyncio.create_task(self.send_data())
             
-            def connection_lost(self, exc):
-                peername = self.transport.get_extra_info("peername")
-                self.logger.info("connection from [%s]:%d lost", *peername[0:2], exc_info=exc)
+            async def send_data(self):
+                self.send_paused = False
+                data = await iface.read(self.transport.get_write_buffer_size(), flush=False)
+                self.logger.debug("dev->net <%s>", dump_hex(data))
+                self.transport.write(data)
+                if self.backpressure:
+                    self.send_paused = True
+                else:
+                    asyncio.create_task(self.send_data())
+            
+            def pause_writing(self):
+                self.backpressure = True
+                self.logger.debug("dev->NG")
+
+            def resume_writing(self):
+                self.backpressure = False
+                self.logger.debug("dev->OK->net")
+                if self.send_paused:
+                    asyncio.create_task(self.send_data())
 
             def data_received(self, data):
                 async def recv_data():
                     await self.init_fut
-                    self.logger.debug("ui->dev <%s>", dump_hex(data))
+                    self.logger.debug("net->dev <%s>", dump_hex(data))
                     await iface.write(data)
                     await iface.flush(wait=False)
                 asyncio.create_task(recv_data())
+
+            def connection_lost(self, exc):
+                peername = self.transport.get_extra_info("peername")
+                self.logger.info("disconnect peer=[%s]:%d", *peername[0:2], exc_info=exc)
+
+                await iface.reset()
+                self.logger.debug("reset")
+
 
         proto, *proto_args = args.endpoint
         server = await asyncio.get_event_loop().create_server(ForwardProtocol, *proto_args, backlog=1)

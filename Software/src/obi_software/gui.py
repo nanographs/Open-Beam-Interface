@@ -16,6 +16,7 @@ from .gui_modules.image_display import ImageDisplay
 
 parser = argparse.ArgumentParser()
 parser.add_argument("port")
+parser.add_argument('--debug',action='store_true')
 args = parser.parse_args()
 
 
@@ -76,10 +77,25 @@ class ImageData(QHBoxLayout):
         mag = self.mag.getval()
         return {"Magnification":mag}
 
-
-class Window(QVBoxLayout):
+class DebugSettings(QHBoxLayout):
     def __init__(self):
         super().__init__()
+        self.connect_btn = QPushButton("Connect")
+        self.connect_btn.setCheckable(True)
+        self.addWidget(self.connect_btn)
+        self.sync_btn = QPushButton("Sync")
+        self.latency = SettingBox("Latency",0, pow(2,28), pow(2,16))
+        self.addLayout(self.latency)
+        self.freescan_btn = QPushButton("Free Scan")
+        self.addWidget(self.freescan_btn)
+        self.interrupt_btn = QPushButton("Interrupt")
+        self.addWidget(self.interrupt_btn)
+
+
+class Window(QVBoxLayout):
+    def __init__(self,debug=False):
+        super().__init__()
+        self.debug = debug
         self.settings = Settings()
         self.addLayout(self.settings)
         self.settings.single_capture_btn.clicked.connect(self.capture_single_frame)
@@ -91,13 +107,23 @@ class Window(QVBoxLayout):
         self.fb = FrameBuffer(self.conn)
         self.image_data = ImageData()
         self.addLayout(self.image_data)
+        if self.debug:
+            self.debug_settings = DebugSettings()
+            self.addLayout(self.debug_settings)
+            self.debug_settings.connect_btn.clicked.connect(self.toggle_connection)
+            self.debug_settings.sync_btn.clicked.connect(self.request_sync)
+            self.debug_settings.freescan_btn.clicked.connect(self.free_scan)
+            self.debug_settings.interrupt_btn.clicked.connect(self.interrupt)
 
     @property
     def parameters(self):
         x_res = self.settings.rx.getval()
         y_res = self.settings.ry.getval()
         dwell = self.settings.dwell.getval()
-        latency = 65536
+        if self.debug:
+            latency = self.debug_settings.latency.getval()
+        else:
+            latency = 65536
         x_range = DACCodeRange(0, x_res, int((16384/x_res)*256))
         y_range = DACCodeRange(0, y_res, int((16384/y_res)*256))
         return x_range, y_range, dwell, latency
@@ -139,6 +165,29 @@ class Window(QVBoxLayout):
 
     def interrupt(self):
         self.fb._interrupt.set()
+        if self.debug:
+            self.conn._interrupt_scan()
+
+    #### Debug settings
+    @asyncSlot()
+    async def toggle_connection(self):
+        if self.debug_settings.connect_btn.isChecked():
+            await self.conn._connect()
+            self.debug_settings.connect_btn.setText("Disconnect")
+        else:
+            self.conn._disconnect()
+            self.debug_settings.connect_btn.setText("Connect")
+
+    @asyncSlot()
+    async def request_sync(self):
+        await self.conn._synchronize()
+
+    @asyncSlot()
+    async def free_scan(self):
+        x_range, y_range, dwell, latency = self.parameters
+        async for frame in self.fb.free_scan(x_range, y_range, dwell=dwell, latency=latency):
+            self.display_image(frame.prepare_for_display())
+
 
 
 
@@ -153,7 +202,7 @@ def run_gui():
     app.aboutToQuit.connect(app_close_event.set)
 
     w = QWidget()
-    window = Window()
+    window = Window(debug=args.debug)
     w.setLayout(window)
     w.show()
 

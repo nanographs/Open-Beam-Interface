@@ -28,4 +28,4 @@ distribution = true
 
 [tool.pdm.scripts]
 gui.cmd = "python -m obi_software.gui 2223"
-debug_gui.cmd = "python -m obi_software.debug_gui 2223"
+debug_gui.cmd = "python -m obi_software.gui 2223 --debug"

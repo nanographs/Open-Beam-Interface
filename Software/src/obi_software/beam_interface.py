@@ -461,7 +461,6 @@ class _RasterPixelFreeRunCommand(Command):
             stream.send(struct.pack(">B", CommandType.Flush))
             await stream.flush()
 
-
         asyncio.create_task(sender())
 
         while not self._interrupt.is_set():
@@ -532,7 +531,7 @@ class RasterScanCommand(Command):
         async for chunk in _RasterPixelRunCommand(dwell=self._dwell, length=total).transfer(stream, latency):
             yield chunk
             done += len(chunk)
-            self._logger.debug(f"total={total} done={done}")
+            self._logger.debug(f"{total=} {done=}")
 
 class RasterFreeScanCommand(Command):
     def __init__(self, *, cookie: int, x_range: DACCodeRange, y_range: DACCodeRange, dwell: DwellTime, interrupt: asyncio.Event):
@@ -549,13 +548,13 @@ class RasterFreeScanCommand(Command):
     async def transfer(self, stream: Stream, latency: int):
         await SynchronizeCommand(cookie=self._cookie, raster_mode=True).transfer(stream)
         await _RasterRegionCommand(x_range=self._x_range, y_range=self._y_range).transfer(stream)
-        total, done = self._x_range.count * self._y_range.count, 0
+        count = 0
         async for chunk in _RasterPixelFreeRunCommand(dwell=self._dwell, 
                                                 length = total, interrupt=self._interrupt)\
                                                 .transfer(stream, latency):
             yield chunk
-            done += len(chunk)
-            self._logger.debug(f"total={total} done={done}")
+            count += len(chunk)
+            self._logger.debug(f"{count=}")
         self._interrupt.clear()
         self._logger.debug("RasterFreeScanCommand exited and interrupt cleared.")
 
