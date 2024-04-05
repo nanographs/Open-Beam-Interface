@@ -73,6 +73,17 @@ class Settings(QHBoxLayout):
         self.dwell.spinbox.setEnabled(True)
         self.single_capture_btn.setEnabled(True)
 
+class ImageData(QHBoxLayout):
+    def __init__(self):
+        super().__init__()
+        self.mag = SettingBox("Magnification",0, 0, 1000000)
+        self.addLayout(self.mag)
+        self.measure_btn = QPushButton("Measure")
+        self.addWidget(self.measure_btn)
+    def getdata(self):
+        mag = self.mag.getval()
+        return {"Magnification":mag}
+
 
 class Window(QVBoxLayout):
     def __init__(self):
@@ -84,8 +95,10 @@ class Window(QVBoxLayout):
         self.settings.save_btn.clicked.connect(self.save_image)
         self.image_display = ImageDisplay(512,512)
         self.addWidget(self.image_display)
-        self.conn = Connection('localhost', int(args.port))
+        self.conn = Connection('localhost', 2223) #int(args.port)
         self.fb = FrameBuffer(self.conn)
+        self.image_data = ImageData()
+        self.addLayout(self.image_data)
     
     @property
     def parameters(self):
@@ -102,7 +115,7 @@ class Window(QVBoxLayout):
         self.image_display.setImage(y_height, x_width, array)
     
     def save_image(self):
-        self.fb.current_frame.save_image()
+        self.fb.current_frame.saveImage_tifffile()
     
     @asyncSlot()
     async def capture_single_frame(self):

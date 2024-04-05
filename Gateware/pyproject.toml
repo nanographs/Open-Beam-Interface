@@ -20,5 +20,5 @@ includes = ["glasgowcontrib"]
 
 [tool.pdm.scripts]
 _.env = {GLASGOW_OUT_OF_TREE_APPLETS = "I-am-okay-with-breaking-changes"}
-run.cmd = "glasgow -v run open_beam_interface -V 5 --pin-ext-ebeam-enable 2 tcp::2223"
+run.cmd = "glasgow -v run open_beam_interface -V 5 --pin-ext-ebeam-enable 1 tcp::2223"
 test.cmd = "python -m unittest glasgowcontrib.applet.open_beam_interface.test"

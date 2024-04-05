@@ -1,3 +1,4 @@
+import datetime
 import array
 import asyncio
 import numpy as np
@@ -36,9 +37,10 @@ class Frame:
         return ar
     
     def saveImage_tifffile(self):
-        img_name = "saved" + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + ".tif"
-        tifffile.imwrite(f"{img_name}_16bit", self.canvas, shape = (self.x_width, self.y_height), dtype = np.uint16)
-        tifffile.imwrite(f"{img_name}_8bit", self.prepare_for_display(), shape = (self.x_width, self.y_height), dtype = np.uint8)
+        img_name = "saved" + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+        tifffile.imwrite(f"{img_name}_16bit.tif", self.canvas, shape = self.shape, dtype = np.uint16)
+        tifffile.imwrite(f"{img_name}_8bit.tif", self.prepare_for_display(), shape = self.shape, dtype = np.uint8)
+        print(f"{img_name}")
 class FrameBuffer():
     def __init__(self, conn):
         self.conn = conn

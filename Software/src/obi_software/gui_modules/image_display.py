@@ -62,6 +62,12 @@ class ImageDisplay(pg.GraphicsLayoutWidget):
         self.image_view.addItem(self.roi)
         self.roi.setZValue(10)  # make sure ROI is drawn above image
         self.roi.sigRegionChanged.connect(self.get_ROI)
+    
+    def add_line(self):
+        border = pg.mkPen(color = "#00ff00", width = 2)
+        self.line = pg.LineSegmentROI(positions = ([.25*self.x_width, .25*self.y_height],[.5*self.x_width, .25*self.y_height]))
+        self.image_view.addItem(self.line)
+        self.line.setZValue(10)  # make sure line is drawn above image
 
     def remove_ROI(self):
         if not self.roi == None:
@@ -111,5 +117,6 @@ if __name__ == "__main__":
     # image_display.showTest()
     # image_display.add_ROI()
     #image_display.remove_ROI()
+    image_display.add_line()
     image_display.show()
     pg.exec()
