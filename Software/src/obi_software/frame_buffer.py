@@ -5,10 +5,7 @@ import numpy as np
 import logging
 import tifffile
 
-if __name__ == "__main__":
-    from beam_interface import RasterScanCommand, RasterFreeScanCommand, setup_logging, DACCodeRange, BeamType, ExternalCtrlCommand
-else:
-    from obi_software.beam_interface import RasterScanCommand, RasterFreeScanCommand, setup_logging, DACCodeRange, BeamType, ExternalCtrlCommand
+from .beam_interface import RasterScanCommand, RasterFreeScanCommand, setup_logging, DACCodeRange, BeamType, ExternalCtrlCommand
 
 
 setup_logging({"Command": logging.DEBUG, "Stream": logging.DEBUG})
@@ -41,6 +38,7 @@ class Frame:
         tifffile.imwrite(f"{img_name}_16bit.tif", self.canvas, shape = self.shape, dtype = np.uint16)
         tifffile.imwrite(f"{img_name}_8bit.tif", self.prepare_for_display(), shape = self.shape, dtype = np.uint8)
         print(f"{img_name}")
+
 class FrameBuffer():
     def __init__(self, conn):
         self.conn = conn

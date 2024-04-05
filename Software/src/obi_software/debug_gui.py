@@ -3,24 +3,24 @@ import argparse
 import asyncio
 
 import pyqtgraph as pg
-from pyqtgraph.Qt import QtCore
 from PyQt6.QtWidgets import (QHBoxLayout, QMainWindow,
                              QMessageBox, QPushButton,
                              QVBoxLayout, QWidget, QLabel, QGridLayout,
                              QSpinBox)
 
-from beam_interface import Connection, DACCodeRange
-from frame_buffer import FrameBuffer
-from gui_modules.image_display import ImageDisplay
-
 import qasync
 from qasync import asyncSlot, asyncClose, QApplication, QEventLoop
 
-from gui import Window, Settings
+from .beam_interface import Connection, DACCodeRange
+from .frame_buffer import FrameBuffer
+from .gui_modules.image_display import ImageDisplay
+from .gui import Window, Settings
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument("port")
 args = parser.parse_args()
+
 
 class SettingBox(QGridLayout):
     def __init__(self, label, lower_limit, upper_limit, initial_val):
@@ -100,31 +100,17 @@ class DebugWindow(Window):
         self.conn._interrupt_scan()
 
         
-    
-
 def run_gui():
     app = QApplication(sys.argv)
-
-    event_loop = QEventLoop(app)
-    asyncio.set_event_loop(event_loop)
-
-    app_close_event = asyncio.Event()
-    app.aboutToQuit.connect(app_close_event.set)
+    asyncio.set_event_loop(QEventLoop(app))
 
     w = QWidget()
     window = DebugWindow()
     w.setLayout(window)
     w.show() 
 
-    with event_loop:
-        event_loop.run_until_complete(app_close_event.wait())
+    app.exec_()
 
-    return window
 
 if __name__ == "__main__":
     run_gui()
-
-
-
-
-

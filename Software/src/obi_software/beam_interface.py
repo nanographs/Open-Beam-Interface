@@ -9,10 +9,7 @@ import logging
 import inspect
 import random
 
-if __name__ == "__main__":
-    from support import dump_hex
-else:
-    from obi_software.support import dump_hex
+from .support import dump_hex
 
 
 BIG_ENDIAN = (struct.pack('@H', 0x1234) == struct.pack('>H', 0x1234))
