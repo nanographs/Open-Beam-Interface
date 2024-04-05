@@ -15,28 +15,30 @@ class Frame:
     def __init__(self, x_range: DACCodeRange, y_range: DACCodeRange):
         self._x_range = x_range
         self._y_range = y_range
-        self.pixels = self._x_range.count*self._y_range.count
-        self.shape = self._x_range.count, self._y_range.count
-        self.canvas = self._empty
-    
+        self.canvas = np.zeros(shape = self.np_shape, dtype = np.uint16)
+
     @property
-    def _empty(self):
-        return np.zeros(shape = self.shape, dtype = np.uint16)
-    
+    def pixels(self):
+        return self._x_range.count * self._y_range.count
+
+    @property
+    def np_shape(self):
+        return self._x_range.count, self._y_range.count
+
     def fill(self, pixels: array.array):
         assert len(pixels) == self.pixels
-        self.canvas = np.array(pixels, dtype = np.uint16).reshape(self.shape)
-    
-    def prepare_for_display(self):
-        ar = np.left_shift(self.canvas, 2) # align MSB of 14-bit ADC with MSB of int16
-        ar = ar.byteswap() # whyyyyy is this necessary?
-        ar = ar.astype(np.uint8)
-        return ar
-    
+        self.canvas = np.array(pixels, dtype = np.uint16).reshape(self.np_shape)
+
+    def as_uint16(self):
+        return np.left_shift(self.canvas, 2)
+
+    def as_uint8(self):
+        return np.right_shift(self.canvas, 6).astype(np.uint8)
+
     def saveImage_tifffile(self):
         img_name = "saved" + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
-        tifffile.imwrite(f"{img_name}_16bit.tif", self.canvas, shape = self.shape, dtype = np.uint16)
-        tifffile.imwrite(f"{img_name}_8bit.tif", self.prepare_for_display(), shape = self.shape, dtype = np.uint8)
+        tifffile.imwrite(f"{img_name}_16bit.tif", self.as_uint16(), shape = self.np_shape, dtype = np.uint16)
+        tifffile.imwrite(f"{img_name}_8bit.tif", self.as_uint8(), shape = self.np_shape, dtype = np.uint8)
         print(f"{img_name}")
 
 class FrameBuffer():
@@ -51,14 +53,14 @@ class FrameBuffer():
     async def capture_frame(self, x_range, y_range, *, dwell, latency):
         frame = Frame(x_range, y_range)
         res = array.array('H')
-        cmd = RasterScanCommand(cookie=self.conn.get_cookie(), 
+        cmd = RasterScanCommand(cookie=self.conn.get_cookie(),
             x_range=x_range, y_range=y_range, dwell=dwell, beam_type=BeamType.Electron)
         async for chunk in self.conn.transfer_multiple(cmd, latency=latency):
             res.extend(chunk)
         frame.fill(res)
         self.current_frame = frame
         return frame
-    
+
     # async def capture_continous(self, x_range, y_range, *, dwell, latency):
     #     while not self._interrupt.set():
     #         await self.capture_frame(x_range, y_range, dwell=dwell, latency=latency)
