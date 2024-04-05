@@ -74,12 +74,12 @@ class DebugWindow(Window):
 
     @asyncSlot()
     async def toggle_connection(self):
-        if self.settings.connect_btn.isChecked():
+        if self.debug_settings.connect_btn.isChecked():
             await self.conn._connect()
-            self.settings.connect_btn.setText("Disconnect")
+            self.debug_settings.connect_btn.setText("Disconnect")
         else:
             self.conn._disconnect()
-            self.settings.connect_btn.setText("Connect")
+            self.debug_settings.connect_btn.setText("Connect")
 
     @asyncSlot()
     async def request_sync(self):
