@@ -10,7 +10,8 @@ dependencies = ["numpy",
                 "PyQt6",
                 "pyqtgraph",
                 "qasync",
-                "tifffile"]
+                "tifffile",
+                "ome-types"]
 requires-python = ">=3.12"
 readme = "README.md"
 license = {text = "\"0BSD OR Apache-2.0\""}
@@ -29,3 +30,4 @@ distribution = true
 [tool.pdm.scripts]
 gui.cmd = "python -m obi_software.gui 2224 --config_path ~/open-beam-interface/microscope.toml"
 debug_gui.cmd = "python -m obi_software.gui 2224 --debug --config_path ~/open-beam-interface/microscope.toml"
+test.cmd = "python -m unittest test"
