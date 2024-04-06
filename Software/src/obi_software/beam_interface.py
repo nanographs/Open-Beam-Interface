@@ -44,7 +44,6 @@ class Stream:
         buffer = bytearray()
         remain = length
         while remain > 0:
-            print(f'STREAM TRYING TO RECV {remain}')
             data = await self._reader.read(remain)
             if len(data) == 0:
                 raise asyncio.IncompleteReadError
@@ -160,6 +159,7 @@ class Connection:
                 self._synchronized = True
                 break
             except asyncio.LimitOverrunError:
+                print("LimitOverrunError")
                 # If we're here, it means the read buffer has exactly `self.read_buffer_size` bytes
                 # in it (set by the `open_connection(limit=)` argument). A partial response could
                 # still be at the very end of the buffer, so read less than that.
@@ -453,7 +453,6 @@ class _RasterPixelFreeRunCommand(Command):
             for _ in self._iter_chunks(latency):
                 await asyncio.sleep(0)
             stream.send(struct.pack('>BHB', CommandType.Synchronize, 666, 1))
-            stream.send(struct.pack(">B", CommandType.Flush))
             await stream.flush()
 
         asyncio.create_task(sender())
