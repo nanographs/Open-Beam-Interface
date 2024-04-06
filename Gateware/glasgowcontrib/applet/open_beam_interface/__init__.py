@@ -373,11 +373,12 @@ class RasterScanner(wiring.Component):
             with m.State("Scan"):
                 m.d.comb += self.dwell_stream.ready.eq(self.dac_stream.ready)
                 m.d.comb += self.dac_stream.valid.eq(self.dwell_stream.valid)
+                with m.If(self.dac_stream.ready):
+                    with m.If(self.abort):
+                        m.next = "Get-ROI"
                 with m.If(self.dwell_stream.valid & self.dac_stream.ready):
                     # AXI4-Stream §2.2.1
                     # > Once TVALID is asserted it must remain asserted until the handshake occurs.
-                    with m.If(self.abort):
-                        m.next = "Get-ROI"
 
                     with m.If(x_count == 0):
                         with m.If(y_count == 0):
@@ -707,7 +708,6 @@ class CommandExecutor(wiring.Component):
                         m.d.comb += [
                             self.raster_scanner.roi_stream.payload.eq(raster_region),
                             self.raster_scanner.dwell_stream.payload.eq(command.payload.raster_pixel),
-                            self.raster_scanner.dwell_stream.valid.eq(1)
                         ]
                         with m.If(self.cmd_stream.valid):
                             m.d.comb += self.raster_scanner.abort.eq(1)
@@ -717,6 +717,7 @@ class CommandExecutor(wiring.Component):
                         with m.Else():
                             # resynchronization is mandatory after this command
                             m.d.comb += self.raster_scanner.roi_stream.valid.eq(1)
+                            m.d.comb += self.raster_scanner.dwell_stream.valid.eq(1)
                             with m.If(self.raster_scanner.dwell_stream.ready):
                                 m.d.comb += submit_pixel.eq(1)
 
