@@ -8,8 +8,7 @@ import tifffile
 from .beam_interface import RasterScanCommand, RasterFreeScanCommand, setup_logging, DACCodeRange, BeamType, ExternalCtrlCommand
 
 
-# setup_logging({"Command": logging.DEBUG, "Stream": logging.DEBUG})
-
+setup_logging({"Command": logging.DEBUG, "Stream": logging.DEBUG})
 
 class Frame:
     def __init__(self, x_range: DACCodeRange, y_range: DACCodeRange):
@@ -148,22 +147,28 @@ class FrameBuffer():
         n = 0
 
         async for chunk in self.conn.transfer_multiple(cmd, latency=65536*16):
-            print(f"{len(chunk)=}")
+            print(f"have {len(res)=}. got {len(chunk)=}")
             res.extend(chunk)
-            
-            async def slice_chunk(res):
+            print(f"now have {len(res)=}")
+
+            async def slice_chunk():
+                nonlocal res
                 if len(res) >= pixels_per_chunk:
                     to_frame = res[:pixels_per_chunk]
                     res = res[pixels_per_chunk:]
+                    print(f"after slicing {pixels_per_chunk} chunk, have {len(res)}")
                     frame.fill_lines(to_frame)
                     yield frame
                     if len(res) > pixels_per_chunk:
-                        slice_chunk(res)
+                        slice_chunk()
                 else:
                     print(f"need {pixels_per_chunk=}, have {len(res)=}")
 
-            async for frame in slice_chunk(res):
+            async for frame in slice_chunk():
                 yield frame
+        
+        self.conn._synchronized = False
+        await self.conn._synchronize()
 
             # extend_by = frame.pixels - len(res)
             # print(f"{extend_by=}")

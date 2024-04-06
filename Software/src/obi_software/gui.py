@@ -234,6 +234,7 @@ class Window(QVBoxLayout):
         async for frame in self.fb.free_scan(x_range, y_range, dwell=dwell, latency=latency):
             print("Got frame")
             self.display_image(frame.as_uint8())
+        print("Concluded gui.free_scan")
 
 
 def run_gui():
