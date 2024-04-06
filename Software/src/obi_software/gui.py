@@ -150,15 +150,22 @@ class Window(QVBoxLayout):
             self.image_display.add_line()
             self.image_display.line.sigRegionChanged.connect(self.measure)
             self.image_data.mag.spinbox.valueChanged.connect(self.measure)
+            self.settings.rx.spinbox.valueChanged.connect(self.measure)
+            self.settings.ry.spinbox.valueChanged.connect(self.measure)
+            self.measure()
         else:
             self.image_display.remove_line()
             self.image_data.measure_length.setText("      ")
+            self.image_data.mag.spinbox.valueChanged.disconnect(self.measure)
+            self.settings.rx.spinbox.valueChanged.disconnect(self.measure)
+            self.settings.ry.spinbox.valueChanged.disconnect(self.measure)
 
     def get_pixel_size(self):
         mag = self.image_data.mag.getval()
         cal = self.config["mag_cal"]
-        cal_factor = cal["m_per_pixel"]
-        pixel_size = cal_factor/mag
+        cal_factor = cal["m_per_FOV"]
+        full_fov_pixels = max(self.settings.rx.getval(), self.settings.ry.getval())
+        pixel_size = cal_factor/mag/full_fov_pixels
         return pixel_size
 
     def measure(self):
