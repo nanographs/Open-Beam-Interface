@@ -52,6 +52,23 @@ class Stream:
             buffer.extend(data)
         self._logger.debug(f"recv: done")
         return buffer
+    
+    async def recv_until_done(self, length: int, done_sending: asyncio.Event) -> bytearray:
+        self._logger.debug(f"recv: length={length}")
+        buffer = bytearray()
+        remain = length
+        while remain > 0:
+            if done_sending.is_set():
+                self._logger.debug("recv: break on done_sending")
+                break
+            data = await self._reader.read(remain)
+            if len(data) == 0:
+                raise asyncio.IncompleteReadError
+            remain -= len(data)
+            self._logger.debug(f"recv: data=<{dump_hex(data)}> remain={remain}")
+            buffer.extend(data)
+        self._logger.debug(f"recv: done")
+        return buffer
 
     async def xchg(self, data: bytes | bytearray | memoryview, *, recv_length: int) -> bytes:
         self.send(data)
@@ -415,6 +432,7 @@ class _RasterPixelRunCommand(Command):
 
         for commands, pixel_count in self._iter_chunks(latency):
             res = array.array('H', await stream.recv(pixel_count * 2))
+            print(f"{type(res)=}")
             if not BIG_ENDIAN:
                 res.byteswap()
             tokens += 1
@@ -430,7 +448,6 @@ class _RasterPixelFreeRunCommand(Command):
         self._dwell = dwell
         self._interrupt = interrupt
         self._done_sending = asyncio.Event()
-        self._done_receiving = asyncio.Event()
 
     def __repr__(self):
         return f"_RasterPixelFreeRunCommand(dwell={self._dwell})"
@@ -442,31 +459,23 @@ class _RasterPixelFreeRunCommand(Command):
 
     @Command.log_transfer
     async def transfer(self, stream: Stream, latency: int):
-        MAX_PIPELINE = 32
-
-        tokens = MAX_PIPELINE
-        token_fut = asyncio.Future()
 
         async def sender():
-            nonlocal tokens
             stream.send(struct.pack('>BH', CommandType.RasterPixelFreeRun, self._dwell))
             for _ in self._iter_chunks(latency):
                 await asyncio.sleep(0)
             stream.send(struct.pack('>BHB', CommandType.Synchronize, 666, 1))
             await stream.flush()
+            self._done_sending.set()
 
         asyncio.create_task(sender())
 
         for _ in self._iter_chunks(latency):
-            try:
-                data = await asyncio.wait_for(stream.recv(latency*2), 5)
-                res = array.array('H', data)
-                if not BIG_ENDIAN:
-                    res.byteswap()
-                await asyncio.sleep(0)
-                yield res
-            except asyncio.TimeoutError:
-                print("_RasterPixelFreeRunCommand timed out")
+            res = array.array('H', await stream.recv_until_done(latency*2, self._done_sending))
+            if not BIG_ENDIAN:
+                res.byteswap()
+            await asyncio.sleep(0)
+            yield res
 
 
 class _VectorPixelCommand(Command):
