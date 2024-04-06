@@ -15,6 +15,7 @@ from qasync import asyncSlot, asyncClose, QApplication, QEventLoop
 from .beam_interface import Connection, DACCodeRange
 from .frame_buffer import FrameBuffer
 from .gui_modules.image_display import ImageDisplay
+from .gui_modules.settings import SettingBox, SettingBoxWithDefaults
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--config_path', required=True, 
@@ -25,33 +26,16 @@ parser.add_argument('--debug',action='store_true')
 args = parser.parse_args()
 print(f"loading config from {args.config_path}")
 
-class SettingBox(QGridLayout):
-    def __init__(self, label, lower_limit, upper_limit, initial_val):
-        super().__init__()
-        self.name = label
-        self.label = QLabel(label)
-        self.addWidget(self.label,0,1)
 
-        self.spinbox = QSpinBox()
-        self.spinbox.setRange(lower_limit, upper_limit)
-        self.spinbox.setSingleStep(1)
-        self.spinbox.setValue(initial_val)
-        self.addWidget(self.spinbox,1,1)
-
-    def getval(self):
-        return int(self.spinbox.cleanText())
-
-    def setval(self, val):
-        self.spinbox.setValue(val)
 
 class Settings(QHBoxLayout):
     def __init__(self):
         super().__init__()
-        self.rx = SettingBox("X Resolution",128, 16384, 512)
+        self.rx = SettingBoxWithDefaults("X Resolution",128, 16384, 512, ["512","1024", "2048", "4096", "8192", "16384", "Custom"])
         self.addLayout(self.rx)
-        self.ry = SettingBox("Y Resolution",128, 16384, 512)
+        self.ry = SettingBoxWithDefaults("Y Resolution",128, 16384, 512, ["512","1024", "2048", "4096", "8192", "16384", "Custom"])
         self.addLayout(self.ry)
-        self.dwell = SettingBox("Dwell Time",0, 65536, 2)
+        self.dwell = SettingBoxWithDefaults("Dwell Time",0, 65536, 2, ["1","2", "8", "16", "32", "Custom"])
         self.addLayout(self.dwell)
         self.single_capture_btn = QPushButton("Single Capture")
         self.addWidget(self.single_capture_btn)
