@@ -4,7 +4,7 @@ import tomllib
 import asyncio
 import sys
 import pyqtgraph as pg
-from PyQt6.QtWidgets import (QHBoxLayout, QMainWindow,
+from PyQt6.QtWidgets import (QHBoxLayout, QMainWindow, 
                              QMessageBox, QPushButton,
                              QVBoxLayout, QWidget, QLabel, QGridLayout,
                              QSpinBox)
@@ -72,11 +72,11 @@ class Settings(QHBoxLayout):
         self.single_capture_btn.setEnabled(True)
 
 def si_prefix(distance:float):
-    if pow(10, -3) >= distance > pow(10, -6):
+    if 1 >= distance > pow(10, -3):
         return f"{distance*pow(10,3):.5f} mm"
-    if pow(10, -6) >= distance > pow(10, -9):
+    if pow(10, -3) >= distance > pow(10, -6):
         return f"{distance*pow(10,6):.5f} µm"
-    if pow(10, -9) >= distance > pow(10, -12):
+    if pow(10, -6) >= distance > pow(10, -9):
         return f"{distance*pow(10,9):.5f} nm"
     else:
         return f"{distance:.5f} m"

@@ -6,4 +6,4 @@
 ext-ebeam-enable = 2
 
 [mag_cal]
-m_per_FOV = 1.2345e-6
+m_per_FOV = 1.2345e-2
