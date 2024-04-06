@@ -491,9 +491,11 @@ class OBIAppletTestCase(unittest.TestCase):
                 pass
 
             def _put_testbench(self, dut, timeout_steps=100):
+                print(f"put_testbench: {self._command}")
                 yield from put_stream(dut.cmd_stream, self._command, timeout_steps=2*timeout_steps)
             
             def _get_testbench(self, dut, timeout_steps=100):
+                print(f"get_testbench: response to {self._command}")
                 n = 0
                 print(f"getting {len(self._response)} responses")
                 for res in self._response:
@@ -642,8 +644,10 @@ class OBIAppletTestCase(unittest.TestCase):
                 return [0]*self._test_samples
             
             def _put_testbench(self, dut, timeout_steps=100):
+                print("put_testbench: {self._command}")
                 yield from put_stream(dut.cmd_stream, self._command, timeout_steps)
                 n = 0
+                print(f"extending put_testbench for {self._test_samples=}")
                 while True:
                     if n == self._test_samples:
                         break
