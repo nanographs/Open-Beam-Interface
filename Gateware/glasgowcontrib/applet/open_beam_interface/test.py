@@ -476,17 +476,10 @@ class OBIAppletTestCase(unittest.TestCase):
         test_rasterpixel_exec()
         test_rasterpixelrun_exec()
 
-    def test_command_executor_test(self):
+    def test_command_executor_sequences(self):
 
         class TestCommand:
 
-            @property
-            def _timeout_steps(self):
-                if hasattr(self, "timeout_steps"):
-                    return self.timeout_steps
-                else:
-                    return 100
-            
             @property
             @abstractmethod
             def _command(self):
@@ -497,14 +490,14 @@ class OBIAppletTestCase(unittest.TestCase):
             def _response(self):
                 pass
 
-            def _put_testbench(self, dut):
-                yield from put_stream(dut.cmd_stream, self._command, timeout_steps=2*self._timeout_steps)
+            def _put_testbench(self, dut, timeout_steps=100):
+                yield from put_stream(dut.cmd_stream, self._command, timeout_steps=2*timeout_steps)
             
-            def _get_testbench(self, dut):
+            def _get_testbench(self, dut, timeout_steps=100):
                 n = 0
                 print(f"getting {len(self._response)} responses")
                 for res in self._response:
-                    yield from get_stream(dut.img_stream, res, timeout_steps=self._timeout_steps)
+                    yield from get_stream(dut.img_stream, res, timeout_steps=timeout_steps)
                     n += 1
                     print(f"got {n} responses")
 
@@ -513,9 +506,9 @@ class OBIAppletTestCase(unittest.TestCase):
             _put_testbenches = []
             _get_testbenches = []
         
-            def add(self, command: TestCommand):
-                self._put_testbenches.append(command._put_testbench(self.dut))
-                self._get_testbenches.append(command._get_testbench(self.dut))
+            def add(self, command: TestCommand, timeout_steps=100):
+                self._put_testbenches.append(command._put_testbench(self.dut, timeout_steps))
+                self._get_testbenches.append(command._get_testbench(self.dut, timeout_steps))
             
             def _put_testbench(self):
                 for testbench in self._put_testbenches:
@@ -526,10 +519,9 @@ class OBIAppletTestCase(unittest.TestCase):
                     yield from testbench
 
         class TestSyncCommand(TestCommand):
-            def __init__(self, cookie, raster_mode, timeout_steps=100):
+            def __init__(self, cookie, raster_mode):
                 self._cookie = cookie
                 self._raster_mode = raster_mode
-                self.timeout_steps = timeout_steps
             
             @property
             def _command(self):
@@ -649,8 +641,8 @@ class OBIAppletTestCase(unittest.TestCase):
             def _response(self):
                 return [0]*self._test_samples
             
-            def _put_testbench(self, dut):
-                yield from put_stream(dut.cmd_stream, self._command, timeout_steps=100)
+            def _put_testbench(self, dut, timeout_steps=100):
+                yield from put_stream(dut.cmd_stream, self._command, timeout_steps)
                 n = 0
                 while True:
                     if n == self._test_samples:
@@ -663,7 +655,7 @@ class OBIAppletTestCase(unittest.TestCase):
                         yield Tick()
 
         
-        def test_exec_rasterscan():
+        def test_exec_1():
             test_seq = TestCommandSequence()
             test_seq.add(TestSyncCommand(502, 1))
             test_seq.add(TestSyncCommand(505, 1))
@@ -674,21 +666,37 @@ class OBIAppletTestCase(unittest.TestCase):
             test_seq.add(TestSyncCommand(502, 1))
             test_seq.add(TestSyncCommand(502, 1))
 
-            self.simulate(test_seq.dut, [test_seq._put_testbench, test_seq._get_testbench], name="exec_rasterscan")
+            self.simulate(test_seq.dut, [test_seq._put_testbench, test_seq._get_testbench], name="exec_1")
         
-        def test_ext_enable_scan():
+        def test_exec_2():
             test_seq = TestCommandSequence()
             test_seq.add(TestExtCtrlCommand(1, BeamType.Electron))
             test_seq.add(TestDelayCommand(960))
-            test_seq.add(TestSyncCommand(505, 1, timeout_steps = 1000))
+            test_seq.add(TestSyncCommand(505, 1), timeout_steps = 1000)
             test_seq.add(TestRasterRegionCommand(5, 3, 0x2_00, 9, 2, 0x5_00))
             test_seq.add(TestRasterPixelRunCommand(5, 1))
 
-            self.simulate(test_seq.dut, [test_seq._put_testbench, test_seq._get_testbench], name="exec_extenable")
+            self.simulate(test_seq.dut, [test_seq._put_testbench, test_seq._get_testbench], name="exec_2")
+        
+        def test_exec_3():
+            test_seq = TestCommandSequence()
+            test_seq.add(TestSyncCommand(502, 1))
+            test_seq.add(TestSyncCommand(505, 1))
+            test_seq.add(TestExtCtrlCommand(1, BeamType.Electron))
+            test_seq.add(TestDelayCommand(960))
+            test_seq.add(TestRasterRegionCommand(5, 3, 0x2_00, 9, 2, 0x5_00), timeout_steps=960)
+            test_seq.add(TestRasterPixelFreeRunCommand(1, test_samples=20))
+            test_seq.add(TestSyncCommand(502, 1))
+            test_seq.add(TestExtCtrlCommand(1, BeamType.Electron))
+            test_seq.add(TestDelayCommand(960))
+            test_seq.add(TestSyncCommand(502, 1))
+
+            self.simulate(test_seq.dut, [test_seq._put_testbench, test_seq._get_testbench], name="exec_3")
 
         
-        test_exec_rasterscan()
-        test_ext_enable_scan()
+        test_exec_1()
+        test_exec_2()
+        test_exec_3()
 
         
 
