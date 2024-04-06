@@ -77,12 +77,20 @@ class FrameBuffer():
         self.conn = conn
         self._interrupt = asyncio.Event()
         self.current_frame = None
+    
+    def get_frame(self, x_range, y_range):
+        if self.current_frame == None:
+            return Frame(x_range, y_range)
+        elif (x_range == self.current_frame._x_range) & (y_range == self.current_frame._y_range):
+            return self.current_frame
+        else:
+            return Frame(x_range, y_range)
 
     async def set_ext_ctrl(self, enable):
         await self.conn.transfer(ExternalCtrlCommand(enable=enable, beam_type=1))
 
-    async def capture_frame(self, x_range, y_range, *, dwell, latency):
-        frame = Frame(x_range, y_range)
+    async def capture_frame(self, x_range, y_range, *, dwell, latency, frame=None):
+        frame = self.get_frame(x_range,y_range)
         res = array.array('H')
         pixels_per_chunk = self.opt_chunk_size(frame)
         print(f"{pixels_per_chunk=}")
@@ -111,6 +119,7 @@ class FrameBuffer():
 
         print(f"end of frame: {len(res)=}")
         frame.fill_lines(res)
+        self.current_frame = frame
         yield frame
 
             
