@@ -11,7 +11,7 @@ import tifffile
 from .beam_interface import RasterScanCommand, RasterFreeScanCommand, setup_logging, DACCodeRange, BeamType, ExternalCtrlCommand
 from .tiff_export import draw_scalebar
 
-# setup_logging({"Command": logging.DEBUG, "Stream": logging.DEBUG})
+setup_logging({"Command": logging.DEBUG, "Stream": logging.DEBUG})
 
 class Frame:
     def __init__(self, x_range: DACCodeRange, y_range: DACCodeRange):
@@ -148,19 +148,35 @@ class DisplayBuffer():
 class FrameBuffer():
     def __init__(self, conn):
         self.conn = conn
-        self._interrupt = asyncio.Event()
+        self._interrupt = threading.Event()
         self.queue = queue.Queue()
 
     async def set_ext_ctrl(self, enable):
+        print("setting ext control")
         await self.conn.transfer(ExternalCtrlCommand(enable=enable, beam_type=1))
+        print("set ext control done")
     
-    async def capture_frame(self, x_range, y_range, *, dwell, latency, frame=None):
+    async def capture_frame(self, x_range, y_range, *, dwell, latency):
+        print("capture_frame")
         cmd = RasterScanCommand(cookie=self.conn.get_cookie(),
             x_range=x_range, y_range=y_range, dwell=dwell, beam_type=BeamType.Electron)
+        print(f"{cmd=}")
         async for chunk in self.conn.transfer_multiple(cmd, latency=latency):
+            print(f"got {len(chunk)=}")
             res = array.array('H')
             res.extend(chunk)
             self.queue.put(res)
+            print(f"put res in queue. {self.queue.qsize()=}")
+    
+    async def test(self, x_range, y_range, *, dwell, latency):
+        print("Hello World")
+    
+    async def capture_single_frame(self, x_range, y_range, *, dwell, latency):
+        await self.set_ext_ctrl(1)
+        print(f"await capture_frame")
+        await self.capture_frame(x_range, y_range, dwell=dwell, latency=latency)
+        # await self.test(args, kwargs)
+        await self.set_ext_ctrl(0)
 
     async def free_scan(self, x_range, y_range, *, dwell, latency):
         cmd = RasterFreeScanCommand(cookie=self.conn.get_cookie(),
