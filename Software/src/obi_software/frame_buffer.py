@@ -139,7 +139,7 @@ class DisplayBuffer():
             yield frame
 
         print(f"end of frame: {len(res)=}")
-        frame.fill_lines(res)
+        # frame.fill_lines(res)
         self.current_frame = frame
         self.res = res
         yield frame
