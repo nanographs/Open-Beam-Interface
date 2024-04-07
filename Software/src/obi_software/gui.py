@@ -175,12 +175,9 @@ class Window(QVBoxLayout):
 
     async def capture_frame(self):
         x_range, y_range, dwell, latency = self.parameters
-        if self.debug:
-            async for frame in self.fb.capture_frame(x_range, y_range, dwell=dwell, latency=latency):
-                self.display_image(frame.as_uint8())
-        else:
-            frame = await self.fb.capture_frame(x_range, y_range, dwell=dwell, latency=latency)
+        async for frame in self.fb.capture_frame(x_range, y_range, dwell=dwell, latency=latency):
             self.display_image(frame.as_uint8())
+
 
     @asyncSlot()
     async def capture_live(self):
