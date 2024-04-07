@@ -256,7 +256,7 @@ class Window(QVBoxLayout):
 
     def display_image(self, array):
         x_width, y_height = array.shape
-        # self.image_display.setImage(y_height, x_width, array)
+        self.image_display.setImage(y_height, x_width, array)
 
 
     def save_image(self):
@@ -301,13 +301,13 @@ class Window(QVBoxLayout):
         self.display_frame()
     
     def display_frame(self):
-        print("Hello")
-        while True:
+        while self.fb.queue.qsize() > 0:
+            print("Hello")
             print(f"{self.fb.queue.qsize()=}")
             chunk = self.fb.queue.get()
             for frame in self.db.display_image(chunk):
-                self.image_display.showTest()
-                # self.display_image(frame.as_uint8())
+                # self.image_display.showTest()
+                self.display_image(frame.as_uint8())
             self.fb.queue.task_done()
 
 
