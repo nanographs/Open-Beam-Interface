@@ -101,7 +101,6 @@ class DisplayBuffer():
         self.current_frame = None
         self.opt_chunk_size = None
         self.res = array.array('H')
-        self.queue = queue.Queue()
 
     def get_frame(self, x_range, y_range):
         if self.current_frame == None:
