@@ -115,7 +115,7 @@ class ImageDisplay(pg.GraphicsLayoutWidget):
         # test_file = "software/glasgow/applet/video/scan_gen/output_formats/Nanographs Pattern Test Logo and Gradients.bmp"
         # bmp = bmp_import(test_file)
         # array = np.array(bmp).astype(np.uint8)
-        array = np.random.randint(0, 255,size = (512,512))
+        array = np.random.randint(0, 255,size = (self.y_height,self.x_width))
         array = array.astype(np.uint8)
         self.setImage(self.y_height, self.x_width, array)
 

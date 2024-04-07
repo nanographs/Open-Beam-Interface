@@ -432,7 +432,6 @@ class _RasterPixelRunCommand(Command):
 
         for commands, pixel_count in self._iter_chunks(latency):
             res = array.array('H', await stream.recv(pixel_count * 2))
-            print(f"{type(res)=}")
             if not BIG_ENDIAN:
                 res.byteswap()
             tokens += 1

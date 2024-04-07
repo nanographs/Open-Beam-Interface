@@ -1,3 +1,5 @@
+import threading
+import queue
 import os
 import argparse
 import pathlib
@@ -14,7 +16,7 @@ import qasync
 from qasync import asyncSlot, asyncClose, QApplication, QEventLoop
 
 from .beam_interface import Connection, DACCodeRange
-from .frame_buffer import FrameBuffer
+from .frame_buffer import FrameBuffer, DisplayBuffer
 from .gui_modules.image_display import ImageDisplay
 from .gui_modules.settings import SettingBox, SettingBoxWithDefaults
 
@@ -147,6 +149,7 @@ class Window(QVBoxLayout):
         self.config = tomllib.load(open(args.config_path, "rb") )
         self.conn = Connection('localhost', int(args.port))
         self.fb = FrameBuffer(self.conn)
+        self.db = DisplayBuffer()
 
         self.live_settings = LiveSettings()
         self.live_settings.live_capture_btn.clicked.connect(self.capture_live)
@@ -253,7 +256,7 @@ class Window(QVBoxLayout):
 
     def display_image(self, array):
         x_width, y_height = array.shape
-        self.image_display.setImage(y_height, x_width, array)
+        # self.image_display.setImage(y_height, x_width, array)
 
 
     def save_image(self):
@@ -290,8 +293,22 @@ class Window(QVBoxLayout):
     
     async def capture_frame_photo(self):
         x_range, y_range, dwell, latency = self.photo_parameters
-        async for frame in self.fb.capture_frame(x_range, y_range, dwell=dwell, latency=latency):
-            self.display_image(frame.as_uint8())
+        # async for frame in self.fb.capture_frame(x_range, y_range, dwell=dwell, latency=latency):
+        #     self.display_image(frame.as_uint8())
+        self.db.prepare_display(x_range, y_range, dwell=dwell, latency=latency)
+        await self.fb.capture_frame(x_range, y_range, dwell=dwell, latency=latency)
+        # threading.Thread(group=None, target=self.display_frame).start()
+        self.display_frame()
+    
+    def display_frame(self):
+        print("Hello")
+        while True:
+            print(f"{self.fb.queue.qsize()=}")
+            chunk = self.fb.queue.get()
+            for frame in self.db.display_image(chunk):
+                self.image_display.showTest()
+                # self.display_image(frame.as_uint8())
+            self.fb.queue.task_done()
 
 
     @asyncSlot()

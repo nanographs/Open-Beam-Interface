@@ -2,6 +2,8 @@ import os
 import datetime
 import array
 import asyncio
+import threading
+import queue
 import numpy as np
 import logging
 import tifffile
@@ -9,7 +11,7 @@ import tifffile
 from .beam_interface import RasterScanCommand, RasterFreeScanCommand, setup_logging, DACCodeRange, BeamType, ExternalCtrlCommand
 from .tiff_export import draw_scalebar
 
-setup_logging({"Command": logging.DEBUG, "Stream": logging.DEBUG})
+# setup_logging({"Command": logging.DEBUG, "Stream": logging.DEBUG})
 
 class Frame:
     def __init__(self, x_range: DACCodeRange, y_range: DACCodeRange):
@@ -60,6 +62,16 @@ class Frame:
             self.y_ptr = rewrite_lines
         print(f"ending with {self.y_ptr=}")
 
+    def opt_chunk_size(self, dwell):
+        FPS = 30
+        DWELL_NS = 125
+        s_per_frame = 1/FPS
+        dwells_per_frame = s_per_frame/(DWELL_NS*pow(10,-9)*dwell)
+        if dwells_per_frame > self.pixels:
+            return self.pixels
+        else:
+            lines_per_chunk = dwells_per_frame//self._x_count
+            return int(self._x_count*lines_per_chunk)
 
     def as_uint16(self):
         return np.left_shift(self.canvas, 2)
@@ -84,12 +96,13 @@ class Frame:
 
         print(f"saved: {img_name}")
     
-class FrameBuffer():
-    def __init__(self, conn):
-        self.conn = conn
-        self._interrupt = asyncio.Event()
+class DisplayBuffer():
+    def __init__(self):
         self.current_frame = None
-    
+        self.opt_chunk_size = None
+        self.res = array.array('H')
+        self.queue = queue.Queue()
+
     def get_frame(self, x_range, y_range):
         if self.current_frame == None:
             return Frame(x_range, y_range)
@@ -98,117 +111,67 @@ class FrameBuffer():
         else:
             return Frame(x_range, y_range)
 
-    async def set_ext_ctrl(self, enable):
-        await self.conn.transfer(ExternalCtrlCommand(enable=enable, beam_type=1))
+    def prepare_display(self, x_range, y_range, *, dwell, latency, frame=None):
+        self.current_frame = self.get_frame(x_range, y_range)
+        self.opt_chunk_size = self.current_frame.opt_chunk_size(dwell)
 
-    async def capture_frame(self, x_range, y_range, *, dwell, latency, frame=None):
-        frame = self.get_frame(x_range,y_range)
-        res = array.array('H')
-        pixels_per_chunk = self.opt_chunk_size(frame)
-        print(f"{pixels_per_chunk=}")
-        cmd = RasterScanCommand(cookie=self.conn.get_cookie(),
-            x_range=x_range, y_range=y_range, dwell=dwell, beam_type=BeamType.Electron)
-        async for chunk in self.conn.transfer_multiple(cmd, latency=latency):
-            print(f"have {len(res)=}. got {len(chunk)=}")
-            res.extend(chunk)
-            print(f"now have {len(res)=}")
+    def display_image(self, chunk):
+        frame = self.current_frame
+        pixels_per_chunk = self.opt_chunk_size
+        res = self.res
+        print(f"have {len(res)=}. got {len(chunk)=}")
+        res.extend(chunk)
+        print(f"now have {len(res)=}")
 
-            async def slice_chunk():
-                nonlocal res
-                if len(res) >= pixels_per_chunk:
-                    to_frame = res[:pixels_per_chunk]
-                    res = res[pixels_per_chunk:]
-                    print(f"after slicing {pixels_per_chunk} chunk, have {len(res)}")
-                    frame.fill_lines(to_frame)
-                    yield frame
-                    if len(res) > pixels_per_chunk:
-                        yield slice_chunk()
-                else:
-                    print(f"need {pixels_per_chunk=}, have {len(res)=}")
-
-            async for frame in slice_chunk():
+        def slice_chunk():
+            nonlocal res
+            if len(res) >= pixels_per_chunk:
+                to_frame = res[:pixels_per_chunk]
+                res = res[pixels_per_chunk:]
+                print(f"after slicing {pixels_per_chunk} chunk, have {len(res)}")
+                frame.fill_lines(to_frame)
                 yield frame
+                if len(res) > pixels_per_chunk:
+                    yield slice_chunk()
+            else:
+                print(f"need {pixels_per_chunk=}, have {len(res)=}")
+
+        for frame in slice_chunk():
+            yield frame
 
         print(f"end of frame: {len(res)=}")
         frame.fill_lines(res)
         self.current_frame = frame
+        self.res = res
         yield frame
 
-            
-            
-        # frame.fill(res)
-        # self.current_frame = frame
-        # return frame
 
-    # async def capture_continous(self, x_range, y_range, *, dwell, latency):
-    #     while not self._interrupt.set():
-    #         await self.capture_frame(x_range, y_range, dwell=dwell, latency=latency)
+class FrameBuffer():
+    def __init__(self, conn):
+        self.conn = conn
+        self._interrupt = asyncio.Event()
+        self.queue = queue.Queue()
 
-    def opt_chunk_size(self, frame: Frame):
-        FPS = 30
-        DWELL_NS = 125
-        s_per_frame = 1/FPS
-        dwells_per_frame = s_per_frame/(DWELL_NS*pow(10,-9))
-        if dwells_per_frame > frame.pixels:
-            return frame.pixels
-        else:
-            lines_per_chunk = dwells_per_frame//frame._x_count
-            return int(frame._x_count*lines_per_chunk)
+    async def set_ext_ctrl(self, enable):
+        await self.conn.transfer(ExternalCtrlCommand(enable=enable, beam_type=1))
+    
+    async def capture_frame(self, x_range, y_range, *, dwell, latency, frame=None):
+        cmd = RasterScanCommand(cookie=self.conn.get_cookie(),
+            x_range=x_range, y_range=y_range, dwell=dwell, beam_type=BeamType.Electron)
+        async for chunk in self.conn.transfer_multiple(cmd, latency=latency):
+            res = array.array('H')
+            res.extend(chunk)
+            self.queue.put(res)
 
     async def free_scan(self, x_range, y_range, *, dwell, latency):
-        frame = Frame(x_range, x_range)
         cmd = RasterFreeScanCommand(cookie=self.conn.get_cookie(),
             x_range=x_range, y_range=y_range, dwell=dwell, beam_type=BeamType.Electron,
             interrupt=self.conn._interrupt)
-        # res = array.array('H', [0]*frame.pixels)
-        # ptr = 0
-
-        res = array.array('H')
-        pixels_per_chunk = self.opt_chunk_size(frame)
-        n = 0
-
         async for chunk in self.conn.transfer_multiple(cmd, latency=65536*16):
-            print(f"have {len(res)=}. got {len(chunk)=}")
+            res = array.array('H')
             res.extend(chunk)
-            print(f"now have {len(res)=}")
+            self.queue.put(res)
 
-            async def slice_chunk():
-                nonlocal res
-                if len(res) >= pixels_per_chunk:
-                    to_frame = res[:pixels_per_chunk]
-                    res = res[pixels_per_chunk:]
-                    print(f"after slicing {pixels_per_chunk} chunk, have {len(res)}")
-                    frame.fill_lines(to_frame)
-                    yield frame
-                    if len(res) > pixels_per_chunk:
-                        slice_chunk()
-                else:
-                    print(f"need {pixels_per_chunk=}, have {len(res)=}")
-
-            async for frame in slice_chunk():
-                yield frame
-        
         self.conn._synchronized = False
         await self.conn._synchronize()
 
-            # extend_by = frame.pixels - len(res)
-            # print(f"{extend_by=}")
-            # if extend_by:
-            #     res.extend(chunk[:extend_by])
-            #     chunk = chunk[extend_by:]
-            #     ptr += extend_by
-            # rewrite_by = min(frame.pixels, ptr + len(chunk)) - ptr
-            # print(f"{rewrite_by=}")
-            # print(f"res[{ptr}:{ptr}]")
-            # res[ptr:ptr + rewrite_by] = chunk[:rewrite_by]
-            # chunk = chunk[rewrite_by:]
-            # ptr += rewrite_by
-            # print(f"{ptr=}")
-            # if chunk: # rolled over!
-            #     res[:len(chunk)] = chunk
-            #     ptr = len(chunk)
-            #     print(f"{ptr=}")
-            #     print(f'captured frame!')
-            #     frame.fill(res)
-            #     self.current_frame = frame
-            #     yield frame
