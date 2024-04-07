@@ -268,6 +268,7 @@ class Window(QVBoxLayout):
 
     def display_image(self, array):
         x_width, y_height = array.shape
+        print(array)
         self.image_display.setImage(y_height, x_width, array)
 
 
@@ -320,16 +321,20 @@ class Window(QVBoxLayout):
         # self.display_frame()
     
     def display_frame(self):
-        print("display_frame")
-        while self.fb.queue.qsize() == 0:
-            print(f"{self.fb.queue.qsize()=}, waiting")
-        while self.fb.queue.qsize() > 0:
-            print(f"{self.fb.queue.qsize()=}")
-            chunk = self.fb.queue.get()
-            for frame in self.db.display_image(chunk):
-                # self.image_display.showTest()
-                self.display_image(frame.as_uint8())
-            self.fb.queue.task_done()
+        print("display_frame started")
+        # while self.fb.queue.qsize() == 0:
+        #     print(f"{self.fb.queue.qsize()=}, waiting")
+        # while self.fb.queue.qsize() > 0:
+        while not self.db.interrupt.is_set():
+            if self.fb.queue.qsize() > 0:
+                print(f"{self.fb.queue.qsize()=}")
+                chunk = self.fb.queue.get()
+                for frame in self.db.display_frame_partial(chunk):
+                    # self.image_display.showTest()
+                    print(frame)
+                    self.display_image(frame.as_uint8())
+                self.fb.queue.task_done()
+        print("display_frame interrupted")
 
 
     @asyncSlot()
@@ -401,6 +406,7 @@ def run_gui():
         w.resize(args.window_size[0], args.window_size[1])
     w.show()
     pg.exec()
+    window.db.interrupt.set()
     stop_async()
 
     # with event_loop:

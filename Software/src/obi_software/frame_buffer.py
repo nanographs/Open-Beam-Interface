@@ -98,26 +98,44 @@ class Frame:
     
 class DisplayBuffer():
     def __init__(self):
-        self.current_frame = None
-        self.opt_chunk_size = None
-        self.res = array.array('H')
+        self._current_frame = None
+        self._opt_chunk_size = None
+        self._res = array.array('H')
+        self.interrupt = threading.Event()
 
     def get_frame(self, x_range, y_range):
-        if self.current_frame == None:
+        if self._current_frame == None:
             return Frame(x_range, y_range)
-        elif (x_range == self.current_frame._x_range) & (y_range == self.current_frame._y_range):
-            return self.current_frame
+        elif (x_range == self._current_frame._x_range) & (y_range == self._current_frame._y_range):
+            return self._current_frame
         else:
             return Frame(x_range, y_range)
 
     def prepare_display(self, x_range, y_range, *, dwell, latency, frame=None):
-        self.current_frame = self.get_frame(x_range, y_range)
-        self.opt_chunk_size = self.current_frame.opt_chunk_size(dwell)
+        self._current_frame = self.get_frame(x_range, y_range)
+        self._opt_chunk_size = self._current_frame.opt_chunk_size(dwell)
+    
+    def display_frame_whole(self, chunk):
+        frame = self._current_frame
+        res = self._res
+        print(f"have {len(res)=}. got {len(chunk)=}")
+        res.extend(chunk)
+        print(f"now have {len(res)=}. need {frame.pixels}")
 
-    def display_image(self, chunk):
-        frame = self.current_frame
-        pixels_per_chunk = self.opt_chunk_size
-        res = self.res
+        while len(res) >= frame.pixels:
+            pixels = res[:frame.pixels]
+            res = res[frame.pixels:]
+            frame.fill(pixels)
+            yield frame
+            self._current_frame=frame
+        
+        self._res=res
+        self._current_frame=frame
+
+    def display_frame_partial(self, chunk):
+        frame = self._current_frame
+        pixels_per_chunk = self._opt_chunk_size
+        res = self._res
         print(f"have {len(res)=}. got {len(chunk)=}")
         res.extend(chunk)
         print(f"now have {len(res)=}")
@@ -139,9 +157,9 @@ class DisplayBuffer():
             yield frame
 
         print(f"end of frame: {len(res)=}")
-        # frame.fill_lines(res)
-        self.current_frame = frame
-        self.res = res
+        frame.fill_lines(res)
+        self._current_frame = frame
+        self._res = res
         yield frame
 
 
