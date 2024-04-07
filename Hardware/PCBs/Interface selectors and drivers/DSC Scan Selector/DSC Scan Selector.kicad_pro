@@ -2,12 +2,264 @@
   "board": {
     "3dviewports": [],
     "design_settings": {
-      "defaults": {},
-      "diff_pair_dimensions": [],
-      "drc_exclusions": [],
-      "rules": {},
-      "track_widths": [],
-      "via_dimensions": []
+      "defaults": {
+        "apply_defaults_to_fp_fields": false,
+        "apply_defaults_to_fp_shapes": false,
+        "apply_defaults_to_fp_text": false,
+        "board_outline_line_width": 0.09999999999999999,
+        "copper_line_width": 0.19999999999999998,
+        "copper_text_italic": false,
+        "copper_text_size_h": 1.5,
+        "copper_text_size_v": 1.5,
+        "copper_text_thickness": 0.3,
+        "copper_text_upright": false,
+        "courtyard_line_width": 0.049999999999999996,
+        "dimension_precision": 4,
+        "dimension_units": 3,
+        "dimensions": {
+          "arrow_length": 1270000,
+          "extension_offset": 500000,
+          "keep_text_aligned": true,
+          "suppress_zeroes": false,
+          "text_position": 0,
+          "units_format": 1
+        },
+        "fab_line_width": 0.09999999999999999,
+        "fab_text_italic": false,
+        "fab_text_size_h": 1.0,
+        "fab_text_size_v": 1.0,
+        "fab_text_thickness": 0.15,
+        "fab_text_upright": false,
+        "other_line_width": 0.15,
+        "other_text_italic": false,
+        "other_text_size_h": 1.0,
+        "other_text_size_v": 1.0,
+        "other_text_thickness": 0.15,
+        "other_text_upright": false,
+        "pads": {
+          "drill": 0.762,
+          "height": 1.524,
+          "width": 1.524
+        },
+        "silk_line_width": 0.15,
+        "silk_text_italic": false,
+        "silk_text_size_h": 1.0,
+        "silk_text_size_v": 1.0,
+        "silk_text_thickness": 0.15,
+        "silk_text_upright": false,
+        "zones": {
+          "min_clearance": 0.3
+        }
+      },
+      "diff_pair_dimensions": [
+        {
+          "gap": 0.0,
+          "via_gap": 0.0,
+          "width": 0.0
+        }
+      ],
+      "drc_exclusions": [
+        "extra_footprint|181786156|110331144|abf22457-3a24-4026-b526-5119e798529b|00000000-0000-0000-0000-000000000000",
+        "items_not_allowed|179310000|131490000|b72d4e01-51db-40c7-932a-127f10afc5db|00000000-0000-0000-0000-000000000000",
+        "items_not_allowed|179310000|131490000|cb3d75bb-6157-479a-96be-efe7ede74378|00000000-0000-0000-0000-000000000000",
+        "items_not_allowed|179310000|131490000|ed2fc0d1-a516-4a3e-ae55-aeac7b73d46b|00000000-0000-0000-0000-000000000000",
+        "items_not_allowed|179310000|131490000|fc307350-bbfe-46ac-9dcd-c0450f534095|00000000-0000-0000-0000-000000000000",
+        "items_not_allowed|180685000|127490000|a6a3d49a-8d3c-42a5-99a6-2543bf84e657|00000000-0000-0000-0000-000000000000",
+        "items_not_allowed|181310000|125633845|1ea94583-32d2-4e4d-ae57-5e8166855914|00000000-0000-0000-0000-000000000000",
+        "items_not_allowed|181310000|127490000|9e336edf-661d-46e8-961a-5623a288545d|00000000-0000-0000-0000-000000000000",
+        "items_not_allowed|181310000|129346155|1a88e2cc-baa6-426a-9fa8-8d7a9aab5827|00000000-0000-0000-0000-000000000000",
+        "items_not_allowed|183310000|130115000|5c3a80c3-5b19-48a2-89ef-f041ecec4bc8|00000000-0000-0000-0000-000000000000",
+        "items_not_allowed|185166155|129490000|c7fb8171-e3ae-4cbd-a14c-c2afc72d53a0|00000000-0000-0000-0000-000000000000",
+        "items_not_allowed|192453845|97490000|81ad463b-3903-4a66-9fd8-f351594a6285|00000000-0000-0000-0000-000000000000",
+        "items_not_allowed|194309997|96990000|4199c347-feca-416b-969f-b3bf026e10c1|00000000-0000-0000-0000-000000000000",
+        "items_not_allowed|194309997|96990000|964df37b-0060-46fb-b4b3-a271ac7c0fd5|00000000-0000-0000-0000-000000000000",
+        "items_not_allowed|194310000|96865000|2d403a20-5269-49fa-8800-3ca9daaa8f49|00000000-0000-0000-0000-000000000000",
+        "items_not_allowed|194310000|97490000|e326c503-e021-4aaf-8495-493eaab7f9a2|00000000-0000-0000-0000-000000000000",
+        "items_not_allowed|196166155|97490000|a0024ea5-e27a-4b0d-a4b3-312b1adf79a0|00000000-0000-0000-0000-000000000000",
+        "items_not_allowed|203453845|129490000|7562da84-1363-42fa-b7c1-81b7d1daf5e3|00000000-0000-0000-0000-000000000000",
+        "items_not_allowed|205310000|130115000|94b706be-0bf6-47a7-85f5-b850df768dc7|00000000-0000-0000-0000-000000000000",
+        "items_not_allowed|207310000|125633845|f3cdf364-0167-43ad-b4d4-293594946f72|00000000-0000-0000-0000-000000000000",
+        "items_not_allowed|207310000|127490000|346da404-d528-422e-a379-80e55d8154d9|00000000-0000-0000-0000-000000000000",
+        "items_not_allowed|207310000|129346155|c563e625-13b3-45b7-aae1-4a0f01d3c2a2|00000000-0000-0000-0000-000000000000",
+        "items_not_allowed|207935000|127490000|4940e805-a18c-445b-a576-258c6fd655b9|00000000-0000-0000-0000-000000000000",
+        "items_not_allowed|209310000|131490000|3ae151da-ad4f-4361-a0cf-8c9b86ed62ac|00000000-0000-0000-0000-000000000000",
+        "items_not_allowed|209310000|131490000|92e1b161-483c-44b1-a875-3fc0cd7d96d9|00000000-0000-0000-0000-000000000000",
+        "items_not_allowed|209310000|131490000|d6590ff2-95bd-44ef-84ec-acc0a70ba9db|00000000-0000-0000-0000-000000000000",
+        "items_not_allowed|209310000|131490000|eea38e6d-ea19-48ff-9246-047eff5d90c1|00000000-0000-0000-0000-000000000000",
+        "silk_overlap|185410000|105590000|3253796d-4153-40c5-bafc-5e54b43af0a6|509ce169-fb22-478a-aead-4800933b8536",
+        "silk_overlap|185410000|113090000|e75be4b3-be08-48eb-9c8c-c6cf7ad37789|e035cb6c-8d60-4fdd-a1e4-abd6f5c35fc3",
+        "silk_overlap|185410000|120710000|d8961e02-1cff-4454-8176-6612b04e4185|4583d8b5-40b5-433b-a42b-c81dd96977e3",
+        "silk_overlap|203210000|105470000|9755053c-6c96-418a-acea-e07798124e58|bda5ef34-c25b-4d06-8a5c-922406ed495a",
+        "silk_overlap|203210000|113090000|45199780-cefe-4764-aed4-6abfc58080e2|85a59b56-abab-42e4-81e0-88b909185d38",
+        "silk_overlap|203210000|120790000|fd1a33c4-5fc1-46b5-b48c-9a59ad88cb09|f29fe484-e3ab-423f-9e8a-11388c87a3cb"
+      ],
+      "meta": {
+        "version": 2
+      },
+      "rule_severities": {
+        "annular_width": "error",
+        "clearance": "error",
+        "connection_width": "warning",
+        "copper_edge_clearance": "error",
+        "copper_sliver": "warning",
+        "courtyards_overlap": "error",
+        "diff_pair_gap_out_of_range": "error",
+        "diff_pair_uncoupled_length_too_long": "error",
+        "drill_out_of_range": "error",
+        "duplicate_footprints": "warning",
+        "extra_footprint": "warning",
+        "footprint": "error",
+        "footprint_symbol_mismatch": "warning",
+        "footprint_type_mismatch": "ignore",
+        "hole_clearance": "error",
+        "hole_near_hole": "error",
+        "invalid_outline": "error",
+        "isolated_copper": "warning",
+        "item_on_disabled_layer": "error",
+        "items_not_allowed": "error",
+        "length_out_of_range": "error",
+        "lib_footprint_issues": "warning",
+        "lib_footprint_mismatch": "warning",
+        "malformed_courtyard": "error",
+        "microvia_drill_out_of_range": "error",
+        "missing_courtyard": "ignore",
+        "missing_footprint": "warning",
+        "net_conflict": "warning",
+        "npth_inside_courtyard": "ignore",
+        "padstack": "warning",
+        "pth_inside_courtyard": "ignore",
+        "shorting_items": "error",
+        "silk_edge_clearance": "warning",
+        "silk_over_copper": "warning",
+        "silk_overlap": "warning",
+        "skew_out_of_range": "error",
+        "solder_mask_bridge": "error",
+        "starved_thermal": "error",
+        "text_height": "warning",
+        "text_thickness": "warning",
+        "through_hole_pad_without_hole": "error",
+        "too_many_vias": "error",
+        "track_dangling": "warning",
+        "track_width": "error",
+        "tracks_crossing": "error",
+        "unconnected_items": "error",
+        "unresolved_variable": "error",
+        "via_dangling": "warning",
+        "zones_intersect": "error"
+      },
+      "rules": {
+        "max_error": 0.005,
+        "min_clearance": 0.127,
+        "min_connection": 0.127,
+        "min_copper_edge_clearance": 0.381,
+        "min_hole_clearance": 0.127,
+        "min_hole_to_hole": 0.127,
+        "min_microvia_diameter": 0.508,
+        "min_microvia_drill": 0.254,
+        "min_resolved_spokes": 2,
+        "min_silk_clearance": 0.0,
+        "min_text_height": 0.7999999999999999,
+        "min_text_thickness": 0.07619999999999999,
+        "min_through_hole_diameter": 0.254,
+        "min_track_width": 0.127,
+        "min_via_annular_width": 0.1016,
+        "min_via_diameter": 0.508,
+        "solder_mask_to_copper_clearance": 0.0,
+        "use_height_for_length_calcs": true
+      },
+      "teardrop_options": [
+        {
+          "td_onpadsmd": true,
+          "td_onroundshapesonly": false,
+          "td_ontrackend": false,
+          "td_onviapad": true
+        }
+      ],
+      "teardrop_parameters": [
+        {
+          "td_allow_use_two_tracks": true,
+          "td_curve_segcount": 0,
+          "td_height_ratio": 1.0,
+          "td_length_ratio": 0.5,
+          "td_maxheight": 2.0,
+          "td_maxlen": 1.0,
+          "td_on_pad_in_zone": false,
+          "td_target_name": "td_round_shape",
+          "td_width_to_size_filter_ratio": 0.9
+        },
+        {
+          "td_allow_use_two_tracks": true,
+          "td_curve_segcount": 0,
+          "td_height_ratio": 1.0,
+          "td_length_ratio": 0.5,
+          "td_maxheight": 2.0,
+          "td_maxlen": 1.0,
+          "td_on_pad_in_zone": false,
+          "td_target_name": "td_rect_shape",
+          "td_width_to_size_filter_ratio": 0.9
+        },
+        {
+          "td_allow_use_two_tracks": true,
+          "td_curve_segcount": 0,
+          "td_height_ratio": 1.0,
+          "td_length_ratio": 0.5,
+          "td_maxheight": 2.0,
+          "td_maxlen": 1.0,
+          "td_on_pad_in_zone": false,
+          "td_target_name": "td_track_end",
+          "td_width_to_size_filter_ratio": 0.9
+        }
+      ],
+      "track_widths": [
+        0.0,
+        0.25,
+        0.3,
+        0.35,
+        0.4,
+        0.5,
+        1.0
+      ],
+      "tuning_pattern_settings": {
+        "diff_pair_defaults": {
+          "corner_radius_percentage": 80,
+          "corner_style": 1,
+          "max_amplitude": 1.0,
+          "min_amplitude": 0.2,
+          "single_sided": false,
+          "spacing": 1.0
+        },
+        "diff_pair_skew_defaults": {
+          "corner_radius_percentage": 80,
+          "corner_style": 1,
+          "max_amplitude": 1.0,
+          "min_amplitude": 0.2,
+          "single_sided": false,
+          "spacing": 0.6
+        },
+        "single_track_defaults": {
+          "corner_radius_percentage": 80,
+          "corner_style": 1,
+          "max_amplitude": 1.0,
+          "min_amplitude": 0.2,
+          "single_sided": false,
+          "spacing": 0.6
+        }
+      },
+      "via_dimensions": [
+        {
+          "diameter": 0.0,
+          "drill": 0.0
+        },
+        {
+          "diameter": 0.508,
+          "drill": 0.254
+        },
+        {
+          "diameter": 0.8,
+          "drill": 0.4
+        }
+      ],
+      "zones_allow_external_fillets": false
     },
     "ipc2581": {
       "dist": "",
@@ -235,8 +487,14 @@
     }
   },
   "libraries": {
-    "pinned_footprint_libs": [],
-    "pinned_symbol_libs": []
+    "pinned_footprint_libs": [
+      "OBI Components",
+      "OBI Graphics"
+    ],
+    "pinned_symbol_libs": [
+      "Open Beam Interface",
+      "OBI Components"
+    ]
   },
   "meta": {
     "filename": "DSC Scan Selector.kicad_pro",
@@ -334,11 +592,35 @@
           "label": "DNP",
           "name": "${DNP}",
           "show": true
+        },
+        {
+          "group_by": false,
+          "label": "#",
+          "name": "${ITEM_NUMBER}",
+          "show": false
+        },
+        {
+          "group_by": false,
+          "label": "Sim.Device",
+          "name": "Sim.Device",
+          "show": false
+        },
+        {
+          "group_by": false,
+          "label": "Sim.Pins",
+          "name": "Sim.Pins",
+          "show": false
+        },
+        {
+          "group_by": false,
+          "label": "Description",
+          "name": "Description",
+          "show": false
         }
       ],
       "filter_string": "",
       "group_symbols": true,
-      "name": "Grouped By Value",
+      "name": "",
       "sort_asc": true,
       "sort_field": "Reference"
     },
@@ -383,7 +665,7 @@
   },
   "sheets": [
     [
-      "055d5fab-0dca-4efb-98aa-5e58a221837d",
+      "088ae3ff-d77d-4390-8047-3955798b7152",
       "Root"
     ]
   ],
