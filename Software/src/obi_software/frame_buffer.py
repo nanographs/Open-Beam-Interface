@@ -115,6 +115,7 @@ class DisplayBuffer():
         self._current_frame = self.get_frame(x_range, y_range)
         self._opt_chunk_size = self._current_frame.opt_chunk_size(dwell)
         self._res = array.array('H')
+        print(f"DisplayBuffer prepared: {self._current_frame._x_range.count} x {self._current_frame._y_range.count}")
     
     def display_frame_whole(self, chunk):
         frame = self._current_frame
@@ -157,7 +158,7 @@ class DisplayBuffer():
         for frame in slice_chunk():
             yield frame
 
-        print(f"end of frame: {len(res)=}")
+        print(f"end of chunk: {len(res)=}, need {pixels_per_chunk}")
         # frame.fill_lines(res)
         self._current_frame = frame
         self._res = res
@@ -169,6 +170,9 @@ class FrameBuffer():
         self.conn = conn
         self._interrupt = threading.Event()
         self.queue = queue.Queue()
+        self.credits = queue.Queue(maxsize=8)
+
+
 
     async def set_ext_ctrl(self, enable):
         print("setting ext control")
@@ -182,10 +186,13 @@ class FrameBuffer():
         print(f"{cmd=}")
         async for chunk in self.conn.transfer_multiple(cmd, latency=latency):
             print(f"got {len(chunk)=}")
+            credit = self.credits.get()
             res = array.array('H')
             res.extend(chunk)
             self.queue.put(res)
-            print(f"put res in queue. {self.queue.qsize()=}")
+            self.credits.task_done()
+            print(f"put res in queue. {self.queue.qsize()=}. {self.credits.qsize()=}")
+        # self.queue.join()
 
     async def capture_single_frame(self, x_range, y_range, *, dwell, latency):
         await self.set_ext_ctrl(1)
@@ -196,7 +203,7 @@ class FrameBuffer():
     
     async def capture_frames_continously(self, x_range, y_range, *, dwell, latency):
         await self.set_ext_ctrl(1)
-        while not self._interrupt.is_set():
+        while not self.credits.empty():
             print(f"await capture_frame")
             await self.capture_frame(x_range, y_range, dwell=dwell, latency=latency)
         await self.set_ext_ctrl(0)

@@ -266,12 +266,12 @@ class Window(QVBoxLayout):
             self.image_data.measure_length.setText(si_prefix(line_actual_size))
         
 
-    def display_image(self, array):
+    def display_image(self, array, y_ptr):
         x_width, y_height = array.shape
         print(array)
         print(f"{array.shape=}")
         try:
-            self.image_display.setImage(y_height, x_width, array)
+            self.image_display.setImage(y_height, x_width, array, y_ptr)
         except Exception as e:
             print(f"error: {e}")
 
@@ -329,21 +329,35 @@ class Window(QVBoxLayout):
         # while self.fb.queue.qsize() == 0:
         #     print(f"{self.fb.queue.qsize()=}, waiting")
         # while self.fb.queue.qsize() > 0:
+        credit = "credit"
+        for n in range(8):
+            self.fb.credits.put(credit) ## fill the queue
         while not self.db._interrupt.is_set():
             if self.fb.queue.qsize() > 0:
-                print(f"{self.fb.queue.qsize()=}")
+                print(f"{self.fb.queue.qsize()=}, {self.fb.credits.qsize()=}")
                 chunk = self.fb.queue.get()
                 for frame in self.db.display_frame_partial(chunk):
                     # self.image_display.showTest()
-                    self.display_image(frame.as_uint8())
+                    self.display_image(frame.as_uint8(), frame.y_ptr)
+                self.fb.credits.put("credit")
                 self.fb.queue.task_done()
+                print(f"put credit. {self.fb.queue.qsize()=}, {self.fb.credits.qsize()=}")
         print("display_frame interrupted")
+        while not self.fb.credits.empty():
+            print(f"{self.fb.queue.qsize()=}")
+            chunk = self.fb.queue.get()
+            for frame in self.db.display_frame_partial(chunk):
+                # self.image_display.showTest()
+                self.display_image(frame.as_uint8(), frame.y_ptr)
+            self.fb.queue.task_done()
+            print(f"~put credit. {self.fb.queue.qsize()=}, {self.fb.credits.qsize()=}")
+        print("display_frame complete")
 
     def capture_live(self):
         if self.live_settings.live_capture_btn.isChecked():
             print("starting live scan")
             self.photo_settings.single_capture_btn.setEnabled(False)
-            self.fb._interrupt.clear()
+            # self.fb._interrupt.clear()
             self.db._interrupt.clear()
             self.live_settings.disable_input()
             self.photo_settings.disable_input()
@@ -363,7 +377,7 @@ class Window(QVBoxLayout):
             self.live_settings.enable_input()
             self.photo_settings.enable_input()
         else:
-            self.fb._interrupt.set()
+            # self.fb._interrupt.set()
             self.db._interrupt.set()
             self.live_settings.live_capture_btn.setEnabled(False)
             self.live_settings.live_capture_btn.setText("Completing Frame...")
