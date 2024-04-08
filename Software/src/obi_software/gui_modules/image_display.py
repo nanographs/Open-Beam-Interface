@@ -99,7 +99,7 @@ class ImageDisplay(pg.GraphicsLayoutWidget):
         return x_upper, x_lower, y_upper, y_lower
         
 
-    def setImage(self, y_height, x_width, image):
+    def setImage(self, y_height, x_width, image, y_ptr):
         ## image must be 2D np.array of np.uint8
         print("setImage")
         self.live_img.setImage(image, rect = (0,0, x_width, y_height), autoLevels=False)
