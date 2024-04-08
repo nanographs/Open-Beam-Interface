@@ -11,7 +11,7 @@ import tifffile
 from .beam_interface import RasterScanCommand, RasterFreeScanCommand, setup_logging, DACCodeRange, BeamType, ExternalCtrlCommand
 from .tiff_export import draw_scalebar
 
-setup_logging({"Command": logging.DEBUG, "Stream": logging.DEBUG})
+# setup_logging({"Command": logging.DEBUG, "Stream": logging.DEBUG})
 
 class Frame:
     def __init__(self, x_range: DACCodeRange, y_range: DACCodeRange):
@@ -101,7 +101,7 @@ class DisplayBuffer():
         self._current_frame = None
         self._opt_chunk_size = None
         self._res = array.array('H')
-        self.interrupt = threading.Event()
+        self._interrupt = threading.Event()
 
     def get_frame(self, x_range, y_range):
         if self._current_frame == None:
@@ -114,6 +114,7 @@ class DisplayBuffer():
     def prepare_display(self, x_range, y_range, *, dwell, latency, frame=None):
         self._current_frame = self.get_frame(x_range, y_range)
         self._opt_chunk_size = self._current_frame.opt_chunk_size(dwell)
+        self._res = array.array('H')
     
     def display_frame_whole(self, chunk):
         frame = self._current_frame
@@ -157,7 +158,7 @@ class DisplayBuffer():
             yield frame
 
         print(f"end of frame: {len(res)=}")
-        frame.fill_lines(res)
+        # frame.fill_lines(res)
         self._current_frame = frame
         self._res = res
         yield frame
@@ -185,15 +186,19 @@ class FrameBuffer():
             res.extend(chunk)
             self.queue.put(res)
             print(f"put res in queue. {self.queue.qsize()=}")
-    
-    async def test(self, x_range, y_range, *, dwell, latency):
-        print("Hello World")
-    
+
     async def capture_single_frame(self, x_range, y_range, *, dwell, latency):
         await self.set_ext_ctrl(1)
         print(f"await capture_frame")
         await self.capture_frame(x_range, y_range, dwell=dwell, latency=latency)
         # await self.test(args, kwargs)
+        await self.set_ext_ctrl(0)
+    
+    async def capture_frames_continously(self, x_range, y_range, *, dwell, latency):
+        await self.set_ext_ctrl(1)
+        while not self._interrupt.is_set():
+            print(f"await capture_frame")
+            await self.capture_frame(x_range, y_range, dwell=dwell, latency=latency)
         await self.set_ext_ctrl(0)
 
     async def free_scan(self, x_range, y_range, *, dwell, latency):

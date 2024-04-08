@@ -101,11 +101,12 @@ class ImageDisplay(pg.GraphicsLayoutWidget):
 
     def setImage(self, y_height, x_width, image):
         ## image must be 2D np.array of np.uint8
+        print("setImage")
         self.live_img.setImage(image, rect = (0,0, x_width, y_height), autoLevels=False)
         if not self.roi == None:
             self.roi.maxBounds = QtCore.QRectF(0, 0, x_width, y_height)
-        self.data = image
         self.image_view.autoRange()
+        print("setImage done")
 
 
     def setRange(self, y_height, x_width):
