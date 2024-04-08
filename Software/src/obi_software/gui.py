@@ -340,11 +340,9 @@ class Window(QVBoxLayout):
         print("display_frame interrupted")
 
     def capture_live(self):
-        print("capture live")
         if self.live_settings.live_capture_btn.isChecked():
             print("starting live scan")
             self.photo_settings.single_capture_btn.setEnabled(False)
-            # await self.fb.set_ext_ctrl(1)
             self.fb._interrupt.clear()
             self.db._interrupt.clear()
             self.live_settings.disable_input()
@@ -352,8 +350,6 @@ class Window(QVBoxLayout):
             x_range, y_range, dwell, latency = self.parameters
             self.db.prepare_display(x_range, y_range, dwell=dwell, latency=latency)
             submit_async(self.fb.capture_frames_continously(x_range, y_range, dwell=dwell, latency=latency))
-            print("submitted async")
-            print("starting thread")
             threading.Thread(group=None, target=self.display_frame).start()
             self.live_settings.live_capture_btn.setText("Stop Live Scan")
             # while True:
