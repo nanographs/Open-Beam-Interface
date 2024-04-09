@@ -25,9 +25,13 @@ class OBIInterface:
         self.conn = Connection('localhost', port)
         self.e_beam = ExternalBeamCtrl(BeamType.Electron)
     
-    async def transfer_cmd_e_beam(self, command:Command):
-        if not self.e_beam.in_control:
-            await self.e_beam.enable(self.conn)
+    async def transfer_scan_cmd(self, command:Command, beam: ExternalBeamCtrl):
+        if not beam.in_control:
+            await beam.enable(self.conn)
         await self.conn.transfer(command)
-        await self.e_beam.disable(self.conn)
+        await beam.disable(self.conn)
 
+    async def set_raster_resolution(self, x_range:DACCodeRange, y_range:DACCodeRange):
+        await self.conn.transfer_cmd(_RasterRegionCommand(x_range=x_range, y_range=y_range))
+    
+    async def live_scan.
