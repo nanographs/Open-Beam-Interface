@@ -3213,7 +3213,7 @@
 	)
 	(symbol
 		(lib_id "Diode:1N4007")
-		(at 184.15 63.5 270)
+		(at 184.15 63.5 90)
 		(mirror x)
 		(unit 1)
 		(exclude_from_sim no)
@@ -3222,7 +3222,7 @@
 		(dnp no)
 		(uuid "1e99cd91-7a05-46aa-90b6-5a3744f192bb")
 		(property "Reference" "D1"
-			(at 181.356 63.5 0)
+			(at 186.944 63.5 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3230,7 +3230,7 @@
 			)
 		)
 		(property "Value" "1N4007"
-			(at 186.69 63.5 0)
+			(at 181.61 63.5 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3238,7 +3238,7 @@
 			)
 		)
 		(property "Footprint" "Diode_THT:D_DO-41_SOD81_P10.16mm_Horizontal"
-			(at 179.705 63.5 0)
+			(at 188.595 63.5 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4215,7 +4215,7 @@
 	)
 	(symbol
 		(lib_id "Diode:1N4007")
-		(at 184.15 106.68 270)
+		(at 184.15 106.68 90)
 		(mirror x)
 		(unit 1)
 		(exclude_from_sim no)
@@ -4224,7 +4224,7 @@
 		(dnp no)
 		(uuid "dddfe60c-b2e8-43c7-8d4c-1996aaec4443")
 		(property "Reference" "D2"
-			(at 181.356 106.68 0)
+			(at 186.944 106.68 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4232,7 +4232,7 @@
 			)
 		)
 		(property "Value" "1N4007"
-			(at 186.69 106.68 0)
+			(at 181.61 106.68 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4240,7 +4240,7 @@
 			)
 		)
 		(property "Footprint" "Diode_THT:D_DO-41_SOD81_P10.16mm_Horizontal"
-			(at 179.705 106.68 0)
+			(at 188.595 106.68 0)
 			(effects
 				(font
 					(size 1.27 1.27)

@@ -1,4 +1,4 @@
-23053753227658467
+23057182689009543
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -66072,6 +66072,20 @@ net tie
 0
 4
 4
+OBI Components
+LSSO5
+
+
+0
+5
+5
+OBI Components
+Littel Fuse Holder 01550900M
+01550900M-1
+Undefined or Miscellaneous
+0
+2
+2
 OBI Components
 MountingHole_3.5mm_Pad_Via_CrtYd
 Mounting Hole 3.5mm with Courtyard for Washers + Tolerance
