@@ -37,7 +37,7 @@ class ConnThreadWorker:
         self.out_queue = out_queue
         # self.conn = Connection(host, port)
 
-    def xchg(self):
+    async def xchg(self):
         command = self.in_queue.get()
         print(f"CONN recv {command}")
         # response = await self.conn.transfer(command)
@@ -45,21 +45,27 @@ class ConnThreadWorker:
         print(f"CONN send {response}")
         self.out_queue.put(response)
     
-    def run(self):
+    async def run(self):
         print(f"CONN run()")
-        while not self.in_queue.empty():
-            # await self.xchg()
-            self.xchg()
-        self.run()
+        while True:
+            await self.xchg()
+    
+    def run_start(self):
+        print("CONN run_start()")
+        loop = asyncio.new_event_loop()
+        loop.create_task(self.run())
+        loop.run_forever()
+
 
 def ui_thread(in_queue, out_queue):
     worker = UIThreadWorker(in_queue, out_queue)
     worker.xchg("Hello")
     worker.xchg("It's me")
+    out_queue.join()
 
 def conn_thread(in_queue, out_queue):
     worker = ConnThreadWorker(in_queue, out_queue)
-    worker.run()
+    worker.run_start()
 
 ui_to_con = Queue()
 con_to_ui = Queue()
