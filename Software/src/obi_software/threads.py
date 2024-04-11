@@ -27,7 +27,7 @@ class UIThreadWorker:
         print(f"UI recv {response}")
         self.in_queue.task_done()
         ## todo: process and display response
-        await asyncio.sleep(.5)
+        return response
     
     async def _xchg(self, command: Command):
         self._send(command)
