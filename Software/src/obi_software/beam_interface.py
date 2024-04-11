@@ -98,8 +98,9 @@ class Command(metaclass=ABCMeta):
             async def wrapper(self, *args, **kwargs):
                 repr_short = repr(self).replace(self.__class__.__name__, "cls")
                 self._logger.debug(f"begin={repr_short}")
-                await transfer(self, *args, **kwargs)
+                res = await transfer(self, *args, **kwargs)
                 self._logger.debug(f"end={repr_short}")
+                return res
         return wrapper
 
     @abstractmethod
@@ -150,7 +151,6 @@ class Connection:
 
 
     async def _synchronize(self):
-        print("synchronizing")
         if not self.connected:
             await self._connect()
         if self.synchronized:
@@ -161,7 +161,6 @@ class Connection:
 
         cookie, self._next_cookie = self._next_cookie, self._next_cookie + 2 # even cookie
         self._logger.debug(f'synchronizing with cookie {cookie:#06x}')
-        print("synchronizing with cookie")
 
         cmd = struct.pack(">BHBB",
             CommandType.Synchronize, cookie, 0,
@@ -169,7 +168,6 @@ class Connection:
         res = struct.pack(">HH", 0xffff, cookie)
         self._stream.send(cmd)
         while True:
-            print("trying to synchronize...")
             try:
                 flushed = await self._stream._reader.readuntil(res)
                 self._logger.debug(f"synchronized after {len(flushed)} bytes")
@@ -181,8 +179,6 @@ class Connection:
                 # in it (set by the `open_connection(limit=)` argument). A partial response could
                 # still be at the very end of the buffer, so read less than that.
                 await self._stream._reader.readexactly(self.read_buffer_size - len(res))
-            except Exception as e:
-                print(f"sync error: {e}")
 
 
     def _handle_incomplete_read(self, exc):
@@ -518,15 +514,14 @@ class RasterStreamCommand(Command):
 
 
 class RasterScanCommand(Command):
-    def __init__(self, *, cookie: int, x_range: DACCodeRange, y_range: DACCodeRange, dwell: DwellTime, beam_type: BeamType):
+    def __init__(self, *, cookie: int, x_range: DACCodeRange, y_range: DACCodeRange, dwell: DwellTime):
         self._cookie  = cookie
         self._x_range = x_range
         self._y_range = y_range
         self._dwell   = dwell
-        self._beam_type = beam_type
 
     def __repr__(self):
-        return f"RasterScanCommand(cookie={self._cookie}, x_range={self._x_range}, y_range={self._y_range}, dwell={self._dwell}, beam_type={self._beam_type}>)"
+        return f"RasterScanCommand(cookie={self._cookie}, x_range={self._x_range}, y_range={self._y_range}, dwell={self._dwell}>)"
 
     @Command.log_transfer
     async def transfer(self, stream: Stream, latency: int):

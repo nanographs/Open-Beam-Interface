@@ -1,8 +1,11 @@
 from queue import Queue
 import threading
 import asyncio
-from .beam_interface import Command, Connection
+import inspect
+import logging
+from .beam_interface import Command, Connection, SynchronizeCommand, DACCodeRange, RasterScanCommand, setup_logging
 
+setup_logging({"Command": logging.DEBUG, "Stream": logging.DEBUG, "Connection": logging.DEBUG})
 class UIThreadWorker:
     def __init__(self, in_queue: Queue, out_queue: Queue, loop):
         self.in_queue = in_queue
@@ -37,19 +40,27 @@ class UIThreadWorker:
 
 class ConnThreadWorker:
 
-    def __init__(self, in_queue: Queue, out_queue: Queue, loop):
+    def __init__(self, host, port, in_queue: Queue, out_queue: Queue, loop):
+        self.conn = Connection(host, port)
         self.in_queue = in_queue
         self.out_queue = out_queue
-        # self.conn = Connection(host, port)
         self.loop = loop #asyncio event loop
 
     async def _xchg(self):
         command = self.in_queue.get()
         print(f"CONN recv {command}")
-        # response = await self.conn.transfer(command)
-        response = f"{command} response"
-        print(f"CONN send {response}")
-        self.out_queue.put(response)
+        com = command.transfer
+        print(f"{com=}, {type(com)=}, {inspect.isasyncgenfunction(com)=}")
+
+        if inspect.isasyncgenfunction(com):
+            print("async")
+            async for chunk in self.conn.transfer_multiple(command, latency=63356):
+                print(f"CONN send {chunk}")
+                self.out_queue.put(chunk)
+        else:
+            res = await self.conn.transfer(command)
+            print(f"CONN send {res}")
+            self.out_queue.put(res)
     
     async def _run(self):
         while True:
@@ -63,12 +74,16 @@ class ConnThreadWorker:
 def ui_thread(in_queue, out_queue):
     loop = asyncio.new_event_loop()
     worker = UIThreadWorker(in_queue, out_queue, loop)
-    worker.xchg("Hello")
-    worker.xchg("It's me")
+    # cmd = SynchronizeCommand(cookie=123, raster_mode=1)
+    # cmd = SynchronizeCommand(cookie=123, raster_mode=1)
+    x_range = y_range = DACCodeRange(0, 2048, int((16384/2048)*256))
+    cmd = RasterScanCommand(cookie=123,
+            x_range=x_range, y_range=y_range, dwell=2)
+    worker.xchg(cmd)
     
 def conn_thread(in_queue, out_queue):
     loop = asyncio.new_event_loop()
-    worker = ConnThreadWorker(in_queue, out_queue, loop)
+    worker = ConnThreadWorker('127.0.0.1', 2224, in_queue, out_queue, loop)
     worker.run()
     
 
