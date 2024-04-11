@@ -1,5 +1,5 @@
 import threading
-import queue
+from queue import Queue
 import os
 import argparse
 import pathlib
@@ -15,8 +15,9 @@ from PyQt6.QtWidgets import (QHBoxLayout, QMainWindow,
 import qasync
 from qasync import asyncSlot, asyncClose, QApplication, QEventLoop
 
-from .beam_interface import Connection, DACCodeRange
-from .frame_buffer import FrameBuffer, DisplayBuffer
+from .beam_interface import *
+from .ui_interface import *
+from .threads import *
 from .gui_modules.image_display import ImageDisplay
 from .gui_modules.settings import SettingBox, SettingBoxWithDefaults
 
@@ -141,21 +142,8 @@ class DebugSettings(QHBoxLayout):
         self.interrupt_btn = QPushButton("Interrupt")
         self.addWidget(self.interrupt_btn)
 
-
-def _start_async():
-    loop = asyncio.new_event_loop()
-    threading.Thread(target=loop.run_forever).start()
-    return loop
-
-_loop = _start_async()
-
-def submit_async(awaitable):
-    return asyncio.run_coroutine_threadsafe(awaitable, _loop)
-
-def stop_async():
-    _loop.call_soon_threadsafe(_loop.stop)
 class Window(QVBoxLayout):
-    def __init__(self,debug=False):
+    def __init__(self,iface, debug=False):
         super().__init__()
         self.debug = debug
         self.config = tomllib.load(open(args.config_path, "rb") )
@@ -411,7 +399,12 @@ class Window(QVBoxLayout):
         print("Concluded gui.free_scan")
 
 
-def run_gui():
+def run_gui_thread(in_queue, out_queue):
+    print("run gui thread")
+    loop = asyncio.new_event_loop()
+    worker = UIThreadWorker(in_queue, out_queue, loop)
+    iface = OBIInterface(worker)
+
     app = QApplication(sys.argv)
 
     # event_loop = QEventLoop(app)
@@ -421,18 +414,28 @@ def run_gui():
     # app.aboutToQuit.connect(app_close_event.set)
 
     w = QWidget()
-    window = Window(debug=args.debug)
+    window = Window(iface=iface, debug=args.debug)
     w.setLayout(window)
     if not args.window_size == None:
         w.resize(args.window_size[0], args.window_size[1])
     w.show()
     pg.exec()
-    window.db._interrupt.set()
-    stop_async()
 
     # with event_loop:
     #     event_loop.run_until_complete(app_close_event.wait())
 
+
+def run_gui():
+    ui_to_con = Queue()
+    con_to_ui = Queue()
+
+    # ui = threading.Thread(target = run_gui_thread, args = [con_to_ui, ui_to_con])
+    con = threading.Thread(target = conn_thread, args = [ui_to_con, con_to_ui])
+
+    # ui.start()
+    con.start()
+    run_gui_thread(con_to_ui, ui_to_con)
+    
 
 if __name__ == "__main__":
     run_gui()

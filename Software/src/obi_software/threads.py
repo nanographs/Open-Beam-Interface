@@ -3,7 +3,7 @@ import threading
 import asyncio
 import inspect
 import logging
-from .beam_interface import Command, Connection, SynchronizeCommand, DACCodeRange, RasterScanCommand, setup_logging
+from .beam_interface import *
 
 setup_logging({"Command": logging.DEBUG, "Stream": logging.DEBUG, "Connection": logging.DEBUG})
 class UIThreadWorker:
@@ -24,7 +24,6 @@ class UIThreadWorker:
         self.credit.get() # should block if credit.empty()
         self.credit.task_done()
         response = self.in_queue.get()
-        print(f"UI recv {response}")
         self.in_queue.task_done()
         ## todo: process and display response
         return response
@@ -85,18 +84,18 @@ def conn_thread(in_queue, out_queue):
     loop = asyncio.new_event_loop()
     worker = ConnThreadWorker('127.0.0.1', 2224, in_queue, out_queue, loop)
     worker.run()
-    
 
-ui_to_con = Queue()
-con_to_ui = Queue()
+if __name__ == "__main__":
+    ui_to_con = Queue()
+    con_to_ui = Queue()
 
-ui = threading.Thread(target = ui_thread, args = [con_to_ui, ui_to_con])
-con = threading.Thread(target = conn_thread, args = [ui_to_con, con_to_ui])
+    ui = threading.Thread(target = ui_thread, args = [con_to_ui, ui_to_con])
+    con = threading.Thread(target = conn_thread, args = [ui_to_con, con_to_ui])
 
-ui.start()
-con.start()
-# ui.join()
-# con.join()
+    ui.start()
+    con.start()
+    # ui.join()
+    # con.join()
 
 
 

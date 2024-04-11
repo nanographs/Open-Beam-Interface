@@ -303,7 +303,7 @@ class DACCodeRange:
     step:  int # UQ(8,8)
 
 
-class _RasterRegionCommand(Command):
+class RasterRegionCommand(Command):
     def __init__(self, *, x_range: DACCodeRange, y_range: DACCodeRange):
         self._x_range = x_range
         self._y_range = y_range
@@ -373,7 +373,7 @@ class _RasterPixelsCommand(Command):
             yield res
 
 
-class _RasterPixelRunCommand(Command):
+class RasterPixelRunCommand(Command):
     def __init__(self, *, dwell: DwellTime, length: int):
         self._dwell   = dwell
         self._length  = length
