@@ -5,32 +5,36 @@ import inspect
 import logging
 from .beam_interface import *
 
-setup_logging({"Command": logging.DEBUG, "Stream": logging.DEBUG, "Connection": logging.DEBUG})
+# setup_logging({"Command": logging.DEBUG, "Stream": logging.DEBUG, "Connection": logging.DEBUG})
 class UIThreadWorker:
     def __init__(self, in_queue: Queue, out_queue: Queue, loop):
         self.in_queue = in_queue
         self.out_queue = out_queue
-        self.credit = Queue(maxsize=1) #arbitrary max-things-in-flight
+        self.credit = Queue(maxsize=16) #arbitrary max-things-in-flight
         self.loop = loop #asyncio event loop
 
     def _send(self, command: Command):
         self.out_queue.put(command)
         self.credit.put("credit") 
-        print(f"UI send {command}. credit: {self.credit.qsize()}")
+        print(f"ui->con put {command}")
     
     async def _recv(self):
-        print(f"UI recv start. credit: {self.credit.qsize()}")
         # doesn't have to be 1:1 credit to response
         self.credit.get() # should block if credit.empty()
         self.credit.task_done()
+        print(f"ui credits={self.credits.qsize()}")
         response = self.in_queue.get()
+        if not response==None:
+            print(f"con->ui get {type(response)=}")
+        else:
+            print("con->ui get none")
         self.in_queue.task_done()
         ## todo: process and display response
         return response
     
     async def _xchg(self, command: Command):
         self._send(command)
-        while not self.credit.empty():
+        while not self.in_queue.empty():
             await self._recv()
     
     def xchg(self, command: Command):
@@ -47,20 +51,21 @@ class ConnThreadWorker:
 
     async def _xchg(self):
         command = self.in_queue.get()
-        print(f"CONN recv {command}")
+        print(f"ui->con get {command}")
         com = command.transfer
-        print(f"{com=}, {type(com)=}, {inspect.isasyncgenfunction(com)=}")
 
         if inspect.isasyncgenfunction(com):
             print("async")
             async for chunk in self.conn.transfer_multiple(command, latency=63356):
-                print(f"CONN send {chunk}")
-                self.out_queue.put(chunk)
+                if not chunk==None:
+                    self.out_queue.put(chunk)
+                    print(f"con->ui put {len(chunk)=} {type(chunk)=}")
         else:
             res = await self.conn.transfer(command)
-            print(f"CONN send {res}")
-            self.out_queue.put(res)
-    
+            if not res == None:
+                self.out_queue.put(res)
+                print(f"con->ui put {type(res)=}")
+
     async def _run(self):
         while True:
             await self._xchg()

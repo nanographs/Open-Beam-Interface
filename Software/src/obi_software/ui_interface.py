@@ -1,5 +1,6 @@
 from .beam_interface import *
 from .threads import conn_thread, UIThreadWorker
+import threading
 from queue import Queue
 class ExternalBeamCtrl:
     def __init__(self, beam_type: BeamType, worker: UIThreadWorker):
@@ -111,19 +112,29 @@ class OBIInterface:
         self.worker.xchg(RasterRegionCommand(x_range=x_range, y_range=y_range))
     
     def capture_pixel_run(self, dwell, length):
-        return self.worker.xchg(RasterPixelRunCommand(dwell=dwell, length=length))
+        self.worker.xchg(SynchronizeCommand(cookie=123, raster_mode=1))
+        res = self.worker.xchg(RasterPixelRunCommand(dwell=dwell, length=length))
+        print(f"cap pix run got {res=}")
+        return res
     
     def capture_frame(self, x_resolution, y_resolution, dwell):
         self.set_full_resolution(x_resolution, y_resolution)
         frame = Frame(x_resolution, y_resolution)
         pixels_per_chunk = frame.opt_chunk_size(dwell)
         pixels_left = frame.pixels
+        print("capturing a frame...")
         while pixels_left > pixels_per_chunk:
             lines = self.capture_pixel_run(dwell, pixels_per_chunk)
-            frame.fill(lines)
-            pixels_left -= pixels_per_chunk
+            if not lines==None:
+                frame.fill(lines)
+                pixels_left -= pixels_per_chunk
+                print(f"got {pixels_per_chunk}, still need {pixels_left}")
+            else:
+                print("got None?")
+        print(f"last pixels: {pixels_left}")
         last_lines = self.capture_pixel_run(dwell, pixels_left)
         frame.fill(last_lines)
+        print(f"frame complete: {frame}")
         return frame
 
 
