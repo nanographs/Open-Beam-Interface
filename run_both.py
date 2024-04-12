@@ -3,7 +3,8 @@ import os
 import tomllib
 import pathlib
 
-config_path = pathlib.Path("microscope.toml").expanduser()
+
+config_path = pathlib.Path("Open-Beam-Interface/microscope.toml").expanduser()
 config = tomllib.load(open(config_path, "rb") )
 pinout = config["pinout"]
 pin_args = []
