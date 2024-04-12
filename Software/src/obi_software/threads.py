@@ -7,6 +7,7 @@ from .beam_interface import *
 
 # setup_logging({"Command": logging.DEBUG, "Stream": logging.DEBUG, "Connection": logging.DEBUG})
 class UIThreadWorker:
+    _logger = logger.getChild("UIThread")
     def __init__(self, in_queue: Queue, out_queue: Queue, loop):
         self.in_queue = in_queue
         self.out_queue = out_queue
@@ -16,33 +17,34 @@ class UIThreadWorker:
     def _send(self, command: Command):
         self.out_queue.put(command)
         self.credit.put("credit") 
-        print(f"ui->con put {command}")
+        self._logger.debug(f"ui->con put {command}")
     
     async def _recv(self):
         # doesn't have to be 1:1 credit to response
         self.credit.get() # should block if credit.empty()
         self.credit.task_done()
-        print(f"ui credits={self.credits.qsize()}")
+        self._logger.debug(f"ui credits={self.credit.qsize()}")
         response = self.in_queue.get()
-        if not response==None:
-            print(f"con->ui get {type(response)=}")
-        else:
-            print("con->ui get none")
         self.in_queue.task_done()
-        ## todo: process and display response
-        return response
+        if not response==None:
+            self._logger.debug(f"con->ui get {type(response)=}")
+            return response
+        else:
+            self._logger.debug("con->ui get None")
+        
     
     async def _xchg(self, command: Command):
         self._send(command)
-        while not self.in_queue.empty():
-            await self._recv()
+        self._logger.debug(f"_xchg send {command}")
+        while not self.credit.empty():
+            return await self._recv()
     
     def xchg(self, command: Command):
-        self.loop.run_until_complete(self._xchg(command))
+        return self.loop.run_until_complete(self._xchg(command))
         
 
 class ConnThreadWorker:
-
+    _logger = logger.getChild("ConnThread")
     def __init__(self, host, port, in_queue: Queue, out_queue: Queue, loop):
         self.conn = Connection(host, port)
         self.in_queue = in_queue
@@ -51,20 +53,21 @@ class ConnThreadWorker:
 
     async def _xchg(self):
         command = self.in_queue.get()
-        print(f"ui->con get {command}")
+        self._logger.debug(f"ui->con get {command}")
         com = command.transfer
 
         if inspect.isasyncgenfunction(com):
-            print("async")
+            res = array.array('H')
             async for chunk in self.conn.transfer_multiple(command, latency=63356):
-                if not chunk==None:
-                    self.out_queue.put(chunk)
-                    print(f"con->ui put {len(chunk)=} {type(chunk)=}")
+                self._logger.debug(f"net->con transfer {len(chunk)=} {type(chunk)=}")
+                res.extend(chunk)
+            self.out_queue.put(res)
+            self._logger.debug(f"con->ui put {len(res)=} {type(res)=}")
+                    
         else:
             res = await self.conn.transfer(command)
-            if not res == None:
-                self.out_queue.put(res)
-                print(f"con->ui put {type(res)=}")
+            self.out_queue.put(res)
+            self._logger.debug(f"con->ui put {type(res)=}")
 
     async def _run(self):
         while True:
@@ -79,10 +82,14 @@ def ui_thread(in_queue, out_queue):
     loop = asyncio.new_event_loop()
     worker = UIThreadWorker(in_queue, out_queue, loop)
     # cmd = SynchronizeCommand(cookie=123, raster_mode=1)
-    # cmd = SynchronizeCommand(cookie=123, raster_mode=1)
+    cmd = SynchronizeCommand(cookie=123, raster_mode=1)
+    worker.xchg(cmd)
     x_range = y_range = DACCodeRange(0, 2048, int((16384/2048)*256))
-    cmd = RasterScanCommand(cookie=123,
-            x_range=x_range, y_range=y_range, dwell=2)
+    cmd = RasterRegionCommand(x_range=x_range, y_range=y_range)
+    # cmd = RasterScanCommand(cookie=123,
+    #         x_range=x_range, y_range=y_range, dwell=2)
+    worker.xchg(cmd)
+    cmd = RasterPixelRunCommand(dwell=2, length=1024*1024)
     worker.xchg(cmd)
     
 def conn_thread(in_queue, out_queue):

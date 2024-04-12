@@ -1,5 +1,5 @@
 import threading
-from queue import Queue
+from queue import Queue, Empty, Full
 import os
 import argparse
 import pathlib
@@ -11,6 +11,7 @@ from PyQt6.QtWidgets import (QHBoxLayout, QMainWindow,
                              QMessageBox, QPushButton,
                              QVBoxLayout, QWidget, QLabel, QGridLayout,
                              QSpinBox, QFileDialog, QLineEdit)
+from PyQt6 import QtCore
 
 import qasync
 from qasync import asyncSlot, asyncClose, QApplication, QEventLoop
@@ -143,14 +144,14 @@ class DebugSettings(QHBoxLayout):
         self.addWidget(self.interrupt_btn)
 
 class Window(QVBoxLayout):
-    def __init__(self,iface, debug=False):
+    def __init__(self,iface, frame_queue, debug=False):
         super().__init__()
         self.debug = debug
         self.config = tomllib.load(open(args.config_path, "rb") )
         self.conn = Connection('localhost', int(args.port))
         self.fb = FrameBuffer(self.conn)
         self.db = DisplayBuffer()
-
+        self.frame_queue = frame_queue
         self.live_settings = LiveSettings()
         self.live_settings.live_capture_btn.clicked.connect(self.capture_live)
 
@@ -261,7 +262,25 @@ class Window(QVBoxLayout):
         try:
             self.image_display.setImage(y_height, x_width, array, y_ptr)
         except Exception as e:
-            print(f"error: {e}")
+            print(f"display error: {e}")
+    
+    def display_frame(self):
+        self.timer = QtCore.QTimer()
+        self.timer.setSingleShot(True)
+        self.timer.timeout.connect(self.update_frame)
+        self.timer.start(1)
+    
+    def update_frame(self):
+        if not self.frame_queue.empty():
+            frame = self.frame_queue.get()
+            array = frame.as_uint8()
+            x_width, y_height = array.shape
+            self.image_display.setImage(y_height, x_width, array, frame.y_ptr)
+            print(array)
+            print(f"{array.shape=}")
+            self.frame_queue.task_done()
+        self.display_frame()
+
 
 
     def save_image(self):
@@ -402,8 +421,9 @@ class Window(QVBoxLayout):
 def run_gui_thread(in_queue, out_queue):
     print("run gui thread")
     loop = asyncio.new_event_loop()
+    frame_queue = Queue()
     worker = UIThreadWorker(in_queue, out_queue, loop)
-    iface = OBIInterface(worker)
+    iface = OBIInterface(worker, frame_queue)
 
     app = QApplication(sys.argv)
 
@@ -414,7 +434,7 @@ def run_gui_thread(in_queue, out_queue):
     # app.aboutToQuit.connect(app_close_event.set)
 
     w = QWidget()
-    window = Window(iface=iface, debug=args.debug)
+    window = Window(iface=iface, debug=args.debug, frame_queue=frame_queue)
     w.setLayout(window)
     if not args.window_size == None:
         w.resize(args.window_size[0], args.window_size[1])
