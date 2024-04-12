@@ -2,7 +2,7 @@
   "board": {
     "active_layer": 0,
     "active_layer_preset": "",
-    "auto_track_width": true,
+    "auto_track_width": false,
     "hidden_netclasses": [],
     "hidden_nets": [],
     "high_contrast_mode": 0,
@@ -15,13 +15,13 @@
       "zones": 0.6
     },
     "selection_filter": {
-      "dimensions": true,
+      "dimensions": false,
       "footprints": true,
       "graphics": true,
-      "keepouts": true,
+      "keepouts": false,
       "lockedItems": false,
-      "otherItems": true,
-      "pads": true,
+      "otherItems": false,
+      "pads": false,
       "text": true,
       "tracks": true,
       "vias": true,
@@ -64,7 +64,7 @@
       39,
       40
     ],
-    "visible_layers": "ff9f3b0_ffffffff",
+    "visible_layers": "00010a8_ffffffff",
     "zone_display_mode": 0
   },
   "git": {
@@ -74,7 +74,7 @@
     "ssh_key": ""
   },
   "meta": {
-    "filename": "DSC Scan Selector.kicad_prl",
+    "filename": "Beam Offset Switch.kicad_prl",
     "version": 3
   },
   "project": {

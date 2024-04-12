@@ -48,7 +48,7 @@
         "silk_text_thickness": 0.15,
         "silk_text_upright": false,
         "zones": {
-          "min_clearance": 0.3
+          "min_clearance": 0.19999999999999998
         }
       },
       "diff_pair_dimensions": [
@@ -59,11 +59,8 @@
         }
       ],
       "drc_exclusions": [
-        "courtyards_overlap|112330001|104357858|57c11b81-e8ea-434c-a801-cb63c8b9e4ad|dc6adf88-ec35-4b81-b12d-85e7d230ba1a",
-        "courtyards_overlap|114839999|68519775|c8b611d0-7ed1-4376-9608-ec36b94b4ed2|fd3e32bc-6e02-4000-8aa1-f5c20795dccc",
-        "silk_overlap|150560000|110190000|03c7d9b1-e593-4d30-9d16-58742dd16fa6|6e76b57d-0b56-41ba-941d-c01b845dfa4a",
-        "silk_overlap|152310000|110190000|a9274478-7d75-4a2d-a3f0-37559d70adbe|6e76b57d-0b56-41ba-941d-c01b845dfa4a",
-        "silk_overlap|154060000|110190000|70e29020-484a-4f0b-b97e-575b458f7760|6e76b57d-0b56-41ba-941d-c01b845dfa4a"
+        "missing_footprint|0|0|00000000-0000-0000-0000-000000000000|00000000-0000-0000-0000-000000000000",
+        "track_dangling|145310000|91790000|a4f827de-30ae-442f-a872-9fef7135b2a3|00000000-0000-0000-0000-000000000000"
       ],
       "meta": {
         "version": 2
@@ -102,8 +99,8 @@
         "pth_inside_courtyard": "ignore",
         "shorting_items": "error",
         "silk_edge_clearance": "ignore",
-        "silk_over_copper": "warning",
-        "silk_overlap": "warning",
+        "silk_over_copper": "ignore",
+        "silk_overlap": "ignore",
         "skew_out_of_range": "error",
         "solder_mask_bridge": "error",
         "starved_thermal": "error",
@@ -469,7 +466,7 @@
     ]
   },
   "meta": {
-    "filename": "DSC Scan Selector.kicad_pro",
+    "filename": "Beam Offset Switch.kicad_pro",
     "version": 1
   },
   "net_settings": {
@@ -588,6 +585,12 @@
           "label": "Description",
           "name": "Description",
           "show": false
+        },
+        {
+          "group_by": false,
+          "label": "DK Part Number",
+          "name": "DK Part Number",
+          "show": false
         }
       ],
       "filter_string": "",
@@ -637,7 +640,7 @@
   },
   "sheets": [
     [
-      "088ae3ff-d77d-4390-8047-3955798b7152",
+      "055d5fab-0dca-4efb-98aa-5e58a221837d",
       "Root"
     ]
   ],
