@@ -12,7 +12,7 @@ from PyQt6.QtWidgets import (QHBoxLayout, QMainWindow,
                              QSpinBox)
 
 class ImageDisplay(pg.GraphicsLayoutWidget):
-    def __init__(self, y_height, x_width, invertY=False, invertX=True):
+    def __init__(self, y_height, x_width, invertY=True, invertX=True):
         super().__init__()
         self.y_height = y_height
         self.x_width = x_width
