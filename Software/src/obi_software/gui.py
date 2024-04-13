@@ -52,7 +52,6 @@ class LiveSettings(QHBoxLayout):
         # self.ry.spinbox.setEnabled(False)
         self.dwell.spinbox.setEnabled(False)
         self.dwell.dropdown.setEnabled(False)
-        self.save_btn.setEnabled(False)
         # self.single_capture_btn.setEnabled(False)
     def enable_input(self):
         self.rx.spinbox.setEnabled(True)
@@ -85,14 +84,12 @@ class PhotoSettings(QHBoxLayout):
         # self.ry.spinbox.setEnabled(False)
         self.dwell.spinbox.setEnabled(False)
         self.dwell.dropdown.setEnabled(False)
-        self.single_capture_btn.setEnabled(False)
     def enable_input(self):
         self.rx.spinbox.setEnabled(True)
         self.rx.dropdown.setEnabled(True)
         # self.ry.spinbox.setEnabled(True)
         self.dwell.spinbox.setEnabled(True)
         self.dwell.dropdown.setEnabled(True)
-        self.single_capture_btn.setEnabled(True)
 
 def si_prefix(distance:float):
     if 1 >= distance > pow(10, -3):
@@ -269,16 +266,22 @@ class Window(QVBoxLayout):
 
     @asyncSlot()
     async def capture_single_frame(self):
+        self.live_settings.save_btn.setEnabled(False)
         self.live_settings.live_capture_btn.setEnabled(False)
         self.photo_settings.single_capture_btn.setText("Acquiring...")
         self.photo_settings.single_capture_btn.setEnabled(False)
+        self.photo_settings.disable_input()
+        self.live_settings.disable_input()
         await self.fb.set_ext_ctrl(1)
         await self.capture_frame_photo()
         await self.fb.set_ext_ctrl(0)
         self.save_image()
         self.live_settings.live_capture_btn.setEnabled(True)
         self.photo_settings.single_capture_btn.setEnabled(True)
+        self.live_settings.save_btn.setEnabled(True)
         self.photo_settings.single_capture_btn.setText("Acquire Photo")
+        self.photo_settings.enable_input()
+        self.live_settings.enable_input()
 
     async def capture_frame_live(self):
         x_range, y_range, dwell, latency = self.live_parameters
