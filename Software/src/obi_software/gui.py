@@ -250,6 +250,8 @@ class Window(QVBoxLayout):
             self.settings.enable_input()
         else:
             self.fb._interrupt.set()
+            self.settings.single_capture_btn.setEnabled(False)
+            self.settings.live_capture_btn.setText("Completing Frame...")
             
     def interrupt(self):
         self.fb._interrupt.set()
