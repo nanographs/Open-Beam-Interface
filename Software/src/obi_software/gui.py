@@ -52,6 +52,7 @@ class LiveSettings(QHBoxLayout):
         # self.ry.spinbox.setEnabled(False)
         self.dwell.spinbox.setEnabled(False)
         self.dwell.dropdown.setEnabled(False)
+        self.save_btn.setEnabled(False)
         # self.single_capture_btn.setEnabled(False)
     def enable_input(self):
         self.rx.spinbox.setEnabled(True)
