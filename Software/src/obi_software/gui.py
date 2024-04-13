@@ -246,11 +246,12 @@ class Window(QVBoxLayout):
                     break
             await self.fb.set_ext_ctrl(0)
             self.settings.single_capture_btn.setEnabled(True)
+            self.settings.live_capture_btn.setEnabled(True)
             self.settings.live_capture_btn.setText("Start Live Scan")
             self.settings.enable_input()
         else:
             self.fb._interrupt.set()
-            self.settings.single_capture_btn.setEnabled(False)
+            self.settings.live_capture_btn.setEnabled(False)
             self.settings.live_capture_btn.setText("Completing Frame...")
             
     def interrupt(self):
