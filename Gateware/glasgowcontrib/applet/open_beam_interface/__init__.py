@@ -929,8 +929,8 @@ class OBIApplet(GlasgowApplet):
         return iface.add_subtarget(subtarget)
 
     async def run(self, device, args):
-        await device.set_voltage("AB", 0)
-        await asyncio.sleep(5)
+        # await device.set_voltage("AB", 0)
+        # await asyncio.sleep(5)
         iface = await device.demultiplexer.claim_interface(self, self.mux_interface, args,
             read_buffer_size=131072*16)
         return iface
