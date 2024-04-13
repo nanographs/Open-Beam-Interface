@@ -75,7 +75,7 @@ class Frame:
             img_name = img_name + " " + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
         img_name = os.path.join(save_dir, img_name)
         if not scalebar_HFOV==None:
-            draw_scalebar(self.as_uint8(), scalebar_HFOV, img_name)
+            draw_scalebar(np.fliplr(self.as_uint8()), scalebar_HFOV, img_name)
         else:
             if bit_depth_8:
                 tifffile.imwrite(f"{img_name}_8bit.tif", self.as_uint8(), shape = self.np_shape, dtype = np.uint8)
