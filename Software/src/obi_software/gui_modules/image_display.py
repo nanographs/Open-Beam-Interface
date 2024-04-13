@@ -12,12 +12,12 @@ from PyQt6.QtWidgets import (QHBoxLayout, QMainWindow,
                              QSpinBox)
 
 class ImageDisplay(pg.GraphicsLayoutWidget):
-    def __init__(self, y_height, x_width):
+    def __init__(self, y_height, x_width, invertY=False):
         super().__init__()
         self.y_height = y_height
         self.x_width = x_width
 
-        self.image_view = self.addViewBox(invertY = True)
+        self.image_view = self.addViewBox(invertY = invertY)
         # self.plot = self.addPlot(viewBox = self.image_view)
         ## lock the aspect ratio so pixels are always square
         self.image_view.setAspectLocked(True)
