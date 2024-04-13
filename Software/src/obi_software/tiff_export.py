@@ -60,7 +60,6 @@ def draw_scalebar(imagedata, hfov, save_path): #hfov in m
     font = ImageFont.truetype("Open-Beam-Interface/Software/src/obi_software/iAWriterQuattroV.ttf", size=int(n_blank_lines*.9))
     draw.text([scalebar_px + scalebar_offset_px*3,height_in_px-scalebar_offset_px], hfov_text, fill=255, anchor="lm", font=font)
     image.save(save_path+".tif", compression=None)
-    image.show()
 
 
 if __name__=="__main__":
