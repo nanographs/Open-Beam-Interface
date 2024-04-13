@@ -2,7 +2,7 @@
 
 # from ome_types.model import Instrument, Microscope, InstrumentRef, Image, Pixels
 import numpy as np
-# import tifffile
+import tifffile
 
 from PIL import Image, ImageDraw, ImageFont
 
@@ -44,27 +44,31 @@ from PIL import Image, ImageDraw, ImageFont
 
 
 def draw_scalebar(imagedata, hfov, save_path): #hfov in m
-    
     height_in_px, width_in_px = imagedata.shape
     n_blank_lines = int(.05*height_in_px)
-    blank_lines = np.zeros(shape=(n_blank_lines,width_in_px))
+    blank_lines = np.zeros(shape=(n_blank_lines,width_in_px), dtype=np.uint8)
     imagedata = np.vstack((imagedata, blank_lines))
     height_in_px += n_blank_lines
     scalebar_px = int(.25*width_in_px)
     scalebar_length = hfov*(scalebar_px/width_in_px)
     hfov_text = str(hfov*pow(10,6)) + " µm"
     scalebar_offset_px = int(.03*width_in_px)
-    image = Image.fromarray(imagedata)
+    image = Image.fromarray(imagedata, mode="L")
     draw = ImageDraw.Draw(image)
     draw.line([(scalebar_offset_px,height_in_px-scalebar_offset_px),
                 (scalebar_offset_px+scalebar_px,height_in_px-scalebar_offset_px)], fill=255, width=int(n_blank_lines/3))
     font = ImageFont.truetype("Open-Beam-Interface/Software/src/obi_software/iAWriterQuattroV.ttf", size=int(n_blank_lines*.9))
     draw.text([scalebar_px + scalebar_offset_px*3,height_in_px-scalebar_offset_px], hfov_text, fill=255, anchor="lm", font=font)
-    image.save(save_path+".tif")
+    image.save(save_path+".tif", compression=None)
+    image.show()
 
-#draw_scalebar(imagedata, .001)
 
-# tifffile.imwrite(f"test.tif", imagedata, metadata={
-#     "PixelSizeX": 1,
-#     "PixelSizeY": 2
-# })
+if __name__=="__main__":
+    imagedata = np.random.randint(0, 254, size=(1024,1024), dtype=np.uint8)
+    # tifffile.imwrite("test.tif", imagedata, shape=(1024,1024), dtype=np.uint8)
+    draw_scalebar(imagedata, .001, "test")
+
+    # tifffile.imwrite(f"test.tif", imagedata, metadata={
+    #     "PixelSizeX": 1,
+    #     "PixelSizeY": 2
+    # })
