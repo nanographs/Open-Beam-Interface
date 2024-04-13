@@ -6,7 +6,7 @@ model='Neoscope'
 ext-ebeam-enable = 1
 
 [mag_cal]
-m_per_FOV = 1.2345e-2
+m_per_FOV = 0.117
 
 [gui_settings]
 window_size = [1400, 1400]
