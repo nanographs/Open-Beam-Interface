@@ -9,5 +9,5 @@ ext-ebeam-enable = 1
 m_per_FOV = 1.2345e-2
 
 [gui_settings]
-window_size = [1024, 1024]
+window_size = [1400, 1400]
 invert_Y = false
