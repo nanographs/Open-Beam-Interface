@@ -104,7 +104,7 @@ class FrameBuffer():
     async def capture_frame(self, x_range, y_range, *, dwell, latency, frame=None):
         frame = self.get_frame(x_range,y_range)
         res = array.array('H')
-        pixels_per_chunk = self.opt_chunk_size(frame)
+        pixels_per_chunk = self.opt_chunk_size(frame, dwell)
         print(f"{pixels_per_chunk=}")
         cmd = RasterScanCommand(cookie=self.conn.get_cookie(),
             x_range=x_range, y_range=y_range, dwell=dwell, beam_type=BeamType.Electron)
@@ -144,11 +144,11 @@ class FrameBuffer():
     #     while not self._interrupt.set():
     #         await self.capture_frame(x_range, y_range, dwell=dwell, latency=latency)
 
-    def opt_chunk_size(self, frame: Frame):
+    def opt_chunk_size(self, frame: Frame, dwell):
         FPS = 30
         DWELL_NS = 125
         s_per_frame = 1/FPS
-        dwells_per_frame = s_per_frame/(DWELL_NS*pow(10,-9))
+        dwells_per_frame = s_per_frame/(dwell*DWELL_NS*pow(10,-9))
         if dwells_per_frame > frame.pixels:
             return frame.pixels
         else:
