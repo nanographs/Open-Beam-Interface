@@ -3,6 +3,7 @@ import os
 import tomllib
 import pathlib
 import argparse
+import time
 
 parser = argparse.ArgumentParser()
 parser.add_argument("port")
@@ -30,6 +31,7 @@ if "gui_settings" in config:
         obi_cmd += [str(x) for x in config["gui_settings"]["window_size"]]
 
 glasgow = subprocess.Popen(glasgow_cmd,env=env)
+time.sleep(5) #wait for glasgow to startup
 obi = subprocess.Popen(obi_cmd)
 obi.wait()
 glasgow.kill()
