@@ -3,10 +3,10 @@ manufacturer='JEOL'
 model='Neoscope'
 
 [pinout]
-ext-ebeam-enable = 2
+ext-ebeam-enable = 1
 
 [mag_cal]
 m_per_FOV = 1.2345e-2
 
 [gui_settings]
-# window_size = [1024, 1024]
+window_size = [1024, 1024]
