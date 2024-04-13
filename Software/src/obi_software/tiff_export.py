@@ -51,7 +51,8 @@ def draw_scalebar(imagedata, hfov, save_path): #hfov in m
     height_in_px += n_blank_lines
     scalebar_px = int(.25*width_in_px)
     scalebar_length = hfov*(scalebar_px/width_in_px)
-    hfov_text = str(hfov*pow(10,6)) + " µm"
+    hfov_len = hfov*pow(10,6)
+    hfov_text = f"{hfov_len:.2f}" + " µm"
     scalebar_offset_px = int(.03*width_in_px)
     image = Image.fromarray(imagedata, mode="L")
     draw = ImageDraw.Draw(image)
