@@ -23,6 +23,7 @@ parser.add_argument('--config_path', required=True,
                     help='path to microscope.toml')
 parser.add_argument("port")
 parser.add_argument('--debug',action='store_true')
+parser.add_argument('--window_size', type=int, nargs=2, help="GUI width in px, height in px")
 args = parser.parse_args()
 print(f"loading config from {args.config_path}")
 
@@ -237,6 +238,8 @@ def run_gui():
     w = QWidget()
     window = Window(debug=args.debug)
     w.setLayout(window)
+    if not args.window_size == None:
+        w.resize(args.window_size[0], args.window_size[1])
     w.show()
 
     with event_loop:
@@ -245,3 +248,4 @@ def run_gui():
 
 if __name__ == "__main__":
     run_gui()
+
