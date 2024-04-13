@@ -51,12 +51,14 @@ class Settings(QHBoxLayout):
         self.rx.dropdown.setEnabled(False)
         # self.ry.spinbox.setEnabled(False)
         self.dwell.spinbox.setEnabled(False)
+        self.dwell.dropdown.setEnabled(False)
         self.single_capture_btn.setEnabled(False)
     def enable_input(self):
         self.rx.spinbox.setEnabled(True)
         self.rx.dropdown.setEnabled(True)
         # self.ry.spinbox.setEnabled(True)
         self.dwell.spinbox.setEnabled(True)
+        self.dwell.dropdown.setEnabled(True)
         self.single_capture_btn.setEnabled(True)
 
 def si_prefix(distance:float):
