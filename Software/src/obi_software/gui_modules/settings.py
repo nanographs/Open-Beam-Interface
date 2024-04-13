@@ -20,6 +20,7 @@ class SettingBoxWithDefaults(QGridLayout):
         self.dropdown.addItems(defaults)
         self.addWidget(self.dropdown, 1, 1)
         self.dropdown.currentTextChanged.connect(self.process_input)
+        self.dropdown.setCurrentText(str(initial_val))
 
     def getval(self):
         val = self.dropdown.currentText()
