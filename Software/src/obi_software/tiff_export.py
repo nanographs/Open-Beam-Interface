@@ -60,7 +60,7 @@ def draw_scalebar(imagedata, hfov, save_path): #hfov in m
                 (scalebar_offset_px+scalebar_px,height_in_px-scalebar_offset_px)], fill=255, width=int(n_blank_lines/3))
     font = ImageFont.truetype("Open-Beam-Interface/Software/src/obi_software/iAWriterQuattroV.ttf", size=int(n_blank_lines*.9))
     draw.text([scalebar_px + scalebar_offset_px*3,height_in_px-scalebar_offset_px], hfov_text, fill=255, anchor="lm", font=font)
-    image.save(save_path)
+    image.save(save_path+".tif")
 
 #draw_scalebar(imagedata, .001)
 
