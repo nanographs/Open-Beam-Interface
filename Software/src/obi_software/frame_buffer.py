@@ -66,11 +66,13 @@ class Frame:
     def as_uint8(self):
         return np.right_shift(self.canvas, 6).astype(np.uint8)
 
-    def saveImage_tifffile(self):
-        img_name = "saved" + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+    def saveImage_tifffile(self, save_dir, img_name=None):
+        if img_name == None:
+            img_name = "saved" + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+        img_name = save_dir + img_name
         tifffile.imwrite(f"{img_name}_16bit.tif", self.as_uint16(), shape = self.np_shape, dtype = np.uint16)
         tifffile.imwrite(f"{img_name}_8bit.tif", self.as_uint8(), shape = self.np_shape, dtype = np.uint8)
-        print(f"{img_name}")
+        print(f"saved: {img_name}")
     
 class FrameBuffer():
     def __init__(self, conn):

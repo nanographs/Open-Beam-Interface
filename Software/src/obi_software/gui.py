@@ -1,3 +1,4 @@
+import os
 import argparse
 import pathlib
 import tomllib
@@ -7,7 +8,7 @@ import pyqtgraph as pg
 from PyQt6.QtWidgets import (QHBoxLayout, QMainWindow, 
                              QMessageBox, QPushButton,
                              QVBoxLayout, QWidget, QLabel, QGridLayout,
-                             QSpinBox)
+                             QSpinBox, QFileDialog, QLineEdit)
 
 import qasync
 from qasync import asyncSlot, asyncClose, QApplication, QEventLoop
@@ -65,7 +66,6 @@ def si_prefix(distance:float):
         return f"{distance*pow(10,9):.5f} nm"
     else:
         return f"{distance:.5f} m"
-
 class ImageData(QHBoxLayout):
     def __init__(self):
         super().__init__()
@@ -76,6 +76,21 @@ class ImageData(QHBoxLayout):
         self.addWidget(self.measure_btn)
         self.measure_length = QLabel("      ")
         self.addWidget(self.measure_length)
+
+class SaveSettings(QHBoxLayout):
+    def __init__(self):
+        super().__init__()
+        cwd = os.getcwd()
+        self.addWidget(QLabel("Save Path: "))
+        self.path_txt = QLabel(cwd)
+        self.addWidget(self.path_txt)
+        self.file_btn = QPushButton("Change")
+        self.addWidget(self.file_btn)
+        self.file_name = QLineEdit()
+        self.addWidget(QLabel("File Name: "))
+        self.addWidget(self.file_name)
+        
+
 class DebugSettings(QHBoxLayout):
     def __init__(self):
         super().__init__()
@@ -106,9 +121,13 @@ class Window(QVBoxLayout):
         self.settings.save_btn.clicked.connect(self.save_image)
         self.image_display = ImageDisplay(512,512)
         self.addWidget(self.image_display)
+        self.dir_path = os.getcwd()
         self.image_data = ImageData()
         self.addLayout(self.image_data)
         self.image_data.measure_btn.clicked.connect(self.toggle_measure)
+        self.save_settings = SaveSettings()
+        self.save_settings.file_btn.clicked.connect(self.file_dialog)
+        self.addLayout(self.save_settings)
         if self.debug:
             self.debug_settings = DebugSettings()
             self.addLayout(self.debug_settings)
@@ -129,6 +148,14 @@ class Window(QVBoxLayout):
         x_range = DACCodeRange(0, x_res, int((16384/x_res)*256))
         y_range = DACCodeRange(0, y_res, int((16384/y_res)*256))
         return x_range, y_range, dwell, latency
+    
+    def file_dialog(self):
+        self.dir_path = QFileDialog().getExistingDirectory()
+        self.save_settings.path_txt.setText(self.dir_path)
+    
+    def set_directory(self):
+        print("Directory")
+        # print(f"{directory=}")
     
     def toggle_measure(self):
         if self.image_data.measure_btn.isChecked():
@@ -166,7 +193,9 @@ class Window(QVBoxLayout):
         self.image_display.setImage(y_height, x_width, array)
 
     def save_image(self):
-        self.fb.current_frame.saveImage_tifffile()
+        file_name = self.save_settings.file_name.text()
+        if not self.fb.current_frame == None:
+            self.fb.current_frame.saveImage_tifffile(save_dir=self.dir_path, file_name=file_name)
 
     @asyncSlot()
     async def capture_single_frame(self):
