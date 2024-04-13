@@ -34,5 +34,5 @@ glasgow = subprocess.Popen(glasgow_cmd,env=env)
 time.sleep(5) #wait for glasgow to startup
 obi = subprocess.Popen(obi_cmd)
 obi.wait()
-glasgow.kill()
+glasgow.terminate()
 
