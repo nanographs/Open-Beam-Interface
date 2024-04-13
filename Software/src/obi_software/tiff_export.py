@@ -2,7 +2,7 @@
 
 # from ome_types.model import Instrument, Microscope, InstrumentRef, Image, Pixels
 import numpy as np
-import tifffile
+# import tifffile
 
 from PIL import Image, ImageDraw, ImageFont
 
@@ -39,11 +39,11 @@ from PIL import Image, ImageDraw, ImageFont
 
 # ome_xml = get_image_data()
 
-imagedata = np.full(shape=(1024,1024), fill_value = 100, dtype= np.uint8)
+# imagedata = np.full(shape=(1024,1024), fill_value = 100, dtype= np.uint8)
 
 
 
-def draw_scalebar(imagedata, hfov): #hfov in m
+def draw_scalebar(imagedata, hfov, save_path): #hfov in m
     
     height_in_px, width_in_px = imagedata.shape
     n_blank_lines = int(.05*height_in_px)
@@ -60,9 +60,9 @@ def draw_scalebar(imagedata, hfov): #hfov in m
                 (scalebar_offset_px+scalebar_px,height_in_px-scalebar_offset_px)], fill=255, width=int(n_blank_lines/3))
     font = ImageFont.truetype("iAWriterQuattroV.ttf", size=int(n_blank_lines*.9))
     draw.text([scalebar_px + scalebar_offset_px*3,height_in_px-scalebar_offset_px], hfov_text, fill=255, anchor="lm", font=font)
-    image.save("test.tif")
+    image.save(save_path)
 
-draw_scalebar(imagedata, .001)
+#draw_scalebar(imagedata, .001)
 
 # tifffile.imwrite(f"test.tif", imagedata, metadata={
 #     "PixelSizeX": 1,

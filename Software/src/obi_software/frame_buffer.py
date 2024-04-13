@@ -7,7 +7,7 @@ import logging
 import tifffile
 
 from .beam_interface import RasterScanCommand, RasterFreeScanCommand, setup_logging, DACCodeRange, BeamType, ExternalCtrlCommand
-
+from .tiff_export import draw_scalebar
 
 setup_logging({"Command": logging.DEBUG, "Stream": logging.DEBUG})
 
@@ -67,14 +67,21 @@ class Frame:
     def as_uint8(self):
         return np.right_shift(self.canvas, 6).astype(np.uint8)
 
-    def saveImage_tifffile(self, save_dir, img_name=None):
+    def saveImage_tifffile(self, save_dir, img_name=None, bit_depth_eight=True, bit_depth_16=False,
+                            scalebar_HFOV=None):
         if img_name == None:
             img_name = "saved" + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
         else:
             img_name = img_name + " " + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
         img_name = os.path.join(save_dir, img_name)
-        tifffile.imwrite(f"{img_name}_16bit.tif", self.as_uint16(), shape = self.np_shape, dtype = np.uint16)
-        tifffile.imwrite(f"{img_name}_8bit.tif", self.as_uint8(), shape = self.np_shape, dtype = np.uint8)
+        if not scalebar_HFOV==None:
+            draw_scalebar(self.as_uint8(), scalebar_HFOV, img_name)
+        else:
+            if bit_depth_8:
+                tifffile.imwrite(f"{img_name}_8bit.tif", self.as_uint8(), shape = self.np_shape, dtype = np.uint8)
+            if bit_depth_16:
+                tifffile.imwrite(f"{img_name}_16bit.tif", self.as_uint16(), shape = self.np_shape, dtype = np.uint16)
+
         print(f"saved: {img_name}")
     
 class FrameBuffer():

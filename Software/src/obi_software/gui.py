@@ -181,9 +181,16 @@ class Window(QVBoxLayout):
         mag = self.image_data.mag.getval()
         cal = self.config["mag_cal"]
         cal_factor = cal["m_per_FOV"]
-        full_fov_pixels = max(self.settings.rx.getval(), self.settings.ry.getval())
+        # full_fov_pixels = max(self.settings.rx.getval(), self.settings.ry.getval())
+        full_fov_pixels = self.settings.rx.getval()
         pixel_size = cal_factor/mag/full_fov_pixels
         return pixel_size
+    
+    def get_hfov_m(self):
+        mag = self.image_data.mag.getval()
+        cal = self.config["mag_cal"]
+        cal_factor = cal["m_per_FOV"]
+        return cal_factor/mag
 
     def measure(self):
         if not self.image_display.line == None:
@@ -203,7 +210,8 @@ class Window(QVBoxLayout):
         if file_name == "":
             file_name = None
         if not self.fb.current_frame == None:
-            self.fb.current_frame.saveImage_tifffile(save_dir=self.dir_path, img_name=file_name)
+            self.fb.current_frame.saveImage_tifffile(save_dir=self.dir_path, img_name=file_name, 
+                                                    scalebar_HFOV=self.get_hfov_m())
 
     @asyncSlot()
     async def capture_single_frame(self):
