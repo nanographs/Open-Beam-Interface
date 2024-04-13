@@ -33,27 +33,29 @@ print(f"loading config from {args.config_path}")
 class Settings(QHBoxLayout):
     def __init__(self):
         super().__init__()
-        self.rx = SettingBoxWithDefaults("X Resolution",128, 16384, 512, ["512","1024", "2048", "4096", "8192", "16384", "Custom"])
+        self.rx = SettingBoxWithDefaults("Resolution",128, 16384, 512, ["512","1024", "2048", "4096", "8192", "16384", "Custom"])
         self.addLayout(self.rx)
-        self.ry = SettingBoxWithDefaults("Y Resolution",128, 16384, 512, ["512","1024", "2048", "4096", "8192", "16384", "Custom"])
-        self.addLayout(self.ry)
-        self.dwell = SettingBoxWithDefaults("Dwell Time",0, 65536, 2, ["1","2", "4", "8", "16", "32", "Custom"])
+        # self.ry = SettingBoxWithDefaults("Y Resolution",128, 16384, 512, ["512","1024", "2048", "4096", "8192", "16384", "Custom"])
+        # self.addLayout(self.ry)
+        self.dwell = SettingBoxWithDefaults("Scan Speed",0, 65536, 2, ["1","2", "4", "8", "16", "32", "Custom"])
         self.addLayout(self.dwell)
-        self.single_capture_btn = QPushButton("Single Capture")
+        self.single_capture_btn = QPushButton("Acquire Photo")
         self.addWidget(self.single_capture_btn)
         self.live_capture_btn = QPushButton("Start Live Scan")
         self.live_capture_btn.setCheckable(True)
         self.addWidget(self.live_capture_btn)
-        self.save_btn = QPushButton("Save Image")
-        self.addWidget(self.save_btn)
+        # self.save_btn = QPushButton("Save Image")
+        # self.addWidget(self.save_btn)
     def disable_input(self):
         self.rx.spinbox.setEnabled(False)
-        self.ry.spinbox.setEnabled(False)
+        self.rx.dropdown.setEnabled(False)
+        # self.ry.spinbox.setEnabled(False)
         self.dwell.spinbox.setEnabled(False)
         self.single_capture_btn.setEnabled(False)
     def enable_input(self):
         self.rx.spinbox.setEnabled(True)
-        self.ry.spinbox.setEnabled(True)
+        self.rx.dropdown.setEnabled(True)
+        # self.ry.spinbox.setEnabled(True)
         self.dwell.spinbox.setEnabled(True)
         self.single_capture_btn.setEnabled(True)
 
@@ -118,7 +120,7 @@ class Window(QVBoxLayout):
         self.addLayout(self.settings)
         self.settings.single_capture_btn.clicked.connect(self.capture_single_frame)
         self.settings.live_capture_btn.clicked.connect(self.capture_live)
-        self.settings.save_btn.clicked.connect(self.save_image)
+        # self.settings.save_btn.clicked.connect(self.save_image)
         self.image_display = ImageDisplay(512,512)
         self.addWidget(self.image_display)
         self.dir_path = os.getcwd()
@@ -139,7 +141,8 @@ class Window(QVBoxLayout):
     @property
     def parameters(self):
         x_res = self.settings.rx.getval()
-        y_res = self.settings.ry.getval()
+        # y_res = self.settings.ry.getval()
+        y_res = x_res
         dwell = self.settings.dwell.getval()
         if self.debug:
             latency = self.debug_settings.latency.getval()
@@ -202,9 +205,16 @@ class Window(QVBoxLayout):
 
     @asyncSlot()
     async def capture_single_frame(self):
+        self.settings.live_capture_btn.setEnabled(False)
+        self.settings.single_capture_btn.setText("Acquiring...")
+        self.settings.single_capture_btn.setEnabled(False)
         await self.fb.set_ext_ctrl(1)
         await self.capture_frame()
         await self.fb.set_ext_ctrl(0)
+        self.save_image()
+        self.settings.live_capture_btn.setEnabled(True)
+        self.settings.single_capture_btn.setEnabled(True)
+        self.settings.single_capture_btn.setText("Acquire Photo")
 
     async def capture_frame(self):
         x_range, y_range, dwell, latency = self.parameters
@@ -215,6 +225,7 @@ class Window(QVBoxLayout):
     @asyncSlot()
     async def capture_live(self):
         if self.settings.live_capture_btn.isChecked():
+            self.settings.single_capture_btn.setEnabled(False)
             await self.fb.set_ext_ctrl(1)
             self.fb._interrupt.clear()
             self.settings.disable_input()
@@ -224,11 +235,12 @@ class Window(QVBoxLayout):
                 if self.fb._interrupt.is_set():
                     break
             await self.fb.set_ext_ctrl(0)
-        else:
-            self.fb._interrupt.set()
+            self.settings.single_capture_btn.setEnabled(True)
             self.settings.live_capture_btn.setText("Start Live Scan")
             self.settings.enable_input()
-
+        else:
+            self.fb._interrupt.set()
+            
     def interrupt(self):
         self.fb._interrupt.set()
         if self.debug:
