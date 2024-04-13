@@ -1001,10 +1001,10 @@ class OBIApplet(GlasgowApplet):
                 self.transport = None
 
                 asyncio.create_task(self.reset())
+                await iface.write([4,0,1]) #disable external ctrl
 
 
         proto, *proto_args = args.endpoint
         server = await asyncio.get_event_loop().create_server(ForwardProtocol, *proto_args, backlog=1)
         await server.serve_forever()
-        await iface.write([4,0,1]) #disable external ctrl
-        print("bye")
+        
