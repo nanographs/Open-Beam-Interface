@@ -37,7 +37,7 @@ class Settings(QHBoxLayout):
         self.addLayout(self.rx)
         self.ry = SettingBoxWithDefaults("Y Resolution",128, 16384, 512, ["512","1024", "2048", "4096", "8192", "16384", "Custom"])
         self.addLayout(self.ry)
-        self.dwell = SettingBoxWithDefaults("Dwell Time",0, 65536, 2, ["1","2", "8", "16", "32", "Custom"])
+        self.dwell = SettingBoxWithDefaults("Dwell Time",0, 65536, 2, ["1","2", "4", "8", "16", "32", "Custom"])
         self.addLayout(self.dwell)
         self.single_capture_btn = QPushButton("Single Capture")
         self.addWidget(self.single_capture_btn)
@@ -192,10 +192,13 @@ class Window(QVBoxLayout):
         x_width, y_height = array.shape
         self.image_display.setImage(y_height, x_width, array)
 
+
     def save_image(self):
         file_name = self.save_settings.file_name.text()
+        if file_name == "":
+            file_name = None
         if not self.fb.current_frame == None:
-            self.fb.current_frame.saveImage_tifffile(save_dir=self.dir_path, file_name=file_name)
+            self.fb.current_frame.saveImage_tifffile(save_dir=self.dir_path, img_name=file_name)
 
     @asyncSlot()
     async def capture_single_frame(self):

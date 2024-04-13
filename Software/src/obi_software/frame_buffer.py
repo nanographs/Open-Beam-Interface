@@ -1,3 +1,4 @@
+import os
 import datetime
 import array
 import asyncio
@@ -69,7 +70,9 @@ class Frame:
     def saveImage_tifffile(self, save_dir, img_name=None):
         if img_name == None:
             img_name = "saved" + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
-        img_name = save_dir + img_name
+        else:
+            img_name = img_name + " " + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+        img_name = os.path.join(save_dir, img_name)
         tifffile.imwrite(f"{img_name}_16bit.tif", self.as_uint16(), shape = self.np_shape, dtype = np.uint16)
         tifffile.imwrite(f"{img_name}_8bit.tif", self.as_uint8(), shape = self.np_shape, dtype = np.uint8)
         print(f"saved: {img_name}")

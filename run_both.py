@@ -29,8 +29,8 @@ if "gui_settings" in config:
         obi_cmd += ["--window_size"]
         obi_cmd += [str(x) for x in config["gui_settings"]["window_size"]]
 
-# glasgow = subprocess.Popen(glasgow_cmd,env=env)
+glasgow = subprocess.Popen(glasgow_cmd,env=env)
 obi = subprocess.Popen(obi_cmd)
-# obi.wait()
-# glasgow.kill()
+obi.wait()
+glasgow.kill()
 
