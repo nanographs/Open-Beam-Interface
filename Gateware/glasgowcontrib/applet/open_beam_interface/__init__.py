@@ -918,6 +918,7 @@ class OBIApplet(GlasgowApplet):
         self.mux_interface = iface = \
             target.multiplexer.claim_interface(self, args, throttle="none")
 
+        print(f"building w {args=}, {self.__pins=}")
         pads = iface.get_pads(args, pins=self.__pins)
 
         subtarget = OBISubtarget(
