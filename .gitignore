@@ -9,3 +9,4 @@ Gateware/open_beam_interface.bin
 *.png
 *.pyc
 *.tif
+*.kicad_prl
