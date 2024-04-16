@@ -2159,7 +2159,7 @@
 	)
 	(wire
 		(pts
-			(xy 154.94 119.38) (xy 154.94 121.92)
+			(xy 160.02 119.38) (xy 160.02 121.92)
 		)
 		(stroke
 			(width 0)
@@ -2249,7 +2249,7 @@
 	)
 	(wire
 		(pts
-			(xy 154.94 119.38) (xy 152.4 119.38)
+			(xy 160.02 119.38) (xy 162.56 119.38)
 		)
 		(stroke
 			(width 0)
@@ -2702,7 +2702,7 @@
 		(uuid "975dcd8a-cbb0-4bb0-9bdb-4794b0bd4a3f")
 	)
 	(label "Bank-2"
-		(at 160.02 121.92 90)
+		(at 154.94 121.92 90)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -4749,7 +4749,8 @@
 	)
 	(symbol
 		(lib_id "power:GNDD")
-		(at 152.4 119.38 270)
+		(at 162.56 119.38 90)
+		(mirror x)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -4758,7 +4759,7 @@
 		(fields_autoplaced yes)
 		(uuid "ac2403e9-bdd9-4074-b887-1f3cbdea4fc0")
 		(property "Reference" "#PWR03"
-			(at 146.05 119.38 0)
+			(at 168.91 119.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4767,7 +4768,7 @@
 			)
 		)
 		(property "Value" "GNDD"
-			(at 148.59 119.3799 90)
+			(at 166.37 119.3799 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4776,7 +4777,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 152.4 119.38 0)
+			(at 162.56 119.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4785,7 +4786,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 152.4 119.38 0)
+			(at 162.56 119.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4794,7 +4795,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"GNDD\" , digital ground"
-			(at 152.4 119.38 0)
+			(at 162.56 119.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)

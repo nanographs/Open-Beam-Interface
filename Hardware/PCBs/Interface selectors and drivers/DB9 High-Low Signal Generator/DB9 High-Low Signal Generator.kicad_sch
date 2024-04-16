@@ -476,24 +476,22 @@
 				)
 			)
 		)
-		(symbol "Device:R"
-			(pin_numbers hide)
+		(symbol "Jumper:Jumper_3_Open"
 			(pin_names
-				(offset 0)
-			)
+				(offset 0) hide)
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
-			(property "Reference" "R"
-				(at 2.032 0 90)
+			(property "Reference" "JP"
+				(at -2.54 -2.54 0)
 				(effects
 					(font
 						(size 1.27 1.27)
 					)
 				)
 			)
-			(property "Value" "R"
-				(at 0 0 90)
+			(property "Value" "Jumper_3_Open"
+				(at 0 2.794 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -501,7 +499,7 @@
 				)
 			)
 			(property "Footprint" ""
-				(at -1.778 0 90)
+				(at 0 0 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -518,7 +516,7 @@
 					(hide yes)
 				)
 			)
-			(property "Description" "Resistor"
+			(property "Description" "Jumper, 3-pole, both open"
 				(at 0 0 0)
 				(effects
 					(font
@@ -527,7 +525,7 @@
 					(hide yes)
 				)
 			)
-			(property "ki_keywords" "R res resistor"
+			(property "ki_keywords" "Jumper SPDT"
 				(at 0 0 0)
 				(effects
 					(font
@@ -536,7 +534,7 @@
 					(hide yes)
 				)
 			)
-			(property "ki_fp_filters" "R_*"
+			(property "ki_fp_filters" "Jumper* TestPoint*3Pads* TestPoint*Bridge*"
 				(at 0 0 0)
 				(effects
 					(font
@@ -545,12 +543,34 @@
 					(hide yes)
 				)
 			)
-			(symbol "R_0_1"
-				(rectangle
-					(start -1.016 -2.54)
-					(end 1.016 2.54)
+			(symbol "Jumper_3_Open_0_0"
+				(circle
+					(center -3.302 0)
+					(radius 0.508)
 					(stroke
-						(width 0.254)
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(circle
+					(center 0 0)
+					(radius 0.508)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(circle
+					(center 3.302 0)
+					(radius 0.508)
+					(stroke
+						(width 0)
 						(type default)
 					)
 					(fill
@@ -558,11 +578,49 @@
 					)
 				)
 			)
-			(symbol "R_1_1"
+			(symbol "Jumper_3_Open_0_1"
+				(arc
+					(start -0.254 1.016)
+					(mid -1.651 1.4992)
+					(end -3.048 1.016)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 -0.508) (xy 0 -1.27)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start 3.048 1.016)
+					(mid 1.651 1.4992)
+					(end 0.254 1.016)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "Jumper_3_Open_1_1"
 				(pin passive line
-					(at 0 3.81 270)
-					(length 1.27)
-					(name "~"
+					(at -6.35 0 0)
+					(length 2.54)
+					(name "A"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -579,8 +637,8 @@
 				)
 				(pin passive line
 					(at 0 -3.81 90)
-					(length 1.27)
-					(name "~"
+					(length 2.54)
+					(name "C"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -588,6 +646,24 @@
 						)
 					)
 					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 6.35 0 180)
+					(length 2.54)
+					(name "B"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -1080,184 +1156,196 @@
 				)
 			)
 		)
-	)
-	(junction
-		(at 153.67 99.06)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "009f9e9a-fbb9-4f23-ba03-1ba50fddb73e")
-	)
-	(junction
-		(at 153.67 68.58)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "17951282-bda9-48b0-8e76-c163fd597f5a")
-	)
-	(junction
-		(at 153.67 83.82)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "42c694d3-a14d-4cae-be03-2164f38fa14f")
-	)
-	(junction
-		(at 153.67 109.22)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "5fe6d977-3284-4671-82ac-d9444a0676e1")
-	)
-	(junction
-		(at 153.67 78.74)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "7aaf423b-175f-4628-a85c-2500b31e79ab")
-	)
-	(junction
-		(at 153.67 104.14)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "7f6cb16e-4f3b-4edd-a092-4f3384d3e744")
-	)
-	(junction
-		(at 153.67 73.66)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "8fef7a86-961a-4b1f-9f70-061f4f35cf80")
-	)
-	(junction
-		(at 153.67 88.9)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "a8dcc8d1-12e8-48cb-9b8f-6eb403496d8c")
-	)
-	(junction
-		(at 153.67 93.98)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "e381def9-3a14-4800-8f92-e40cc18c5f5f")
+		(symbol "power:PWR_FLAG"
+			(power)
+			(pin_numbers hide)
+			(pin_names
+				(offset 0) hide)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "#FLG"
+				(at 0 1.905 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Value" "PWR_FLAG"
+				(at 0 3.81 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "~"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Special symbol for telling ERC where power comes from"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "flag power"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "PWR_FLAG_0_0"
+				(pin power_out line
+					(at 0 0 90)
+					(length 0)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(symbol "PWR_FLAG_0_1"
+				(polyline
+					(pts
+						(xy 0 0) (xy 0 1.27) (xy -1.016 1.905) (xy 0 2.54) (xy 1.016 1.905) (xy 0 1.27)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+		)
 	)
 	(no_connect
-		(at 107.95 96.52)
+		(at 107.95 81.28)
 		(uuid "73fac6fc-5fbe-4f55-a37a-e8c5f8150149")
 	)
 	(wire
 		(pts
-			(xy 170.18 86.36) (xy 170.18 83.82)
+			(xy 158.75 80.01) (xy 175.26 80.01)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "03133035-6a29-4a73-8f0d-c815c77dc23e")
+		(uuid "01de1a3c-0924-4472-bb8b-e4ba8d789d23")
 	)
 	(wire
 		(pts
-			(xy 180.34 86.36) (xy 170.18 86.36)
+			(xy 177.8 71.12) (xy 177.8 83.82)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "07e83338-dd52-4d00-810a-aef28cf50090")
+		(uuid "04412945-122e-4ea7-aefc-c9a3b18c590e")
 	)
 	(wire
 		(pts
-			(xy 153.67 97.79) (xy 153.67 99.06)
+			(xy 175.26 86.36) (xy 175.26 80.01)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "0bcb5bcf-f640-448a-9c31-4debc313669f")
+		(uuid "0578d9d1-98b9-4acd-8e41-6b11de4cf140")
 	)
 	(wire
 		(pts
-			(xy 153.67 92.71) (xy 153.67 93.98)
+			(xy 182.88 53.34) (xy 182.88 78.74)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "12984906-52fd-491c-a7a9-f8f2489ebce4")
+		(uuid "0d7dff97-38ad-44a5-8a9d-ad200ed7f14a")
 	)
 	(wire
 		(pts
-			(xy 153.67 80.01) (xy 152.4 80.01)
+			(xy 158.75 124.46) (xy 182.88 124.46)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "158d95cf-5e0b-439e-9b31-9112cd6afeab")
+		(uuid "11f5f26c-3ef2-466b-94d4-7db1162b401a")
 	)
 	(wire
 		(pts
-			(xy 153.67 73.66) (xy 175.26 73.66)
+			(xy 73.66 83.82) (xy 73.66 86.36)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "167b13ce-3ebe-4a4f-b060-d7046bb811fa")
+		(uuid "182ef80c-6196-4bae-b249-bacd9ed27aee")
 	)
 	(wire
 		(pts
-			(xy 153.67 95.25) (xy 152.4 95.25)
+			(xy 180.34 115.57) (xy 180.34 96.52)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "1c4a7678-bb1d-417a-9aba-c222b0e6703c")
+		(uuid "1bc13ab2-a814-4975-82d5-efc87b503767")
 	)
 	(wire
 		(pts
-			(xy 177.8 78.74) (xy 180.34 78.74)
+			(xy 158.75 97.79) (xy 175.26 97.79)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "24938371-b60f-492e-ab94-d31437f306f6")
+		(uuid "21593ad5-6fb6-4cd6-99aa-a9657f7c92d8")
 	)
 	(wire
 		(pts
-			(xy 153.67 69.85) (xy 152.4 69.85)
+			(xy 175.26 91.44) (xy 175.26 97.79)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "25727021-ea97-4a82-9fd5-e8814887eeba")
-	)
-	(wire
-		(pts
-			(xy 139.7 82.55) (xy 153.67 82.55)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "29012d89-7cf9-414c-b6c9-f8a2c9e50b5c")
-	)
-	(wire
-		(pts
-			(xy 139.7 97.79) (xy 153.67 97.79)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "2993b769-8da2-40a2-99e7-4573f65718c8")
-	)
-	(wire
-		(pts
-			(xy 153.67 100.33) (xy 152.4 100.33)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "2bcaff28-4433-4f07-a431-ee6a1e7edab7")
+		(uuid "2713855c-d844-4e5c-af8e-2e1e53c15e97")
 	)
 	(wire
 		(pts
@@ -1271,463 +1359,163 @@
 	)
 	(wire
 		(pts
-			(xy 139.7 102.87) (xy 153.67 102.87)
+			(xy 177.8 93.98) (xy 201.93 93.98)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "3081c775-b1c0-4583-b72e-fc7d28dcca4e")
+		(uuid "2cbbef99-ccb8-4492-a120-fe2b34c132c5")
 	)
 	(wire
 		(pts
-			(xy 153.67 67.31) (xy 153.67 68.58)
+			(xy 180.34 96.52) (xy 201.93 96.52)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "30e65042-7cb5-4cd1-b21c-6a8393922816")
+		(uuid "40f8a144-9449-4664-9a8b-a2111096a003")
 	)
 	(wire
 		(pts
-			(xy 153.67 88.9) (xy 153.67 90.17)
+			(xy 90.17 83.82) (xy 90.17 86.36)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "31a67410-0b21-4c72-89d0-aab1955e8e05")
+		(uuid "44aa1b01-19b5-487d-ab2d-aafe06fecc5d")
 	)
 	(wire
 		(pts
-			(xy 153.67 77.47) (xy 153.67 78.74)
+			(xy 182.88 99.06) (xy 201.93 99.06)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "33379aac-4584-4b12-9fee-81910bd94bca")
+		(uuid "4bbf4608-4df3-41f1-bab8-210ec7b0e4de")
 	)
 	(wire
 		(pts
-			(xy 180.34 99.06) (xy 177.8 99.06)
+			(xy 158.75 53.34) (xy 182.88 53.34)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "37d97307-2419-4a77-9e01-6e5d85d91c89")
+		(uuid "5aef79d6-d2f6-4fb9-ae14-03becd8f6373")
 	)
 	(wire
 		(pts
-			(xy 170.18 93.98) (xy 170.18 91.44)
+			(xy 180.34 81.28) (xy 201.93 81.28)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "388bf733-b6a8-4ab2-a7e2-fe6f7ab1d228")
+		(uuid "5d56f53e-5da1-486b-922e-de888ec966cb")
 	)
 	(wire
 		(pts
-			(xy 153.67 82.55) (xy 153.67 83.82)
+			(xy 158.75 71.12) (xy 177.8 71.12)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "3d2e3142-0a1c-45a9-b0e8-f25c8ecf7646")
+		(uuid "600c322d-7ff8-4749-ab68-49d68f3d3b8f")
 	)
 	(wire
 		(pts
-			(xy 139.7 107.95) (xy 153.67 107.95)
+			(xy 158.75 88.9) (xy 201.93 88.9)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "3e98457e-ba15-45ad-b388-e5831ba838ec")
+		(uuid "644a6caa-aa96-4d84-b29d-72c55676bee1")
 	)
 	(wire
 		(pts
-			(xy 153.67 102.87) (xy 153.67 104.14)
+			(xy 201.93 91.44) (xy 175.26 91.44)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "44a400af-c0c5-4f11-87b9-67a7decb30d7")
+		(uuid "6fe02680-bbb4-4ab2-96cf-37dcfceebb20")
 	)
 	(wire
 		(pts
-			(xy 153.67 88.9) (xy 180.34 88.9)
+			(xy 180.34 62.23) (xy 180.34 81.28)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "44ef4b10-2651-44c7-8eab-51e1c10e09ac")
+		(uuid "7d6a25ef-2bbb-411a-8cdb-44f27060669d")
 	)
 	(wire
 		(pts
-			(xy 153.67 99.06) (xy 172.72 99.06)
+			(xy 182.88 78.74) (xy 201.93 78.74)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "4b8429eb-9cf2-4577-83f3-6a4d5f238ce0")
+		(uuid "7e60fe1d-cf82-417e-a5e6-6df10c774832")
 	)
 	(wire
 		(pts
-			(xy 172.72 93.98) (xy 172.72 99.06)
+			(xy 182.88 124.46) (xy 182.88 99.06)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "51ae72a9-cff1-4710-87e4-52cf449c6e08")
+		(uuid "8d14f799-ef95-4c41-bc1f-fb096769c7e3")
 	)
 	(wire
 		(pts
-			(xy 153.67 104.14) (xy 153.67 105.41)
+			(xy 177.8 106.68) (xy 177.8 93.98)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "545f2d6b-2468-485d-b7dc-308347d9b633")
+		(uuid "91cc7a1b-ea75-4b62-b6a7-5596881990cc")
 	)
 	(wire
 		(pts
-			(xy 139.7 92.71) (xy 153.67 92.71)
+			(xy 158.75 62.23) (xy 180.34 62.23)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "54a6fbaf-18b3-4cc3-ae37-8bb55c943a36")
+		(uuid "91d07120-73ff-4a5f-9224-217c87d8beaa")
 	)
 	(wire
 		(pts
-			(xy 153.67 78.74) (xy 172.72 78.74)
+			(xy 177.8 83.82) (xy 201.93 83.82)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "5fb4a2e1-aac0-4996-839e-2cb0977f1c81")
+		(uuid "98d87fa8-6617-42da-a5e1-49421ac3fb14")
 	)
 	(wire
 		(pts
-			(xy 139.7 67.31) (xy 153.67 67.31)
+			(xy 201.93 86.36) (xy 175.26 86.36)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "6ba421f1-67c2-4301-91a4-a37bc4ad7b65")
-	)
-	(wire
-		(pts
-			(xy 139.7 87.63) (xy 153.67 87.63)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "6ddc5d22-1f69-4a1e-9399-4d3e554422e8")
-	)
-	(wire
-		(pts
-			(xy 172.72 83.82) (xy 180.34 83.82)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "7da752a7-76aa-4b71-af15-093dd3aebf81")
-	)
-	(wire
-		(pts
-			(xy 172.72 78.74) (xy 172.72 83.82)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "7edff654-69b5-42a0-9f61-bee7bb5491d7")
-	)
-	(wire
-		(pts
-			(xy 153.67 109.22) (xy 177.8 109.22)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "807d9c90-479a-409c-be83-a2649e235ee4")
-	)
-	(wire
-		(pts
-			(xy 153.67 83.82) (xy 153.67 85.09)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "838ec8e7-e2bd-48f6-93b5-5aab12e6f1d5")
-	)
-	(wire
-		(pts
-			(xy 175.26 81.28) (xy 180.34 81.28)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "86f838f8-b6cb-4bd8-9dc7-3fd6a30dbc0a")
-	)
-	(wire
-		(pts
-			(xy 153.67 68.58) (xy 153.67 69.85)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8866197a-b6cc-4110-9e36-5689aa9b6dde")
-	)
-	(wire
-		(pts
-			(xy 153.67 105.41) (xy 152.4 105.41)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "88a1893f-7b87-4969-a9bd-7109a5a15182")
-	)
-	(wire
-		(pts
-			(xy 175.26 96.52) (xy 175.26 104.14)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "94a53da4-0b38-43ec-9bc5-27c02e679066")
-	)
-	(wire
-		(pts
-			(xy 180.34 96.52) (xy 175.26 96.52)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "963c76f6-e750-4392-ae8f-1fd63de4f1e8")
-	)
-	(wire
-		(pts
-			(xy 177.8 99.06) (xy 177.8 109.22)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a07b2d6d-b106-4a66-a98a-af860fdddb63")
-	)
-	(wire
-		(pts
-			(xy 153.67 110.49) (xy 152.4 110.49)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a43afe73-72f1-47a8-b776-aa47e5aed15c")
-	)
-	(wire
-		(pts
-			(xy 139.7 77.47) (xy 153.67 77.47)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a5455ab7-94dc-4f4d-88a1-f35fd9643539")
-	)
-	(wire
-		(pts
-			(xy 153.67 87.63) (xy 153.67 88.9)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a734b00f-0bb3-4e15-bc81-cd50584a9715")
-	)
-	(wire
-		(pts
-			(xy 153.67 72.39) (xy 153.67 73.66)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "af028029-17f7-4393-9813-e48c207be1e6")
-	)
-	(wire
-		(pts
-			(xy 180.34 93.98) (xy 172.72 93.98)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b25f5543-214b-4d5a-8dba-734eee14375f")
-	)
-	(wire
-		(pts
-			(xy 153.67 107.95) (xy 153.67 109.22)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b4ffb8ef-787c-4764-a4e0-9d5a2ede05f4")
-	)
-	(wire
-		(pts
-			(xy 139.7 72.39) (xy 153.67 72.39)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "bd5826ad-bfa7-41fa-9fc1-4a928a1b1fef")
-	)
-	(wire
-		(pts
-			(xy 153.67 83.82) (xy 170.18 83.82)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "bdf7f278-c461-4605-bd78-9fb418528776")
-	)
-	(wire
-		(pts
-			(xy 153.67 74.93) (xy 152.4 74.93)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "befbbd66-bc08-4bc3-b20a-d92d524f42c5")
-	)
-	(wire
-		(pts
-			(xy 153.67 93.98) (xy 153.67 95.25)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "bfb3d6b6-7b3c-49e6-896d-7c5e662c0541")
-	)
-	(wire
-		(pts
-			(xy 153.67 85.09) (xy 152.4 85.09)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c0c28049-5c4f-4d73-86e2-470da4c006ae")
-	)
-	(wire
-		(pts
-			(xy 170.18 91.44) (xy 180.34 91.44)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c5ea337d-10c7-439a-ac1e-db01b9d97a3e")
-	)
-	(wire
-		(pts
-			(xy 153.67 99.06) (xy 153.67 100.33)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c9a93447-3d72-4932-927d-3a27844730f5")
-	)
-	(wire
-		(pts
-			(xy 153.67 90.17) (xy 152.4 90.17)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c9db21a8-8d09-47ee-9d1b-7fd2071fd132")
-	)
-	(wire
-		(pts
-			(xy 153.67 73.66) (xy 153.67 74.93)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "cf0997f7-bc41-40ac-88f3-c7280e7d2ea4")
-	)
-	(wire
-		(pts
-			(xy 175.26 73.66) (xy 175.26 81.28)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d5e4bce8-0101-41d5-9ede-3ebbb1bf74cf")
-	)
-	(wire
-		(pts
-			(xy 153.67 93.98) (xy 170.18 93.98)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "e2678138-2cba-4822-92b2-8a25ae729f42")
-	)
-	(wire
-		(pts
-			(xy 153.67 78.74) (xy 153.67 80.01)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "e42de19d-86c8-47c1-8596-ed4bbdd73796")
-	)
-	(wire
-		(pts
-			(xy 153.67 109.22) (xy 153.67 110.49)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "e47cad90-65b9-42e9-9180-8235fd35a531")
+		(uuid "cea5403a-699e-40a5-bb54-994c91db6ec9")
 	)
 	(wire
 		(pts
@@ -1741,33 +1529,23 @@
 	)
 	(wire
 		(pts
-			(xy 177.8 68.58) (xy 177.8 78.74)
+			(xy 158.75 115.57) (xy 180.34 115.57)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "ef6666c9-b27e-4ea9-9121-0ab8be6f802b")
+		(uuid "e9ceee20-5f1a-45ab-9f5e-d1be993ef504")
 	)
 	(wire
 		(pts
-			(xy 153.67 104.14) (xy 175.26 104.14)
+			(xy 158.75 106.68) (xy 177.8 106.68)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "f951acc8-f76a-4a31-b831-428dfa75fc0c")
-	)
-	(wire
-		(pts
-			(xy 153.67 68.58) (xy 177.8 68.58)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "fc3d68c0-97fc-4f91-a736-3f5394a4bc75")
+		(uuid "ea5d83d8-f24b-4d2f-81ee-d86a754e5575")
 	)
 	(text "Pin 1: Glasgow Digtial IO\nPin 3: Glasgow Digital IO\nPin 4: Glasgow Digital GND"
 		(exclude_from_sim no)
@@ -1801,7 +1579,7 @@
 	)
 	(text "Output"
 		(exclude_from_sim no)
-		(at 201.93 79.756 0)
+		(at 223.52 79.756 0)
 		(effects
 			(font
 				(size 2.54 2.54)
@@ -1819,8 +1597,8 @@
 		)
 		(uuid "d8c68e87-3e12-4946-871d-d26e2d6a8439")
 	)
-	(label "In-2"
-		(at 144.78 69.85 180)
+	(label "In-1"
+		(at 152.4 93.98 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -1828,21 +1606,21 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "18b59b6d-5daf-4327-aba9-e48e48dff47f")
+		(uuid "0442b1fc-457e-4086-a48f-6a553641bb47")
 	)
 	(label "In-2"
-		(at 144.78 74.93 180)
+		(at 165.1 120.65 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify right bottom)
+			(justify left bottom)
 		)
-		(uuid "20b66257-6e83-4bae-8c4e-6ec11aae7093")
+		(uuid "1d6c6e5d-8abd-4b89-be45-566146073f39")
 	)
 	(label "In-1"
-		(at 113.03 88.9 0)
+		(at 113.03 91.44 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -1853,29 +1631,29 @@
 		(uuid "313fbc8d-5624-4d46-8331-5ee54f2fb153")
 	)
 	(label "In-2"
-		(at 144.78 95.25 180)
+		(at 165.1 58.42 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify right bottom)
+			(justify left bottom)
 		)
-		(uuid "563a4831-8c27-4a32-8c54-4c9b4e91f350")
+		(uuid "3cec0a4d-66e0-4f13-a71a-a2166d46c66c")
 	)
 	(label "In-2"
-		(at 144.78 100.33 180)
+		(at 165.1 102.87 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify right bottom)
+			(justify left bottom)
 		)
-		(uuid "5bddcb28-01cc-4dac-a762-2d09a21254c9")
+		(uuid "3f410a8b-8223-46f3-9b64-263db2967e6d")
 	)
 	(label "In-1"
-		(at 132.08 102.87 180)
+		(at 152.4 85.09 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -1883,10 +1661,10 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "7aa72053-1472-471f-9e49-b82c6cffcb42")
+		(uuid "49e54614-3b26-41a3-892a-bffe538ee5c4")
 	)
 	(label "In-1"
-		(at 132.08 107.95 180)
+		(at 152.4 111.76 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -1894,10 +1672,21 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "7b77a502-5eaa-456e-a5a1-d1dfb76caa43")
+		(uuid "5c66dfe4-4007-4576-b752-f6f4b1f74538")
+	)
+	(label "In-2"
+		(at 165.1 111.76 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "60a59c98-ca71-46df-b0bc-238619de1ce9")
 	)
 	(label "In-1"
-		(at 132.08 87.63 180)
+		(at 152.4 120.65 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -1905,10 +1694,32 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "7f2378d8-b6e0-4fb9-bbb3-8d66d5837a18")
+		(uuid "61569367-dcda-440b-9518-6bee011e1802")
 	)
 	(label "In-2"
-		(at 144.78 85.09 180)
+		(at 165.1 76.2 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "6667576b-1384-4ba7-84b7-631114bff3da")
+	)
+	(label "In-2"
+		(at 165.1 85.09 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "6a7c1187-68d2-494a-9d84-bef0d82031b2")
+	)
+	(label "In-1"
+		(at 152.4 76.2 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -1916,10 +1727,21 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "8343b644-39cd-4e67-9443-e88998611dfa")
+		(uuid "6bb8a637-819e-4de7-a6b7-0685f3c83105")
 	)
 	(label "In-2"
-		(at 144.78 110.49 180)
+		(at 165.1 67.31 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "7113ec09-fbab-4307-8c20-8834125ecbdd")
+	)
+	(label "In-1"
+		(at 152.4 49.53 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -1927,10 +1749,10 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "86b3a913-4450-4257-977c-71f1d75e8c06")
+		(uuid "75ebe4da-69e4-4ae1-8729-b72b752906cf")
 	)
 	(label "In-2"
-		(at 113.03 91.44 0)
+		(at 113.03 88.9 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -1941,7 +1763,7 @@
 		(uuid "988c5493-0755-4399-bb4b-b489b994c1d7")
 	)
 	(label "In-1"
-		(at 132.08 92.71 180)
+		(at 152.4 58.42 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -1949,10 +1771,10 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "99540f91-c234-49ad-a985-84d6431c19f4")
+		(uuid "bb620a69-46a3-48e4-b436-52355716237f")
 	)
 	(label "In-1"
-		(at 132.08 77.47 180)
+		(at 152.4 102.87 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -1960,10 +1782,10 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "ab0fe157-cac7-4174-8221-c6bd7e93f428")
+		(uuid "d47d93ff-67d3-4987-b995-5a6e6cada6a5")
 	)
 	(label "In-1"
-		(at 132.08 97.79 180)
+		(at 152.4 67.31 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -1971,102 +1793,59 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "c8347a4f-9767-44bb-9d1c-99fd7513493a")
-	)
-	(label "In-1"
-		(at 132.08 72.39 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "cd8b5aa9-8763-43d3-b7ae-06dd46e20a8e")
+		(uuid "da3af385-35da-4c90-acc4-b3c22e2a6f73")
 	)
 	(label "In-2"
-		(at 144.78 80.01 180)
+		(at 165.1 49.53 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify right bottom)
+			(justify left bottom)
 		)
-		(uuid "d375e0a7-e858-47fe-b3b4-978f8a5808a3")
+		(uuid "db90c40c-0ed0-4d58-b335-2fc55547b6d8")
 	)
 	(label "In-2"
-		(at 144.78 105.41 180)
+		(at 165.1 93.98 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify right bottom)
+			(justify left bottom)
 		)
-		(uuid "e32dc3fb-d2a0-4eac-a06c-c9f9775d23cc")
-	)
-	(label "In-1"
-		(at 132.08 67.31 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "f27ac2b6-7c84-45b2-961a-4178bc31c68b")
-	)
-	(label "In-2"
-		(at 144.78 90.17 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "fbdfdcf7-bea2-43ad-b3d2-94554f77dd90")
-	)
-	(label "In-1"
-		(at 132.08 82.55 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "fcd45de9-aff3-4671-95f0-cf014856b021")
+		(uuid "e9c4a14c-83b8-4886-a327-a413d52a8233")
 	)
 	(symbol
-		(lib_id "Device:R")
-		(at 135.89 82.55 90)
+		(lib_id "power:GNDD")
+		(at 73.66 86.36 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "0d7ee6fd-fb01-44aa-86cf-bbe5deb685a7")
-		(property "Reference" "R7"
-			(at 135.89 82.55 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "R"
-			(at 135.89 78.74 90)
+		(fields_autoplaced yes)
+		(uuid "02dfe408-ae50-4001-b36d-140f1f0373f7")
+		(property "Reference" "#PWR01"
+			(at 73.66 92.71 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Value" "GNDD"
+			(at 73.66 90.17 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(property "Footprint" ""
-			(at 135.89 84.328 90)
+			(at 73.66 86.36 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2074,8 +1853,8 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "~"
-			(at 135.89 82.55 0)
+		(property "Datasheet" ""
+			(at 73.66 86.36 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2083,8 +1862,8 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "Resistor"
-			(at 135.89 82.55 0)
+		(property "Description" "Power symbol creates a global label with name \"GNDD\" , digital ground"
+			(at 73.66 86.36 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2093,15 +1872,78 @@
 			)
 		)
 		(pin "1"
-			(uuid "62bce875-b19d-44ae-a61f-4d8eef976b6e")
-		)
-		(pin "2"
-			(uuid "ea731a73-4af2-4afa-8b7e-b8cba0ae91af")
+			(uuid "d3067311-066c-49c7-9be7-d77ccf10d512")
 		)
 		(instances
 			(project "DB9 High-Low Signal Generator"
 				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
-					(reference "R7")
+					(reference "#PWR01")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:PWR_FLAG")
+		(at 73.66 83.82 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "19b632b7-22ae-44c7-8ff9-4e197ec3ee46")
+		(property "Reference" "#FLG01"
+			(at 73.66 81.915 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "PWR_FLAG"
+			(at 73.66 78.74 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 73.66 83.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 73.66 83.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Special symbol for telling ERC where power comes from"
+			(at 73.66 83.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "a6e5042d-9fb7-47cf-a98f-d34f0c1bf51e")
+		)
+		(instances
+			(project "DB9 High-Low Signal Generator"
+				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
+					(reference "#FLG01")
 					(unit 1)
 				)
 			)
@@ -2109,7 +1951,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 187.96 104.14 0)
+		(at 209.55 104.14 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -2118,7 +1960,7 @@
 		(fields_autoplaced yes)
 		(uuid "1c7f4374-a4d1-485e-a9a9-14c79de77636")
 		(property "Reference" "#PWR011"
-			(at 187.96 110.49 0)
+			(at 209.55 110.49 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2127,7 +1969,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 187.9601 107.95 90)
+			(at 209.5501 107.95 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2137,7 +1979,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 187.96 104.14 0)
+			(at 209.55 104.14 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2146,7 +1988,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 187.96 104.14 0)
+			(at 209.55 104.14 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2155,7 +1997,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 187.96 104.14 0)
+			(at 209.55 104.14 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2178,14 +2020,15 @@
 	(symbol
 		(lib_id "OBI Connectors:M8_conn_01x03_Pin_Shielded")
 		(at 107.95 88.9 0)
+		(mirror x)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(uuid "1d5ef976-7498-46a4-9745-fec7c52536f5")
-		(property "Reference" "J4"
-			(at 110.744 84.074 90)
+		(property "Reference" "J2"
+			(at 110.744 93.726 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2194,7 +2037,7 @@
 			)
 		)
 		(property "Value" "M8_conn_01x03_Pin_Shielded"
-			(at 107.95 84.328 90)
+			(at 107.696 93.472 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2229,6 +2072,24 @@
 				(hide yes)
 			)
 		)
+		(property "Sim.Device" ""
+			(at 107.95 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 107.95 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "3ea87655-70cb-4a4f-b13d-ad110aa58414")
 		)
@@ -2244,31 +2105,31 @@
 		(instances
 			(project "DB9 High-Low Signal Generator"
 				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
-					(reference "J4")
+					(reference "J2")
 					(unit 1)
 				)
 			)
 		)
 	)
 	(symbol
-		(lib_id "Device:R")
-		(at 148.59 110.49 90)
+		(lib_id "Jumper:Jumper_3_Open")
+		(at 158.75 111.76 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "2169913c-c66f-4f5f-a86f-939da0cdfbeb")
-		(property "Reference" "R18"
-			(at 148.59 110.49 90)
+		(uuid "22199387-f3e8-40c3-8b43-fbed2f064470")
+		(property "Reference" "JP9"
+			(at 144.78 110.998 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Value" "R"
-			(at 148.59 110.49 90)
+		(property "Value" "Jumper_3_Open"
+			(at 147.574 114.046 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2276,8 +2137,8 @@
 				(hide yes)
 			)
 		)
-		(property "Footprint" ""
-			(at 148.59 112.268 90)
+		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical"
+			(at 158.75 111.76 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2286,7 +2147,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 148.59 110.49 0)
+			(at 158.75 111.76 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2294,8 +2155,26 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "Resistor"
-			(at 148.59 110.49 0)
+		(property "Description" "Jumper, 3-pole, both open"
+			(at 158.75 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 158.75 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 158.75 111.76 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2304,39 +2183,35 @@
 			)
 		)
 		(pin "1"
-			(uuid "271f3cc1-21c3-4f3f-99c1-dbae21d80522")
+			(uuid "b3f68a51-37f7-4ffb-83b3-207d46a454d4")
+		)
+		(pin "3"
+			(uuid "6a79a14b-b40f-4ad3-a100-46ba79594b85")
 		)
 		(pin "2"
-			(uuid "d7fae7d7-1ba4-4cac-b7a7-c1a0fc1864f0")
+			(uuid "855547b2-3c62-4401-bbdf-bc9055d68145")
 		)
 		(instances
 			(project "DB9 High-Low Signal Generator"
 				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
-					(reference "R18")
+					(reference "JP9")
 					(unit 1)
 				)
 			)
 		)
 	)
 	(symbol
-		(lib_id "Device:R")
-		(at 135.89 107.95 90)
+		(lib_id "power:GND")
+		(at 90.17 86.36 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "2308717f-a080-49e1-abfe-02233db08335")
-		(property "Reference" "R17"
-			(at 135.89 107.95 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "R"
-			(at 135.89 104.14 90)
+		(fields_autoplaced yes)
+		(uuid "23714544-903e-4ef5-993f-c008fe6411d4")
+		(property "Reference" "#PWR02"
+			(at 90.17 92.71 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2344,8 +2219,83 @@
 				(hide yes)
 			)
 		)
+		(property "Value" "GND"
+			(at 90.1701 90.17 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
 		(property "Footprint" ""
-			(at 135.89 109.728 90)
+			(at 90.17 86.36 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 90.17 86.36 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 90.17 86.36 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "3012317a-230d-4492-864b-21567b1d9d76")
+		)
+		(instances
+			(project "DB9 High-Low Signal Generator"
+				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
+					(reference "#PWR02")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Jumper:Jumper_3_Open")
+		(at 158.75 49.53 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "56840711-574f-4c0c-b16d-80132e9e5c32")
+		(property "Reference" "JP1"
+			(at 144.78 48.768 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "Jumper_3_Open"
+			(at 147.574 51.816 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical"
+			(at 158.75 49.53 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2354,7 +2304,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 135.89 107.95 0)
+			(at 158.75 49.53 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2362,8 +2312,26 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "Resistor"
-			(at 135.89 107.95 0)
+		(property "Description" "Jumper, 3-pole, both open"
+			(at 158.75 49.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 158.75 49.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 158.75 49.53 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2372,39 +2340,42 @@
 			)
 		)
 		(pin "1"
-			(uuid "160eb5d6-c6d8-46d7-86c4-ce2d9c2b44a5")
+			(uuid "7d8af126-09ef-4464-81c3-0f68f78e052f")
+		)
+		(pin "3"
+			(uuid "19f69f7a-e7a3-49ce-8eb7-579dca857653")
 		)
 		(pin "2"
-			(uuid "3e3480ef-0bac-4b80-b651-c395dd52b688")
+			(uuid "5ac5fc74-2811-40fb-ba92-b1243f2b30ca")
 		)
 		(instances
 			(project "DB9 High-Low Signal Generator"
 				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
-					(reference "R17")
+					(reference "JP1")
 					(unit 1)
 				)
 			)
 		)
 	)
 	(symbol
-		(lib_id "Device:R")
-		(at 148.59 95.25 90)
+		(lib_id "Jumper:Jumper_3_Open")
+		(at 158.75 93.98 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "467b5b97-1fc5-47b1-af5f-4c4ba4e7b72f")
-		(property "Reference" "R12"
-			(at 148.59 95.25 90)
+		(uuid "8786ce07-761d-4ded-bba2-f0cff5285465")
+		(property "Reference" "JP8"
+			(at 144.78 93.218 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Value" "R"
-			(at 148.59 95.25 90)
+		(property "Value" "Jumper_3_Open"
+			(at 147.574 96.266 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2412,8 +2383,8 @@
 				(hide yes)
 			)
 		)
-		(property "Footprint" ""
-			(at 148.59 97.028 90)
+		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical"
+			(at 158.75 93.98 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2422,7 +2393,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 148.59 95.25 0)
+			(at 158.75 93.98 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2430,8 +2401,8 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "Resistor"
-			(at 148.59 95.25 0)
+		(property "Description" "Jumper, 3-pole, both open"
+			(at 158.75 93.98 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2439,40 +2410,8 @@
 				(hide yes)
 			)
 		)
-		(pin "1"
-			(uuid "838680a2-63d6-4409-ae58-e7169cec45e9")
-		)
-		(pin "2"
-			(uuid "ccc8d563-3da0-45af-8a01-7099f2cd0fce")
-		)
-		(instances
-			(project "DB9 High-Low Signal Generator"
-				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
-					(reference "R12")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R")
-		(at 135.89 97.79 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "5d53518c-f3af-4277-bfb1-5ef31be312e6")
-		(property "Reference" "R13"
-			(at 135.89 97.79 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "R"
-			(at 135.89 93.98 90)
+		(property "Sim.Device" ""
+			(at 158.75 93.98 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2480,26 +2419,8 @@
 				(hide yes)
 			)
 		)
-		(property "Footprint" ""
-			(at 135.89 99.568 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 135.89 97.79 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor"
-			(at 135.89 97.79 0)
+		(property "Sim.Pins" ""
+			(at 158.75 93.98 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2508,355 +2429,18 @@
 			)
 		)
 		(pin "1"
-			(uuid "16d7e5b6-c50a-4b0d-a6aa-fe15f2e0ba30")
+			(uuid "12bde39b-3e81-47ec-99c5-6633d7bf4757")
+		)
+		(pin "3"
+			(uuid "44a3a161-fbbe-49a7-af52-fee0057eb6c7")
 		)
 		(pin "2"
-			(uuid "82127374-cb0a-4b29-ad35-0e9c55728067")
+			(uuid "62aa207e-e606-47ea-ab17-8ea2ad2e67f2")
 		)
 		(instances
 			(project "DB9 High-Low Signal Generator"
 				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
-					(reference "R13")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R")
-		(at 135.89 87.63 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "6279a009-c6f4-4c06-ac8a-4c2d83bb184b")
-		(property "Reference" "R9"
-			(at 135.89 87.63 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "R"
-			(at 135.89 83.82 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Footprint" ""
-			(at 135.89 89.408 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 135.89 87.63 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor"
-			(at 135.89 87.63 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "26c99459-96a5-4b6c-9470-68f120ffb3d5")
-		)
-		(pin "2"
-			(uuid "339d69fe-36e9-482c-8a69-95d849d9df05")
-		)
-		(instances
-			(project "DB9 High-Low Signal Generator"
-				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
-					(reference "R9")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R")
-		(at 148.59 100.33 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "665c9a23-dce9-4ee6-9415-c93e7111fdd1")
-		(property "Reference" "R14"
-			(at 148.59 100.33 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "R"
-			(at 148.59 100.33 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Footprint" ""
-			(at 148.59 102.108 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 148.59 100.33 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor"
-			(at 148.59 100.33 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "5fdabdaf-1dd2-4fe7-91c6-e22d89cdaf3e")
-		)
-		(pin "2"
-			(uuid "0df25a80-19f8-4ce6-a50a-612beed1bcb3")
-		)
-		(instances
-			(project "DB9 High-Low Signal Generator"
-				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
-					(reference "R14")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R")
-		(at 148.59 74.93 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "6c5cc8d6-e0ca-4551-96ea-a59cab849ca0")
-		(property "Reference" "R4"
-			(at 148.59 74.93 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "R"
-			(at 148.59 74.93 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Footprint" ""
-			(at 148.59 76.708 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 148.59 74.93 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor"
-			(at 148.59 74.93 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "942bb176-4df6-4b78-a591-06c5d92cf538")
-		)
-		(pin "2"
-			(uuid "18d8429f-f70d-47d3-bc14-151da8591e99")
-		)
-		(instances
-			(project "DB9 High-Low Signal Generator"
-				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
-					(reference "R4")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R")
-		(at 148.59 105.41 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "8589193b-b1c4-4937-b668-cbdd8b146d3f")
-		(property "Reference" "R16"
-			(at 148.59 105.41 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "R"
-			(at 148.59 105.41 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Footprint" ""
-			(at 148.59 107.188 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 148.59 105.41 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor"
-			(at 148.59 105.41 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "4d0664a5-71b8-4daf-9ae0-b7f574142b56")
-		)
-		(pin "2"
-			(uuid "02825010-f667-4496-b47c-3f364f29fa5b")
-		)
-		(instances
-			(project "DB9 High-Low Signal Generator"
-				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
-					(reference "R16")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R")
-		(at 148.59 90.17 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "8e94917b-cfd2-4b40-a6fc-bdd98dc2f041")
-		(property "Reference" "R10"
-			(at 148.59 90.17 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "R"
-			(at 148.59 90.17 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Footprint" ""
-			(at 148.59 91.948 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 148.59 90.17 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor"
-			(at 148.59 90.17 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "9ef33bd3-319b-455e-957f-a8a2d7eb05b7")
-		)
-		(pin "2"
-			(uuid "5efab406-bf7d-45ff-a7ca-4d738a254bc2")
-		)
-		(instances
-			(project "DB9 High-Low Signal Generator"
-				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
-					(reference "R10")
+					(reference "JP8")
 					(unit 1)
 				)
 			)
@@ -2889,7 +2473,7 @@
 				(hide yes)
 			)
 		)
-		(property "Footprint" "OBI Components:MountingHole_3.5mm_Pad_Via_CrtYd_CopperOverEdge"
+		(property "Footprint" "OBI Components:MountingHole_3.5mm_Pad_Via_CrtYd_CoperOverCorner"
 			(at 30.48 176.53 0)
 			(effects
 				(font
@@ -2916,78 +2500,28 @@
 				(hide yes)
 			)
 		)
+		(property "Sim.Device" ""
+			(at 30.48 176.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 30.48 176.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(instances
 			(project "DB9 High-Low Signal Generator"
 				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
 					(reference "H1")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R")
-		(at 135.89 102.87 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "8ffffc10-7ae5-49f2-b2fb-5c56a5103a3d")
-		(property "Reference" "R15"
-			(at 135.89 102.87 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "R"
-			(at 135.89 99.06 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Footprint" ""
-			(at 135.89 104.648 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 135.89 102.87 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor"
-			(at 135.89 102.87 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "4843ad05-4089-46bb-b268-60fda9024d67")
-		)
-		(pin "2"
-			(uuid "5cb1f57f-117a-4a32-917b-0c143b023310")
-		)
-		(instances
-			(project "DB9 High-Low Signal Generator"
-				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
-					(reference "R15")
 					(unit 1)
 				)
 			)
@@ -3047,6 +2581,24 @@
 				(hide yes)
 			)
 		)
+		(property "Sim.Device" ""
+			(at 40.64 176.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 40.64 176.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(instances
 			(project "DB9 High-Low Signal Generator"
 				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
@@ -3058,7 +2610,7 @@
 	)
 	(symbol
 		(lib_id "Connector:DE9_Receptacle_MountingHoles")
-		(at 187.96 88.9 0)
+		(at 209.55 88.9 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -3066,8 +2618,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "92f498ff-e93c-4b27-83b9-20a496edeb69")
-		(property "Reference" "J3"
-			(at 193.04 87.6299 0)
+		(property "Reference" "J1"
+			(at 214.63 87.6299 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3076,7 +2628,7 @@
 			)
 		)
 		(property "Value" "DE9_Receptacle_MountingHoles"
-			(at 193.04 90.1699 0)
+			(at 214.63 90.1699 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3085,7 +2637,7 @@
 			)
 		)
 		(property "Footprint" "Connector_Dsub:DSUB-9_Female_Horizontal_P2.77x2.84mm_EdgePinOffset4.94mm_Housed_MountingHolesOffset7.48mm"
-			(at 187.96 88.9 0)
+			(at 209.55 88.9 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3094,7 +2646,7 @@
 			)
 		)
 		(property "Datasheet" " ~"
-			(at 187.96 88.9 0)
+			(at 209.55 88.9 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3103,7 +2655,25 @@
 			)
 		)
 		(property "Description" "9-pin female receptacle socket D-SUB connector, Mounting Hole"
-			(at 187.96 88.9 0)
+			(at 209.55 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 209.55 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 209.55 88.9 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3144,31 +2714,31 @@
 		(instances
 			(project "DB9 High-Low Signal Generator"
 				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
-					(reference "J3")
+					(reference "J1")
 					(unit 1)
 				)
 			)
 		)
 	)
 	(symbol
-		(lib_id "Device:R")
-		(at 135.89 77.47 90)
+		(lib_id "Jumper:Jumper_3_Open")
+		(at 158.75 102.87 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "a90da2da-479d-4b42-8e10-204b0b100a66")
-		(property "Reference" "R5"
-			(at 135.89 77.47 90)
+		(uuid "9b824974-5433-42ca-ba47-48ed14ae3a81")
+		(property "Reference" "JP4"
+			(at 144.78 102.108 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Value" "R"
-			(at 135.89 73.66 90)
+		(property "Value" "Jumper_3_Open"
+			(at 147.574 105.156 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3176,8 +2746,8 @@
 				(hide yes)
 			)
 		)
-		(property "Footprint" ""
-			(at 135.89 79.248 90)
+		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical"
+			(at 158.75 102.87 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3186,7 +2756,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 135.89 77.47 0)
+			(at 158.75 102.87 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3194,8 +2764,26 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "Resistor"
-			(at 135.89 77.47 0)
+		(property "Description" "Jumper, 3-pole, both open"
+			(at 158.75 102.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 158.75 102.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 158.75 102.87 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3204,15 +2792,285 @@
 			)
 		)
 		(pin "1"
-			(uuid "4e7f9596-8e21-4f77-b31e-28119f1ead88")
+			(uuid "d4fc8eaf-19f0-403f-b810-6e4cf3ed614a")
+		)
+		(pin "3"
+			(uuid "b9b23675-9a80-4cc0-9514-d452f21ecbfe")
 		)
 		(pin "2"
-			(uuid "10c16954-b973-4292-8b61-c7eaeccac6f2")
+			(uuid "4ebcfc88-0641-4277-af65-bbb52c15bb1c")
 		)
 		(instances
 			(project "DB9 High-Low Signal Generator"
 				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
-					(reference "R5")
+					(reference "JP4")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Jumper:Jumper_3_Open")
+		(at 158.75 85.09 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "9bdb6493-25f9-45f2-a487-bcadf99dd156")
+		(property "Reference" "JP3"
+			(at 144.78 84.328 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "Jumper_3_Open"
+			(at 147.574 87.376 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical"
+			(at 158.75 85.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 158.75 85.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Jumper, 3-pole, both open"
+			(at 158.75 85.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 158.75 85.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 158.75 85.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "c264af56-4cf6-4042-9c97-de00f618097c")
+		)
+		(pin "3"
+			(uuid "bee1c698-e41e-4494-9a35-a95caa3cad86")
+		)
+		(pin "2"
+			(uuid "d39d9331-cae9-4f7b-a358-e7fb8e69c552")
+		)
+		(instances
+			(project "DB9 High-Low Signal Generator"
+				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
+					(reference "JP3")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Jumper:Jumper_3_Open")
+		(at 158.75 120.65 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "a8340011-e051-4c9b-a5be-aaee3fd7a989")
+		(property "Reference" "JP5"
+			(at 144.78 119.888 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "Jumper_3_Open"
+			(at 147.574 122.936 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical"
+			(at 158.75 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 158.75 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Jumper, 3-pole, both open"
+			(at 158.75 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 158.75 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 158.75 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "1144e089-f192-442c-a421-2e30011f6ccb")
+		)
+		(pin "3"
+			(uuid "cb7f569c-336a-4527-a7f5-0462aa7b9b0f")
+		)
+		(pin "2"
+			(uuid "08bc2740-afb3-4682-8dd6-9290c1120480")
+		)
+		(instances
+			(project "DB9 High-Low Signal Generator"
+				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
+					(reference "JP5")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Jumper:Jumper_3_Open")
+		(at 158.75 76.2 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "abed3389-6f25-468b-982e-35ec05b97782")
+		(property "Reference" "JP7"
+			(at 144.78 75.438 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "Jumper_3_Open"
+			(at 147.574 78.486 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical"
+			(at 158.75 76.2 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 158.75 76.2 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Jumper, 3-pole, both open"
+			(at 158.75 76.2 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 158.75 76.2 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 158.75 76.2 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "8cafb864-cfff-4cac-bbcd-b372a08800b1")
+		)
+		(pin "3"
+			(uuid "3a7f0336-4ad5-458c-b023-15392181686a")
+		)
+		(pin "2"
+			(uuid "b8e16122-da47-4eaa-8940-fa50d819448f")
+		)
+		(instances
+			(project "DB9 High-Low Signal Generator"
+				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
+					(reference "JP7")
 					(unit 1)
 				)
 			)
@@ -3286,24 +3144,24 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:R")
-		(at 135.89 92.71 90)
+		(lib_id "Jumper:Jumper_3_Open")
+		(at 158.75 67.31 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "b2a9994f-829a-4e1c-a528-a9d25b2154e5")
-		(property "Reference" "R11"
-			(at 135.89 92.71 90)
+		(uuid "b45083f2-021a-401a-961c-d06e0b01b610")
+		(property "Reference" "JP2"
+			(at 144.78 66.548 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Value" "R"
-			(at 135.89 88.9 90)
+		(property "Value" "Jumper_3_Open"
+			(at 147.574 69.596 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3311,8 +3169,8 @@
 				(hide yes)
 			)
 		)
-		(property "Footprint" ""
-			(at 135.89 94.488 90)
+		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical"
+			(at 158.75 67.31 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3321,7 +3179,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 135.89 92.71 0)
+			(at 158.75 67.31 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3329,8 +3187,8 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "Resistor"
-			(at 135.89 92.71 0)
+		(property "Description" "Jumper, 3-pole, both open"
+			(at 158.75 67.31 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3338,40 +3196,8 @@
 				(hide yes)
 			)
 		)
-		(pin "1"
-			(uuid "62a1add8-0d52-4e1e-8cc2-b8eaa1aedf9e")
-		)
-		(pin "2"
-			(uuid "fa4f8d04-973f-4bbe-828a-a4349d6d38e4")
-		)
-		(instances
-			(project "DB9 High-Low Signal Generator"
-				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
-					(reference "R11")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R")
-		(at 148.59 69.85 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "b5af7ef2-5e7c-420e-8b36-4f632a74f1a7")
-		(property "Reference" "R2"
-			(at 148.59 69.85 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "R"
-			(at 148.59 69.85 90)
+		(property "Sim.Device" ""
+			(at 158.75 67.31 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3379,26 +3205,8 @@
 				(hide yes)
 			)
 		)
-		(property "Footprint" ""
-			(at 148.59 71.628 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 148.59 69.85 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor"
-			(at 148.59 69.85 0)
+		(property "Sim.Pins" ""
+			(at 158.75 67.31 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3407,151 +3215,18 @@
 			)
 		)
 		(pin "1"
-			(uuid "ecf31213-13d5-4ee5-82e8-453e515ab058")
+			(uuid "4fc6a2ec-14b8-4b2b-a9b7-b6f32899734d")
+		)
+		(pin "3"
+			(uuid "851769f7-7f0d-430c-a157-efedf6f28430")
 		)
 		(pin "2"
-			(uuid "c7f59443-7531-4429-8827-d2b49227e63e")
+			(uuid "bcb95f83-8d81-46a4-8589-d2771d440ca0")
 		)
 		(instances
 			(project "DB9 High-Low Signal Generator"
 				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
-					(reference "R2")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R")
-		(at 148.59 80.01 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "ca129065-eeb1-4bb2-8f27-64d16e2be1cc")
-		(property "Reference" "R6"
-			(at 148.59 80.01 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "R"
-			(at 148.59 80.01 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Footprint" ""
-			(at 148.59 81.788 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 148.59 80.01 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor"
-			(at 148.59 80.01 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "2814a475-b223-493e-b909-a09f5644d90b")
-		)
-		(pin "2"
-			(uuid "10af8cfd-108f-4b81-880c-4c1db9d047c2")
-		)
-		(instances
-			(project "DB9 High-Low Signal Generator"
-				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
-					(reference "R6")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R")
-		(at 135.89 72.39 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "cef3af89-b60c-4825-bae0-76fa3ed86a34")
-		(property "Reference" "R3"
-			(at 135.89 72.39 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "R"
-			(at 135.89 68.58 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Footprint" ""
-			(at 135.89 74.168 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 135.89 72.39 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor"
-			(at 135.89 72.39 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "34bb8017-ac12-4e4a-8363-66fcf586edb9")
-		)
-		(pin "2"
-			(uuid "697aded3-c426-4cf9-9a06-59d2a266f57a")
-		)
-		(instances
-			(project "DB9 High-Low Signal Generator"
-				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
-					(reference "R3")
+					(reference "JP2")
 					(unit 1)
 				)
 			)
@@ -3585,7 +3260,7 @@
 				(hide yes)
 			)
 		)
-		(property "Footprint" "OBI Components:MountingHole_3.5mm_Pad_Via_CrtYd_CoperOverCorner"
+		(property "Footprint" "OBI Components:MountingHole_3.5mm_Pad_Via_CrtYd_CopperOverEdge"
 			(at 43.18 186.69 0)
 			(effects
 				(font
@@ -3612,78 +3287,28 @@
 				(hide yes)
 			)
 		)
+		(property "Sim.Device" ""
+			(at 43.18 186.69 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 43.18 186.69 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(instances
 			(project "DB9 High-Low Signal Generator"
 				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
 					(reference "H3")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R")
-		(at 148.59 85.09 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "e318f573-e479-4fdf-84a8-af9b14a01322")
-		(property "Reference" "R8"
-			(at 148.59 85.09 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "R"
-			(at 148.59 85.09 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Footprint" ""
-			(at 148.59 86.868 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 148.59 85.09 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor"
-			(at 148.59 85.09 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "c92d53c2-a22a-44b5-910a-234c4cc24911")
-		)
-		(pin "2"
-			(uuid "dd362968-d230-46e1-a7ec-4ac93cf81f4c")
-		)
-		(instances
-			(project "DB9 High-Low Signal Generator"
-				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
-					(reference "R8")
 					(unit 1)
 				)
 			)
@@ -3744,6 +3369,24 @@
 				(hide yes)
 			)
 		)
+		(property "Sim.Device" ""
+			(at 33.02 186.69 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 33.02 186.69 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(instances
 			(project "DB9 High-Low Signal Generator"
 				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
@@ -3754,24 +3397,17 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:R")
-		(at 135.89 67.31 90)
+		(lib_id "power:PWR_FLAG")
+		(at 90.17 83.82 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "f4e23ef0-d5b5-4629-b0b8-6055f133bf1f")
-		(property "Reference" "R1"
-			(at 135.89 67.31 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "R"
-			(at 135.89 63.5 90)
+		(fields_autoplaced yes)
+		(uuid "ecfb5439-5d33-4edd-975d-82c032f010f7")
+		(property "Reference" "#FLG02"
+			(at 90.17 81.915 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3779,8 +3415,16 @@
 				(hide yes)
 			)
 		)
+		(property "Value" "PWR_FLAG"
+			(at 90.17 78.74 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" ""
-			(at 135.89 69.088 90)
+			(at 90.17 83.82 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3789,7 +3433,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 135.89 67.31 0)
+			(at 90.17 83.82 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3797,8 +3441,8 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "Resistor"
-			(at 135.89 67.31 0)
+		(property "Description" "Special symbol for telling ERC where power comes from"
+			(at 90.17 83.82 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3807,15 +3451,101 @@
 			)
 		)
 		(pin "1"
-			(uuid "3fc3e40e-0b51-49a5-a199-1fc8630900b5")
-		)
-		(pin "2"
-			(uuid "5da95d96-2134-406f-bf9c-8e40238a2fa5")
+			(uuid "096f0154-8d26-4611-97b8-62c1df909535")
 		)
 		(instances
 			(project "DB9 High-Low Signal Generator"
 				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
-					(reference "R1")
+					(reference "#FLG02")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Jumper:Jumper_3_Open")
+		(at 158.75 58.42 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "fc34dc3f-d04f-4d43-a0d4-7b691fc76757")
+		(property "Reference" "JP6"
+			(at 144.78 57.658 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "Jumper_3_Open"
+			(at 147.574 60.706 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical"
+			(at 158.75 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 158.75 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Jumper, 3-pole, both open"
+			(at 158.75 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" ""
+			(at 158.75 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" ""
+			(at 158.75 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "5ae43ac8-3307-4656-853f-380f4c199865")
+		)
+		(pin "3"
+			(uuid "10936511-8a90-454a-a031-04f937753fff")
+		)
+		(pin "2"
+			(uuid "b57f4c7c-dd0d-49b1-9170-8cf246b1f0cc")
+		)
+		(instances
+			(project "DB9 High-Low Signal Generator"
+				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
+					(reference "JP6")
 					(unit 1)
 				)
 			)
