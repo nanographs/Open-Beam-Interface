@@ -945,6 +945,7 @@ class OBIApplet(GlasgowApplet):
 
             async def reset(self):
                 await iface.reset()
+                await iface.write([4,0,1]) #disable external ctrl
                 self.logger.debug("reset")
 
             def connection_made(self, transport):
@@ -1001,7 +1002,7 @@ class OBIApplet(GlasgowApplet):
                 self.transport = None
 
                 asyncio.create_task(self.reset())
-                await iface.write([4,0,1]) #disable external ctrl
+                
 
 
         proto, *proto_args = args.endpoint
