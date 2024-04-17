@@ -148,10 +148,6 @@ class Window(QVBoxLayout):
         super().__init__()
         self.debug = debug
         self.config = tomllib.load(open(args.config_path, "rb") )
-        self.conn = Connection('localhost', int(args.port))
-        self.fb = FrameBuffer(self.conn)
-        self.db = DisplayBuffer()
-        self.frame_queue = frame_queue
         self.live_settings = LiveSettings()
         self.live_settings.live_capture_btn.clicked.connect(self.capture_live)
 
@@ -316,11 +312,6 @@ class Window(QVBoxLayout):
         self.photo_settings.single_capture_btn.setText("Acquire Photo")
         self.photo_settings.enable_input()
         self.live_settings.enable_input()
-
-    # async def capture_frame_live(self):
-    #     x_range, y_range, dwell, latency = self.live_parameters
-        async for frame in self.fb.capture_frame(x_range, y_range, dwell=dwell, latency=latency):
-            self.display_image(frame.as_uint8())
     
     async def capture_frame_photo(self):
         x_range, y_range, dwell, latency = self.photo_parameters
