@@ -66,9 +66,9 @@ class ResolutionSetting(QHBoxLayout):
     def getval(self):
         val = self.dropdown.currentText()
         if val == "Custom":
-            return int(self.spinbox.cleanText())
+            return int(self.rx.spinbox.cleanText()), int(self.ry.spinbox.cleanText())
         else:
-            return int(val)
+            return int(val), int(val)
 
     def setval(self, val):
         self.spinbox.setValue(val)
@@ -161,16 +161,20 @@ class SettingBox(QHBoxLayout):
 class ImageSettings(QHBoxLayout):
     def __init__(self, name:str):
         super().__init__()
-        self.rx = ResolutionSetting(name, 1024, ["512","1024", "Custom"])
-        self.addLayout(self.rx)
+        self.res = ResolutionSetting(name, 1024, ["512","1024", "Custom"])
+        self.addLayout(self.res)
         self.dwell = DwellSetting(name, 2, ["1","2", "4", "8", "16", "32", "Custom"])
         self.addLayout(self.dwell)
     def disable_input(self):
-        self.rx.disable_input()
+        self.res.disable_input()
         self.dwell.disable_input()
     def enable_input(self):
-        self.rx.enable_input()
+        self.res.enable_input()
         self.dwell.enable_input()
+    def getval(self):
+        x, y = self.res.getval()
+        d = self.dwell.getval()
+        return x, y, d
 
 
 if __name__ == "__main__":
