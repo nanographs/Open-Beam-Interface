@@ -60,6 +60,7 @@ def si_prefix(distance:float):
         return f"{distance*pow(10,9):.5f} nm"
     else:
         return f"{distance:.5f} m"
+
 class ImageData(QHBoxLayout):
     def __init__(self):
         super().__init__()
@@ -139,10 +140,7 @@ class Window(QVBoxLayout):
 
     @property
     def live_parameters(self):
-        x_res = self.live_settings.rx.getval()
-        # y_res = self.settings.ry.getval()
-        y_res = x_res
-        dwell = self.live_settings.dwell.getval()
+        x_res, y_res, dwell = self.live_settings.getval()
         if self.debug:
             latency = self.debug_settings.latency.getval()
         else:
@@ -153,10 +151,7 @@ class Window(QVBoxLayout):
     
     @property
     def photo_parameters(self):
-        x_res = self.photo_settings.rx.getval()
-        # y_res = self.settings.ry.getval()
-        y_res = x_res
-        dwell = self.photo_settings.dwell.getval()
+        x_res, y_res, dwell = self.photo_settings.getval()
         if self.debug:
             latency = self.debug_settings.latency.getval()
         else:
