@@ -16,7 +16,7 @@ from qasync import asyncSlot, asyncClose, QApplication, QEventLoop
 from .beam_interface import Connection, DACCodeRange
 from .frame_buffer import FrameBuffer
 from .gui_modules.image_display import ImageDisplay
-from .gui_modules.settings import SettingBox, SettingBoxWithDefaults
+from .gui_modules.settings import SettingBox, SettingBoxWithDefaults, ImageSettings
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--config_path', required=True, 
@@ -30,46 +30,18 @@ print(f"loading config from {args.config_path}")
 
 
 
-class LiveSettings(QHBoxLayout):
+class LiveSettings(ImageSettings):
     def __init__(self):
-        super().__init__()
-        self.rx = SettingBoxWithDefaults("Live Resolution",128, 16384, 1024, ["512","1024", "2048", "4096", "8192", "16384", "Custom"])
-        self.addLayout(self.rx)
-        # self.ry = SettingBoxWithDefaults("Y Resolution",128, 16384, 512, ["512","1024", "2048", "4096", "8192", "16384", "Custom"])
-        # self.addLayout(self.ry)
-        self.dwell = SettingBoxWithDefaults("Live Scan Speed",0, 65536, 2, ["1","2", "4", "8", "16", "32", "Custom"])
-        self.addLayout(self.dwell)
-        # self.single_capture_btn = QPushButton("Acquire Photo")
-        # self.addWidget(self.single_capture_btn)
+        super().__init__("Live")
         self.live_capture_btn = QPushButton("Start Live Scan")
         self.live_capture_btn.setCheckable(True)
         self.addWidget(self.live_capture_btn)
         self.save_btn = QPushButton("Save Live Image")
         self.addWidget(self.save_btn)
-    def disable_input(self):
-        self.rx.spinbox.setEnabled(False)
-        self.rx.dropdown.setEnabled(False)
-        # self.ry.spinbox.setEnabled(False)
-        self.dwell.spinbox.setEnabled(False)
-        self.dwell.dropdown.setEnabled(False)
-        # self.single_capture_btn.setEnabled(False)
-    def enable_input(self):
-        self.rx.spinbox.setEnabled(True)
-        self.rx.dropdown.setEnabled(True)
-        # self.ry.spinbox.setEnabled(True)
-        self.dwell.spinbox.setEnabled(True)
-        self.dwell.dropdown.setEnabled(True)
-        # self.single_capture_btn.setEnabled(True)
 
-class PhotoSettings(QHBoxLayout):
+class PhotoSettings(ImageSettings):
     def __init__(self):
-        super().__init__()
-        self.rx = SettingBoxWithDefaults("Photo Resolution",128, 16384, 4096, ["512","1024", "2048", "4096", "8192", "16384", "Custom"])
-        self.addLayout(self.rx)
-        # self.ry = SettingBoxWithDefaults("Y Resolution",128, 16384, 512, ["512","1024", "2048", "4096", "8192", "16384", "Custom"])
-        # self.addLayout(self.ry)
-        self.dwell = SettingBoxWithDefaults("Photo Scan Speed",0, 65536, 8, ["1","2", "4", "8", "16", "32", "Custom"])
-        self.addLayout(self.dwell)
+        super().__init__("Photo")
         self.single_capture_btn = QPushButton("Acquire Photo")
         self.addWidget(self.single_capture_btn)
         self.addWidget(QLabel(' '))
@@ -78,18 +50,6 @@ class PhotoSettings(QHBoxLayout):
         # self.addWidget(self.live_capture_btn)
         # self.save_btn = QPushButton("Save Image")
         # self.addWidget(self.save_btn)
-    def disable_input(self):
-        self.rx.spinbox.setEnabled(False)
-        self.rx.dropdown.setEnabled(False)
-        # self.ry.spinbox.setEnabled(False)
-        self.dwell.spinbox.setEnabled(False)
-        self.dwell.dropdown.setEnabled(False)
-    def enable_input(self):
-        self.rx.spinbox.setEnabled(True)
-        self.rx.dropdown.setEnabled(True)
-        # self.ry.spinbox.setEnabled(True)
-        self.dwell.spinbox.setEnabled(True)
-        self.dwell.dropdown.setEnabled(True)
 
 def si_prefix(distance:float):
     if 1 >= distance > pow(10, -3):
