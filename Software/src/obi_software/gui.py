@@ -66,9 +66,9 @@ class ImageData(QHBoxLayout):
         super().__init__()
         self.mag = SettingBox("Magnification",1, 1000000, 1)
         self.addLayout(self.mag)
-        # self.measure_btn = QPushButton("Measure")
-        # self.measure_btn.setCheckable(True)
-        # self.addWidget(self.measure_btn)
+        self.measure_btn = QPushButton("Measure")
+        self.measure_btn.setCheckable(True)
+        self.addWidget(self.measure_btn)
         self.measure_length = QLabel("      ")
         self.addWidget(self.measure_length)
 
@@ -126,7 +126,7 @@ class Window(QVBoxLayout):
         self.dir_path = os.getcwd()
         self.image_data = ImageData()
         self.addLayout(self.image_data)
-        # self.image_data.measure_btn.clicked.connect(self.toggle_measure)
+        self.image_data.measure_btn.clicked.connect(self.toggle_measure)
         self.save_settings = SaveSettings()
         self.save_settings.file_btn.clicked.connect(self.file_dialog)
         self.addLayout(self.save_settings)
@@ -163,10 +163,6 @@ class Window(QVBoxLayout):
     def file_dialog(self):
         self.dir_path = QFileDialog().getExistingDirectory()
         self.save_settings.path_txt.setText(self.dir_path)
-    
-    def set_directory(self):
-        print("Directory")
-        # print(f"{directory=}")
     
     def toggle_measure(self):
         if self.image_data.measure_btn.isChecked():
