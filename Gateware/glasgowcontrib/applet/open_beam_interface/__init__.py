@@ -893,6 +893,7 @@ from glasgow.applet import *
 import struct
 
 class OBIApplet(GlasgowApplet):
+    required_revision = "C3"
     logger = logging.getLogger(__name__)
     help = "open beam interface"
     description = """
@@ -926,6 +927,7 @@ class OBIApplet(GlasgowApplet):
             out_fifo=iface.get_out_fifo(depth=512),
             loopback=args.loopback,
         )
+
         return iface.add_subtarget(subtarget)
 
     async def run(self, device, args):
