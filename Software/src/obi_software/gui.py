@@ -187,8 +187,7 @@ class Window(QVBoxLayout):
         mag = self.image_data.mag.getval()
         cal = self.config["mag_cal"]
         cal_factor = cal["m_per_FOV"]
-        # full_fov_pixels = max(self.settings.rx.getval(), self.settings.ry.getval())
-        full_fov_pixels = self.settings.rx.getval()
+        full_fov_pixels = max(self.fb.current_frame._x_count, self.fb.current_frame._y_count)
         pixel_size = cal_factor/mag/full_fov_pixels
         return pixel_size
     
