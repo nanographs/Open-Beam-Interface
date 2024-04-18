@@ -5887,7 +5887,7 @@
 				)
 			)
 		)
-		(property "Value" "~"
+		(property "Value" "RV1S9261A"
 			(at 143.002 45.72 0)
 			(effects
 				(font
@@ -10320,7 +10320,7 @@
 				)
 			)
 		)
-		(property "Value" "~"
+		(property "Value" "RV1S9261A"
 			(at 144.272 96.52 0)
 			(effects
 				(font
