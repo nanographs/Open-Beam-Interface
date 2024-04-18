@@ -507,6 +507,35 @@ class _VectorPixelCommand(Command):
         return await self.recv_res(1, stream, output_mode)
 
 
+class VectorPixelRunCommand(Command):
+    def __init__(self, *, pattern_generator):
+        self._pattern_generator = pattern_generator
+
+    def __repr__(self):
+        return f"VectorPixelRunCommand({self._pattern_generator})"
+    
+    def _iter_chunks(self, latency: int):
+        commands = b""
+        pixel_count = 0
+        total_dwell  = 0
+        for x_coord, y_coord, dwell in self._pattern_generator:
+            pixel_count += 1
+            total_dwell += dwell
+            commands += struct.pack(">BHHH", CommandType.VectorPixel, x_coord, y_coord, dwell)
+            if total_dwell >= latency:
+                yield (commands, pixel_count)
+                commands = b""
+                pixel_count = 0
+                total_dwell = 0
+
+    @Command.log_transfer
+    async def transfer(self, stream: Stream, latency: int, output_mode:OutputMode=OutputMode.SixteenBit):
+        for commands, pixel_count in self._iter_chunks(latency):
+            stream.send(commands)
+            stream.send(struct.pack(">B", CommandType.Flush))
+            yield await self.recv_res(pixel_count, stream, output_mode)
+
+
 
 class RasterStreamCommand(Command):
     def __init__(self, *, cookie: int, x_range: DACCodeRange, y_range: DACCodeRange, dwells: list[DwellTime]):

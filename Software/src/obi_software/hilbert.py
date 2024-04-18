@@ -3,7 +3,7 @@ import argparse
 from hilbertcurve.hilbertcurve import HilbertCurve
 
 
-def hilbert(pmax = 10):
+def hilbert(pmax = 10, dwell = 2):
     N = 2 # number of dimensions
 
     #text_file = open("hilbert.txt", "w")
@@ -29,13 +29,13 @@ def hilbert(pmax = 10):
             pt = hc.point_from_distance(i)
             x = pt[0]*side/sidep + offset
             y = pt[1]*side/sidep + offset
-            yield int(x), int(y)
+            yield int(x), int(y), dwell
 
         offset += dx
         dx *= 2
 
 
-from .beam_interface import Connection, _VectorPixelCommand, setup_logging
+from .beam_interface import Connection, _VectorPixelCommand, setup_logging, VectorPixelRunCommand
 import logging
 setup_logging({"Command": logging.DEBUG, "Stream": logging.DEBUG})
 
@@ -46,7 +46,7 @@ parser.add_argument('--dwell', type=int, help="dwell time per pixel", default=2)
 parser.add_argument("port")
 args = parser.parse_args()
 
-hil = hilbert(args.pmax)
+hil = hilbert(args.pmax, args.dwell)
 
 def test_print():
     for n in range(100):
@@ -56,16 +56,19 @@ def test_print():
         except StopIteration:
             break
 
+
 async def stream_pattern():
     conn = Connection('localhost', args.port)
-    while True:
-        try:
-            x, y = next(hil)
-            # print(f"{type(x)=}, {type(y)}=")
-            await conn.transfer(_VectorPixelCommand(x_coord=x, y_coord=y, dwell=args.dwell))
-        except StopIteration:
-            print("Done.")
-            break
+    async for chunk in conn.transfer_multiple(VectorPixelRunCommand(pattern_generator=hil), latency=65536):
+        print(f"got {len(chunk)=}")
+    # while True:
+    #     try:
+    #         x, y = next(hil)
+    #         # print(f"{type(x)=}, {type(y)}=")
+    #         await conn.transfer(_VectorPixelCommand(x_coord=x, y_coord=y, dwell=args.dwell))
+    #     except StopIteration:
+    #         print("Done.")
+    #         break
 
 if args.test:
     test_print()
