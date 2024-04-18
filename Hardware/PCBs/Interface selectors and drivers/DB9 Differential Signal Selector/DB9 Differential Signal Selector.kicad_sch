@@ -3131,6 +3131,15 @@
 				(hide yes)
 			)
 		)
+		(property "DK Part Number" ""
+			(at 45.72 53.34 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "4"
 			(uuid "2fe2579a-2761-4dac-a88f-f8f26659361c")
 		)
@@ -3217,6 +3226,15 @@
 			)
 		)
 		(property "Description" "9-pin male plug pin D-SUB connector, Mounting Hole"
+			(at 45.72 93.98 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" ""
 			(at 45.72 93.98 0)
 			(effects
 				(font
@@ -3445,6 +3463,15 @@
 			)
 		)
 		(property "Description" "Generic shielded connector, single row, 01x03, script generated (kicad-library-utils/schlib/autogen/connector/)"
+			(at 157.48 127 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" ""
 			(at 157.48 127 0)
 			(effects
 				(font
@@ -3792,6 +3819,15 @@
 				(hide yes)
 			)
 		)
+		(property "DK Part Number" "PB1169-ND"
+			(at 176.53 53.34 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "5"
 			(uuid "18ee472f-99cc-4a73-bc7f-e0adc0acfcbe")
 		)
@@ -3946,6 +3982,15 @@
 				(hide yes)
 			)
 		)
+		(property "DK Part Number" "PB1169-ND"
+			(at 107.95 92.71 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "5"
 			(uuid "4613a7d0-2e24-4d51-81c3-ce6543c9f103")
 		)
@@ -4050,6 +4095,15 @@
 				(hide yes)
 			)
 		)
+		(property "DK Part Number" "1N4007GP-E3/73GICT-ND "
+			(at 142.24 49.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "2"
 			(uuid "87732a2d-50c0-481b-82d4-fb12b154d132")
 		)
@@ -4111,6 +4165,15 @@
 		)
 		(property "Description" ""
 			(at 195.58 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" "PB1169-ND"
+			(at 176.53 92.71 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4197,6 +4260,15 @@
 		)
 		(property "Description" ""
 			(at 127 81.28 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" "PB1169-ND"
+			(at 107.95 53.34 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4495,6 +4567,15 @@
 				(hide yes)
 			)
 		)
+		(property "DK Part Number" ""
+			(at 238.76 113.03 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(instances
 			(project "DB9 Differential Signal Selector"
 				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
@@ -4550,6 +4631,15 @@
 			)
 		)
 		(property "Description" "Mounting Hole without connection"
+			(at 248.92 113.03 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" ""
 			(at 248.92 113.03 0)
 			(effects
 				(font
@@ -4614,6 +4704,15 @@
 			)
 		)
 		(property "Description" "9-pin female receptacle socket D-SUB connector, Mounting Hole"
+			(at 248.92 73.66 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" ""
 			(at 248.92 73.66 0)
 			(effects
 				(font
@@ -4724,6 +4823,15 @@
 			)
 		)
 		(property "Sim.Pins" "1=K 2=A"
+			(at 142.24 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" "1N4007GP-E3/73GICT-ND "
 			(at 142.24 88.9 0)
 			(effects
 				(font
@@ -4862,6 +4970,15 @@
 			)
 		)
 		(property "Description" "Mounting Hole without connection"
+			(at 251.46 123.19 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" ""
 			(at 251.46 123.19 0)
 			(effects
 				(font
@@ -5059,6 +5176,15 @@
 			)
 		)
 		(property "Description" "Mounting Hole without connection"
+			(at 241.3 123.19 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" ""
 			(at 241.3 123.19 0)
 			(effects
 				(font
