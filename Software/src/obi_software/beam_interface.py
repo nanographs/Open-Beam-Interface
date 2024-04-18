@@ -498,8 +498,8 @@ class _VectorPixelCommand(Command):
         return f"_VectorPixelCommand(x_coord={self._x_coord}, y_coord={self._y_coord}, dwell={self._dwell})"
 
     @Command.log_transfer
-    async def transfer(self, stream: Stream):
-        cmd = struct.pack(">BHHH", self._x_coord, self._y_coord, self._dwell)
+    async def transfer(self, stream: Stream, output_mode:OutputMode=OutputMode.SixteenBit):
+        cmd = struct.pack(">BHHH", CommandType.VectorPixel, self._x_coord, self._y_coord, self._dwell)
         # res = await stream.xchg(cmd, 2)
         # data, = struct.unpack(res, ">H")
         stream.send(cmd)

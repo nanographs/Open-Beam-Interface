@@ -1,4 +1,5 @@
 import asyncio
+import argparse
 from hilbertcurve.hilbertcurve import HilbertCurve
 
 
@@ -28,13 +29,15 @@ def hilbert(pmax = 10):
             pt = hc.point_from_distance(i)
             x = pt[0]*side/sidep + offset
             y = pt[1]*side/sidep + offset
-            yield x, y
+            yield int(x), int(y)
 
         offset += dx
         dx *= 2
 
 
-from .beam_interface import Connection, _VectorPixelCommand
+from .beam_interface import Connection, _VectorPixelCommand, setup_logging
+import logging
+setup_logging({"Command": logging.DEBUG, "Stream": logging.DEBUG})
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--test', action='store_true')
@@ -58,6 +61,7 @@ async def stream_pattern():
     while True:
         try:
             x, y = next(hil)
+            # print(f"{type(x)=}, {type(y)}=")
             await conn.transfer(_VectorPixelCommand(x_coord=x, y_coord=y, dwell=args.dwell))
         except StopIteration:
             print("Done.")
@@ -66,4 +70,4 @@ async def stream_pattern():
 if args.test:
     test_print()
 else:
-    asyncio.run(stream_pattern)
+    asyncio.run(stream_pattern())
