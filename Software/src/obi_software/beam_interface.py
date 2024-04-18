@@ -74,6 +74,10 @@ class Stream:
         self.send(data)
         return await self.recv(recv_length)
 
+class OutputMode(enum.IntEnum):
+    SixteenBit          = 0x00
+    EightBit            = 0x01
+    NoOutput            = 0x02
 
 class Command(metaclass=ABCMeta):
     def __init_subclass__(cls):
@@ -106,6 +110,18 @@ class Command(metaclass=ABCMeta):
     async def transfer(self, stream: Stream):
         ...
 
+    async def recv_res(self, pixel_count, stream: Stream, output_mode:OutputMode):
+        if output_mode == OutputMode.NoOutput:
+                pass
+        else:
+            if output_mode == OutputMode.SixteenBit:
+                res = array.array('H', await stream.recv(pixel_count * 2))
+                if not BIG_ENDIAN:
+                    res.byteswap()
+                return res
+            if output_mode == OutputMode.EightBit:
+                res = array.array('B', await stream.recv(pixel_count))
+                return res
 
 class Connection:
     _logger = logger.getChild("Connection")
@@ -224,11 +240,6 @@ class CommandType(enum.IntEnum):
     RasterPixelRun      = 0x12
     RasterPixelFreeRun  = 0x13
     VectorPixel         = 0x14
-
-class OutputMode(enum.IntEnum):
-    SixteenBit          = 0x00
-    EightBit            = 0x01
-    NoOutput            = 0x02
 
 
 class SynchronizeCommand(Command):
@@ -374,14 +385,11 @@ class _RasterPixelsCommand(Command):
             yield (commands, pixel_count)
 
     @Command.log_transfer
-    async def transfer(self, stream: Stream, latency: int):
+    async def transfer(self, stream: Stream, latency: int, output_mode:OutputMode=OutputMode.SixteenBit):
         for commands, pixel_count in self._iter_chunks(latency):
             stream.send(commands)
             stream.send(struct.pack(">B", CommandType.Flush))
-            res = array.array('H', await stream.recv(pixel_count * 2))
-            if not BIG_ENDIAN:
-                res.byteswap()
-            yield res
+            yield await self.recv_res(pixel_count, stream, output_mode)
 
 
 class _RasterPixelRunCommand(Command):
@@ -416,7 +424,7 @@ class _RasterPixelRunCommand(Command):
             yield (commands, pixel_count)
 
     @Command.log_transfer
-    async def transfer(self, stream: Stream, latency: int):
+    async def transfer(self, stream: Stream, latency: int, output_mode:OutputMode=OutputMode.SixteenBit):
         MAX_PIPELINE = 32
 
         tokens = MAX_PIPELINE
@@ -438,17 +446,14 @@ class _RasterPixelRunCommand(Command):
         asyncio.create_task(sender())
 
         for commands, pixel_count in self._iter_chunks(latency):
-            res = array.array('H', await stream.recv(pixel_count * 2))
-            print(f"{type(res)=}")
-            if not BIG_ENDIAN:
-                res.byteswap()
             tokens += 1
             if tokens == 1:
                 token_fut.set_result(None)
                 token_fut = asyncio.Future()
             self._logger.debug(f"recver: tokens={tokens}")
             await asyncio.sleep(0)
-            yield res
+            yield await self.recv_res(pixel_count, stream, output_mode)
+            
 
 class _RasterPixelFreeRunCommand(Command):
     def __init__(self, *, dwell: DwellTime, interrupt: asyncio.Event):
