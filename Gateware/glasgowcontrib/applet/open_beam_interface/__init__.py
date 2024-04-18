@@ -864,7 +864,6 @@ class OBISubtarget(wiring.Component):
 
         wiring.connect(m, parser.cmd_stream, executor.cmd_stream)
         wiring.connect(m, executor.img_stream, serializer.img_stream)
-        wiring.connect(m, executor.output_mode, serializer.output_mode)
 
         if self.sim:
             m.submodules.out_fifo = self.out_fifo
@@ -878,6 +877,7 @@ class OBISubtarget(wiring.Component):
             self.in_fifo.w_en.eq(serializer.usb_stream.valid),
             serializer.usb_stream.ready.eq(self.in_fifo.w_rdy),
             self.in_fifo.flush.eq(executor.flush),
+            serializer.output_mode.eq(executor.output_mode)
         ]
 
         if not self.sim:
