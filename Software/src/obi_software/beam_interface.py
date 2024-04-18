@@ -112,15 +112,18 @@ class Command(metaclass=ABCMeta):
 
     async def recv_res(self, pixel_count, stream: Stream, output_mode:OutputMode):
         if output_mode == OutputMode.NoOutput:
+                await asyncio.sleep(0)
                 pass
         else:
             if output_mode == OutputMode.SixteenBit:
                 res = array.array('H', await stream.recv(pixel_count * 2))
                 if not BIG_ENDIAN:
                     res.byteswap()
+                await asyncio.sleep(0)
                 return res
             if output_mode == OutputMode.EightBit:
                 res = array.array('B', await stream.recv(pixel_count))
+                await asyncio.sleep(0)
                 return res
 
 class Connection:
@@ -451,7 +454,6 @@ class _RasterPixelRunCommand(Command):
                 token_fut.set_result(None)
                 token_fut = asyncio.Future()
             self._logger.debug(f"recver: tokens={tokens}")
-            await asyncio.sleep(0)
             yield await self.recv_res(pixel_count, stream, output_mode)
             
 
@@ -483,11 +485,7 @@ class _RasterPixelFreeRunCommand(Command):
         asyncio.create_task(sender())
 
         for _ in self._iter_chunks(latency):
-            res = array.array('H', await stream.recv_until_done(latency*2, self._done_sending))
-            if not BIG_ENDIAN:
-                res.byteswap()
-            await asyncio.sleep(0)
-            yield res
+            yield await self.recv_res(pixel_count, stream, output_mode)
 
 
 class _VectorPixelCommand(Command):
@@ -502,9 +500,10 @@ class _VectorPixelCommand(Command):
     @Command.log_transfer
     async def transfer(self, stream: Stream):
         cmd = struct.pack(">BHHH", self._x_coord, self._y_coord, self._dwell)
-        res = await stream.xchg(cmd, 2)
-        data, = struct.unpack(res, ">H")
-        return data
+        # res = await stream.xchg(cmd, 2)
+        # data, = struct.unpack(res, ">H")
+        stream.send(cmd)
+        return await self.recv_res(2, stream, output_mode)
 
 class RasterStreamCommand(Command):
     def __init__(self, *, cookie: int, x_range: DACCodeRange, y_range: DACCodeRange, dwells: list[DwellTime]):
