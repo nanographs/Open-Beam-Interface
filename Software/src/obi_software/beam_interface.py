@@ -225,19 +225,26 @@ class CommandType(enum.IntEnum):
     RasterPixelFreeRun  = 0x13
     VectorPixel         = 0x14
 
+class OutputMode(enum.IntEnum):
+    SixteenBit          = 0x00
+    EightBit            = 0x01
+    NoOutput            = 0x02
+
 
 class SynchronizeCommand(Command):
-    def __init__(self, *, cookie: int, raster_mode: bool):
+    def __init__(self, *, cookie: int, raster_mode: bool, output_mode: OutputMode=OutputMode.SixteenBit):
         assert cookie in range(0x0001, 0x10000, 2) # odd cookies only
         self._cookie = cookie
         self._raster_mode = raster_mode
+        self._output_mode = output_mode
+        self._mode = int(self._output_mode*2 + self._raster_mode)
 
     def __repr__(self):
-        return f"SynchronizeCommand(cookie={self._cookie}, raster_mode={self._raster_mode})"
+        return f"SynchronizeCommand(cookie={self._cookie}, mode={self._mode} [raster_mode={self._raster_mode}, output_mode={self._output_mode}])"
 
     @Command.log_transfer
     async def transfer(self, stream: Stream):
-        cmd = struct.pack(">BHB", CommandType.Synchronize, self._cookie, self._raster_mode)
+        cmd = struct.pack(">BHB", CommandType.Synchronize, self._cookie, self._mode)
         res = await stream.xchg(cmd, recv_length=4)
         sync, cookie = struct.unpack(">HH", res)
         return cookie
