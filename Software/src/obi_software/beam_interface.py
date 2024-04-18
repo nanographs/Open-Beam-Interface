@@ -503,7 +503,10 @@ class _VectorPixelCommand(Command):
         # res = await stream.xchg(cmd, 2)
         # data, = struct.unpack(res, ">H")
         stream.send(cmd)
-        return await self.recv_res(2, stream, output_mode)
+        stream.send(struct.pack(">B", CommandType.Flush))
+        return await self.recv_res(1, stream, output_mode)
+
+
 
 class RasterStreamCommand(Command):
     def __init__(self, *, cookie: int, x_range: DACCodeRange, y_range: DACCodeRange, dwells: list[DwellTime]):
