@@ -703,6 +703,63 @@ class OBIAppletTestCase(unittest.TestCase):
         test_exec_2()
         test_exec_3()
 
+    def test_all(self):
+        from amaranth import Module
+        from . import OBIApplet
+        from glasgow.applet import GlasgowAppletTestCase, synthesis_test, applet_simulation_test
+        from .board_sim import OBI_Board
+
+        class OBIApplet_TestCase(GlasgowAppletTestCase, applet = OBIApplet):
+            @synthesis_test
+            def test_build(self):
+                self.assertBuilds(args=["--pin-ext-ebeam-enable", "1"])
+            
+            def setup_test(self):
+                self.build_simulated_applet()
+
+            def setup_x_loopback(self):
+                self.build_simulated_applet()
+                obi_subtarget = self.applet.mux_interface._subtargets[0]
+                m = Module()
+                m.submodules["board"] = board = OBI_Board()
+                m.d.comb += [
+                            obi_subtarget.data.i.eq(board.a_latch_chip.q),
+                            board.x_latch_chip.d.eq(obi_subtarget.data.o),
+                            board.y_latch_chip.d.eq(obi_subtarget.data.o),
+                            board.a_adc_chip.a.eq(board.x_dac_chip.a),
+                            board.x_latch.eq(obi_subtarget.control.x_latch.o),
+                            board.y_latch.eq(obi_subtarget.control.y_latch.o),
+                            board.a_latch.eq(obi_subtarget.control.a_latch.o),
+                            board.a_enable.eq(obi_subtarget.control.a_enable.o),
+                            board.a_clock.eq(obi_subtarget.control.a_clock.o),
+                            board.d_clock.eq(obi_subtarget.control.d_clock.o),
+                            board.adc_input.eq(board.x_dac_chip.a)
+                            ]
+                self.target.add_submodule(m)
+            
+            @applet_simulation_test("setup_test")
+            async def test_sync_cookie(self):
+                iface = await self.run_simulated_applet()
+                await iface.write(bytes([0, 123, 234, 1])) # sync, cookie, raster_mode
+                self.assertEqual(await iface.read(4), bytes([0xFF, 0xFF, 123, 234])) # FF, FF, cookie
+            
+            @applet_simulation_test("setup_x_loopback", args=["tcp::2222"], interact=True)
+            async def test_raster(self):
+                iface = await self.run_simulated_applet()
+                await iface.write(bytes([0, 123, 234, 1])) 
+                self.assertEqual(await iface.read(4), bytes([0xFF, 0xFF, 123, 234])) # FF, FF, cookie
+                await iface.write(struct.pack(">BHHHHHH", 0x10, 5,3, 0x2_00, 9,2, 0x5_00))
+                await iface.write(struct.pack('>BHH', 0x12, 6, 2))
+                data = await iface.read(12)
+                print(data)
+
+            
+        test_case = OBIApplet_TestCase()
+        test_case.setUp()
+        test_case.test_build()
+        test_case.test_sync_cookie()
+        test_case.test_raster()
+
         
 
 
