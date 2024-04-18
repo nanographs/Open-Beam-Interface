@@ -809,12 +809,16 @@ obi_resources  = [
 ]
 
 class OBISubtarget(wiring.Component):
-    def __init__(self, *, pads, out_fifo, in_fifo, sim=False, loopback=False):
+    def __init__(self, *, pads, out_fifo, in_fifo, led, control, data, sim=False, loopback=False):
         self.pads = pads
         self.out_fifo = out_fifo
         self.in_fifo  = in_fifo
         self.sim = sim
         self.loopback = loopback
+
+        self.led = led
+        self.control = control
+        self.data = data
 
     def elaborate(self, platform):
         m = Module()
@@ -855,7 +859,11 @@ class OBISubtarget(wiring.Component):
         ]
 
         if not self.sim:
-            led = platform.request("led")
+            led = self.led
+            control = self.control
+            data = self.data
+
+            
             m.d.comb += led.o.eq(~serializer.usb_stream.ready)
 
             if hasattr(self.pads, "ext_ebeam_enable_t"):
@@ -865,8 +873,8 @@ class OBISubtarget(wiring.Component):
                 m.d.comb += self.pads.ext_ibeam_enable_t.oe.eq(1)
                 m.d.comb += self.pads.ext_ibeam_enable_t.o.eq(executor.ext_ibeam_enable)
 
-            control = platform.request("control")
-            data = platform.request("data")
+            # control = platform.request("control")
+            # data = platform.request("data")
 
             m.d.comb += [
                 control.x_latch.o.eq(executor.bus.dac_x_le_clk),
@@ -925,6 +933,9 @@ class OBIApplet(GlasgowApplet):
             pads = pads,
             in_fifo=iface.get_in_fifo(depth=512, auto_flush=False),
             out_fifo=iface.get_out_fifo(depth=512),
+            led = target.platform.request("led"),
+            control = target.platform.request("control"),
+            data = target.platform.request("data"),
             loopback=args.loopback,
         )
 
