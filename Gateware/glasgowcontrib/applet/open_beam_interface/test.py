@@ -667,6 +667,27 @@ class OBIAppletTestCase(unittest.TestCase):
                         n += 1
                         print(f"{n} valid samples")
                         yield Tick()
+        class TestVectorPixelCommand(TestCommand):
+            def __init__(self, x_coord, y_coord, dwell_time):
+                self._x_coord = x_coord
+                self._y_coord = y_coord
+                self._dwell_time = dwell_time
+
+            @property
+            def _command(self):
+                return {"type": Command.Type.VectorPixel,
+                        "payload": {
+                            "vector_pixel": {
+                                "x_coord": self._x_coord,
+                                "y_coord": self._y_coord,
+                                "dwell_time": self._dwell_time
+                            } 
+                        }
+                    }
+                    
+            @property
+            def _response(self):
+                return [0]
         
         def test_exec_1():
             test_seq = TestCommandSequence()
@@ -707,11 +728,19 @@ class OBIAppletTestCase(unittest.TestCase):
             test_seq.add(TestSyncCommand(502, 1), timeout_steps = 960*BUS_CYCLES)
 
             self.simulate(test_seq.dut, [test_seq._put_testbench, test_seq._get_testbench], name="exec_3")
+        
+        def test_exec_4():
+            test_seq = TestCommandSequence()
+            test_seq.add(TestSyncCommand(502, 0))
+            test_seq.add(TestVectorPixelCommand(100, 244, 3))
+
+            self.simulate(test_seq.dut, [test_seq._put_testbench, test_seq._get_testbench], name="exec_4")
 
         
         test_exec_1()
         test_exec_2()
         test_exec_3()
+        test_exec_4()
 
     # def test_all(self):
     #     from amaranth import Module
