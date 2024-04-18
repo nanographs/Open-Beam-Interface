@@ -10,15 +10,9 @@ class SN74ALVCH16374(Elaboratable):
         self.q = Signal(16)
     def elaborate(self, platform):
         m = Module()
-        prev_le_clk = Signal()
-        q0 = Signal(16)
-        m.d.sync += prev_le_clk.eq(self.le_clk)
-        with m.If(self.oe): 
-            with m.If(~prev_le_clk & self.le_clk): ## rising edge of LE_CLK
-                m.d.sync += q0.eq(self.d)
-                m.d.comb += self.q.eq(self.d)
-            with m.If(~self.le_clk):
-                m.d.comb += self.q.eq(q0)
+        m.domains.le = le =  ClockDomain(local=True)
+        m.d.comb += le.clk.eq(self.le_clk)
+        m.d.le += self.q.eq(self.d)
         return m
 
 
@@ -29,13 +23,9 @@ class AD9744(Elaboratable):
         self.a = Signal(14) # analog output
     def elaborate(self, platform):
         m = Module()
-        prev_clock = Signal()
-        d0 = Signal(14) # latched input
-        m.d.sync += prev_clock.eq(self.clock)
-        m.d.comb += self.a.eq(d0)
-
-        with m.If((self.clock) & (~(prev_clock))): # falling edge of clock
-            m.d.sync += d0.eq(self.d)
+        m.domains.dac_clock = dac_clock =  ClockDomain(local=True)
+        m.d.comb += dac_clock.clk.eq(self.clock)
+        m.d.dac_clock += self.a.eq(self.d)
         return m
 
 class LTC2246H(Elaboratable):
@@ -45,8 +35,8 @@ class LTC2246H(Elaboratable):
         self.d = Signal(14)
     def elaborate(self, platform):
         m = Module()
-        prev_clock = Signal()
-        m.d.sync += prev_clock.eq(self.clock)
+        m.domains.adc_clock = adc_clock =  ClockDomain(local=True)
+        m.d.comb += adc_clock.clk.eq(self.clock)
 
         sample_n_minus_5 = Signal(14)
         sample_n_minus_4 = Signal(14)
@@ -57,16 +47,12 @@ class LTC2246H(Elaboratable):
 
         m.d.comb += self.d.eq(sample_n_minus_5)
 
-        t = Signal()
-
-        with m.If((self.clock) & (~(prev_clock))): # rising edge of clock
-            m.d.comb += t.eq(1)
-            m.d.sync += sample_n.eq(self.a)
-            m.d.sync += sample_n_minus_1.eq(sample_n)
-            m.d.sync += sample_n_minus_2.eq(sample_n_minus_1)
-            m.d.sync += sample_n_minus_3.eq(sample_n_minus_2)
-            m.d.sync += sample_n_minus_4.eq(sample_n_minus_3)
-            m.d.sync += sample_n_minus_5.eq(sample_n_minus_4)
+        m.d.adc_clock += sample_n.eq(self.a)
+        m.d.adc_clock += sample_n_minus_1.eq(sample_n)
+        m.d.adc_clock += sample_n_minus_2.eq(sample_n_minus_1)
+        m.d.adc_clock += sample_n_minus_3.eq(sample_n_minus_2)
+        m.d.adc_clock += sample_n_minus_4.eq(sample_n_minus_3)
+        m.d.adc_clock += sample_n_minus_5.eq(sample_n_minus_4)
         return m
 
 
