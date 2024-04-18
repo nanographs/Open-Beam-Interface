@@ -402,8 +402,13 @@ Cookie = unsigned(16)
 #: Arbitrary value for synchronization. When received, returned as-is in an USB IN frame.
 
 class BeamType(enum.Enum, shape = 8):
-        Electron            = 0x01
-        Ion                 = 0x02
+    Electron            = 0x01
+    Ion                 = 0x02
+
+class OutputMode(enum.Enum, shape = 2):
+    SixteenBit          = 0x00
+    EightBit            = 0x01
+    NoOutput            = 0x02
 
 class Command(data.Struct):
     class Type(enum.Enum, shape=8):
@@ -424,7 +429,10 @@ class Command(data.Struct):
     payload: data.UnionLayout({
         "synchronize":      data.StructLayout({
             "cookie":           Cookie,
-            "raster_mode":      1,
+            "mode":         data.StructLayout ({
+                "raster": 1,
+                "output": OutputMode,
+            })
         }),
         "delay": DwellTime,
         "external_ctrl":       data.StructLayout({
@@ -508,7 +516,7 @@ class CommandParser(wiring.Component):
 
             DeserializeWord(command.payload.synchronize.cookie,
                 "Payload_Synchronize_1", "Payload_Synchronize_2")
-            Deserialize(command.payload.synchronize.raster_mode,
+            Deserialize(command.payload.synchronize.mode,
                 "Payload_Synchronize_2", "Submit")
 
             DeserializeWord(command.payload.delay,
@@ -582,6 +590,9 @@ class CommandExecutor(wiring.Component):
     ext_ebeam_enable: Out(1)
     ext_ibeam_enable: Out(1)
 
+    #Input to Serializer
+    output_mode: Out(2)
+
     def __init__(self, *, adc_latency=6):
         self.adc_latency = 6
         self.supersampler = Supersampler()
@@ -609,6 +620,7 @@ class CommandExecutor(wiring.Component):
 
 
         raster_mode = Signal()
+        output_mode = Signal(2)
         command = Signal.like(self.cmd_stream.payload)
         with m.If(raster_mode):
             wiring.connect(m, self.raster_scanner.dac_stream, self.supersampler.dac_stream)
@@ -646,7 +658,8 @@ class CommandExecutor(wiring.Component):
                         m.d.sync += self.flush.eq(1)
                         m.d.comb += sync_req.eq(1)
                         with m.If(sync_ack):
-                            m.d.sync += raster_mode.eq(command.payload.synchronize.raster_mode)
+                            m.d.sync += raster_mode.eq(command.payload.synchronize.mode.raster)
+                            m.d.sync += output_mode.eq(command.payload.synchronize.mode.output)
                             m.next = "Fetch"
 
                     with m.Case(Command.Type.Abort):
@@ -735,6 +748,7 @@ class CommandExecutor(wiring.Component):
                     self.img_stream.valid.eq(self.supersampler.adc_stream.valid),
                     self.supersampler.adc_stream.ready.eq(self.img_stream.ready),
                     retire_pixel.eq(self.supersampler.adc_stream.valid & self.img_stream.ready),
+                    self.output_mode.eq(output_mode) #input to Serializer
                 ]
                 with m.If((in_flight_pixels == 0) & sync_req):
                     m.next = "Write_FFFF"
@@ -762,6 +776,7 @@ class CommandExecutor(wiring.Component):
 class ImageSerializer(wiring.Component):
     img_stream: In(StreamSignature(unsigned(16)))
     usb_stream: Out(StreamSignature(8))
+    output_mode: In(2)
 
     def elaborate(self, platform):
         m = Module()
@@ -770,12 +785,18 @@ class ImageSerializer(wiring.Component):
 
         with m.FSM():
             with m.State("High"):
-                m.d.comb += self.usb_stream.payload.eq(self.img_stream.payload[8:16])
-                m.d.comb += self.usb_stream.valid.eq(self.img_stream.valid)
-                m.d.comb += self.img_stream.ready.eq(self.usb_stream.ready)
-                m.d.sync += low.eq(self.img_stream.payload[0:8])
-                with m.If(self.usb_stream.ready & self.img_stream.valid):
-                    m.next = "Low"
+                with m.If(self.output_mode == OutputMode.NoOutput):
+                    m.d.comb += self.img_stream.ready.eq(1) #consume and destroy image stream
+                with m.Else():
+                    m.d.comb += self.usb_stream.payload.eq(self.img_stream.payload[8:16])
+                    m.d.comb += self.usb_stream.valid.eq(self.img_stream.valid)
+                    m.d.comb += self.img_stream.ready.eq(self.usb_stream.ready)
+                    with m.If(self.output_mode == OutputMode.SixteenBit):
+                        m.d.sync += low.eq(self.img_stream.payload[0:8])
+                        with m.If(self.usb_stream.ready & self.img_stream.valid):
+                            m.next = "Low"
+                    with m.If(self.output_mode == OutputMode.EightBit):
+                        m.next = "High"
 
             with m.State("Low"):
                 m.d.comb += self.usb_stream.payload.eq(low)
@@ -843,6 +864,7 @@ class OBISubtarget(wiring.Component):
 
         wiring.connect(m, parser.cmd_stream, executor.cmd_stream)
         wiring.connect(m, executor.img_stream, serializer.img_stream)
+        wiring.connect(m, executor.output_mode, serializer.output_mode)
 
         if self.sim:
             m.submodules.out_fifo = self.out_fifo
