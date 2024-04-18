@@ -588,6 +588,12 @@
           "label": "Description",
           "name": "Description",
           "show": false
+        },
+        {
+          "group_by": false,
+          "label": "DK Part Number",
+          "name": "DK Part Number",
+          "show": false
         }
       ],
       "filter_string": "",

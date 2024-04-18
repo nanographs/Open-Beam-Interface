@@ -2844,6 +2844,15 @@
 				(hide yes)
 			)
 		)
+		(property "DK Part Number" "Z5456-ND"
+			(at 163.83 106.68 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "2"
 			(uuid "483fcc4c-a242-4954-aabe-930a006907bd")
 		)
@@ -2927,6 +2936,15 @@
 			)
 		)
 		(property "Description" "9-pin male plug pin D-SUB connector, Mounting Hole"
+			(at 74.93 64.77 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" ""
 			(at 74.93 64.77 0)
 			(effects
 				(font
@@ -3021,6 +3039,15 @@
 			)
 		)
 		(property "Description" "9-pin male plug pin D-SUB connector, Mounting Hole"
+			(at 74.93 105.41 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" ""
 			(at 74.93 105.41 0)
 			(effects
 				(font
@@ -3190,6 +3217,15 @@
 				(hide yes)
 			)
 		)
+		(property "DK Part Number" ""
+			(at 196.85 149.86 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "3ea87655-70cb-4a4f-b13d-ad110aa58414")
 		)
@@ -3274,6 +3310,15 @@
 			)
 		)
 		(property "Sim.Pins" "1=K 2=A"
+			(at 184.15 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" "1N4007GP-E3/73GICT-ND"
 			(at 184.15 63.5 0)
 			(effects
 				(font
@@ -3759,6 +3804,15 @@
 				(hide yes)
 			)
 		)
+		(property "DK Part Number" ""
+			(at 30.48 176.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(instances
 			(project "DSC Scan Selector"
 				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
@@ -3814,6 +3868,15 @@
 			)
 		)
 		(property "Description" "Mounting Hole without connection"
+			(at 40.64 176.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" ""
 			(at 40.64 176.53 0)
 			(effects
 				(font
@@ -3878,6 +3941,15 @@
 			)
 		)
 		(property "Description" "9-pin female receptacle socket D-SUB connector, Mounting Hole"
+			(at 243.84 85.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" ""
 			(at 243.84 85.09 0)
 			(effects
 				(font
@@ -3970,6 +4042,15 @@
 		)
 		(property "Description" ""
 			(at 191.77 44.45 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" "Z5456-ND"
+			(at 163.83 63.5 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4136,6 +4217,15 @@
 				(hide yes)
 			)
 		)
+		(property "DK Part Number" ""
+			(at 43.18 186.69 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(instances
 			(project "DSC Scan Selector"
 				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
@@ -4284,6 +4374,15 @@
 				(hide yes)
 			)
 		)
+		(property "DK Part Number" "1N4007GP-E3/73GICT-ND"
+			(at 184.15 106.68 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "2"
 			(uuid "057cfffb-153a-4633-b8cb-0fad74613d47")
 		)
@@ -4346,6 +4445,15 @@
 			)
 		)
 		(property "Description" "Mounting Hole without connection"
+			(at 33.02 186.69 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" ""
 			(at 33.02 186.69 0)
 			(effects
 				(font
