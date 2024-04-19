@@ -733,6 +733,9 @@ class OBIAppletTestCase(unittest.TestCase):
             test_seq = TestCommandSequence()
             test_seq.add(TestSyncCommand(502, 0))
             test_seq.add(TestVectorPixelCommand(100, 244, 3))
+            test_seq.add(TestVectorPixelCommand(90, 144, 2))
+            test_seq.add(TestVectorPixelCommand(110, 2004, 5))
+            test_seq.add(TestSyncCommand(502, 0))
 
             self.simulate(test_seq.dut, [test_seq._put_testbench, test_seq._get_testbench], name="exec_4")
 
