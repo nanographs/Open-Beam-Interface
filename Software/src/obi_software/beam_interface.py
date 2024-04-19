@@ -299,7 +299,8 @@ class _BlankCommand(Command):
 
     @Command.log_transfer
     async def transfer(self, stream: Stream):
-        cmd = struct.pack(">BBB", CommandType.Blank, self._enable, self._beam_type)
+        combined = int(self._beam_type*2 + self._enable)
+        cmd = struct.pack(">BB", CommandType.Blank, combined)
         stream.send(cmd)
         await stream.flush()
 
@@ -315,7 +316,8 @@ class _ExternalCtrlCommand(Command):
 
     @Command.log_transfer
     async def transfer(self, stream: Stream):
-        cmd = struct.pack(">BBB", CommandType.ExternalCtrl, self._enable, self._beam_type)
+        combined = int(self._beam_type*2 + self._enable)
+        cmd = struct.pack(">BB", CommandType.ExternalCtrl, combined)
         stream.send(cmd)
         await stream.flush()
 
