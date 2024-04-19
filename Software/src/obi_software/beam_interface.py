@@ -237,6 +237,7 @@ class CommandType(enum.IntEnum):
     Flush               = 0x02
     Delay               = 0x03
     ExternalCtrl        = 0x04
+    Blank               = 0x05
 
     RasterRegion        = 0x10
     RasterPixels        = 0x11
@@ -285,6 +286,23 @@ class DelayCommand(Command):
 class BeamType(enum.IntEnum):
     Electron = 0x01
     Ion = 0x02
+
+class _BlankCommand(Command):
+    def __init__(self, enable, beam_type):
+        assert enable <= 1
+        assert (beam_type == BeamType.Electron) | (beam_type == BeamType.Ion)
+        self._enable = enable
+        self._beam_type = beam_type
+
+    def __repr__(self):
+        return f"_BlankCommand(enable={self._enable}, beam_type={self._beam_type})"
+
+    @Command.log_transfer
+    async def transfer(self, stream: Stream):
+        cmd = struct.pack(">BBB", CommandType.Blank, self._enable, self._beam_type)
+        stream.send(cmd)
+        await stream.flush()
+
 class _ExternalCtrlCommand(Command):
     def __init__(self, enable, beam_type):
         assert enable <= 1
