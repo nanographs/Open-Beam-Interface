@@ -417,6 +417,7 @@ class Command(data.Struct):
         Flush               = 0x02
         Delay               = 0x03
         ExternalCtrl        = 0x04
+        Blank               = 0x05
 
         RasterRegion        = 0x10
         RasterPixel         = 0x11
@@ -436,6 +437,10 @@ class Command(data.Struct):
         }),
         "delay": DwellTime,
         "external_ctrl":       data.StructLayout({
+            "enable": 1,
+            "beam_type": BeamType,
+        }),
+        "blank":       data.StructLayout({
             "enable": 1,
             "beam_type": BeamType,
         }),
@@ -483,6 +488,9 @@ class CommandParser(wiring.Component):
 
                         with m.Case(Command.Type.ExternalCtrl):
                             m.next = "Payload_ExternalCtrl_1"
+                        
+                        with m.Case(Command.Type.Blank):
+                            m.next = "Payload_Blank_1"
 
                         with m.Case(Command.Type.RasterRegion):
                             m.next = "Payload_Raster_Region_1_High"
@@ -526,6 +534,11 @@ class CommandParser(wiring.Component):
                 "Payload_ExternalCtrl_1", "Payload_ExternalCtrl_2")
             Deserialize(command.payload.external_ctrl.beam_type,
                 "Payload_ExternalCtrl_2", "Submit")
+            
+            Deserialize(command.payload.blank.enable,
+                "Payload_Blank_1", "Payload_Blank_2")
+            Deserialize(command.payload.blank.beam_type,
+                "Payload_Blank_2", "Submit")
 
             DeserializeWord(command.payload.raster_region.x_start,
                 "Payload_Raster_Region_1", "Payload_Raster_Region_2_High")
@@ -589,6 +602,9 @@ class CommandExecutor(wiring.Component):
     # Input to Scan Selector Relay Board
     ext_ebeam_enable: Out(1)
     ext_ibeam_enable: Out(1)
+    # Blanking
+    ibeam_blank: Out(1)
+    ebeam_blank: Out(1)
 
     #Input to Serializer
     output_mode: Out(2)
@@ -685,6 +701,12 @@ class CommandExecutor(wiring.Component):
                             m.d.sync += self.ext_ibeam_enable.eq(command.payload.external_ctrl.enable)
                         m.next = "Fetch"
 
+                    with m.Case(Command.Type.Blank):
+                        with m.If(command.payload.blank.beam_type == BeamType.Electron):
+                            m.d.sync += self.ebeam_blank.eq(command.payload.blank.enable)
+                        with m.Elif(command.payload.blank.beam_type == BeamType.Ion):
+                            m.d.sync += self.ibeam_blank.eq(command.payload.blank.enable)
+                        m.next = "Fetch"
 
                     with m.Case(Command.Type.RasterRegion):
                         m.d.sync += raster_region.eq(command.payload.raster_region)
@@ -885,7 +907,6 @@ class OBISubtarget(wiring.Component):
             control = self.control
             data = self.data
 
-            
             m.d.comb += led.o.eq(~serializer.usb_stream.ready)
 
             if hasattr(self.pads, "ext_ebeam_enable_t"):
@@ -894,9 +915,12 @@ class OBISubtarget(wiring.Component):
             if hasattr(self.pads, "ext_ibeam_enable_t"):
                 m.d.comb += self.pads.ext_ibeam_enable_t.oe.eq(1)
                 m.d.comb += self.pads.ext_ibeam_enable_t.o.eq(executor.ext_ibeam_enable)
-
-            # control = platform.request("control")
-            # data = platform.request("data")
+            if hasattr(self.pads, "ebeam_blank_t"):
+                m.d.comb += self.pads.ebeam_blank_t.oe.eq(1)
+                m.d.comb += self.pads.ebeam_blank_t.o.eq(executor.ebeam_blank)
+            if hasattr(self.pads, "ibeam_blank_t"):
+                m.d.comb += self.pads.ibeam_blank_t.oe.eq(1)
+                m.d.comb += self.pads.ibeam_blank_t.o.eq(executor.ibeam_blank)
 
             m.d.comb += [
                 control.x_latch.o.eq(executor.bus.dac_x_le_clk),
