@@ -487,10 +487,10 @@ class CommandParser(wiring.Component):
                             m.next = "Payload_Delay_High"
 
                         with m.Case(Command.Type.ExternalCtrl):
-                            m.next = "Payload_ExternalCtrl_1"
+                            m.next = "Payload_ExternalCtrl"
                         
                         with m.Case(Command.Type.Blank):
-                            m.next = "Payload_Blank_1"
+                            m.next = "Payload_Blank"
 
                         with m.Case(Command.Type.RasterRegion):
                             m.next = "Payload_Raster_Region_1_High"
@@ -530,15 +530,11 @@ class CommandParser(wiring.Component):
             DeserializeWord(command.payload.delay,
                 "Payload_Delay", "Submit")
 
-            Deserialize(command.payload.external_ctrl.enable,
-                "Payload_ExternalCtrl_1", "Payload_ExternalCtrl_2")
-            Deserialize(command.payload.external_ctrl.beam_type,
-                "Payload_ExternalCtrl_2", "Submit")
+            Deserialize(command.payload.external_ctrl,
+                "Payload_ExternalCtrl", "Submit")
             
-            Deserialize(command.payload.blank.enable,
-                "Payload_Blank_1", "Payload_Blank_2")
-            Deserialize(command.payload.blank.beam_type,
-                "Payload_Blank_2", "Submit")
+            Deserialize(command.payload.blank,
+                "Payload_Blank", "Submit")
 
             DeserializeWord(command.payload.raster_region.x_start,
                 "Payload_Raster_Region_1", "Payload_Raster_Region_2_High")
