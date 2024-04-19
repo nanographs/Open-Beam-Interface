@@ -260,8 +260,8 @@ class OBIAppletTestCase(unittest.TestCase):
         def test_extctrl_cmd():
             def put_testbench():
                 yield from put_stream(dut.usb_stream, 4) #Type
-                yield from put_stream(dut.usb_stream, 1) #Enable
-                yield from put_stream(dut.usb_stream, 1) #BeamType
+                yield from put_stream(dut.usb_stream, int(2*2 + 1)) #Enable, #BeamType
+                yield from put_stream(dut.usb_stream, 1) 
 
             def get_testbench():
                 yield from get_stream(dut.cmd_stream, {
@@ -269,7 +269,7 @@ class OBIAppletTestCase(unittest.TestCase):
                             "payload": {
                                 "external_ctrl": {
                                     "enable": 1,
-                                    "beam_type": BeamType.Electron
+                                    "beam_type": BeamType.Ion
                                 }
                             }})
                 assert (yield dut.cmd_stream.valid) == 0
