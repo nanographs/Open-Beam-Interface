@@ -37,40 +37,51 @@ def hilbert(pmax = 10, dwell = 2):
 
 from .beam_interface import Connection, _VectorPixelCommand, setup_logging, VectorPixelRunCommand
 import logging
+from time import perf_counter
 setup_logging({"Command": logging.DEBUG, "Stream": logging.DEBUG})
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--test', action='store_true')
-parser.add_argument('--pmax', type=int, help="hilbert curve will have 2^N points to a side", default=10)
+parser.add_argument('--test', action='store_true', help="just print the first 100 points")
+parser.add_argument('--pmax', type=int, help="hilbert curve will have 2^N points?", default=10)
 parser.add_argument('--dwell', type=int, help="dwell time per pixel", default=2)
-parser.add_argument("port")
+parser.add_argument('--a_b', type=str, help="a = VectorPixelRun, b = _VectorPixel", default="a")
+parser.add_argument('--output', type=int, help="output mode: 0 = 16 bit, 1 = 8 bit, 2 = None", default=0)
+parser.add_argument('--latency', type=int, help="min abort latency. only applies to mode a", default=65536)
+parser.add_argument("port", help="port @ localhost to connect to")
 args = parser.parse_args()
 
 hil = hilbert(args.pmax, args.dwell)
 
 def test_print():
-    for n in range(100):
+    for x, y, d in hil:
+        print(f"{x=}, {y=}, {d=}")
+
+conn = Connection('localhost', args.port)
+
+async def stream_pattern_a():
+    start = perf_counter()
+    async for chunk in conn.transfer_multiple(VectorPixelRunCommand(pattern_generator=hil), 
+                                            latency=args.latency, output_mode=args.output):
+        pass
+
+
+async def stream_pattern_b():
+    while True:
         try:
-            x, y = next(hil)
-            print(f"{x=}, {y=}")
+            x, y, dwell = next(hil)
+            await conn.transfer(_VectorPixelCommand(x_coord=x, y_coord=y, dwell=dwell), 
+                                        latency=args.latency, output_mode=args.output)
         except StopIteration:
+            print("Done.")
             break
 
-
-async def stream_pattern():
-    conn = Connection('localhost', args.port)
-    async for chunk in conn.transfer_multiple(VectorPixelRunCommand(pattern_generator=hil), latency=65536):
-        print(f"got {len(chunk)=}")
-    # while True:
-    #     try:
-    #         x, y = next(hil)
-    #         # print(f"{type(x)=}, {type(y)}=")
-    #         await conn.transfer(_VectorPixelCommand(x_coord=x, y_coord=y, dwell=args.dwell))
-    #     except StopIteration:
-    #         print("Done.")
-    #         break
-
+start = perf_counter()
 if args.test:
     test_print()
 else:
-    asyncio.run(stream_pattern())
+    if args.a_b == "a":
+        asyncio.run(stream_pattern_a())
+    if args.a_b == "b":
+        asyncio.run(stream_pattern_b())
+stop = perf_counter()
+print(f"finished in: {stop-start}")

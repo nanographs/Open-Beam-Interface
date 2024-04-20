@@ -8,6 +8,7 @@ import socket
 import logging
 import inspect
 import random
+from time import perf_counter
 
 from .support import dump_hex
 
@@ -36,21 +37,27 @@ class Stream:
 
     async def flush(self):
         self._logger.debug("flush")
+        start = perf_counter()
         await self._writer.drain()
-        self._logger.debug("flush: done")
+        stop = perf_counter()
+        self._logger.debug(f"flush: done - time: {stop-start:.4f}")
 
     async def recv(self, length: int) -> bytearray:
         self._logger.debug(f"recv: length={length}")
         buffer = bytearray()
         remain = length
+        loop_start = perf_counter()
         while remain > 0:
+            start = perf_counter()
             data = await self._reader.read(remain)
+            stop = perf_counter()
             if len(data) == 0:
                 raise asyncio.IncompleteReadError
             remain -= len(data)
-            self._logger.debug(f"recv: data=<{dump_hex(data)}> remain={remain}")
+            self._logger.debug(f"recv: data=<{dump_hex(data)}> remain={remain} - time {stop-start:.4f}")
             buffer.extend(data)
-        self._logger.debug(f"recv: done")
+        stop = perf_counter()
+        self._logger.debug(f"recv: done - time {stop-loop_start:.4f}")
         return buffer
     
     async def recv_until_done(self, length: int, done_sending: asyncio.Event) -> bytearray:
@@ -71,8 +78,11 @@ class Stream:
         return buffer
 
     async def xchg(self, data: bytes | bytearray | memoryview, *, recv_length: int) -> bytes:
+        start = perf_counter()
         self.send(data)
         return await self.recv(recv_length)
+        stop = perf_counter()
+        self._logger.debug(f"xchg time: {stop-start:.4f}")
 
 class OutputMode(enum.IntEnum):
     SixteenBit          = 0x00
@@ -89,15 +99,20 @@ class Command(metaclass=ABCMeta):
             async def wrapper(self, *args, **kwargs):
                 repr_short = repr(self).replace(self.__class__.__name__, "cls")
                 self._logger.debug(f"iter begin={repr_short}")
+                loop_start = perf_counter()
+                start = perf_counter()
                 async for chunk in transfer(self, *args, **kwargs):
+                    now = perf_counter()
                     if isinstance(chunk, list):
-                        self._logger.debug(f"iter chunk=<list of {len(chunk)}>")
+                        self._logger.debug(f"iter chunk=<list of {len(chunk)}> time - {now-start:.4f}")
                     elif isinstance(chunk, array.array):
-                        self._logger.debug(f"iter chunk=<array of {len(chunk)}>")
+                        self._logger.debug(f"iter chunk=<array of {len(chunk)}> time - {now-start:.4f}")
                     else:
-                        self._logger.debug(f"iter chunk={chunk!r}")
+                        self._logger.debug(f"iter chunk={chunk!r} time - {now-start:.4f}")
+                    start = now
                     yield chunk
-                self._logger.debug(f"iter end={repr_short}")
+                now = perf_counter()
+                self._logger.debug(f"iter end={repr_short} time - {now-loop_start:.4f}")
         else:
             async def wrapper(self, *args, **kwargs):
                 repr_short = repr(self).replace(self.__class__.__name__, "cls")
@@ -112,18 +127,31 @@ class Command(metaclass=ABCMeta):
 
     async def recv_res(self, pixel_count, stream: Stream, output_mode:OutputMode):
         if output_mode == OutputMode.NoOutput:
+                start = perf_counter()
                 await asyncio.sleep(0)
+                stop = perf_counter()
+                self._logger.debug(f"recv_res None: time - {stop-start:.4f}")
                 pass
         else:
             if output_mode == OutputMode.SixteenBit:
+                start = perf_counter()
                 res = array.array('H', await stream.recv(pixel_count * 2))
                 if not BIG_ENDIAN:
                     res.byteswap()
+                stop = perf_counter()
+                self._logger.debug(f"recv_res 16: time - {stop-start:.4f}")
                 await asyncio.sleep(0)
+                sleep = perf_counter()
+                self._logger.debug(f"recv_res sleep: time - {sleep-stop:.4f}")
                 return res
             if output_mode == OutputMode.EightBit:
+                start = perf_counter()
                 res = array.array('B', await stream.recv(pixel_count))
+                stop = perf_counter()
+                self._logger.debug(f"recv_res 8: time - {stop-start:.4f}")
                 await asyncio.sleep(0)
+                sleep = perf_counter()
+                self._logger.debug(f"recv_res sleep: time - {sleep-stop:.4f}")
                 return res
 
 class Connection:
@@ -216,7 +244,10 @@ class Connection:
     async def transfer(self, command: Command, **kwargs):
         self._logger.debug(f"transfer {command!r}")
         try:
+            start = self.perf_counter()
             await self._synchronize() # may raise asyncio.IncompleteReadError
+            stop = self.perf_counter()
+            self._logger.debug(f"transfer: time - {stop-start:.4f}")
             return await command.transfer(self._stream, **kwargs)
         except asyncio.IncompleteReadError as e:
             self._handle_incomplete_read(e)
@@ -224,9 +255,16 @@ class Connection:
     async def transfer_multiple(self, command: Command, **kwargs):
         self._logger.debug(f"transfer multiple {command!r}")
         try:
+            start = perf_counter()
             await self._synchronize() # may raise asyncio.IncompleteReadError
+            stop = perf_counter()
+            self._logger.debug(f"synchronize transfer_multiple: time - {stop-start:.4f}")
+            start = perf_counter()
             async for value in command.transfer(self._stream, **kwargs):
                 yield value
+                now = perf_counter()
+                self._logger.debug(f"yield transfer_multiple: time - {now-start:.4f}")
+                start = now
         except asyncio.IncompleteReadError as e:
             self._handle_incomplete_read(e)
 
@@ -550,10 +588,52 @@ class VectorPixelRunCommand(Command):
 
     @Command.log_transfer
     async def transfer(self, stream: Stream, latency: int, output_mode:OutputMode=OutputMode.SixteenBit):
-        for commands, pixel_count in self._iter_chunks(latency):
-            stream.send(commands)
+        # loop_start = perf_counter()
+        # for commands, pixel_count in self._iter_chunks(latency):
+        #     stream.send(commands)
+        #     stream.send(struct.pack(">B", CommandType.Flush))
+        #     start = perf_counter()
+        #     await stream.flush()
+        #     stop = perf_counter()
+        #     self._logger.debug(f"transfer flush: time - {stop-start:.4f}")
+        #     yield await self.recv_res(pixel_count, stream, output_mode)
+        MAX_PIPELINE = 32
+
+        tokens = MAX_PIPELINE
+        token_fut = asyncio.Future()
+
+        async def sender():
+            nonlocal tokens
+            for commands, pixel_count in self._iter_chunks(latency):
+                self._logger.debug(f"sender: {tokens=}, {pixel_count=}")
+                if tokens == 0:
+                    stream.send(struct.pack(">B", CommandType.Flush))
+                    start = perf_counter()
+                    await stream.flush()
+                    await token_fut
+                    stop = perf_counter()
+                    self._logger.debug(f"sender: flush - {stop-start:.4f}")
+                stream.send(commands)
+                tokens -= 1
+                start = perf_counter()
+                await asyncio.sleep(0)
+                stop = perf_counter()
+                self._logger.debug(f"sender: sleep time - {stop-start:.4f}")
             stream.send(struct.pack(">B", CommandType.Flush))
+            start = perf_counter()
+            await stream.flush()
+            stop = perf_counter()
+            self._logger.debug(f"sender: flush - {stop-start:.4f}")
+        asyncio.create_task(sender())
+
+        for commands, pixel_count in self._iter_chunks(latency):
+            tokens += 1
+            if tokens == 1:
+                token_fut.set_result(None)
+                token_fut = asyncio.Future()
+            self._logger.debug(f"recver: tokens={tokens}")
             yield await self.recv_res(pixel_count, stream, output_mode)
+            
 
 
 
