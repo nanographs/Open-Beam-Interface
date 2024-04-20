@@ -5,8 +5,7 @@ description = "Software for electron microscope image capture with Glasgow and O
 authors = [
     {name = "isabelburgos", email = "isabel@nanographs.io"},
 ]
-dependencies = ["tomllib",
-                "numpy",
+dependencies = ["numpy",
                 "Pillow",
                 "PySide6",
                 "pyqtgraph",
@@ -15,7 +14,7 @@ dependencies = ["tomllib",
                 "ome-types",
                 "Pillow",
                 "hilbertcurve"]
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 readme = "README.md"
 license = {text = "\"0BSD OR Apache-2.0\""}
 
