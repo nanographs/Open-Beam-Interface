@@ -7,14 +7,14 @@ authors = [
 ]
 dependencies = ["numpy",
                 "Pillow",
-                "PyQt6",
+                "PySide6",
                 "pyqtgraph",
                 "qasync",
                 "tifffile",
                 "ome-types",
                 "Pillow",
                 "hilbertcurve"]
-requires-python = ">=3.12"
+requires-python = ">=3.10"
 readme = "README.md"
 license = {text = "\"0BSD OR Apache-2.0\""}
 
