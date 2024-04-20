@@ -5,7 +5,8 @@ description = "Software for electron microscope image capture with Glasgow and O
 authors = [
     {name = "isabelburgos", email = "isabel@nanographs.io"},
 ]
-dependencies = ["numpy",
+dependencies = ["tomllib",
+                "numpy",
                 "Pillow",
                 "PySide6",
                 "pyqtgraph",
