@@ -572,69 +572,93 @@ class VectorPixelRunCommand(Command):
     def __repr__(self):
         return f"VectorPixelRunCommand({self._pattern_generator})"
     
-    def _iter_chunks(self, latency: int):
+    def _iter_chunks(self):
         commands = b""
         pixel_count = 0
         total_dwell  = 0
+        latency = yield
         for x_coord, y_coord, dwell in self._pattern_generator:
             pixel_count += 1
             total_dwell += dwell
             commands += struct.pack(">BHHH", CommandType.VectorPixel, x_coord, y_coord, dwell)
             if total_dwell >= latency:
-                yield (commands, pixel_count)
+                latency = yield commands, pixel_count
                 commands = b""
                 pixel_count = 0
                 total_dwell = 0
+    
+    def _iter_latency_send(self, start_latency: int):
+        sub_latency = int(start_latency/8)
+        yield start_latency
+        while True:
+            remain = start_latency
+            while remain > sub_latency:
+                yield sub_latency
+                remain -= sub_latency
+            yield remain
+    
+    def _iter_latency_recv(self, start_latency: int):
+        sub_latency = int(start_latency/8)
+        while True:
+            remain = start_latency
+            while remain > sub_latency:
+                yield sub_latency
+                remain -= sub_latency
+            yield remain
 
     @Command.log_transfer
     async def transfer(self, stream: Stream, latency: int, output_mode:OutputMode=OutputMode.SixteenBit):
-        # loop_start = perf_counter()
-        # for commands, pixel_count in self._iter_chunks(latency):
-        #     stream.send(commands)
-        #     stream.send(struct.pack(">B", CommandType.Flush))
-        #     start = perf_counter()
-        #     await stream.flush()
-        #     stop = perf_counter()
-        #     self._logger.debug(f"transfer flush: time - {stop-start:.4f}")
-        #     yield await self.recv_res(pixel_count, stream, output_mode)
-        MAX_PIPELINE = 32
+        DEAD_BAND = min(16384, int(latency)/8)
+        HIGH_WATER_MARK = latency + DEAD_BAND
+        LOW_WATER_MARK = latency - DEAD_BAND
+        
 
-        tokens = MAX_PIPELINE
-        token_fut = asyncio.Future()
+        # tokens = MAX_PIPELINE
+        latency_in_flight = 0
+        drain_fut = asyncio.Future()
 
         async def sender():
-            nonlocal tokens
-            for commands, pixel_count in self._iter_chunks(latency):
-                self._logger.debug(f"sender: {tokens=}, {pixel_count=}")
-                if tokens == 0:
-                    stream.send(struct.pack(">B", CommandType.Flush))
-                    start = perf_counter()
-                    await stream.flush()
-                    await token_fut
-                    stop = perf_counter()
-                    self._logger.debug(f"sender: flush - {stop-start:.4f}")
-                stream.send(commands)
-                tokens -= 1
-                start = perf_counter()
-                await asyncio.sleep(0)
-                stop = perf_counter()
-                self._logger.debug(f"sender: sleep time - {stop-start:.4f}")
-            stream.send(struct.pack(">B", CommandType.Flush))
-            start = perf_counter()
-            await stream.flush()
-            stop = perf_counter()
-            self._logger.debug(f"sender: flush - {stop-start:.4f}")
+            nonlocal latency_in_flight
+            iter_chunks = self._iter_chunks()
+            iter_chunks.send(None)
+            iter_latency = self._iter_latency_send(latency)
+            while True:
+                try:
+                    chunk_latency = next(iter_latency)
+                    print(f"sending {chunk_latency=}")
+                    commands, pixel_count = iter_chunks.send(chunk_latency)
+                    print(f"got {len(commands)=}, {pixel_count=}")
+                    # iter_chunks.send(chunk_latency)
+                    if latency_in_flight >= HIGH_WATER_MARK:
+                        print(f"{latency_in_flight=} >= {HIGH_WATER_MARK}")
+                        await stream.flush()
+                        await drain_fut
+                    await asyncio.sleep(0)
+                    stream.send(commands)
+                    latency_in_flight += chunk_latency
+                    self._logger.debug(f"sender: {latency_in_flight=}")
+                except StopIteration:
+                    break
+
         asyncio.create_task(sender())
 
-        for commands, pixel_count in self._iter_chunks(latency):
-            tokens += 1
-            if tokens == 1:
-                token_fut.set_result(None)
-                token_fut = asyncio.Future()
-            self._logger.debug(f"recver: tokens={tokens}")
-            yield await self.recv_res(pixel_count, stream, output_mode)
-            
 
+        iter_chunks = self._iter_chunks()
+        iter_chunks.send(None)
+        iter_latency = self._iter_latency_recv(latency)
+        while True:
+            try:
+                chunk_latency = next(iter_latency)
+                commands, pixel_count = iter_chunks.send(chunk_latency)
+                if latency_in_flight <= LOW_WATER_MARK:
+                    drain_fut.set_result(None)
+                    drain_fut = asyncio.Future()
+                latency_in_flight -= chunk_latency
+                self._logger.debug(f"recver: {latency_in_flight=}")
+                yield await self.recv_res(pixel_count, stream, output_mode)
+            except StopIteration:
+                stream.send(struct.pack(">B", CommandType.Flush))
+                break
 
 
 class RasterStreamCommand(Command):
