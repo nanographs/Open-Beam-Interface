@@ -33,3 +33,4 @@ distribution = true
 gui.cmd = "python -m obi_software.gui 2224 --config_path ~/open-beam-interface/microscope.toml"
 debug_gui.cmd = "python -m obi_software.gui 2224 --debug --config_path ~/open-beam-interface/microscope.toml"
 test.cmd = "python -m unittest test"
+hilbert.cmd = "python -m obi_software.hilbert"
