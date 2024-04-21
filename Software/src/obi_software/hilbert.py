@@ -47,6 +47,7 @@ parser.add_argument('--dwell', type=int, help="dwell time per pixel", default=2)
 parser.add_argument('--a_b', type=str, help="a = VectorPixelRun, b = _VectorPixel", default="a")
 parser.add_argument('--output', type=int, help="output mode: 0 = 16 bit, 1 = 8 bit, 2 = None", default=0)
 parser.add_argument('--latency', type=int, help="min abort latency. only applies to mode a", default=65536)
+parser.add_argument('--dead_band', type=int, help="dead band around latency. only applies to mode a", default=16384)
 parser.add_argument("port", help="port @ localhost to connect to")
 args = parser.parse_args()
 
@@ -61,7 +62,7 @@ conn = Connection('localhost', args.port)
 async def stream_pattern_a():
     start = perf_counter()
     async for chunk in conn.transfer_multiple(VectorPixelRunCommand(pattern_generator=hil), 
-                                            latency=args.latency, output_mode=args.output):
+                                            latency=args.latency, dead_band = args.dead_band, output_mode=args.output):
         pass
 
 
