@@ -1020,6 +1020,7 @@ class OBIApplet(GlasgowApplet):
             
             async def send_data(self):
                 self.send_paused = False
+                self.logger.debug("awaiting read")
                 data = await iface.read(flush=False)
                 if self.transport:
                     self.logger.debug(f"in-buffer size={len(iface._in_buffer)}")
@@ -1027,6 +1028,7 @@ class OBIApplet(GlasgowApplet):
                     self.transport.write(data)
                     await asyncio.sleep(0)
                     if self.backpressure:
+                        self.logger.debug("paused send due to backpressure")
                         self.send_paused = True
                     else:
                         asyncio.create_task(self.send_data())
