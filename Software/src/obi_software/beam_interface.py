@@ -576,11 +576,10 @@ class VectorPixelRunCommand(Command):
         total_dwell  = 0
         latency = yield
         for x_coord, y_coord, dwell in self._pattern_generator:
-            # print(f"{pixel_count=}")
             pixel_count += 1
             total_dwell += dwell
             commands += struct.pack(">BHHH", CommandType.VectorPixel, x_coord, y_coord, dwell)
-            if total_dwell >= latency:
+            if total_dwell >= latency or pixel_count > 0xffff :
                 latency = yield commands, pixel_count
                 commands = b""
                 pixel_count = 0
@@ -589,34 +588,13 @@ class VectorPixelRunCommand(Command):
         if not pixel_count == 0:
             print(f"iter_chunks: remaining {pixel_count=}")
             yield commands, pixel_count
-    
-    def _iter_latency_send(self, start_latency: int):
-        sub_latency = int(start_latency/8)
-        yield start_latency
-        while True:
-            remain = start_latency
-            while remain > sub_latency:
-                yield sub_latency
-                remain -= sub_latency
-            yield remain
-    
-    def _iter_latency_recv(self, start_latency: int):
-        sub_latency = int(start_latency/8)
-        while True:
-            remain = start_latency
-            while remain > sub_latency:
-                yield sub_latency
-                remain -= sub_latency
-            yield remain
 
     @Command.log_transfer
-    async def transfer(self, stream: Stream, latency: int, output_mode:OutputMode=OutputMode.SixteenBit):
-        DEAD_BAND = int(min(16384, int(latency)/8))
-        HIGH_WATER_MARK = latency + DEAD_BAND
-        LOW_WATER_MARK = latency - DEAD_BAND
-        
+    async def transfer(self, stream: Stream, latency: int, dead_band: int, output_mode:OutputMode=OutputMode.SixteenBit):
+        # DEAD_BAND = int(min(16384, int(latency)/8))
+        HIGH_WATER_MARK = latency + dead_band
+        LOW_WATER_MARK = max(0,latency - dead_band)
 
-        # tokens = MAX_PIPELINE
         latency_in_flight = 0
         drain_fut = asyncio.Future()
         fill_fut = asyncio.Future()
@@ -625,15 +603,14 @@ class VectorPixelRunCommand(Command):
             nonlocal latency_in_flight, fill_fut
             iter_chunks = self._iter_chunks()
             iter_chunks.send(None)
-            iter_latency = self._iter_latency_send(latency)
             while True:
                 try:
-                    chunk_latency = next(iter_latency)
-                    print(f"sender: sending {chunk_latency=} to iter_chunks")
-                    commands, pixel_count = iter_chunks.send(chunk_latency)
+                    latency = HIGH_WATER_MARK - latency_in_flight
+                    print(f"sender: sending {latency=} to iter_chunks")
+                    commands, pixel_count = iter_chunks.send(latency)
                     print(f"sender: got {len(commands)=}, {pixel_count=} from iter_chunks")
                     stream.send(commands)
-                    latency_in_flight += chunk_latency
+                    latency_in_flight += latency
                     self._logger.debug(f"sender: {latency_in_flight=}")
                     await asyncio.sleep(0)
                     if latency_in_flight >= LOW_WATER_MARK:
@@ -654,26 +631,25 @@ class VectorPixelRunCommand(Command):
 
         yield await asyncio.sleep(0)
 
-        iter_chunks_r = self._iter_chunks()
+        iter_chunks_r = self._iter_chunks() ## be sure it's not the same as iter_chunks() in sender()
         iter_chunks_r.send(None)
-        iter_latency = self._iter_latency_recv(latency)
         while True:
             try:
                 if latency_in_flight <= LOW_WATER_MARK:
                     print(f"recver: {latency_in_flight=} <= {LOW_WATER_MARK=}, waiting for fill")
                     await fill_fut
-                chunk_latency = next(iter_latency)
-                print(f"recver: sending {chunk_latency=} to iter_chunk")
-                commands, pixel_count = iter_chunks_r.send(chunk_latency)
+                latency = latency_in_flight - LOW_WATER_MARK
+                print(f"recver: sending {latency=} to iter_chunk")
+                commands, pixel_count = iter_chunks_r.send(latency)
                 print(f"recver: got {len(commands)=}, {pixel_count=}")
-                latency_in_flight -= chunk_latency
+                latency_in_flight -= latency
                 print(f"recver: {latency_in_flight=}")
                 yield await self.recv_res(pixel_count, stream, output_mode)
-                # yield await asyncio.sleep(0)
-                if latency_in_flight <= HIGH_WATER_MARK:
-                    print(f"recver: {latency_in_flight=} <= {HIGH_WATER_MARK=}, setting drain")
+                if latency_in_flight < HIGH_WATER_MARK:
+                    print(f"recver: {latency_in_flight=} < {HIGH_WATER_MARK=}, setting drain")
                     drain_fut.set_result(None)
                     drain_fut = asyncio.Future()
+                
             except StopIteration:
                 print(f"recver: StopIteration")
                 break
