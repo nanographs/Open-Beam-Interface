@@ -1527,6 +1527,15 @@
 				(hide yes)
 			)
 		)
+		(property "DK PN" "A32094-ND"
+			(at 119.38 95.25 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "4"
 			(uuid "2fe2579a-2761-4dac-a88f-f8f26659361c")
 		)
@@ -1843,6 +1852,15 @@
 				(hide yes)
 			)
 		)
+		(property "DK PN" "A32119-ND"
+			(at 172.72 76.2 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "0"
 			(uuid "75f7d60f-c538-4598-a8a0-229c5209e3d5")
 		)
@@ -2090,6 +2108,15 @@
 				(hide yes)
 			)
 		)
+		(property "DK PN" ""
+			(at 116.84 125.73 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(instances
 			(project "DSC DB9 Splitter"
 				(path "/088ae3ff-d77d-4390-8047-3955798b7152"
@@ -2163,6 +2190,15 @@
 			)
 		)
 		(property "Sim.Pins" ""
+			(at 127 125.73 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK PN" ""
 			(at 127 125.73 0)
 			(effects
 				(font
@@ -2245,6 +2281,15 @@
 			)
 		)
 		(property "Sim.Pins" ""
+			(at 172.72 114.3 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK PN" "A32119-ND"
 			(at 172.72 114.3 0)
 			(effects
 				(font
@@ -2561,6 +2606,15 @@
 			)
 		)
 		(property "Sim.Pins" ""
+			(at 116.84 135.89 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK PN" ""
 			(at 116.84 135.89 0)
 			(effects
 				(font
