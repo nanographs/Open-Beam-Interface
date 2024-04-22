@@ -560,7 +560,7 @@
           "show": true
         },
         {
-          "group_by": true,
+          "group_by": false,
           "label": "DNP",
           "name": "${DNP}",
           "show": true
@@ -590,10 +590,10 @@
           "show": false
         },
         {
-          "group_by": false,
+          "group_by": true,
           "label": "DK Part Number",
           "name": "DK Part Number",
-          "show": false
+          "show": true
         }
       ],
       "filter_string": "",
