@@ -3131,7 +3131,7 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" ""
+		(property "DK Part Number" "A32094-ND"
 			(at 45.72 53.34 0)
 			(effects
 				(font
@@ -3234,7 +3234,7 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" ""
+		(property "DK Part Number" "A32094-ND"
 			(at 45.72 93.98 0)
 			(effects
 				(font
@@ -4712,7 +4712,7 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" ""
+		(property "DK Part Number" "A32119-ND"
 			(at 248.92 73.66 0)
 			(effects
 				(font
