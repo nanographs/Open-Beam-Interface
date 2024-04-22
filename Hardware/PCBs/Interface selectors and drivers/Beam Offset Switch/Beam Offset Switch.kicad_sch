@@ -6029,6 +6029,15 @@
 				(hide yes)
 			)
 		)
+		(property "DK Part Number" "3224W-103ECT-ND"
+			(at 148.59 86.36 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "3"
 			(uuid "e681dc26-5132-446c-85c0-eb8c68c317e0")
 		)
@@ -6257,6 +6266,15 @@
 			)
 		)
 		(property "Description" "Fuse, small symbol"
+			(at 233.68 139.7 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" "F3135CT-ND"
 			(at 233.68 139.7 0)
 			(effects
 				(font
@@ -6663,6 +6681,15 @@
 			)
 		)
 		(property "Description" "Fuse, small symbol"
+			(at 246.38 134.62 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" "F3135CT-ND"
 			(at 246.38 134.62 0)
 			(effects
 				(font
@@ -7796,6 +7823,15 @@
 				(hide yes)
 			)
 		)
+		(property "DK Part Number" "3224W-103ECT-ND"
+			(at 148.59 60.96 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "3"
 			(uuid "d3bb6153-ef18-423f-a721-788d9ad2e14d")
 		)
@@ -8812,6 +8848,15 @@
 			)
 		)
 		(property "Sim.Pins" ""
+			(at 148.59 35.56 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" "3224W-103ECT-ND"
 			(at 148.59 35.56 0)
 			(effects
 				(font
@@ -10277,6 +10322,15 @@
 			)
 		)
 		(property "Sim.Pins" ""
+			(at 148.59 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" "3224W-103ECT-ND"
 			(at 148.59 111.76 0)
 			(effects
 				(font
