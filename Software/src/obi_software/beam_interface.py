@@ -242,9 +242,9 @@ class Connection:
     async def transfer(self, command: Command, **kwargs):
         self._logger.debug(f"transfer {command!r}")
         try:
-            start = self.perf_counter()
+            start = perf_counter()
             await self._synchronize() # may raise asyncio.IncompleteReadError
-            stop = self.perf_counter()
+            stop = perf_counter()
             self._logger.debug(f"transfer: time - {stop-start:.4f}")
             return await command.transfer(self._stream, **kwargs)
         except asyncio.IncompleteReadError as e:
