@@ -4,6 +4,7 @@ import enum
 import struct
 import array
 import asyncio
+import threading
 import socket
 import logging
 import inspect
@@ -564,18 +565,19 @@ class _VectorPixelCommand(Command):
 
 
 class VectorPixelRunCommand(Command):
-    def __init__(self, *, pattern_generator):
-        self._pattern_generator = pattern_generator
+    def __init__(self, *, pattern_generator, pattern_args: list):
+        self._pattern_generator_1 = pattern_generator(*pattern_args)
+        self._pattern_generator_2 = pattern_generator(*pattern_args)
 
     def __repr__(self):
-        return f"VectorPixelRunCommand({self._pattern_generator})"
+        return f"VectorPixelRunCommand({self._pattern_generator_1})"
     
-    def _iter_chunks(self):
+    def _iter_chunks(self, pattern_generator):
         commands = b""
         pixel_count = 0
         total_dwell  = 0
         latency = yield
-        for x_coord, y_coord, dwell in self._pattern_generator:
+        for x_coord, y_coord, dwell in pattern_generator:
             pixel_count += 1
             total_dwell += dwell
             commands += struct.pack(">BHHH", CommandType.VectorPixel, x_coord, y_coord, dwell)
@@ -606,12 +608,14 @@ class VectorPixelRunCommand(Command):
 
         latency_in_flight = 0
         pixels_in_flight = 0
-        drain_fut = asyncio.Future()
-        fill_fut = asyncio.Future()
+        # drain_fut = asyncio.Future()
+        # fill_fut = asyncio.Future()
+        drain_fut = threading.Event()
+        fill_fut = threading.Event()
 
         async def sender(abort_latency):
             nonlocal latency_in_flight, pixels_in_flight, fill_fut
-            iter_chunks = self._iter_chunks()
+            iter_chunks = self._iter_chunks(self._pattern_generator_1)
             iter_chunks.send(None)
             iter_latency = self._iter_latency(abort_latency)
             while True:
@@ -619,10 +623,13 @@ class VectorPixelRunCommand(Command):
                     if latency_in_flight >= HIGH_WATER_MARK: # & pixels_in_flight > 16384:
                         print(f"sender: {latency_in_flight=} >= {HIGH_WATER_MARK=}, waiting for drain")
                         stream.send(struct.pack(">B", CommandType.Flush))
-                        fill_fut.set_result(None)
-                        fill_fut = asyncio.Future()
+                        # fill_fut.set_result(None)
+                        # fill_fut = asyncio.Future()
+                        fill_fut.set()
                         await stream.flush()
-                        await drain_fut
+                        # await drain_fut
+                        while not drain_fut.is_set():
+                            pass
                     latency = next(iter_latency)
                     # latency = HIGH_WATER_MARK - latency_in_flight
                     print(f"sender: sending {latency=} to iter_chunks")
@@ -640,27 +647,36 @@ class VectorPixelRunCommand(Command):
                 except StopIteration:
                     stream.send(struct.pack(">B", CommandType.Flush))
                     await stream.flush()
-                    fill_fut.set_result(None)
+                    # fill_fut.set_result(None)
+                    fill_fut.set()
                     break
 
-        asyncio.create_task(sender(latency))
+        def send_thread():  
+            loop = asyncio.new_event_loop()      
+            # loop.create_task(sender(latency))
+            loop.run_until_complete(sender(latency))
+        
+        threading.Thread(target=send_thread).start()
 
-        yield await asyncio.sleep(0)
-
-        iter_chunks_r = self._iter_chunks() ## be sure it's not the same as iter_chunks() in sender()
+        iter_chunks_r = self._iter_chunks(self._pattern_generator_2) ## be sure it's not the same as iter_chunks() in sender()
         iter_chunks_r.send(None)
         iter_latency_r = self._iter_latency(latency)
         if latency_in_flight <= HIGH_WATER_MARK: #fill up the pipeline!
             print(f"recver: {latency_in_flight=} <= {LOW_WATER_MARK=}, waiting for initial fill")
-            await fill_fut
+            # await fill_fut
+            while not fill_fut.is_set():
+                pass
         while True:
             try:
                 if latency_in_flight <= LOW_WATER_MARK:
-                    drain_fut.set_result(None)
-                    drain_fut = asyncio.Future()
+                    # drain_fut.set_result(None)
+                    # drain_fut = asyncio.Future()
+                    drain_fut.set()
                 if latency_in_flight <= 0:
                     print(f"recver: {latency_in_flight=} <= {LOW_WATER_MARK=}, waiting for fill")
-                    await fill_fut
+                    # await fill_fut
+                    while not fill_fut.is_set():
+                        pass
                 # latency = latency_in_flight - LOW_WATER_MARK
                 latency = next(iter_latency_r)
                 print(f"recver: sending {latency=} to iter_chunk")

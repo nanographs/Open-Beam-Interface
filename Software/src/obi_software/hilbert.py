@@ -7,7 +7,7 @@ def hilbert(pmax = 10, dwell = 2):
     N = 2 # number of dimensions
 
     #text_file = open("hilbert.txt", "w")
-    points = []
+    n_total_points = 0
 
     side = 2**pmax
     print(f"{side=}")
@@ -30,9 +30,12 @@ def hilbert(pmax = 10, dwell = 2):
             x = pt[0]*side/sidep + offset
             y = pt[1]*side/sidep + offset
             yield int(x), int(y), dwell
+            n_total_points += 1
 
         offset += dx
         dx *= 2
+    
+    print(f"curve complete. {n_total_points=}")
 
 
 from .beam_interface import Connection, _VectorPixelCommand, setup_logging, VectorPixelRunCommand
@@ -51,7 +54,7 @@ parser.add_argument('--dead_band', type=int, help="dead band around latency. onl
 parser.add_argument("port", help="port @ localhost to connect to")
 args = parser.parse_args()
 
-hil = hilbert(args.pmax, args.dwell)
+# hil = hilbert(args.pmax, args.dwell)
 
 def test_print():
     for x, y, d in hil:
@@ -61,7 +64,7 @@ conn = Connection('localhost', args.port)
 
 async def stream_pattern_a():
     start = perf_counter()
-    async for chunk in conn.transfer_multiple(VectorPixelRunCommand(pattern_generator=hil), 
+    async for chunk in conn.transfer_multiple(VectorPixelRunCommand(pattern_generator=hilbert, pattern_args=[args.pmax, args.dwell] ), 
                                             latency=args.latency, dead_band = args.dead_band, output_mode=args.output):
         pass
 
