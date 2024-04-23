@@ -610,10 +610,10 @@ class VectorPixelRunCommand(Command):
     @Command.log_transfer
     async def transfer(self, stream: Stream, latency: int, dead_band: int, output_mode:OutputMode=OutputMode.SixteenBit):
         # DEAD_BAND = int(min(16384, int(latency)/8))
-        # HIGH_WATER_MARK = latency + dead_band
-        # LOW_WATER_MARK = max(0,latency - dead_band)
-        HIGH_WATER_MARK = dead_band
-        LOW_WATER_MARK = dead_band
+        HIGH_WATER_MARK = latency + dead_band
+        LOW_WATER_MARK = max(0,latency - dead_band)
+        # HIGH_WATER_MARK = dead_band
+        # LOW_WATER_MARK = dead_band
 
         latency_in_flight = 0
         pixels_in_flight = 0
