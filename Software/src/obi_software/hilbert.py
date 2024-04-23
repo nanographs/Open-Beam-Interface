@@ -34,8 +34,15 @@ def hilbert(pmax = 10, dwell = 2):
         offset += dx
         dx *= 2
 
+def high_low(pmax = 10, dwell = 2):
+    side = 2**(pmax-1)
+    points = side**2
+    for _ in range(points):
+        yield 0, 0, dwell
+        yield 16384, 16384, dwell
 
-from .beam_interface import Connection, _VectorPixelCommand, setup_logging, VectorPixelRunCommand
+
+from .beam_interface import Connection, _VectorPixelCommand, setup_logging, VectorPixelRunCommand, VectorPixelLinearRunCommand
 import logging
 from time import perf_counter
 setup_logging({"Command": logging.DEBUG, "Stream": logging.DEBUG})
@@ -44,7 +51,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--test', action='store_true', help="just print the first 100 points")
 parser.add_argument('--pmax', type=int, help="hilbert curve will have 2^N points?", default=10)
 parser.add_argument('--dwell', type=int, help="dwell time per pixel", default=2)
-parser.add_argument('--a_b', type=str, help="a = VectorPixelRun, b = _VectorPixel", default="a")
+parser.add_argument('--a_b', type=str, help="a = VectorPixelRun, b = _VectorPixel, c = VectorPixelLinearRun", default="a")
 parser.add_argument('--output', type=int, help="output mode: 0 = 16 bit, 1 = 8 bit, 2 = None", default=0)
 parser.add_argument('--latency', type=int, help="min abort latency. only applies to mode a", default=65536)
 parser.add_argument('--dead_band', type=int, help="dead band around latency. only applies to mode a", default=16384)
@@ -52,6 +59,7 @@ parser.add_argument("port", help="port @ localhost to connect to")
 args = parser.parse_args()
 
 hil = hilbert(args.pmax, args.dwell)
+# hil = high_low(args.pmax, args.dwell)
 
 def test_print():
     for x, y, d in hil:
@@ -60,7 +68,6 @@ def test_print():
 conn = Connection('localhost', args.port)
 
 async def stream_pattern_a():
-    start = perf_counter()
     async for chunk in conn.transfer_multiple(VectorPixelRunCommand(pattern_generator=hil), 
                                             latency=args.latency, dead_band = args.dead_band, output_mode=args.output):
         pass
@@ -76,6 +83,11 @@ async def stream_pattern_b():
             print("Done.")
             break
 
+async def stream_pattern_c():
+    async for chunk in conn.transfer_multiple(VectorPixelLinearRunCommand(pattern_generator=hil), 
+                                            output_mode=args.output):
+        pass
+
 start = perf_counter()
 if args.test:
     test_print()
@@ -84,5 +96,7 @@ else:
         asyncio.run(stream_pattern_a())
     if args.a_b == "b":
         asyncio.run(stream_pattern_b())
+    if args.a_b == "c":
+        asyncio.run(stream_pattern_c())
 stop = perf_counter()
 print(f"finished in: {stop-start}")

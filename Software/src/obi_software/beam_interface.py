@@ -563,6 +563,50 @@ class _VectorPixelCommand(Command):
         return await self.recv_res(1, stream, output_mode)
 
 
+class VectorPixelLinearRunCommand(Command):
+    def __init__(self, *, pattern_generator):
+        self._pattern_generator = pattern_generator
+
+    def __repr__(self):
+        return f"VectorPixelLinearRunCommand({self._pattern_generator})"
+    
+    def _iter_chunks(self):
+        commands = bytearray()
+        pixel_count = 0
+        total_dwell  = 0
+        for x_coord, y_coord, dwell in self._pattern_generator:
+            pixel_count += 1
+            total_dwell += dwell
+            commands.extend(struct.pack(">BHHH", CommandType.VectorPixel, x_coord, y_coord, dwell))
+        print("iter_chunks: reached end of pattern generator")
+        return commands, pixel_count
+    
+
+
+    @Command.log_transfer
+    async def transfer(self, stream: Stream, output_mode:OutputMode=OutputMode.SixteenBit):
+        MAX_OUT_BUFFER = 131072
+        commands, pixel_count = self._iter_chunks()
+        
+        await SynchronizeCommand(cookie=123, raster_mode=False, output_mode=output_mode).transfer(stream)
+
+        async def sender():
+            nonlocal commands
+            start = perf_counter()
+            while len(commands) > MAX_OUT_BUFFER:
+                stream.send(commands[:MAX_OUT_BUFFER])
+                commands = commands[MAX_OUT_BUFFER:]
+            if len(commands) > 0:
+                stream.send(commands)
+            stream.send(struct.pack(">B", CommandType.Flush))
+            await stream.flush()
+            stop = perf_counter()
+            self._logger.debug(f"sender: time - {stop-start:.4f}")
+
+        await sender()
+        yield await self.recv_res(pixel_count, stream, output_mode)
+
+
 class VectorPixelRunCommand(Command):
     def __init__(self, *, pattern_generator):
         self._pattern_generator = pattern_generator
@@ -571,17 +615,17 @@ class VectorPixelRunCommand(Command):
         return f"VectorPixelRunCommand({self._pattern_generator})"
     
     def _iter_chunks(self):
-        commands = b""
+        commands = bytearray()
         pixel_count = 0
         total_dwell  = 0
         latency = yield
         for x_coord, y_coord, dwell in self._pattern_generator:
             pixel_count += 1
             total_dwell += dwell
-            commands += struct.pack(">BHHH", CommandType.VectorPixel, x_coord, y_coord, dwell)
+            commands.extend(struct.pack(">BHHH", CommandType.VectorPixel, x_coord, y_coord, dwell))
             if total_dwell >= latency: #or pixel_count > 0xffff :
                 latency = yield commands, pixel_count, total_dwell
-                commands = b""
+                commands = bytearray()
                 pixel_count = 0
                 total_dwell = 0
         print("iter_chunks: reached end of pattern generator")
@@ -609,6 +653,7 @@ class VectorPixelRunCommand(Command):
 
     @Command.log_transfer
     async def transfer(self, stream: Stream, latency: int, dead_band: int, output_mode:OutputMode=OutputMode.SixteenBit):
+        await SynchronizeCommand(cookie=123, raster_mode=False, output_mode=output_mode).transfer(stream)
         # DEAD_BAND = int(min(16384, int(latency)/8))
         HIGH_WATER_MARK = latency + dead_band
         LOW_WATER_MARK = max(0,latency - dead_band)
