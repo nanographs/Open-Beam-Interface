@@ -1002,6 +1002,7 @@ class OBIApplet(GlasgowApplet):
                 await iface.reset()
                 await iface.write([4,0,1]) #disable external ctrl
                 self.logger.debug("reset")
+                self.logger.debug(iface.statistics())
 
             def connection_made(self, transport):
                 self.backpressure = False
