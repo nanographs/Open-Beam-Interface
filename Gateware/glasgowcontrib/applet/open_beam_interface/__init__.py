@@ -1,3 +1,4 @@
+import time
 import asyncio
 from amaranth import *
 from amaranth.lib import enum, data, wiring
@@ -6,7 +7,6 @@ from amaranth.lib.wiring import In, Out, flipped
 
 from glasgow.support.logging import dump_hex
 from glasgow.support.endpoint import ServerEndpoint
-
 
 # Overview of (linear) processing pipeline:
 # 1. PC software (in: user input, out: bytes)
@@ -848,12 +848,22 @@ obi_resources  = [
 ]
 
 class OBISubtarget(wiring.Component):
-    def __init__(self, *, pads, out_fifo, in_fifo, led, control, data, sim=False, loopback=False):
+    def __init__(self, *, pads, out_fifo, in_fifo, led, control, data, 
+                        benchmark_counters = None, sim=False, loopback=False):
         self.pads = pads
         self.out_fifo = out_fifo
         self.in_fifo  = in_fifo
         self.sim = sim
         self.loopback = loopback
+
+        if not benchmark_counters == None:
+            self.benchmark = True
+            out_stall_events, out_stall_cycles, stall_count_reset = benchmark_counters
+            self.out_stall_events = out_stall_events
+            self.out_stall_cycles = out_stall_cycles
+            self.stall_count_reset = stall_count_reset
+        else:
+            self.benchmark = False
 
         self.led = led
         self.control = control
@@ -897,6 +907,26 @@ class OBISubtarget(wiring.Component):
             self.in_fifo.flush.eq(executor.flush),
             serializer.output_mode.eq(executor.output_mode)
         ]
+
+        if self.benchmark:
+            out_stall_event = Signal()
+            with m.If(self.stall_count_reset):
+                m.d.sync += self.out_stall_cycles.eq(0)
+                m.d.sync += self.out_stall_events.eq(0)
+                m.d.sync += out_stall_event.eq(0)
+            with m.Else():
+                with m.If(~self.out_fifo.r_rdy):
+                    with m.If(~(self.out_stall_cycles >= 65536)):
+                        m.d.sync += self.out_stall_cycles.eq(self.out_stall_cycles + 1)
+                    with m.If(~out_stall_event):
+                        m.d.sync += out_stall_event.eq(1)
+                        with m.If(~(self.out_stall_events >= 65536)):
+                            m.d.sync += self.out_stall_events.eq(self.out_stall_events + 1)
+                with m.Else():
+                    m.d.sync += out_stall_event.eq(0)
+        
+        
+
 
         if not self.sim:
             led = self.led
@@ -962,6 +992,9 @@ class OBIApplet(GlasgowApplet):
         parser.add_argument("--loopback",
             dest = "loopback", action = 'store_true',
             help = "connect output and input streams internally")
+        parser.add_argument("--benchmark",
+            dest = "benchmark", action = 'store_true',
+            help = "run benchmark test")
 
     def build(self, target, args):
         target.platform.add_resources(obi_resources)
@@ -971,24 +1004,71 @@ class OBIApplet(GlasgowApplet):
 
         pads = iface.get_pads(args, pins=self.__pins)
 
-        subtarget = OBISubtarget(
-            pads = pads,
-            in_fifo=iface.get_in_fifo(depth=512, auto_flush=False),
-            out_fifo=iface.get_out_fifo(depth=512),
-            led = target.platform.request("led"),
-            control = target.platform.request("control"),
-            data = target.platform.request("data"),
-            loopback=args.loopback,
-        )
+
+        subtarget_args = {
+            "pads": pads,
+            "in_fifo": iface.get_in_fifo(depth=512, auto_flush=False),
+            "out_fifo": iface.get_out_fifo(depth=512),
+            "led": target.platform.request("led"),
+            "control": target.platform.request("control"),
+            "data": target.platform.request("data"),
+            "loopback": args.loopback
+        }
+
+        if args.benchmark:
+            out_stall_events, self.__addr_out_stall_events = target.registers.add_ro(8, reset=0)
+            out_stall_cycles, self.__addr_out_stall_cycles = target.registers.add_ro(16, reset=0)
+            stall_count_reset, self.__addr_stall_count_reset = target.registers.add_rw(1, reset=1)
+            subtarget_args.update({"benchmark_counters": [out_stall_events, out_stall_cycles, stall_count_reset]})
+
+        subtarget = OBISubtarget(**subtarget_args)
 
         return iface.add_subtarget(subtarget)
+
+    # @classmethod
+    # def add_run_arguments(cls, parser, access):
+    #     super().add_run_arguments(parser, access)
 
     async def run(self, device, args):
         # await device.set_voltage("AB", 0)
         # await asyncio.sleep(5)
         iface = await device.demultiplexer.claim_interface(self, self.mux_interface, args,
             read_buffer_size=131072*16)
-        return iface
+        
+        if args.benchmark:
+            output_mode = 2 #no output
+            raster_mode = 0 #no raster
+            mode = int(output_mode<<1 | raster_mode)
+            sync_cmd = struct.pack('>BHB', 0, 123, mode)
+            flush_cmd = struct.pack('>B', 2)
+            await iface.write(sync_cmd)
+            await iface.write(flush_cmd)
+            await iface.flush()
+            await iface.read(4)
+            print(f"got cookie!")
+            commands = bytearray()
+            print("generating block of commands...")
+            for _ in range(131072*16):
+                commands.extend(struct.pack(">BHHH", 0x14, 5, 5, 1))
+                commands.extend(struct.pack(">BHHH", 0x14, 16380, 16380, 1))
+            length = len(commands)
+            print("writing commands...")
+            while True:
+                await device.write_register(self.__addr_stall_count_reset, 1)
+                await device.write_register(self.__addr_stall_count_reset, 0)
+                begin = time.time()
+                await iface.write(commands)
+                await iface.flush()
+                end = time.time()
+                out_stall_events = await device.read_register(self.__addr_out_stall_events)
+                out_stall_cycles = await device.read_register(self.__addr_out_stall_cycles, width=2)
+                self.logger.info("benchmark: %.2f MiB/s (%.2f Mb/s)",
+                                 (length / (end - begin)) / (1 << 20),
+                                 (length / (end - begin)) / (1 << 17))
+                self.logger.info(f"out stalls: {out_stall_events}, stalled cycles: {out_stall_cycles}")
+                
+        else:
+            return iface
 
     @classmethod
     def add_interact_arguments(cls, parser):
@@ -1000,7 +1080,7 @@ class OBIApplet(GlasgowApplet):
 
             async def reset(self):
                 await iface.reset()
-                await iface.write([4,0,1]) #disable external ctrl
+                # await iface.write([4,0,1]) #disable external ctrl
                 self.logger.debug("reset")
                 self.logger.debug(iface.statistics())
 
