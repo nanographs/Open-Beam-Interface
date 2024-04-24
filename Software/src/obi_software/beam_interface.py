@@ -288,7 +288,7 @@ class SynchronizeCommand(Command):
         self._cookie = cookie
         self._raster_mode = raster_mode
         self._output_mode = output_mode
-        self._mode = int(self._output_mode*2 + self._raster_mode)
+        self._mode = int(self._output_mode<<1 | self._raster_mode)
 
     def __repr__(self):
         return f"SynchronizeCommand(cookie={self._cookie}, mode={self._mode} [raster_mode={self._raster_mode}, output_mode={self._output_mode}])"
