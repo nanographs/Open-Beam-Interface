@@ -8,6 +8,7 @@ import socket
 import logging
 import inspect
 import random
+import time
 from time import perf_counter
 
 from .support import dump_hex
@@ -335,7 +336,7 @@ class _BlankCommand(Command):
 
     @Command.log_transfer
     async def transfer(self, stream: Stream):
-        combined = int(self._beam_type*2 + self._enable)
+        combined = int(self._beam_type<<1 | self._enable)
         cmd = struct.pack(">BB", CommandType.Blank, combined)
         stream.send(cmd)
         await stream.flush()
@@ -606,6 +607,26 @@ class VectorPixelLinearRunCommand(Command):
         await sender()
         yield await self.recv_res(pixel_count, stream, output_mode)
 
+class BenchmarkTransfer(Command):
+    def __repr__(self):
+        return f"BenchmarkTransfer)"
+
+    @Command.log_transfer
+    async def transfer(self, stream: Stream):
+        await SynchronizeCommand(cookie=123, raster_mode=False, 
+                                output_mode=OutputMode.NoOutput).transfer(stream)
+        commands = bytearray()
+        for _ in range(131072*16):
+            commands.extend(struct.pack(">BHHH", 0x14, 0, 16383, 1))
+            commands.extend(struct.pack(">BHHH", 0x14, 16383, 0, 1))
+        length = len(commands)
+        while True:
+            begin = time.time()
+            stream.send(commands)
+            await stream.flush()
+            end = time.time()
+            print(f"benchmark: {(length / (end - begin)) / (1 << 20):.2f} MiB/s ({(length / (end - begin)) / (1 << 17):.2f} Mb/s)")
+
 
 class VectorPixelRunCommand(Command):
     def __init__(self, *, pattern_generator):
@@ -653,7 +674,6 @@ class VectorPixelRunCommand(Command):
 
     @Command.log_transfer
     async def transfer(self, stream: Stream, latency: int, dead_band: int, output_mode:OutputMode=OutputMode.SixteenBit):
-        await SynchronizeCommand(cookie=123, raster_mode=False, output_mode=output_mode).transfer(stream)
         # DEAD_BAND = int(min(16384, int(latency)/8))
         HIGH_WATER_MARK = latency + dead_band
         LOW_WATER_MARK = max(0,latency - dead_band)
