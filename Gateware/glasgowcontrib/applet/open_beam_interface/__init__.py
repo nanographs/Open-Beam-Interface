@@ -1118,6 +1118,8 @@ class OBIApplet(GlasgowApplet):
                     await self.reset()
                     asyncio.create_task(self.send_data())
                 self.init_fut = asyncio.create_task(initialize())
+
+                self.flush_fut = None
             
             async def send_data(self):
                 self.send_paused = False
@@ -1147,11 +1149,18 @@ class OBIApplet(GlasgowApplet):
                     asyncio.create_task(self.send_data())
 
             def data_received(self, data):
+                print("data recieved")
                 async def recv_data():
                     await self.init_fut
+                    if not self.flush_fut == None:
+                        self.transport.pause_reading()
+                        await self.flush_fut
+                        self.transport.resume_reading()
+                        self.logger.debug("net->dev flush: done")
                     self.logger.debug("net->dev <%s>", dump_hex(data))
                     await iface.write(data)
-                    await iface.flush(wait=False)
+                    self.logger.debug("net->dev write: done")
+                    self.flush_fut = asyncio.create_task(iface.flush(wait=True))
                 asyncio.create_task(recv_data())
 
             def connection_lost(self, exc):

@@ -26,11 +26,12 @@ class TransferError(Exception):
 
 class Stream:
     _logger = logger.getChild("Stream")
+    high_water = 262144 #65536
 
     def __init__(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
         self._reader = reader
         self._writer = writer
-
+        
     def send(self, data: bytes | bytearray | memoryview):
         self._logger.debug(f"send: data=<{dump_hex(data)}>")
         self._writer.write(data)
@@ -39,7 +40,7 @@ class Stream:
     async def flush(self):
         self._logger.debug("flush")
         await self._writer.drain()
-
+        self._logger.debug("flush: done")
 
     async def recv(self, length: int) -> bytearray:
         self._logger.debug(f"recv: length={length}")
