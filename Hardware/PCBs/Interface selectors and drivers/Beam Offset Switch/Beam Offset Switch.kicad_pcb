@@ -199,7 +199,7 @@
 				)
 			)
 		)
-		(property "Value" "R"
+		(property "Value" "500"
 			(at 0 1.43 -90)
 			(layer "F.Fab")
 			(uuid "802a8f30-05b4-446c-9e09-fcdcbaf7a2ea")
@@ -875,6 +875,19 @@
 				)
 			)
 		)
+		(property "DK Part Number" "3224W-103ECT-ND"
+			(at 0 0 0)
+			(unlocked yes)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "87c59041-07b7-4d3b-b815-5533d7f2d8c9")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+			)
+		)
 		(property ki_fp_filters "Potentiometer*")
 		(path "/737550be-4cd8-4113-aec4-1d0408124ff2")
 		(sheetname "Root")
@@ -1338,7 +1351,7 @@
 				)
 			)
 		)
-		(property "Value" "R"
+		(property "Value" "500"
 			(at 0 1.43 90)
 			(layer "F.Fab")
 			(uuid "afa70b8e-ae45-4b15-a9af-32dfc1aa0d3e")
@@ -1547,7 +1560,7 @@
 				)
 			)
 		)
-		(property "Value" "~"
+		(property "Value" "RV1S9261A"
 			(at 0.1 2.4 -90)
 			(unlocked yes)
 			(layer "F.Fab")
@@ -1613,6 +1626,8 @@
 			)
 		)
 		(path "/2b479c39-29c0-4912-9ddd-1a8d8efd5cf9")
+		(sheetname "Root")
+		(sheetfile "Beam Offset Switch.kicad_sch")
 		(attr smd)
 		(fp_line
 			(start 3.8 1.4)
@@ -2543,7 +2558,7 @@
 				)
 			)
 		)
-		(property "Value" "R"
+		(property "Value" "500"
 			(at 0 1.43 0)
 			(layer "F.Fab")
 			(uuid "c7c9094c-0105-495c-bc9b-207f01b1c03c")
@@ -2753,7 +2768,7 @@
 				)
 			)
 		)
-		(property "Value" "R"
+		(property "Value" "1k"
 			(at 0 1.43 90)
 			(layer "F.Fab")
 			(uuid "619d09b6-d5a1-4a73-8e8e-e23214ca4921")
@@ -3213,7 +3228,7 @@
 				)
 			)
 		)
-		(property "Value" "R"
+		(property "Value" "500"
 			(at 0 1.43 0)
 			(layer "F.Fab")
 			(uuid "f4142d43-74c3-43d7-b5a8-ee9f1eefcb57")
@@ -3759,7 +3774,7 @@
 				)
 			)
 		)
-		(property "Value" "R"
+		(property "Value" "1k"
 			(at 0 1.43 0)
 			(layer "F.Fab")
 			(uuid "7a30e1f2-cf23-42cd-8079-62804a798dfc")
@@ -4296,7 +4311,7 @@
 				)
 			)
 		)
-		(property "Value" "R"
+		(property "Value" "500"
 			(at 0 1.43 0)
 			(layer "F.Fab")
 			(uuid "aa326140-ffea-442d-8b68-26fbef04245a")
@@ -5071,7 +5086,7 @@
 				)
 			)
 		)
-		(property "Value" "R"
+		(property "Value" "1k"
 			(at 0 1.43 0)
 			(layer "F.Fab")
 			(uuid "f7c9e7d3-a1df-44f8-abae-ed31468023bd")
@@ -5517,7 +5532,7 @@
 				)
 			)
 		)
-		(property "Value" "R"
+		(property "Value" "500"
 			(at 0 1.43 0)
 			(layer "F.Fab")
 			(uuid "ed0c5134-76dc-4869-a5ac-b02e61538a65")
@@ -6184,6 +6199,19 @@
 			(layer "F.Fab")
 			(hide yes)
 			(uuid "2ee7be0f-beb3-4585-9ff4-4351824efb7a")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+			)
+		)
+		(property "DK Part Number" "3224W-103ECT-ND"
+			(at 0 0 180)
+			(unlocked yes)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "6c78ba24-6d10-44ac-9939-57a0d6327894")
 			(effects
 				(font
 					(size 1 1)
@@ -8375,7 +8403,7 @@
 				)
 			)
 		)
-		(property "Value" "~"
+		(property "Value" "RV1S9261A"
 			(at 0.1 2.4 90)
 			(unlocked yes)
 			(layer "F.Fab")
@@ -8441,6 +8469,8 @@
 			)
 		)
 		(path "/d33e2807-112e-41f8-9cd7-b6682961c8c7")
+		(sheetname "Root")
+		(sheetfile "Beam Offset Switch.kicad_sch")
 		(attr smd)
 		(fp_line
 			(start 3.8 -1.4)
@@ -9291,6 +9321,19 @@
 				)
 			)
 		)
+		(property "DK Part Number" "3224W-103ECT-ND"
+			(at 0 0 180)
+			(unlocked yes)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "59ab917c-dc98-4180-99d7-2f544965ca48")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+			)
+		)
 		(property ki_fp_filters "Potentiometer*")
 		(path "/2d77442a-24a9-465a-9365-333c5199a188")
 		(sheetname "Root")
@@ -9544,7 +9587,7 @@
 				)
 			)
 		)
-		(property "Value" "R"
+		(property "Value" "1k"
 			(at 0 1.43 -90)
 			(layer "F.Fab")
 			(uuid "f430d7a5-7798-454a-96b0-c5ff809589b3")
@@ -10686,6 +10729,19 @@
 			(layer "F.Fab")
 			(hide yes)
 			(uuid "a4941118-9114-439b-ab2a-bffa4199143f")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+			)
+		)
+		(property "DK Part Number" "3224W-103ECT-ND"
+			(at 0 0 0)
+			(unlocked yes)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "71293597-342f-4fb4-9171-c33e26cb1d84")
 			(effects
 				(font
 					(size 1 1)

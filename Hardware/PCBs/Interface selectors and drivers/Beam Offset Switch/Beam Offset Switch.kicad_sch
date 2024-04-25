@@ -5802,7 +5802,7 @@
 				)
 			)
 		)
-		(property "Value" "R"
+		(property "Value" "1k"
 			(at 157.48 119.38 90)
 			(effects
 				(font
@@ -6153,7 +6153,7 @@
 				)
 			)
 		)
-		(property "Value" "R"
+		(property "Value" "1k"
 			(at 157.48 43.18 90)
 			(effects
 				(font
@@ -6997,7 +6997,7 @@
 				)
 			)
 		)
-		(property "Value" "R"
+		(property "Value" "500"
 			(at 180.34 31.75 90)
 			(effects
 				(font
@@ -7121,7 +7121,6 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "60001264-0ddc-4162-a1a1-95b06073e154")
 		(property "Reference" "#PWR027"
 			(at 107.95 50.8 0)
@@ -7681,7 +7680,7 @@
 				)
 			)
 		)
-		(property "Value" "R"
+		(property "Value" "1k"
 			(at 157.48 68.58 90)
 			(effects
 				(font
@@ -8599,7 +8598,7 @@
 				)
 			)
 		)
-		(property "Value" "R"
+		(property "Value" "500"
 			(at 69.85 104.14 90)
 			(effects
 				(font
@@ -8967,7 +8966,7 @@
 				)
 			)
 		)
-		(property "Value" "R"
+		(property "Value" "1k"
 			(at 157.48 93.98 90)
 			(effects
 				(font
@@ -9327,7 +9326,7 @@
 				)
 			)
 		)
-		(property "Value" "R"
+		(property "Value" "500"
 			(at 180.34 107.95 90)
 			(effects
 				(font
@@ -9465,7 +9464,7 @@
 				)
 			)
 		)
-		(property "Value" "R"
+		(property "Value" "500"
 			(at 69.85 53.34 90)
 			(effects
 				(font
@@ -9599,7 +9598,7 @@
 				)
 			)
 		)
-		(property "Value" "R"
+		(property "Value" "500"
 			(at 180.34 82.55 90)
 			(effects
 				(font
@@ -11073,7 +11072,7 @@
 				)
 			)
 		)
-		(property "Value" "R"
+		(property "Value" "500"
 			(at 180.34 57.15 90)
 			(effects
 				(font
