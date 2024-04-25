@@ -818,7 +818,7 @@ class OBIAppletTestCase(unittest.TestCase):
                 data = await iface.read(12)
                 print(data)
             
-            @applet_simulation_test("setup_test")
+            @applet_simulation_test("setup_x_loopback")
             async def test_benchmark(self):
                 iface = await self.run_simulated_applet()
                 output_mode = 2 #no output
@@ -833,6 +833,8 @@ class OBIAppletTestCase(unittest.TestCase):
                 for _ in range(10):
                     await iface.write(struct.pack(">BHHH", 0x14, 4, 4, 1))
                     await iface.write(struct.pack(">BHHH", 0x14, 16380, 16380, 1))
+                    await iface.write(struct.pack(">BHHH", 0x14, 4, 16380, 1))
+                    await iface.write(struct.pack(">BHHH", 0x14, 16380, 4, 1))
 
             
         test_case = OBIApplet_TestCase()

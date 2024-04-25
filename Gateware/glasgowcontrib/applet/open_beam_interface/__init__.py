@@ -257,6 +257,10 @@ class Supersampler(wiring.Component):
         "last":       1,
     })))
 
+    ## debug info
+    stall_cycles: Out(16)
+    stall_count_reset: In(1)
+
     def __init__(self):
         super().__init__()
 
@@ -271,13 +275,18 @@ class Supersampler(wiring.Component):
             self.super_dac_stream.payload.dac_y_code.eq(self.dac_stream_data.dac_y_code),
             self.super_dac_stream.payload.last.eq(dwell_counter == self.dac_stream_data.dwell_time),
         ]
+        with m.If(self.stall_count_reset):
+            m.d.sync += self.stall_cycles.eq(0)
+
         with m.FSM():
             with m.State("Wait"):
                 m.d.comb += self.dac_stream.ready.eq(1)
                 with m.If(self.dac_stream.valid):
                     m.d.sync += self.dac_stream_data.eq(self.dac_stream.payload)
                     m.d.sync += dwell_counter.eq(0)
+                    # m.d.sync += delay_counter.eq(0)
                     m.next = "Generate"
+                
 
             with m.State("Generate"):
                 m.d.comb += self.super_dac_stream.valid.eq(1)
@@ -286,6 +295,9 @@ class Supersampler(wiring.Component):
                         m.next = "Wait"
                     with m.Else():
                         m.d.sync += dwell_counter.eq(dwell_counter + 1)
+                with m.Else():
+                    with m.If(~self.stall_count_reset):
+                        m.d.sync += self.stall_cycles.eq(self.stall_cycles + 1)
 
         running_average = Signal.like(self.super_adc_stream.payload.adc_code)
         m.d.comb += self.adc_stream.payload.adc_code.eq(running_average)
@@ -605,6 +617,7 @@ class CommandExecutor(wiring.Component):
     #Input to Serializer
     output_mode: Out(2)
 
+
     def __init__(self, *, adc_latency=6):
         self.adc_latency = 6
         self.supersampler = Supersampler()
@@ -909,21 +922,28 @@ class OBISubtarget(wiring.Component):
         ]
 
         if self.benchmark:
+            m.d.comb += self.out_stall_cycles.eq(executor.supersampler.stall_cycles)
+            m.d.comb += executor.supersampler.stall_count_reset.eq(self.stall_count_reset)
             out_stall_event = Signal()
+            begin_write = Signal()
             with m.If(self.stall_count_reset):
-                m.d.sync += self.out_stall_cycles.eq(0)
+                # m.d.sync += self.out_stall_cycles.eq(0)
                 m.d.sync += self.out_stall_events.eq(0)
                 m.d.sync += out_stall_event.eq(0)
+                m.d.sync += begin_write.eq(0)
             with m.Else():
-                with m.If(~self.out_fifo.r_rdy):
-                    with m.If(~(self.out_stall_cycles >= 65536)):
-                        m.d.sync += self.out_stall_cycles.eq(self.out_stall_cycles + 1)
-                    with m.If(~out_stall_event):
-                        m.d.sync += out_stall_event.eq(1)
-                        with m.If(~(self.out_stall_events >= 65536)):
-                            m.d.sync += self.out_stall_events.eq(self.out_stall_events + 1)
-                with m.Else():
-                    m.d.sync += out_stall_event.eq(0)
+                with m.If(self.out_fifo.r_rdy):
+                    m.d.sync += begin_write.eq(1)
+                with m.If(begin_write):
+                    with m.If(~self.out_fifo.r_rdy):
+                        # with m.If(~(self.out_stall_cycles >= 65536)):
+                        #     m.d.sync += self.out_stall_cycles.eq(self.out_stall_cycles + 1)
+                        with m.If(~out_stall_event):
+                            m.d.sync += out_stall_event.eq(1)
+                            with m.If(~(self.out_stall_events >= 65536)):
+                                m.d.sync += self.out_stall_events.eq(self.out_stall_events + 1)
+                    with m.Else():
+                        m.d.sync += out_stall_event.eq(0)
         
         
 
@@ -1033,7 +1053,7 @@ class OBIApplet(GlasgowApplet):
         # await device.set_voltage("AB", 0)
         # await asyncio.sleep(5)
         iface = await device.demultiplexer.claim_interface(self, self.mux_interface, args,
-            read_buffer_size=131072*16)
+            read_buffer_size=131072*16, write_buffer_size=131072*17)
         
         if args.benchmark:
             output_mode = 2 #no output
@@ -1049,8 +1069,8 @@ class OBIApplet(GlasgowApplet):
             commands = bytearray()
             print("generating block of commands...")
             for _ in range(131072*16):
-                commands.extend(struct.pack(">BHHH", 0x14, 5, 5, 1))
-                commands.extend(struct.pack(">BHHH", 0x14, 16380, 16380, 1))
+                commands.extend(struct.pack(">BHHH", 0x14, 0, 16383, 1))
+                commands.extend(struct.pack(">BHHH", 0x14, 16383, 0, 1))
             length = len(commands)
             print("writing commands...")
             while True:
