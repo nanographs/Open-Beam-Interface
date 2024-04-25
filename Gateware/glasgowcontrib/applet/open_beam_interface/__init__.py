@@ -1149,7 +1149,6 @@ class OBIApplet(GlasgowApplet):
                     asyncio.create_task(self.send_data())
 
             def data_received(self, data):
-                print("data recieved")
                 async def recv_data():
                     await self.init_fut
                     if not self.flush_fut == None:
