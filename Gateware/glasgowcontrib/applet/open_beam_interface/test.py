@@ -263,7 +263,10 @@ class OBIAppletTestCase(unittest.TestCase):
         def test_extctrl_cmd():
             def put_testbench():
                 yield from put_stream(dut.usb_stream, 4) #Type
-                yield from put_stream(dut.usb_stream, int(2*2 + 1)) #Enable, #BeamType
+                enable = 1
+                beam_type = 2 #Electron
+                combined = int(beam_type<<1 | enable)
+                yield from put_stream(dut.usb_stream, combined) #Enable, #BeamType
                 yield from put_stream(dut.usb_stream, 1) 
 
             def get_testbench():
@@ -383,13 +386,13 @@ class OBIAppletTestCase(unittest.TestCase):
             self.simulate(dut, [get_testbench,put_testbench], name = "cmd_vectorpixel")  
 
         test_synchronize_cmd()
-        # test_delay_cmd()
-        # test_extctrl_cmd()
-        # test_rasterregion_cmd()
-        # test_rasterpixel_cmd()
-        # test_rasterpixelrun_cmd()
-        # test_rasterpixelfreerun_cmd()
-        # test_vectorpixel_cmd()
+        test_delay_cmd()
+        test_extctrl_cmd()
+        test_rasterregion_cmd()
+        test_rasterpixel_cmd()
+        test_rasterpixelrun_cmd()
+        test_rasterpixelfreerun_cmd()
+        test_vectorpixel_cmd()
     
 
     def test_command_executor_individual(self):
@@ -761,12 +764,20 @@ class OBIAppletTestCase(unittest.TestCase):
             test_seq.add(TestSyncCommand(502, 0))
 
             self.simulate(test_seq.dut, [test_seq._put_testbench, test_seq._get_testbench], name="exec_5")
+        
+        def test_exec_6():
+            test_seq = TestCommandSequence()
+            test_seq.add(TestExtCtrlCommand(1, BeamType.Ion))
+            test_seq.add(TestVectorPixelCommand(1, 1, 1))
+            self.simulate(test_seq.dut, [test_seq._put_testbench, test_seq._get_testbench], name="exec_6")
 
-        test_exec_1()
-        test_exec_2()
-        test_exec_3()
-        test_exec_4()
-        test_exec_5()
+
+        # test_exec_1()
+        # test_exec_2()
+        # test_exec_3()
+        # test_exec_4()
+        # test_exec_5()
+        test_exec_6()
 
     def test_all(self):
         from amaranth import Module
@@ -835,6 +846,15 @@ class OBIAppletTestCase(unittest.TestCase):
                     await iface.write(struct.pack(">BHHH", 0x14, 16380, 16380, 1))
                     await iface.write(struct.pack(">BHHH", 0x14, 4, 16380, 1))
                     await iface.write(struct.pack(">BHHH", 0x14, 16380, 4, 1))
+
+            @applet_simulation_test("setup_test", args=["--pin-ext-ibeam-scan-enable", "0", "--pin-ext-ibeam-scan-enable-2", "1"])
+            async def test_benchmark(self):
+                iface = await self.run_simulated_applet()
+                enable = 1
+                beam_type = 2
+                mode = int(output_mode<<1 | raster_mode)
+                await iface.write(struct.pack(">BB", 0x04, combined))
+                await iface.write(struct.pack(">BHHH", 0x14, 4, 4, 1))
 
             
         test_case = OBIApplet_TestCase()

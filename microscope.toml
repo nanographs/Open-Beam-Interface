@@ -1,13 +1,12 @@
 [instrument_info]
-manufacturer='JEOL'
-model='Neoscope'
+manufacturer='FEI'
+model='DB'
 
 [pinout]
-ext-ebeam-enable = 1
+ext-ibeam-scan-enable = 0
+ext-ibeam-scan-enable-2 = 1
+ext-ibeam-blank-enable = 2
+ext-ibeam-blank-enable-2 = 3
+ibeam-blank-low = 4
+ibeam-blank-high = 5
 
-[mag_cal]
-m_per_FOV = 0.117
-
-[gui_settings]
-window_size = [1400, 1400]
-invert_Y = false

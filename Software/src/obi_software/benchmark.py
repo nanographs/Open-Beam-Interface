@@ -1,8 +1,10 @@
 import asyncio
 import time
-from .beam_interface import Connection, BenchmarkTransfer
+import logging
+from .beam_interface import Connection, BenchmarkTransfer, setup_logging
 
 
+setup_logging({"Stream": logging.DEBUG})
 
 async def benchmark():
     conn = Connection('localhost', 2224)
@@ -12,7 +14,7 @@ async def benchmark():
 
     # conn._stream._writer.transport.set_write_buffer_limits(high=131072*16)
 
-    await conn.transfer(BenchmarkTransfer())
+    await conn.transfer(BenchmarkTransfer(),output_mode=0)
 
 
 asyncio.run(benchmark())

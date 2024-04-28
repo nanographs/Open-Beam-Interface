@@ -19,7 +19,7 @@ for pin_name in pinout:
     pin_num = pinout.get(pin_name)
     pin_args += ["--pin-"+pin_name, str(pin_num)]
 endpoint_arg = ["tcp::" + args.port]
-glasgow_cmd = ["glasgow", "run", "open_beam_interface", "-V", "5"] + pin_args + endpoint_arg
+glasgow_cmd = ["glasgow", "-v", "run", "open_beam_interface", "-V", "5"] + pin_args + endpoint_arg
 
 env = os.environ._data
 env.update({"GLASGOW_OUT_OF_TREE_APPLETS":"I-am-okay-with-breaking-changes"})

@@ -322,8 +322,8 @@ class DelayCommand(Command):
         # await stream.flush()
 
 class BeamType(enum.IntEnum):
-    Electron = 0x01
-    Ion = 0x02
+    Electron = 1
+    Ion = 2
 
 class _BlankCommand(Command):
     def __init__(self, enable, beam_type):
@@ -343,8 +343,7 @@ class _BlankCommand(Command):
         await stream.flush()
 
 class _ExternalCtrlCommand(Command):
-    def __init__(self, enable, beam_type):
-        assert enable <= 1
+    def __init__(self, enable:bool, beam_type):
         assert (beam_type == BeamType.Electron) | (beam_type == BeamType.Ion)
         self._enable = enable
         self._beam_type = beam_type
@@ -354,7 +353,7 @@ class _ExternalCtrlCommand(Command):
 
     @Command.log_transfer
     async def transfer(self, stream: Stream):
-        combined = int(self._beam_type*2 + self._enable)
+        combined = int(self._beam_type<<1 | self._enable)
         cmd = struct.pack(">BB", CommandType.ExternalCtrl, combined)
         stream.send(cmd)
         await stream.flush()
@@ -613,20 +612,28 @@ class BenchmarkTransfer(Command):
         return f"BenchmarkTransfer)"
 
     @Command.log_transfer
-    async def transfer(self, stream: Stream):
+    async def transfer(self, stream: Stream, output_mode: OutputMode=OutputMode.NoOutput):
         await SynchronizeCommand(cookie=123, raster_mode=False, 
-                                output_mode=OutputMode.NoOutput).transfer(stream)
+                                output_mode=output_mode).transfer(stream)
         commands = bytearray()
         for _ in range(131072*16):
-            commands.extend(struct.pack(">BHHH", 0x14, 0, 16383, 1))
-            commands.extend(struct.pack(">BHHH", 0x14, 16383, 0, 1))
+            #commands.extend(struct.pack(">BHHH", 0x14, 0, 16383, 2))
+            #commands.extend(struct.pack(">BHHH", 0x14, 16383, 0, 2))
+            commands.extend(struct.pack(">BHHH", 0x14, 0,0, 20))
         length = len(commands)
+        pixel_count = int(length/7)
         while True:
             begin = time.time()
             stream.send(commands)
+            # stream.send(struct.pack(">B", CommandType.Flush))
             await stream.flush()
             end = time.time()
-            print(f"benchmark: {(length / (end - begin)) / (1 << 20):.2f} MiB/s ({(length / (end - begin)) / (1 << 17):.2f} Mb/s)")
+            print(f"send: {(length / (end - begin)) / (1 << 20):.2f} MiB/s ({(length / (end - begin)) / (1 << 17):.2f} Mb/s)")
+            begin = time.time()
+            await self.recv_res(pixel_count, stream, output_mode)
+            end = time.time()
+            print(f"recv: {(pixel_count*2 / (end - begin)) / (1 << 20):.2f} MiB/s ({(length / (end - begin)) / (1 << 17):.2f} Mb/s)")
+
 
 
 class VectorPixelRunCommand(Command):
