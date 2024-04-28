@@ -134,15 +134,6 @@ class FrameBuffer():
         self.current_frame = frame
         yield frame
 
-            
-            
-        # frame.fill(res)
-        # self.current_frame = frame
-        # return frame
-
-    # async def capture_continous(self, x_range, y_range, *, dwell, latency):
-    #     while not self._interrupt.set():
-    #         await self.capture_frame(x_range, y_range, dwell=dwell, latency=latency)
 
     def opt_chunk_size(self, frame: Frame):
         FPS = 30
