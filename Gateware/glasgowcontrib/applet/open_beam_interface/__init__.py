@@ -413,9 +413,9 @@ class RasterScanner(wiring.Component):
 Cookie = unsigned(16)
 #: Arbitrary value for synchronization. When received, returned as-is in an USB IN frame.
 
-class BeamType(enum.Enum, shape = 8):
-    Electron            = 0x01
-    Ion                 = 0x02
+class BeamType(enum.Enum, shape = 2):
+    Electron            = 1
+    Ion                 = 2
 
 class OutputMode(enum.Enum, shape = 2):
     SixteenBit          = 0x00
@@ -955,18 +955,46 @@ class OBISubtarget(wiring.Component):
 
             m.d.comb += led.o.eq(~serializer.usb_stream.ready)
 
-            if hasattr(self.pads, "ext_ebeam_enable_t"):
-                m.d.comb += self.pads.ext_ebeam_enable_t.oe.eq(1)
-                m.d.comb += self.pads.ext_ebeam_enable_t.o.eq(executor.ext_ebeam_enable)
-            if hasattr(self.pads, "ext_ibeam_enable_t"):
-                m.d.comb += self.pads.ext_ibeam_enable_t.oe.eq(1)
-                m.d.comb += self.pads.ext_ibeam_enable_t.o.eq(executor.ext_ibeam_enable)
+            def connect_pin(pin_name: str, signal):
+                pin_name += "_t"
+                if hasattr(self.pads, pin_name):
+                    m.d.comb += getattr(self.pads, pin_name).oe.eq(1)
+                    m.d.comb += getattr(self.pads, pin_name).o.eq(signal)
+            
+            # connect_pin("ext_ebeam_scan_enable_t", executor.ext_ebeam_enable)
+            # connect_pin("ext_ebeam_scan_enable_2_t", executor.ext_ebeam_enable)
+            # connect_pin("ext_ibeam_scan_enable_t", executor.ext_ibeam_enable)
+            # connect_pin("ext_ibeam_scan_enable_2_t", executor.ext_ibeam_enable)
+            # connect_pin("ext_ibeam_blank_enable_t", executor.ext_ibeam_enable)
+            # connect_pin("ext_ibeam_blank_enable_2_t", executor.ext_ibeam_enable)
+            # connect_pin("ibeam_blank_high", executor.ibeam_blank)
+            # connect_pin("ibeam_blank_low", ~executor.ibeam_blank)
+
+
+            if hasattr(self.pads, "ext_ebeam_scan_enable_t"):
+                m.d.comb += self.pads.ext_ebeam_scan_enable_t.oe.eq(1)
+                m.d.comb += self.pads.ext_ebeam_scan_enable_t.o.eq(executor.ext_ebeam_enable)
+            if hasattr(self.pads, "ext_ibeam_scan_enable_t"):
+                m.d.comb += self.pads.ext_ibeam_scan_enable_t.oe.eq(1)
+                m.d.comb += self.pads.ext_ibeam_scan_enable_t.o.eq(executor.ext_ibeam_enable)
+            if hasattr(self.pads, "ext_ibeam_scan_enable_2_t"):
+                m.d.comb += self.pads.ext_ibeam_scan_enable_2_t.oe.eq(1)
+                m.d.comb += self.pads.ext_ibeam_scan_enable_2_t.o.eq(executor.ext_ibeam_enable)
             if hasattr(self.pads, "ebeam_blank_t"):
                 m.d.comb += self.pads.ebeam_blank_t.oe.eq(1)
                 m.d.comb += self.pads.ebeam_blank_t.o.eq(executor.ebeam_blank)
-            if hasattr(self.pads, "ibeam_blank_t"):
-                m.d.comb += self.pads.ibeam_blank_t.oe.eq(1)
-                m.d.comb += self.pads.ibeam_blank_t.o.eq(executor.ibeam_blank)
+            if hasattr(self.pads, "ext_ibeam_blank_enable_t"):
+                m.d.comb += self.pads.ext_ibeam_blank_enable_t.oe.eq(1)
+                m.d.comb += self.pads.ext_ibeam_blank_enable_t.o.eq(executor.ext_ibeam_enable)
+            if hasattr(self.pads, "ext_ibeam_blank_enable_2_t"):
+                m.d.comb += self.pads.ext_ibeam_blank_enable_2_t.oe.eq(1)
+                m.d.comb += self.pads.ext_ibeam_blank_enable_2_t.o.eq(executor.ext_ibeam_enable)
+            if hasattr(self.pads, "ibeam_blank_low_t"):
+                m.d.comb += self.pads.ibeam_blank_low_t.oe.eq(~executor.ibeam_blank)
+                m.d.comb += self.pads.ibeam_blank_low_t.o.eq(1)
+            if hasattr(self.pads, "ibeam_blank_high_t"):
+                m.d.comb += self.pads.ibeam_blank_high_t.oe.eq(executor.ibeam_blank)
+                m.d.comb += self.pads.ibeam_blank_high_t.o.eq(0)
 
             m.d.comb += [
                 control.x_latch.o.eq(executor.bus.dac_x_le_clk),
@@ -1000,14 +1028,23 @@ class OBIApplet(GlasgowApplet):
     Scanning beam control applet
     """
 
-    __pins = ("ext_ebeam_enable", "ext_ibeam_enable")
+    __pins = ("ext_ebeam_scan_enable", "ext_ebeam_scan_enable_2",
+                "ext_ibeam_scan_enable", "ext_ibeam_scan_enable_2",
+                "ext_ibeam_blank_enable", "ext_ibeam_blank_enable_2",
+                "ibeam_blank_high", "ibeam_blank_low")
 
     @classmethod
     def add_build_arguments(cls, parser, access):
         super().add_build_arguments(parser, access)
 
-        access.add_pin_argument(parser, "ext_ebeam_enable", default=None)
-        access.add_pin_argument(parser, "ext_ibeam_enable", default=None)
+        access.add_pin_argument(parser, "ext_ebeam_scan_enable", default=None)
+        access.add_pin_argument(parser, "ext_ebeam_scan_enable_2", default=None)
+        access.add_pin_argument(parser, "ext_ibeam_scan_enable", default=None)
+        access.add_pin_argument(parser, "ext_ibeam_scan_enable_2", default=None)
+        access.add_pin_argument(parser, "ext_ibeam_blank_enable", default=None)
+        access.add_pin_argument(parser, "ext_ibeam_blank_enable_2", default=None)
+        access.add_pin_argument(parser, "ibeam_blank_high", default=None)
+        access.add_pin_argument(parser, "ibeam_blank_low", default=None)
 
         parser.add_argument("--loopback",
             dest = "loopback", action = 'store_true',
@@ -1023,6 +1060,8 @@ class OBIApplet(GlasgowApplet):
             target.multiplexer.claim_interface(self, args, throttle="none")
 
         pads = iface.get_pads(args, pins=self.__pins)
+
+        print(f"{pads=}")
 
 
         subtarget_args = {

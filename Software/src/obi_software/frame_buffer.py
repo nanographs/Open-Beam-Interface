@@ -99,7 +99,7 @@ class FrameBuffer():
             return Frame(x_range, y_range)
 
     async def set_ext_ctrl(self, enable):
-        await self.conn.transfer(ExternalCtrlCommand(enable=enable, beam_type=1))
+        await self.conn.transfer(ExternalCtrlCommand(enable=enable, beam_type=BeamType.Ion))
 
     async def capture_frame(self, x_range, y_range, *, dwell, latency, frame=None):
         frame = self.get_frame(x_range,y_range)
@@ -107,7 +107,7 @@ class FrameBuffer():
         pixels_per_chunk = self.opt_chunk_size(frame)
         print(f"{pixels_per_chunk=}")
         cmd = RasterScanCommand(cookie=self.conn.get_cookie(),
-            x_range=x_range, y_range=y_range, dwell=dwell, beam_type=BeamType.Electron)
+            x_range=x_range, y_range=y_range, dwell=dwell, beam_type=BeamType.Ion)
         async for chunk in self.conn.transfer_multiple(cmd, latency=latency):
             print(f"have {len(res)=}. got {len(chunk)=}")
             res.extend(chunk)
@@ -158,7 +158,7 @@ class FrameBuffer():
     async def free_scan(self, x_range, y_range, *, dwell, latency):
         frame = Frame(x_range, x_range)
         cmd = RasterFreeScanCommand(cookie=self.conn.get_cookie(),
-            x_range=x_range, y_range=y_range, dwell=dwell, beam_type=BeamType.Electron,
+            x_range=x_range, y_range=y_range, dwell=dwell, beam_type=BeamType.Ion,
             interrupt=self.conn._interrupt)
         # res = array.array('H', [0]*frame.pixels)
         # ptr = 0

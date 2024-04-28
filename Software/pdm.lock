@@ -5,7 +5,7 @@
 groups = ["default"]
 strategy = ["cross_platform", "inherit_metadata"]
 lock_version = "4.4.1"
-content_hash = "sha256:e05812ee0b169fe5f3bac994b7a372269e8f8a6ace70e452c000c6aa931cc07d"
+content_hash = "sha256:dabdd3eaa4221e8f3eb09f6a5192e1ca893c9e5b55b9f613130da636006def3f"
 
 [[package]]
 name = "annotated-types"
@@ -173,74 +173,6 @@ files = [
     {file = "pydantic_core-2.18.1-pp39-pypy39_pp73-musllinux_1_1_x86_64.whl", hash = "sha256:73c1bc8a86a5c9e8721a088df234265317692d0b5cd9e86e975ce3bc3db62a59"},
     {file = "pydantic_core-2.18.1-pp39-pypy39_pp73-win_amd64.whl", hash = "sha256:e60defc3c15defb70bb38dd605ff7e0fae5f6c9c7cbfe0ad7868582cb7e844a6"},
     {file = "pydantic_core-2.18.1.tar.gz", hash = "sha256:de9d3e8717560eb05e28739d1b35e4eac2e458553a52a301e51352a7ffc86a35"},
-]
-
-[[package]]
-name = "pyqt6"
-version = "6.6.1"
-requires_python = ">=3.6.1"
-summary = "Python bindings for the Qt cross platform application toolkit"
-groups = ["default"]
-dependencies = [
-    "PyQt6-Qt6>=6.6.0",
-    "PyQt6-sip<14,>=13.6",
-]
-files = [
-    {file = "PyQt6-6.6.1-cp38-abi3-macosx_10_14_universal2.whl", hash = "sha256:6b43878d0bbbcf8b7de165d305ec0cb87113c8930c92de748a11c473a6db5085"},
-    {file = "PyQt6-6.6.1-cp38-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:5aa0e833cb5a79b93813f8181d9f145517dd5a46f4374544bcd1e93a8beec537"},
-    {file = "PyQt6-6.6.1-cp38-abi3-win_amd64.whl", hash = "sha256:03a656d5dc5ac31b6a9ad200f7f4f7ef49fa00ad7ce7a991b9bb691617141d12"},
-    {file = "PyQt6-6.6.1.tar.gz", hash = "sha256:9f158aa29d205142c56f0f35d07784b8df0be28378d20a97bcda8bd64ffd0379"},
-]
-
-[[package]]
-name = "pyqt6-qt6"
-version = "6.6.2"
-summary = "The subset of a Qt installation needed by PyQt6."
-groups = ["default"]
-files = [
-    {file = "PyQt6_Qt6-6.6.2-py3-none-macosx_10_14_x86_64.whl", hash = "sha256:7ef446d3ffc678a8586ff6dc9f0d27caf4dff05dea02c353540d2f614386faf9"},
-    {file = "PyQt6_Qt6-6.6.2-py3-none-macosx_11_0_arm64.whl", hash = "sha256:b8363d88623342a72ac17da9127dc12f259bb3148796ea029762aa2d499778d9"},
-    {file = "PyQt6_Qt6-6.6.2-py3-none-manylinux_2_28_x86_64.whl", hash = "sha256:8d7f674a4ec43ca00191e14945ca4129acbe37a2172ed9d08214ad58b170bc11"},
-    {file = "PyQt6_Qt6-6.6.2-py3-none-win_amd64.whl", hash = "sha256:5a41fe9d53b9e29e9ec5c23f3c5949dba160f90ca313ee8b96b8ffe6a5059387"},
-]
-
-[[package]]
-name = "pyqt6-sip"
-version = "13.6.0"
-requires_python = ">=3.7"
-summary = "The sip module support for PyQt6"
-groups = ["default"]
-files = [
-    {file = "PyQt6_sip-13.6.0-cp312-cp312-macosx_10_9_universal2.whl", hash = "sha256:3bf03e130fbfd75c9c06e687b86ba375410c7a9e835e4e03285889e61dd4b0c4"},
-    {file = "PyQt6_sip-13.6.0-cp312-cp312-manylinux_2_5_x86_64.manylinux1_x86_64.whl", hash = "sha256:43fb8551796030aae3d66d6e35e277494071ec6172cd182c9569ab7db268a2f5"},
-    {file = "PyQt6_sip-13.6.0-cp312-cp312-win32.whl", hash = "sha256:13885361ca2cb2f5085d50359ba61b3fabd41b139fb58f37332acbe631ef2357"},
-    {file = "PyQt6_sip-13.6.0-cp312-cp312-win_amd64.whl", hash = "sha256:24441032a29791e82beb7dfd76878339058def0e97fdb7c1cea517f3a0e6e96b"},
-    {file = "PyQt6_sip-13.6.0.tar.gz", hash = "sha256:2486e1588071943d4f6657ba09096dc9fffd2322ad2c30041e78ea3f037b5778"},
-]
-
-[[package]]
-name = "pyqtgraph"
-version = "0.13.4"
-requires_python = ">=3.9"
-summary = "Scientific Graphics and GUI Library for Python"
-groups = ["default"]
-dependencies = [
-    "numpy>=1.22.0",
-]
-files = [
-    {file = "pyqtgraph-0.13.4-py3-none-any.whl", hash = "sha256:1dc9a786aa43cd787114366058dc3b4b8cb96a0e318f334720c7e6cc6c285940"},
-    {file = "pyqtgraph-0.13.4.tar.gz", hash = "sha256:67b0d371405c4fd5f35afecfeb37d4b73bc118f187c52a965ed68d62f59b67b3"},
-]
-
-[[package]]
-name = "qasync"
-version = "0.27.1"
-requires_python = ">=3.8,<4.0"
-summary = "Python library for using asyncio in Qt-based applications"
-groups = ["default"]
-files = [
-    {file = "qasync-0.27.1-py3-none-any.whl", hash = "sha256:5d57335723bc7d9b328dadd8cb2ed7978640e4bf2da184889ce50ee3ad2602c7"},
-    {file = "qasync-0.27.1.tar.gz", hash = "sha256:8dc768fd1ee5de1044c7c305eccf2d39d24d87803ea71189d4024fb475f4985f"},
 ]
 
 [[package]]
