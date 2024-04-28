@@ -39,3 +39,53 @@
 | 0           | Output two bytes per pixel  |
 | 1           | Output one byte per pixel   |
 | 2           | Output zero bytes per pixel |
+
+
+## ExternalCtrl
+| Pin name                 | Goes to board        | Pinout   | Function                      |
+|--------------------------|----------------------|----------|-------------------------------|
+| ext_ibeam_scan_enable    | DSC Switch           |          | High = external scan enabled  |
+| ext_ibeam_scan_enable_2  | DSC Switch           |          | High = external scan enabled  |
+| ext_ibeam_blank_enable   | Diff Signal Selector |          | High = external blank enabled |
+| ext_ibeam_blank_enable_2 | Diff Signal Selector |          | High = external blank enabled |
+
+### enable
+| enable | function                                   |
+|--------|--------------------------------------------|
+| 0      | Disable external scan and blanking control |
+| 1      | Enable external scan and blanking control  |
+
+### BeamType
+| BeamType | value    |
+|----------|----------|
+| 1        | Electron |
+| 2        | Ion      |
+
+
+## Blank
+| ext_ibeam_blank_low      | Diff Signal Selector | J? Pin 1 | Low = FIB blanked             |
+| ext_ibeam_blank_high     | Diff Signal Selector | J? Pin 3 | High = FIB blanked            |
+### enable
+| enable | function         |
+|--------|------------------|
+| 0      | Disable blanking |
+| 1      | Enable blanking  |
+
+### BeamType
+| BeamType | value    |
+|----------|----------|
+| 1        | Electron |
+| 2        | Ion      |
+
+## RasterRegion
+| field   | type     | function                |
+|---------|----------|-------------------------|
+| x_start | UQ(14,0) | DAC Code                |
+| x_count | UQ(14,0) | Integer number of steps |
+| x_step  | UQ(8,8)  | Size of one step        |
+| y_start | UQ(14,0) | DAC Code                |
+| y_count | UQ(14,0) | Integer number of steps |
+| y_step  | UQ(8,8)  | Size of one step        |
+
+## DwellTime
+One DwellTime unit = one minimum dwell cycle = 125 ns
