@@ -85,9 +85,9 @@ class Stream:
         self._logger.debug(f"xchg time: {stop-start:.4f}")
 
 class OutputMode(enum.IntEnum):
-    SixteenBit          = 0x00
-    EightBit            = 0x01
-    NoOutput            = 0x02
+    SixteenBit          = 0
+    EightBit            = 1
+    NoOutput            = 2
 
 class Command(metaclass=ABCMeta):
     def __init_subclass__(cls):
@@ -241,7 +241,7 @@ class Connection:
         self._logger.debug(f"allocating cookie {cookie:#06x}")
         return cookie
 
-    async def transfer(self, command: Command, **kwargs):
+    async def transfer(self, command: Command, flush:bool = False, **kwargs):
         self._logger.debug(f"transfer {command!r}")
         try:
             start = perf_counter()
@@ -340,7 +340,7 @@ class _BlankCommand(Command):
         combined = int(self._beam_type<<1 | self._enable)
         cmd = struct.pack(">BB", CommandType.Blank, combined)
         stream.send(cmd)
-        await stream.flush()
+
 
 class _ExternalCtrlCommand(Command):
     def __init__(self, enable:bool, beam_type):
@@ -356,7 +356,7 @@ class _ExternalCtrlCommand(Command):
         combined = int(self._beam_type<<1 | self._enable)
         cmd = struct.pack(">BB", CommandType.ExternalCtrl, combined)
         stream.send(cmd)
-        await stream.flush()
+
 
 # Scan Selector board uses TE 1462051-2 Relay
 # Switching delay is 20 ms
@@ -588,7 +588,7 @@ class VectorPixelLinearRunCommand(Command):
     async def transfer(self, stream: Stream, output_mode:OutputMode=OutputMode.SixteenBit):
         MAX_OUT_BUFFER = 131072
         commands, pixel_count = self._iter_chunks()
-        
+
         await SynchronizeCommand(cookie=123, raster_mode=False, output_mode=output_mode).transfer(stream)
 
         async def sender():
