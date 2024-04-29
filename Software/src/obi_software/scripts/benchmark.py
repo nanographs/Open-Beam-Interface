@@ -1,7 +1,9 @@
 import asyncio
 import time
 import logging
-from .beam_interface import Connection, BenchmarkTransfer, setup_logging
+import argparse
+from ..beam_interface import Connection, BenchmarkTransfer, setup_logging
+
 
 
 setup_logging({"Stream": logging.DEBUG})

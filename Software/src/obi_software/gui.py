@@ -6,14 +6,14 @@ import asyncio
 import sys
 import pyqtgraph as pg
 from PyQt6.QtWidgets import (QHBoxLayout, QMainWindow, 
-                             QMessageBox, QPushButton,
+                             QMessageBox, QPushButton, QComboBox,
                              QVBoxLayout, QWidget, QLabel, QGridLayout,
                              QSpinBox, QFileDialog, QLineEdit)
 
 import qasync
 from qasync import asyncSlot, asyncClose, QApplication, QEventLoop
 
-from .beam_interface import Connection, DACCodeRange
+from .beam_interface import Connection, DACCodeRange, BeamType
 from .frame_buffer import FrameBuffer
 from .gui_modules.image_display import ImageDisplay
 from .gui_modules.settings import SettingBox, SettingBoxWithDefaults, ImageSettings
@@ -115,10 +115,14 @@ class Window(QVBoxLayout):
         self.photo_settings = PhotoSettings()
         self.photo_settings.single_capture_btn.clicked.connect(self.capture_single_frame)
 
-        combined_settings = QHBoxLayout()
+        combined_settings = QVBoxLayout()
+        self.beam_type_box = QComboBox()
+        self.beam_type_box.addItems(["Electron", "Ion"])
+        combined_settings.addWidget(self.beam_type_box)
         combined_settings.addLayout(self.photo_settings)
         combined_settings.addLayout(self.live_settings)
         self.addLayout(combined_settings)
+
         
         self.live_settings.save_btn.clicked.connect(self.save_image)
         self.image_display = ImageDisplay(512,512)
@@ -137,6 +141,14 @@ class Window(QVBoxLayout):
             self.debug_settings.sync_btn.clicked.connect(self.request_sync)
             self.debug_settings.freescan_btn.clicked.connect(self.free_scan)
             self.debug_settings.interrupt_btn.clicked.connect(self.interrupt)
+
+    @property
+    def beam_type(self):
+        beam_type = self.beam_type_box.currentText()
+        if beam_type == "Electron":
+            return BeamType.Electron
+        elif beam_type == "Ion":
+            return BeamType.Ion
 
     @property
     def live_parameters(self):
@@ -160,6 +172,24 @@ class Window(QVBoxLayout):
         y_range = DACCodeRange(0, y_res, int((16384/y_res)*256))
         return x_range, y_range, dwell, latency
     
+    @property
+    def hfov_m(self):
+        if hasattr(self.config, "mag_cal"):
+            mag = self.image_data.mag.getval()
+            cal = self.config["mag_cal"]
+            cal_factor = cal["m_per_FOV"]
+            return cal_factor/mag
+        else: 
+            return None
+    @property
+    def pixel_size(self):
+        mag = self.image_data.mag.getval()
+        cal = self.config["mag_cal"]
+        cal_factor = cal["m_per_FOV"]
+        full_fov_pixels = max(self.fb.current_frame._x_count, self.fb.current_frame._y_count)
+        pixel_size = cal_factor/mag/full_fov_pixels
+        return pixel_size
+    
     def file_dialog(self):
         self.dir_path = QFileDialog().getExistingDirectory()
         self.save_settings.path_txt.setText(self.dir_path)
@@ -178,24 +208,11 @@ class Window(QVBoxLayout):
             self.image_data.mag.spinbox.valueChanged.disconnect(self.measure)
             self.settings.rx.spinbox.valueChanged.disconnect(self.measure)
             self.settings.ry.spinbox.valueChanged.disconnect(self.measure)
-
-    def get_pixel_size(self):
-        mag = self.image_data.mag.getval()
-        cal = self.config["mag_cal"]
-        cal_factor = cal["m_per_FOV"]
-        full_fov_pixels = max(self.fb.current_frame._x_count, self.fb.current_frame._y_count)
-        pixel_size = cal_factor/mag/full_fov_pixels
-        return pixel_size
     
-    def get_hfov_m(self):
-        mag = self.image_data.mag.getval()
-        cal = self.config["mag_cal"]
-        cal_factor = cal["m_per_FOV"]
-        return cal_factor/mag
 
     def measure(self):
         if not self.image_display.line == None:
-            pixel_size = self.get_pixel_size()
+            pixel_size = self.pixel_size
             line_length = self.image_display.get_line_length()
             line_actual_size = line_length*pixel_size
             self.image_data.measure_length.setText(si_prefix(line_actual_size))
@@ -211,8 +228,11 @@ class Window(QVBoxLayout):
         if file_name == "":
             file_name = None
         if not self.fb.current_frame == None:
-            self.fb.current_frame.saveImage_tifffile(save_dir=self.dir_path, img_name=file_name, 
-                                                    scalebar_HFOV=self.get_hfov_m())
+            if not self.hfov_m == None:
+                self.fb.current_frame.saveImage_tifffile(save_dir=self.dir_path, img_name=file_name, bit_depth_8=True, scalebar_HFOV=self.hfov_m)
+            else:
+                self.fb.current_frame.saveImage_tifffile(save_dir=self.dir_path, img_name=file_name, bit_depth_8=True)
+
 
     @asyncSlot()
     async def capture_single_frame(self):
@@ -222,9 +242,9 @@ class Window(QVBoxLayout):
         self.photo_settings.single_capture_btn.setEnabled(False)
         self.photo_settings.disable_input()
         self.live_settings.disable_input()
-        await self.fb.set_ext_ctrl(1)
+        await self.fb.set_ext_ctrl(enable=1, beam_type=self.beam_type)
         await self.capture_frame_photo()
-        await self.fb.set_ext_ctrl(0)
+        await self.fb.set_ext_ctrl(enable=0, beam_type=self.beam_type)
         self.save_image()
         self.live_settings.live_capture_btn.setEnabled(True)
         self.photo_settings.single_capture_btn.setEnabled(True)
@@ -248,7 +268,7 @@ class Window(QVBoxLayout):
     async def capture_live(self):
         if self.live_settings.live_capture_btn.isChecked():
             self.photo_settings.single_capture_btn.setEnabled(False)
-            await self.fb.set_ext_ctrl(1)
+            await self.fb.set_ext_ctrl(enable=1, beam_type=self.beam_type)
             self.fb._interrupt.clear()
             self.live_settings.disable_input()
             self.photo_settings.disable_input()
@@ -257,7 +277,7 @@ class Window(QVBoxLayout):
                 await self.capture_frame_live()
                 if self.fb._interrupt.is_set():
                     break
-            await self.fb.set_ext_ctrl(0)
+            await self.fb.set_ext_ctrl(enable=0, beam_type=self.beam_type)
             self.photo_settings.single_capture_btn.setEnabled(True)
             self.live_settings.live_capture_btn.setEnabled(True)
             self.live_settings.live_capture_btn.setText("Start Live Scan")
