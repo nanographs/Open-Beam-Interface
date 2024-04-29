@@ -428,7 +428,7 @@ class _RasterPixelsCommand(Command):
         chunk = array.array('H')
         pixel_count = 0
         total_dwell  = 0
-        for pixel in self._pixels:
+        for pixel in self._dwells:
             chunk.append(pixel)
             pixel_count += 1
             total_dwell  += pixel
@@ -787,15 +787,14 @@ class RasterStreamCommand(Command):
 
 
 class RasterScanCommand(Command):
-    def __init__(self, *, cookie: int, x_range: DACCodeRange, y_range: DACCodeRange, dwell: DwellTime, beam_type: BeamType):
+    def __init__(self, *, cookie: int, x_range: DACCodeRange, y_range: DACCodeRange, dwell: DwellTime):
         self._cookie  = cookie
         self._x_range = x_range
         self._y_range = y_range
         self._dwell   = dwell
-        self._beam_type = beam_type
 
     def __repr__(self):
-        return f"RasterScanCommand(cookie={self._cookie}, x_range={self._x_range}, y_range={self._y_range}, dwell={self._dwell}, beam_type={self._beam_type}>)"
+        return f"RasterScanCommand(cookie={self._cookie}, x_range={self._x_range}, y_range={self._y_range}, dwell={self._dwell}>)"
 
     @Command.log_transfer
     async def transfer(self, stream: Stream, latency: int):
@@ -809,16 +808,15 @@ class RasterScanCommand(Command):
 
 
 class RasterFreeScanCommand(Command):
-    def __init__(self, *, cookie: int, x_range: DACCodeRange, y_range: DACCodeRange, dwell: DwellTime, beam_type: BeamType, interrupt: asyncio.Event):
+    def __init__(self, *, cookie: int, x_range: DACCodeRange, y_range: DACCodeRange, dwell: DwellTime, interrupt: asyncio.Event):
         self._cookie  = cookie
         self._x_range = x_range
         self._y_range = y_range
         self._dwell   = dwell
-        self._beam_type = beam_type
         self._interrupt = interrupt
 
     def __repr__(self):
-        return f"RasterFreeScanCommand(cookie={self._cookie}, x_range={self._x_range}, y_range={self._y_range}, dwell={self._dwell}, beam_type={self._beam_type}>)"
+        return f"RasterFreeScanCommand(cookie={self._cookie}, x_range={self._x_range}, y_range={self._y_range}, dwell={self._dwell}>)"
 
     @Command.log_transfer
     async def transfer(self, stream: Stream, latency: int):

@@ -67,7 +67,7 @@ class Frame:
     def as_uint8(self):
         return np.right_shift(self.canvas, 6).astype(np.uint8)
 
-    def saveImage_tifffile(self, save_dir, img_name=None, bit_depth_eight=True, bit_depth_16=False,
+    def saveImage_tifffile(self, save_dir, img_name=None, bit_depth_8=True, bit_depth_16=False,
                             scalebar_HFOV=None):
         if img_name == None:
             img_name = "saved" + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
@@ -98,7 +98,7 @@ class FrameBuffer():
         else:
             return Frame(x_range, y_range)
 
-    async def set_ext_ctrl(self, enable):
+    async def set_ext_ctrl(self, enable, beam_type):
         await self.conn.transfer(ExternalCtrlCommand(enable=enable, beam_type=BeamType.Ion))
 
     async def capture_frame(self, x_range, y_range, *, dwell, latency, frame=None):
@@ -107,7 +107,7 @@ class FrameBuffer():
         pixels_per_chunk = self.opt_chunk_size(frame)
         print(f"{pixels_per_chunk=}")
         cmd = RasterScanCommand(cookie=self.conn.get_cookie(),
-            x_range=x_range, y_range=y_range, dwell=dwell, beam_type=BeamType.Ion)
+            x_range=x_range, y_range=y_range, dwell=dwell)
         async for chunk in self.conn.transfer_multiple(cmd, latency=latency):
             print(f"have {len(res)=}. got {len(chunk)=}")
             res.extend(chunk)
@@ -149,7 +149,7 @@ class FrameBuffer():
     async def free_scan(self, x_range, y_range, *, dwell, latency):
         frame = Frame(x_range, x_range)
         cmd = RasterFreeScanCommand(cookie=self.conn.get_cookie(),
-            x_range=x_range, y_range=y_range, dwell=dwell, beam_type=BeamType.Ion,
+            x_range=x_range, y_range=y_range, dwell=dwell,
             interrupt=self.conn._interrupt)
         # res = array.array('H', [0]*frame.pixels)
         # ptr = 0

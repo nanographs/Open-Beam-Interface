@@ -1,5 +1,17 @@
 import math
 import numpy as np
+import asyncio
+import argparse
+import matplotlib.pyplot as plt
+import logging
+from ..beam_interface import Connection, VectorPixelLinearRunCommand, _ExternalCtrlCommand, BeamType, setup_logging
+
+setup_logging({"Stream": logging.DEBUG})
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--show', action='store_true', help="show the pattern")
+parser.add_argument('--dwell', type=int, help="dwell time per pixel", default=2)
+args = parser.parse_args()
 
 def circle(r):
     for degree in range(360):
@@ -32,8 +44,32 @@ def scale_to_dac_range(f):
     y = (y - min_y)*scale_factor
     x = x.astype("int")
     y = y.astype("int")
-    return zip(x, y)
+    return x, y
 
-r = scale_to_dac_range(polar_to_cartesian(rose(2, 5, 100)))
-for x, y in r:
-    print(f"{x=}, {y=}")
+
+x, y  = scale_to_dac_range(polar_to_cartesian(rose(2, 5, 1000)))
+def show(x, y):
+    plt.plot(x, y)
+    plt.show()
+
+def iterpattern(x, y, dwell, repeats=1):
+    for _ in range(repeats):
+        for x_coord, y_coord, in zip(x, y):
+            yield x_coord, y_coord, dwell
+
+async def stream_pattern(x, y, dwell):
+    conn = Connection('localhost', 2224)
+    await conn.transfer(_ExternalCtrlCommand(enable=True, beam_type=BeamType.Ion))
+    pattern = iterpattern(x, y, dwell, repeats=15)
+    async for chunk in conn.transfer_multiple(VectorPixelLinearRunCommand(pattern_generator=pattern), 
+                                        output_mode=0):
+        pass
+    #await conn.transfer(_ExternalCtrlCommand(enable=False, beam_type=BeamType.Ion))
+
+if args.show:
+    show(x, y)
+else:
+    while True:
+        asyncio.run(stream_pattern(x, y, args.dwell))
+    
+
