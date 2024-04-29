@@ -42,7 +42,7 @@ def high_low(pmax = 10, dwell = 2):
         yield 16384, 16384, dwell
 
 
-from .beam_interface import Connection, _VectorPixelCommand, setup_logging, VectorPixelRunCommand, VectorPixelLinearRunCommand
+from ..beam_interface import Connection, _VectorPixelCommand, setup_logging, VectorPixelRunCommand, VectorPixelLinearRunCommand
 import logging
 from time import perf_counter
 setup_logging({"Command": logging.DEBUG, "Stream": logging.DEBUG})
