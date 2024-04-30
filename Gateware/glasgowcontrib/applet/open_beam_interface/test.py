@@ -848,13 +848,24 @@ class OBIAppletTestCase(unittest.TestCase):
                     await iface.write(struct.pack(">BHHH", 0x14, 16380, 4, 1))
 
             @applet_simulation_test("setup_test", args=["--pin-ext-ibeam-scan-enable", "0", "--pin-ext-ibeam-scan-enable-2", "1"])
-            async def test_benchmark(self):
+            async def test_mode(self):
                 iface = await self.run_simulated_applet()
+                output_mode = 2
+                raster_mode = 0
+                mode = int(output_mode<<1 | raster_mode)
+                await iface.write(struct.pack(">BHB", 0x00, 123, mode)) #sync
                 enable = 1
                 beam_type = 2
-                mode = int(output_mode<<1 | raster_mode)
-                await iface.write(struct.pack(">BB", 0x04, combined))
-                await iface.write(struct.pack(">BHHH", 0x14, 4, 4, 1))
+                combined = int(beam_type<<1 | enable)
+                await iface.write(struct.pack(">BHHH", 0x14, 4, 4, 100)) #move
+                await iface.write(struct.pack(">BHB", 0x00, 123, mode)) #sync
+                await iface.write(struct.pack(">BB",0x05, combined)) ## blank
+                # enable = 0
+                # beam_type = 2
+                # combined = int(beam_type<<1 | enable)
+                # await iface.write(struct.pack(">BB",0x05, combined)) ## unblank
+                # await iface.write(struct.pack(">BHB", 0x00, 123, mode)) #sync
+                # await iface.write(struct.pack(">BHHH", 0x14, 4, 4, 0)) ## move
 
             
         test_case = OBIApplet_TestCase()
@@ -862,7 +873,8 @@ class OBIAppletTestCase(unittest.TestCase):
         # test_case.test_build()
         # test_case.test_sync_cookie()
         #test_case.test_raster()
-        test_case.test_benchmark()
+        # test_case.test_benchmark()
+        test_case.test_mode()
 
         
 

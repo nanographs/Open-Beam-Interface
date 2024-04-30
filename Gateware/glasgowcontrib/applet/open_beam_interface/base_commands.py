@@ -1,6 +1,7 @@
 from abc import ABCMeta, abstractmethod
 from dataclasses import dataclass
 import enum
+import struct
 
 class CommandType(enum.IntEnum):
     Synchronize         = 0x00
@@ -22,8 +23,8 @@ class OutputMode(enum.IntEnum):
     NoOutput            = 2
 
 class BeamType(enum.IntEnum):
-    Electron = 1
-    Ion = 2
+    Electron            = 1
+    Ion                 = 2
 
 @dataclass
 class DACCodeRange:
@@ -36,36 +37,34 @@ class DwellTime(int):
         One DwellTime = 125 ns'''
     pass
 
-class Command(metaclass=ABCMeta):
-    def __init_subclass__(cls):
-        cls._logger = logger.getChild(f"Command.{cls.__name__}")
 
-    @abstractmethod
+class Command(metaclass=ABCMeta):
+    # def __init_subclass__(cls):
+    #     cls._logger = logger.getChild(f"Command.{cls.__name__}")
+
     @property
+    @abstractmethod
     def message(self):
         ...
     
-    @abstractmethod
     @property
     def response(self):
-        return []
-
-
+        return 0
 
 class SynchronizeCommand(Command):
-    def __init__(self, *, cookie: int, raster_mode: bool, output_mode: OutputMode=OutputMode.SixteenBit):
-        assert cookie in range(0x0001, 0x10000, 2) # odd cookies only
+    def __init__(self, *, cookie: int, raster: bool, output: OutputMode=OutputMode.SixteenBit):
         self._cookie = cookie
-        self._raster_mode = raster_mode
-        self._output_mode = output_mode
+        self._raster_mode = raster
+        self._output_mode = output
 
     def __repr__(self):
-        return f"SynchronizeCommand(cookie={self._cookie}, mode={self._mode} [raster_mode={self._raster_mode}, output_mode={self._output_mode}])"
+        return f"SynchronizeCommand(cookie={self._cookie}, raster_mode={self._raster_mode}, output_mode={self._output_mode})"
 
     @property
     def message(self):
         combined = int(self._output_mode<<1 | self._raster_mode)
         return struct.pack(">BHB", CommandType.Synchronize, self._cookie, combined)
+
 
 class AbortCommand(Command):
     def __repr__(self):
@@ -98,6 +97,7 @@ class BlankCommand(Command):
     def __repr__(self):
         return f"_BlankCommand(enable={self._enable}, beam_type={self._beam_type})"
 
+    @property
     def message(self):
         combined = int(self._beam_type<<1 | self._enable)
         return struct.pack(">BB", CommandType.Blank, combined)
@@ -109,7 +109,7 @@ class ExternalCtrlCommand(Command):
         self._beam_type = beam_type
 
     def __repr__(self):
-        return f"_ExternalCtrlCommand(enable={self._enable}, beam_type={self._beam_type})"
+        return f"ExternalCtrlCommand(enable={self._enable}, beam_type={self._beam_type})"
 
     @property
     def message(self):
@@ -159,7 +159,7 @@ class RasterPixelRunCommand(Command):
     def message(self):
         return struct.pack(">BHH", CommandType.RasterPixelRun, self._length - 1, self._dwell)
 
-class _VectorPixelCommand(Command):
+class VectorPixelCommand(Command):
     def __init__(self, *, x_coord: int, y_coord: int, dwell: DwellTime):
         assert x_coord <= 65535
         assert y_coord <= 65535
@@ -174,6 +174,23 @@ class _VectorPixelCommand(Command):
     @property
     def message(self):
         return struct.pack(">BHHH", CommandType.VectorPixel, self._x_coord, self._y_coord, self._dwell-1)
+
+class CommandSequence(Command):
+    _message = bytearray()
+    _response = bytearray()
+    def __init__(self, output: OutputMode, raster:bool):
+        self._output = output
+        self._raster = raster
+        self.add(SynchronizeCommand(cookie=123, output=output, raster=raster))
+    def add(self, other: bytes | bytearray | memoryview):
+        self._message.extend(other.message)
+        #self._response.extend(other.response)
+
+    @property
+    def message(self):
+        return self._message
+
+
 
 
             

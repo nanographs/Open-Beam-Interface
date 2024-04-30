@@ -1,3 +1,7 @@
+from abc import ABCMeta, abstractmethod
+from dataclasses import dataclass
+import enum
+import struct
 import time
 import asyncio
 from amaranth import *
@@ -7,6 +11,7 @@ from amaranth.lib.wiring import In, Out, flipped
 
 from glasgow.support.logging import dump_hex
 from glasgow.support.endpoint import ServerEndpoint
+from .base_commands import AbortCommand
 
 # Overview of (linear) processing pipeline:
 # 1. PC software (in: user input, out: bytes)
@@ -1060,9 +1065,6 @@ class OBIApplet(GlasgowApplet):
             target.multiplexer.claim_interface(self, args, throttle="none")
 
         pads = iface.get_pads(args, pins=self.__pins)
-
-        print(f"{pads=}")
-
 
         subtarget_args = {
             "pads": pads,
