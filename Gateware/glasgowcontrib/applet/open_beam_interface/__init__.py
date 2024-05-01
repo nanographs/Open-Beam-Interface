@@ -35,6 +35,10 @@ def StreamSignature(data_layout):
         "ready": In(1)
     })
 
+class BlankRequest(data.Struct):
+    enable: 1
+    request: 1
+
 
 #=========================================================================
 
@@ -64,7 +68,6 @@ class SkidBuffer(wiring.Component):
         return m
 
 #=========================================================================
-
 BusSignature = wiring.Signature({
     "adc_clk":  Out(1),
     "adc_le_clk":   Out(1),
@@ -113,6 +116,7 @@ class BusController(wiring.Component):
         "dac_x_code": 14,
         "dac_y_code": 14,
         "last":       1,
+        "blank": BlankRequest
     })))
 
     adc_stream: Out(StreamSignature(data.StructLayout({
@@ -123,6 +127,7 @@ class BusController(wiring.Component):
 
     # IO-side interface
     bus: Out(BusSignature)
+    inline_blank: Out(BlankRequest)
 
     def __init__(self, *, adc_half_period: int, adc_latency: int):
         assert (adc_half_period * 2) >= 6, "ADC period must be large enough for FSM latency"
@@ -130,18 +135,6 @@ class BusController(wiring.Component):
         self.adc_latency     = adc_latency
 
         super().__init__()
-
-    def elaborate2(self, platform):
-        m = Module()
-
-        m.d.comb += [
-            self.adc_stream.valid.eq(self.dac_stream.valid),
-            self.adc_stream.payload.adc_code.eq(self.dac_stream.data.dac_x_code),
-            self.adc_stream.payload.last.eq(self.dac_stream.data.last),
-            self.dac_stream.ready.eq(self.adc_stream.ready),
-        ]
-
-        return m
 
     def elaborate(self, platform):
         m = Module()
@@ -155,6 +148,7 @@ class BusController(wiring.Component):
         # ADC and DAC share the bus and have to work in tandem. The ADC conversion starts simultaneously
         # with the DAC update, so the entire ADC period is available for DAC-scope-ADC propagation.
         m.d.comb += self.bus.dac_clk.eq(self.bus.adc_clk)
+
 
         # Queue; MSB = most recent sample, LSB = least recent sample
         accept_sample = Signal(self.adc_latency)
@@ -174,8 +168,11 @@ class BusController(wiring.Component):
         ]
 
         dac_stream_data = Signal.like(self.dac_stream.payload)
+        m.d.comb += self.inline_blank.eq(dac_stream_data.blank)
 
-        m.d.comb += adc_stream_data.adc_code.eq(self.bus.data_i),
+        m.d.comb += adc_stream_data.adc_code.eq(self.bus.data_i)
+
+        stalled = Signal()
 
         with m.FSM():
             with m.State("ADC_Wait"):
@@ -237,6 +234,7 @@ class BusController(wiring.Component):
 
         return m
 
+
 #=========================================================================
 
 class Supersampler(wiring.Component):
@@ -244,6 +242,7 @@ class Supersampler(wiring.Component):
         "dac_x_code": 14,
         "dac_y_code": 14,
         "dwell_time": 16,
+        "blank": BlankRequest
     })))
 
     adc_stream: Out(StreamSignature(data.StructLayout({
@@ -254,6 +253,7 @@ class Supersampler(wiring.Component):
         "dac_x_code": 14,
         "dac_y_code": 14,
         "last":       1,
+        "blank": BlankRequest
     })))
 
     super_adc_stream: In(StreamSignature(data.StructLayout({
@@ -278,11 +278,13 @@ class Supersampler(wiring.Component):
         m.d.comb += [
             self.super_dac_stream.payload.dac_x_code.eq(self.dac_stream_data.dac_x_code),
             self.super_dac_stream.payload.dac_y_code.eq(self.dac_stream_data.dac_y_code),
+            self.super_dac_stream.payload.blank.eq(self.dac_stream_data.blank),
             self.super_dac_stream.payload.last.eq(dwell_counter == self.dac_stream_data.dwell_time),
         ]
         with m.If(self.stall_count_reset):
             m.d.sync += self.stall_cycles.eq(0)
 
+        stalled = Signal()
         with m.FSM():
             with m.State("Wait"):
                 m.d.comb += self.dac_stream.ready.eq(1)
@@ -300,9 +302,8 @@ class Supersampler(wiring.Component):
                         m.next = "Wait"
                     with m.Else():
                         m.d.sync += dwell_counter.eq(dwell_counter + 1)
-                with m.Else():
-                    with m.If(~self.stall_count_reset):
-                        m.d.sync += self.stall_cycles.eq(self.stall_cycles + 1)
+
+                        
 
         running_average = Signal.like(self.super_adc_stream.payload.adc_code)
         m.d.comb += self.adc_stream.payload.adc_code.eq(running_average)
@@ -348,7 +349,10 @@ class RasterScanner(wiring.Component):
 
     roi_stream: In(StreamSignature(RasterRegion))
 
-    dwell_stream: In(StreamSignature(DwellTime))
+    dwell_stream: In(StreamSignature(data.StructLayout({
+        "dwell_time": DwellTime,
+        "blank": BlankRequest,
+    })))
 
     abort: In(1)
     #: Interrupt the scan in progress and fetch the next ROI from `roi_stream`.
@@ -357,6 +361,7 @@ class RasterScanner(wiring.Component):
         "dac_x_code": 14,
         "dac_y_code": 14,
         "dwell_time": DwellTime,
+        "blank": BlankRequest
     })))
 
     def elaborate(self, platform):
@@ -371,7 +376,8 @@ class RasterScanner(wiring.Component):
         m.d.comb += [
             self.dac_stream.payload.dac_x_code.eq(x_accum >> self.FRAC_BITS),
             self.dac_stream.payload.dac_y_code.eq(y_accum >> self.FRAC_BITS),
-            self.dac_stream.payload.dwell_time.eq(self.dwell_stream.payload),
+            self.dac_stream.payload.dwell_time.eq(self.dwell_stream.payload.dwell_time),
+            self.dac_stream.payload.blank.eq(self.dwell_stream.payload.blank)
         ]
 
         with m.FSM():
@@ -419,6 +425,7 @@ Cookie = unsigned(16)
 #: Arbitrary value for synchronization. When received, returned as-is in an USB IN frame.
 
 class BeamType(enum.Enum, shape = 2):
+    NoBeam              = 0
     Electron            = 1
     Ion                 = 2
 
@@ -426,6 +433,8 @@ class OutputMode(enum.Enum, shape = 2):
     SixteenBit          = 0x00
     EightBit            = 0x01
     NoOutput            = 0x02
+
+
 
 class Command(data.Struct):
     class Type(enum.Enum, shape=8):
@@ -435,12 +444,16 @@ class Command(data.Struct):
         Delay               = 0x03
         ExternalCtrl        = 0x04
         Blank               = 0x05
+        BlankInline         = 0x06
+        Unblank             = 0x07
+        UnblankInline       = 0x08
 
         RasterRegion        = 0x10
         RasterPixel         = 0x11
         RasterPixelRun      = 0x12
         RasterPixelFreeRun  = 0x13
         VectorPixel         = 0x14
+        VectorPixelMinDwell = 0x15
 
     type: Type
 
@@ -459,7 +472,7 @@ class Command(data.Struct):
         }),
         "blank":       data.StructLayout({
             "enable": 1,
-            "beam_type": BeamType,
+            "inline": 1,
         }),
         "raster_region":    RasterRegion,
         "raster_pixel":     DwellTime,
@@ -507,7 +520,24 @@ class CommandParser(wiring.Component):
                             m.next = "Payload_ExternalCtrl"
                         
                         with m.Case(Command.Type.Blank):
-                            m.next = "Payload_Blank"
+                            m.d.sync += command.payload.blank.enable.eq(1)
+                            m.d.sync += command.payload.blank.inline.eq(0)
+                            m.next = "Submit"
+                        
+                        with m.Case(Command.Type.BlankInline):
+                            m.d.sync += command.payload.blank.enable.eq(1)
+                            m.d.sync += command.payload.blank.inline.eq(1)
+                            m.next = "Submit"
+                        
+                        with m.Case(Command.Type.Unblank):
+                            m.d.sync += command.payload.blank.enable.eq(0)
+                            m.d.sync += command.payload.blank.inline.eq(0)
+                            m.next = "Submit"
+                        
+                        with m.Case(Command.Type.UnblankInline):
+                            m.d.sync += command.payload.blank.enable.eq(0)
+                            m.d.sync += command.payload.blank.inline.eq(1)
+                            m.next = "Submit"
 
                         with m.Case(Command.Type.RasterRegion):
                             m.next = "Payload_Raster_Region_1_High"
@@ -523,6 +553,10 @@ class CommandParser(wiring.Component):
 
                         with m.Case(Command.Type.VectorPixel):
                             m.next = "Payload_Vector_Pixel_1_High"
+                        
+                        with m.Case(Command.Type.VectorPixelMinDwell):
+                            m.d.sync += command.payload.vector_pixel.dwell_time.eq(0)
+                            m.next = "Payload_Vector_Pixel_MinDwell_1_High"
 
             def Deserialize(target, state, next_state):
                 #print(f'state: {state} -> next state: {next_state}')
@@ -550,8 +584,8 @@ class CommandParser(wiring.Component):
             Deserialize(command.payload.external_ctrl,
                 "Payload_ExternalCtrl", "Submit")
             
-            Deserialize(command.payload.blank,
-                "Payload_Blank", "Submit")
+            # Deserialize(command.payload.blank,
+            #     "Payload_Blank", "Submit")
 
             DeserializeWord(command.payload.raster_region.x_start,
                 "Payload_Raster_Region_1", "Payload_Raster_Region_2_High")
@@ -594,6 +628,11 @@ class CommandParser(wiring.Component):
                 "Payload_Vector_Pixel_2", "Payload_Vector_Pixel_3_High")
             DeserializeWord(command.payload.vector_pixel.dwell_time,
                 "Payload_Vector_Pixel_3", "Submit")
+            
+            DeserializeWord(command.payload.vector_pixel.x_coord,
+                "Payload_Vector_Pixel_MinDwell_1", "Payload_Vector_Pixel_MinDwell_2_High")
+            DeserializeWord(command.payload.vector_pixel.y_coord,
+                "Payload_Vector_Pixel_MinDwell_2", "Submit")
 
             with m.State("Submit"):
                 m.d.comb += self.cmd_stream.valid.eq(1)
@@ -608,16 +647,16 @@ class CommandExecutor(wiring.Component):
     img_stream: Out(StreamSignature(unsigned(16)))
 
     bus: Out(BusSignature)
+    inline_blank: In(BlankRequest)
 
     #: Active if `Synchronize`, `Flush`, or `Abort` was the last received command.
     flush: Out(1)
 
-    # Input to Scan Selector Relay Board
-    ext_ebeam_enable: Out(1)
-    ext_ibeam_enable: Out(1)
-    # Blanking
-    ibeam_blank: Out(1)
-    ebeam_blank: Out(1)
+    # Input to Scan/Signal Selector Relay Board
+    ext_ctrl_enable: Out(1)
+    beam_type: Out(BeamType)
+    # Input to Blanking control board
+    blank_enable: Out(1)
 
     #Input to Serializer
     output_mode: Out(2)
@@ -641,11 +680,13 @@ class CommandExecutor(wiring.Component):
         wiring.connect(m, self.supersampler.super_dac_stream, bus_controller.dac_stream)
         wiring.connect(m, bus_controller.adc_stream, self.supersampler.super_adc_stream)
         wiring.connect(m, flipped(self.bus), bus_controller.bus)
+        m.d.comb += self.inline_blank.eq(bus_controller.inline_blank)
 
         vector_stream = StreamSignature(data.StructLayout({
             "dac_x_code": 14,
             "dac_y_code": 14,
             "dwell_time": DwellTime,
+            "blank": BlankRequest
         })).create()
 
 
@@ -661,6 +702,25 @@ class CommandExecutor(wiring.Component):
         submit_pixel = Signal()
         retire_pixel = Signal()
         m.d.sync += in_flight_pixels.eq(in_flight_pixels + submit_pixel - retire_pixel)
+
+        next_blank_enable = Signal()
+        m.domains.dac_clk = dac_clk =  ClockDomain(local=True)
+        m.d.comb += dac_clk.clk.eq(self.bus.dac_clk)
+        m.d.dac_clk += self.blank_enable.eq(next_blank_enable)
+        
+
+        sync_blank = Signal(BlankRequest) #Outgoing synchronous blank state
+        with m.If(submit_pixel):
+            m.d.sync += sync_blank.request.eq(0)
+        async_blank = Signal(BlankRequest)
+        with m.If(self.inline_blank.request): #Incoming synchronous blank state
+            m.d.sync += next_blank_enable.eq(self.inline_blank.enable)
+        # sync blank requests are fulfilled before async blank requests
+        with m.Else():
+            with m.If(async_blank.request):
+                m.d.sync += next_blank_enable.eq(async_blank.enable)
+                m.d.sync += async_blank.request.eq(0)
+            
 
 
         run_length = Signal.like(command.payload.raster_pixel_run.length)
@@ -709,18 +769,25 @@ class CommandExecutor(wiring.Component):
                             m.d.sync += delay_counter.eq(delay_counter + 1)
 
                     with m.Case(Command.Type.ExternalCtrl):
-                        with m.If(command.payload.external_ctrl.beam_type == BeamType.Electron):
-                            m.d.sync += self.ext_ebeam_enable.eq(command.payload.external_ctrl.enable)
-                        with m.Elif(command.payload.external_ctrl.beam_type == BeamType.Ion):
-                            m.d.sync += self.ext_ibeam_enable.eq(command.payload.external_ctrl.enable)
-                        m.next = "Fetch"
+                        #Don't change control in the middle of previously submitted pixels
+                        with m.If(in_flight_pixels == 0):
+                            m.d.sync += self.beam_type.eq(command.payload.external_ctrl.beam_type)
+                            m.d.sync += self.ext_ctrl_enable.eq(command.payload.external_ctrl.enable)
+                            m.next = "Fetch"
 
-                    with m.Case(Command.Type.Blank):
-                        with m.If(command.payload.blank.beam_type == BeamType.Electron):
-                            m.d.sync += self.ebeam_blank.eq(command.payload.blank.enable)
-                        with m.Elif(command.payload.blank.beam_type == BeamType.Ion):
-                            m.d.sync += self.ibeam_blank.eq(command.payload.blank.enable)
-                        m.next = "Fetch"
+                    with m.Case(Command.Type.Blank, Command.Type.BlankInline,
+                                Command.Type.Unblank, Command.Type.UnblankInline):
+                        with m.If(command.payload.blank.inline):
+                            m.d.sync += sync_blank.enable.eq(command.payload.blank.enable)
+                            m.d.sync += sync_blank.request.eq(1)
+                            m.next = "Fetch"
+                        with m.Else():
+                            #Don't blank in the middle of previously submitted pixels
+                            with m.If(self.supersampler.dac_stream.ready):
+                                m.d.sync += async_blank.enable.eq(command.payload.blank.enable)
+                                m.d.sync += async_blank.request.eq(1)
+                                m.next = "Fetch"
+                        
 
                     with m.Case(Command.Type.RasterRegion):
                         m.d.sync += raster_region.eq(command.payload.raster_region)
@@ -734,7 +801,8 @@ class CommandExecutor(wiring.Component):
                     with m.Case(Command.Type.RasterPixel):
                         m.d.comb += [
                             self.raster_scanner.dwell_stream.valid.eq(1),
-                            self.raster_scanner.dwell_stream.payload.eq(command.payload.raster_pixel),
+                            self.raster_scanner.dwell_stream.payload.dwell_time.eq(command.payload.raster_pixel),
+                            self.raster_scanner.dwell_stream.payload.blank.eq(sync_blank)
                         ]
                         with m.If(self.raster_scanner.dwell_stream.ready):
                             m.d.comb += submit_pixel.eq(1)
@@ -743,7 +811,8 @@ class CommandExecutor(wiring.Component):
                     with m.Case(Command.Type.RasterPixelRun):
                         m.d.comb += [
                             self.raster_scanner.dwell_stream.valid.eq(1),
-                            self.raster_scanner.dwell_stream.payload.eq(command.payload.raster_pixel_run.dwell_time)
+                            self.raster_scanner.dwell_stream.payload.dwell_time.eq(command.payload.raster_pixel_run.dwell_time),
+                            self.raster_scanner.dwell_stream.payload.blank.eq(sync_blank)
                         ]
                         with m.If(self.raster_scanner.dwell_stream.ready):
                             m.d.comb += submit_pixel.eq(1)
@@ -756,7 +825,8 @@ class CommandExecutor(wiring.Component):
                     with m.Case(Command.Type.RasterPixelFreeRun):
                         m.d.comb += [
                             self.raster_scanner.roi_stream.payload.eq(raster_region),
-                            self.raster_scanner.dwell_stream.payload.eq(command.payload.raster_pixel),
+                            self.raster_scanner.dwell_stream.payload.dwell_time.eq(command.payload.raster_pixel),
+                            self.raster_scanner.dwell_stream.payload.blank.eq(sync_blank)
                         ]
                         with m.If(self.cmd_stream.valid):
                             m.d.comb += self.raster_scanner.abort.eq(1)
@@ -771,8 +841,9 @@ class CommandExecutor(wiring.Component):
                                 m.d.comb += submit_pixel.eq(1)
 
 
-                    with m.Case(Command.Type.VectorPixel):
+                    with m.Case(Command.Type.VectorPixel, Command.Type.VectorPixelMinDwell):
                         m.d.comb += vector_stream.valid.eq(1)
+                        m.d.comb += vector_stream.payload.blank.eq(sync_blank)
                         with m.If(vector_stream.ready):
                             m.d.comb += submit_pixel.eq(1)
                             m.next = "Fetch"
@@ -976,30 +1047,32 @@ class OBISubtarget(wiring.Component):
             # connect_pin("ibeam_blank_low", ~executor.ibeam_blank)
 
 
-            if hasattr(self.pads, "ext_ebeam_scan_enable_t"):
-                m.d.comb += self.pads.ext_ebeam_scan_enable_t.oe.eq(1)
-                m.d.comb += self.pads.ext_ebeam_scan_enable_t.o.eq(executor.ext_ebeam_enable)
-            if hasattr(self.pads, "ext_ibeam_scan_enable_t"):
-                m.d.comb += self.pads.ext_ibeam_scan_enable_t.oe.eq(1)
-                m.d.comb += self.pads.ext_ibeam_scan_enable_t.o.eq(executor.ext_ibeam_enable)
-            if hasattr(self.pads, "ext_ibeam_scan_enable_2_t"):
-                m.d.comb += self.pads.ext_ibeam_scan_enable_2_t.oe.eq(1)
-                m.d.comb += self.pads.ext_ibeam_scan_enable_2_t.o.eq(executor.ext_ibeam_enable)
-            if hasattr(self.pads, "ebeam_blank_t"):
-                m.d.comb += self.pads.ebeam_blank_t.oe.eq(1)
-                m.d.comb += self.pads.ebeam_blank_t.o.eq(executor.ebeam_blank)
-            if hasattr(self.pads, "ext_ibeam_blank_enable_t"):
-                m.d.comb += self.pads.ext_ibeam_blank_enable_t.oe.eq(1)
-                m.d.comb += self.pads.ext_ibeam_blank_enable_t.o.eq(executor.ext_ibeam_enable)
-            if hasattr(self.pads, "ext_ibeam_blank_enable_2_t"):
-                m.d.comb += self.pads.ext_ibeam_blank_enable_2_t.oe.eq(1)
-                m.d.comb += self.pads.ext_ibeam_blank_enable_2_t.o.eq(executor.ext_ibeam_enable)
-            if hasattr(self.pads, "ibeam_blank_low_t"):
-                m.d.comb += self.pads.ibeam_blank_low_t.oe.eq(~executor.ibeam_blank)
-                m.d.comb += self.pads.ibeam_blank_low_t.o.eq(1)
-            if hasattr(self.pads, "ibeam_blank_high_t"):
-                m.d.comb += self.pads.ibeam_blank_high_t.oe.eq(executor.ibeam_blank)
-                m.d.comb += self.pads.ibeam_blank_high_t.o.eq(0)
+            with m.If(executor.beam_type == BeamType.Electron):
+                if hasattr(self.pads, "ext_ebeam_scan_enable_t"):
+                    m.d.comb += self.pads.ext_ebeam_scan_enable_t.oe.eq(1)
+                    m.d.comb += self.pads.ext_ebeam_scan_enable_t.o.eq(executor.ext_ctrl_enable)
+                if hasattr(self.pads, "ebeam_blank_t"):
+                    m.d.comb += self.pads.ebeam_blank_t.oe.eq(1)
+                    m.d.comb += self.pads.ebeam_blank_t.o.eq(executor.ext_blank_enable)
+            with m.If(executor.beam_type == BeamType.Ion):
+                if hasattr(self.pads, "ext_ibeam_scan_enable_t"):
+                    m.d.comb += self.pads.ext_ibeam_scan_enable_t.oe.eq(1)
+                    m.d.comb += self.pads.ext_ibeam_scan_enable_t.o.eq(executor.ext_ctrl_enable)
+                if hasattr(self.pads, "ext_ibeam_scan_enable_2_t"):
+                    m.d.comb += self.pads.ext_ibeam_scan_enable_2_t.oe.eq(1)
+                    m.d.comb += self.pads.ext_ibeam_scan_enable_2_t.o.eq(executor.ext_ctrl_enable)
+                if hasattr(self.pads, "ext_ibeam_blank_enable_t"):
+                    m.d.comb += self.pads.ext_ibeam_blank_enable_t.oe.eq(1)
+                    m.d.comb += self.pads.ext_ibeam_blank_enable_t.o.eq(executor.ext_ctrl_enable)
+                if hasattr(self.pads, "ext_ibeam_blank_enable_2_t"):
+                    m.d.comb += self.pads.ext_ibeam_blank_enable_2_t.oe.eq(1)
+                    m.d.comb += self.pads.ext_ibeam_blank_enable_2_t.o.eq(executor.ext_ctrl_enable)
+                if hasattr(self.pads, "ibeam_blank_low_t"):
+                    m.d.comb += self.pads.ibeam_blank_low_t.oe.eq(~executor.blank_enable)
+                    m.d.comb += self.pads.ibeam_blank_low_t.o.eq(1)
+                if hasattr(self.pads, "ibeam_blank_high_t"):
+                    m.d.comb += self.pads.ibeam_blank_high_t.oe.eq(executor.blank_enable)
+                    m.d.comb += self.pads.ibeam_blank_high_t.o.eq(0)
 
             m.d.comb += [
                 control.x_latch.o.eq(executor.bus.dac_x_le_clk),
