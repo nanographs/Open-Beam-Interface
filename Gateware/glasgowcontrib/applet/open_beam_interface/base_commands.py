@@ -10,12 +10,16 @@ class CommandType(enum.IntEnum):
     Delay               = 0x03
     ExternalCtrl        = 0x04
     Blank               = 0x05
+    BlankInline         = 0x06
+    Unblank             = 0x07
+    UnblankInline       = 0x08
 
     RasterRegion        = 0x10
     RasterPixels        = 0x11
     RasterPixelRun      = 0x12
     RasterPixelFreeRun  = 0x13
     VectorPixel         = 0x14
+    VectorPixelMinDwell = 0x15
 
 class OutputMode(enum.IntEnum):
     SixteenBit          = 0
@@ -38,7 +42,7 @@ class DwellTime(int):
     pass
 
 
-class Command(metaclass=ABCMeta):
+class BaseCommand(metaclass=ABCMeta):
     # def __init_subclass__(cls):
     #     cls._logger = logger.getChild(f"Command.{cls.__name__}")
 
@@ -51,7 +55,7 @@ class Command(metaclass=ABCMeta):
     def response(self):
         return 0
 
-class SynchronizeCommand(Command):
+class SynchronizeCommand(BaseCommand):
     def __init__(self, *, cookie: int, raster: bool, output: OutputMode=OutputMode.SixteenBit):
         self._cookie = cookie
         self._raster_mode = raster
@@ -66,7 +70,7 @@ class SynchronizeCommand(Command):
         return struct.pack(">BHB", CommandType.Synchronize, self._cookie, combined)
 
 
-class AbortCommand(Command):
+class AbortCommand(BaseCommand):
     def __repr__(self):
         return f"AbortCommand"
     
@@ -75,7 +79,7 @@ class AbortCommand(Command):
         return struct.pack(">B", CommandType.Abort)
     
 
-class DelayCommand(Command):
+class DelayCommand(BaseCommand):
     def __init__(self, delay):
         assert delay <= 65535
         self._delay = delay
@@ -88,21 +92,43 @@ class DelayCommand(Command):
         return struct.pack(">BH", CommandType.Delay, self._delay)
     
 
-class BlankCommand(Command):
-    def __init__(self, enable:bool, beam_type:BeamType):
-        assert (beam_type == BeamType.Electron) | (beam_type == BeamType.Ion)
+class BlankCommand(BaseCommand):
+    def __init__(self, enable:bool=True, inline: bool=False):
         self._enable = enable
-        self._beam_type = beam_type
+        self._inline = inline
 
     def __repr__(self):
-        return f"_BlankCommand(enable={self._enable}, beam_type={self._beam_type})"
+        return f"BlankCommand(enable={self._enable}, asynced={self._asynced})"
 
     @property
     def message(self):
-        combined = int(self._beam_type<<1 | self._enable)
-        return struct.pack(">BB", CommandType.Blank, combined)
+        #combined = int(self._inline<<1 | self._enable)
+        #return struct.pack(">BB", CommandType.Blank, combined)
+        if self._enable & ~self._inline:
+            return struct.pack('>B', CommandType.Blank)
+        elif self._enable & self._inline:
+            return struct.pack('>B', CommandType.BlankInline)
+        elif ~self._enable & ~self._inline:
+            return struct.pack('>B', CommandType.Unblank)
+        elif ~self._enable & self._inline:
+            return struct.pack('>B', CommandType.UnblankInline)
 
-class ExternalCtrlCommand(Command):
+class BlankInlineCommand(BaseCommand):
+    @property
+    def message(self):
+        return struct.pack('>B', CommandType.BlankInline)
+
+class UnblankCommand(BaseCommand):
+    @property
+    def message(self):
+        return struct.pack('>B', CommandType.Unblank)
+
+class UnblankInlineCommand(BaseCommand):
+    @property
+    def message(self):
+        return struct.pack('>B', CommandType.UnblankInline)
+
+class ExternalCtrlCommand(BaseCommand):
     def __init__(self, enable:bool, beam_type:BeamType):
         assert (beam_type == BeamType.Electron) | (beam_type == BeamType.Ion)
         self._enable = enable
@@ -116,13 +142,13 @@ class ExternalCtrlCommand(Command):
         combined = int(self._beam_type<<1 | self._enable)
         return struct.pack(">BB", CommandType.ExternalCtrl, combined)
 
-class RasterRegionCommand(Command):
+class RasterRegionCommand(BaseCommand):
     def __init__(self, *, x_range: DACCodeRange, y_range: DACCodeRange):
         self._x_range = x_range
         self._y_range = y_range
 
     def __repr__(self):
-        return f"_RasterRegionCommand(x_range={self._x_range}, y_range={self._y_range})"
+        return f"RasterRegionCommand(x_range={self._x_range}, y_range={self._y_range})"
 
     @property
     def message(self):
@@ -130,13 +156,13 @@ class RasterRegionCommand(Command):
             self._x_range.start, self._x_range.count, self._x_range.step,
             self._y_range.start, self._y_range.count, self._y_range.step)
 
-class RasterPixelsCommand(Command):
+class RasterPixelsCommand(BaseCommand):
     def __init__(self, *, dwells: list[DwellTime]):
         assert len(dwells) <= 65536
         self._dwells  = dwells
         
     def __repr__(self):
-        return f"_RasterPixelsCommand(dwells=<list of {len(self._dwells)}>)"
+        return f"RasterPixelsCommand(dwells=<list of {len(self._dwells)}>)"
 
     @property
     def message(self):
@@ -145,7 +171,7 @@ class RasterPixelsCommand(Command):
         commands.extend(self._dwells)
         return commands
 
-class RasterPixelRunCommand(Command):
+class RasterPixelRunCommand(BaseCommand):
     def __init__(self, *, dwell: DwellTime, length: int):
         assert dwell <= 65536
         assert length <= 65536, "Run length counter is 16 bits"
@@ -153,13 +179,13 @@ class RasterPixelRunCommand(Command):
         self._length  = length
 
     def __repr__(self):
-        return f"_RasterPixelRunCommand(dwell={self._dwell}, length={self._length})"
+        return f"RasterPixelRunCommand(dwell={self._dwell}, length={self._length})"
 
     @property
     def message(self):
         return struct.pack(">BHH", CommandType.RasterPixelRun, self._length - 1, self._dwell)
 
-class VectorPixelCommand(Command):
+class VectorPixelCommand(BaseCommand):
     def __init__(self, *, x_coord: int, y_coord: int, dwell: DwellTime):
         assert x_coord <= 65535
         assert y_coord <= 65535
@@ -169,13 +195,16 @@ class VectorPixelCommand(Command):
         self._dwell   = dwell
 
     def __repr__(self):
-        return f"_VectorPixelCommand(x_coord={self._x_coord}, y_coord={self._y_coord}, dwell={self._dwell})"
+        return f"VectorPixelCommand(x_coord={self._x_coord}, y_coord={self._y_coord}, dwell={self._dwell})"
 
     @property
     def message(self):
-        return struct.pack(">BHHH", CommandType.VectorPixel, self._x_coord, self._y_coord, self._dwell-1)
+        if self._dwell == 1:
+            return struct.pack(">BHH", CommandType.VectorPixelMinDwell, self._x_coord, self._y_coord)
+        else:
+            return struct.pack(">BHHH", CommandType.VectorPixel, self._x_coord, self._y_coord, self._dwell-1)
 
-class CommandSequence(Command):
+class CommandSequence(BaseCommand):
     _message = bytearray()
     _response = bytearray()
     def __init__(self, output: OutputMode, raster:bool):

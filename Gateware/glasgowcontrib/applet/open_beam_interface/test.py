@@ -8,6 +8,7 @@ from . import StreamSignature
 from . import Supersampler, RasterScanner, RasterRegion
 from . import CommandParser, CommandExecutor, Command, BeamType
 from . import BusController
+from .base_commands import *
 
 
 def put_dict(stream, signal):
@@ -603,6 +604,26 @@ class OBIAppletTestCase(unittest.TestCase):
             def _response(self):
                 return []
         
+        class TestBlankCommand(TestCommand):
+            def __init__(self, enable, asynced):
+                self._enable = enable
+                self._asynced = asynced
+            
+            @property
+            def _command(self):
+                return {"type": Command.Type.ExternalCtrl,
+                        "payload": {
+                            "blank": {
+                                "enable": self._enable,
+                                "asynced": self._asynced
+                                }
+                            }
+                        }
+                    
+            @property
+            def _response(self):
+                return []
+        
         class TestRasterRegionCommand(TestCommand):
             def __init__(self, x_start, x_count, x_step, y_start, y_count, y_step):
                 self._x_start = x_start
@@ -772,11 +793,11 @@ class OBIAppletTestCase(unittest.TestCase):
             self.simulate(test_seq.dut, [test_seq._put_testbench, test_seq._get_testbench], name="exec_6")
 
 
-        # test_exec_1()
-        # test_exec_2()
-        # test_exec_3()
-        # test_exec_4()
-        # test_exec_5()
+        test_exec_1()
+        test_exec_2()
+        test_exec_3()
+        test_exec_4()
+        test_exec_5()
         test_exec_6()
 
     def test_all(self):
@@ -788,7 +809,7 @@ class OBIAppletTestCase(unittest.TestCase):
         class OBIApplet_TestCase(GlasgowAppletTestCase, applet = OBIApplet):
             @synthesis_test
             def test_build(self):
-                self.assertBuilds(args=["--pin-ext-ebeam-enable", "1"])
+                self.assertBuilds(args=["--pin-ext-ebeam-scan-enable", "1"])
             
             def setup_test(self):
                 self.build_simulated_applet()
@@ -842,39 +863,43 @@ class OBIAppletTestCase(unittest.TestCase):
                 # await iface.flush()
                 commands = bytearray()
                 for _ in range(10):
-                    await iface.write(struct.pack(">BHHH", 0x14, 4, 4, 1))
-                    await iface.write(struct.pack(">BHHH", 0x14, 16380, 16380, 1))
-                    await iface.write(struct.pack(">BHHH", 0x14, 4, 16380, 1))
-                    await iface.write(struct.pack(">BHHH", 0x14, 16380, 4, 1))
+                    await iface.write(VectorPixelCommand(x_coord=4, y_coord=4, dwell=1).message)
+                    await iface.write(VectorPixelCommand(x_coord=16380, y_coord=16380, dwell=1).message)
+                    await iface.write(VectorPixelCommand(x_coord=4, y_coord=16380, dwell=1).message)
+                    await iface.write(VectorPixelCommand(x_coord=16380, y_coord=4, dwell=1).message)
 
             @applet_simulation_test("setup_test", args=["--pin-ext-ibeam-scan-enable", "0", "--pin-ext-ibeam-scan-enable-2", "1"])
-            async def test_mode(self):
+            async def test_vector_blank(self):
                 iface = await self.run_simulated_applet()
-                output_mode = 2
-                raster_mode = 0
-                mode = int(output_mode<<1 | raster_mode)
-                await iface.write(struct.pack(">BHB", 0x00, 123, mode)) #sync
-                enable = 1
-                beam_type = 2
-                combined = int(beam_type<<1 | enable)
-                await iface.write(struct.pack(">BHHH", 0x14, 4, 4, 100)) #move
-                await iface.write(struct.pack(">BHB", 0x00, 123, mode)) #sync
-                await iface.write(struct.pack(">BB",0x05, combined)) ## blank
-                # enable = 0
-                # beam_type = 2
-                # combined = int(beam_type<<1 | enable)
-                # await iface.write(struct.pack(">BB",0x05, combined)) ## unblank
-                # await iface.write(struct.pack(">BHB", 0x00, 123, mode)) #sync
-                # await iface.write(struct.pack(">BHHH", 0x14, 4, 4, 0)) ## move
+                #await iface.write(struct.pack(">BHB", 0x00, 123, mode)) #sync
+                await iface.write(SynchronizeCommand(cookie=4, output=2, raster=0).message)
+                #await iface.write(struct.pack(">BB",0x05, combined)) ## blank
+                await iface.write(BlankCommand().message)
+                await iface.write(ExternalCtrlCommand(enable=1, beam_type=2).message)
+                await iface.write(DelayCommand(delay=10).message)
+                await iface.write(UnblankInlineCommand().message)
+                for n in range(1,4):
+                    await iface.write(VectorPixelCommand(x_coord=n, y_coord=n, dwell=1).message)
+                # for n in range(1,3):
+                #     await iface.write(VectorPixelCommand(x_coord=5*n, y_coord=5*n, dwell=4).message)
+                await iface.write(BlankCommand().message)
+                await iface.write(SynchronizeCommand(cookie=4, output=2, raster=0).message)
+                await iface.read(6)
+                # await iface.write(ExternalCtrlCommand(enable=0, beam_type=2).message)
+                # await iface.write(DelayCommand(delay=10).message)
+                # for n in range(1,10):
+                #     await iface.write(VectorPixelCommand(x_coord=2*n, y_coord=2*n, dwell=4).message)
+
+                
 
             
         test_case = OBIApplet_TestCase()
         test_case.setUp()
-        # test_case.test_build()
-        # test_case.test_sync_cookie()
-        #test_case.test_raster()
-        # test_case.test_benchmark()
-        test_case.test_mode()
+        test_case.test_build()
+        test_case.test_sync_cookie()
+        test_case.test_raster()
+        test_case.test_benchmark()
+        test_case.test_vector_blank()
 
         
 
