@@ -708,11 +708,11 @@ class CommandExecutor(wiring.Component):
         m.d.comb += dac_clk.clk.eq(self.bus.dac_clk)
         m.d.dac_clk += self.blank_enable.eq(next_blank_enable)
         
-
         sync_blank = Signal(BlankRequest) #Outgoing synchronous blank state
         with m.If(submit_pixel):
             m.d.sync += sync_blank.request.eq(0)
         async_blank = Signal(BlankRequest)
+
         with m.If(self.inline_blank.request): #Incoming synchronous blank state
             m.d.sync += next_blank_enable.eq(self.inline_blank.enable)
         # sync blank requests are fulfilled before async blank requests
@@ -770,7 +770,7 @@ class CommandExecutor(wiring.Component):
 
                     with m.Case(Command.Type.ExternalCtrl):
                         #Don't change control in the middle of previously submitted pixels
-                        with m.If(in_flight_pixels == 0):
+                        with m.If(self.supersampler.dac_stream.ready):
                             m.d.sync += self.beam_type.eq(command.payload.external_ctrl.beam_type)
                             m.d.sync += self.ext_ctrl_enable.eq(command.payload.external_ctrl.enable)
                             m.next = "Fetch"
