@@ -1072,7 +1072,7 @@ class OBISubtarget(wiring.Component):
                     m.d.comb += self.pads.ibeam_blank_low_t.o.eq(1)
                 if hasattr(self.pads, "ibeam_blank_high_t"):
                     m.d.comb += self.pads.ibeam_blank_high_t.oe.eq(executor.blank_enable)
-                    m.d.comb += self.pads.ibeam_blank_high_t.o.eq(0)
+                    m.d.comb += self.pads.ibeam_blank_high_t.o.eq(1)
 
             m.d.comb += [
                 control.x_latch.o.eq(executor.bus.dac_x_le_clk),
