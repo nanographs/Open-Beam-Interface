@@ -10,7 +10,8 @@ jobs:
         python-version: ["3.12"]  
   
     steps:  
-      - uses: actions/checkout@v3  
+      - name: Check out source code
+        uses: actions/checkout@v3  
       - name: Set up PDM
         uses: pdm-project/setup-pdm@v3
         with:
