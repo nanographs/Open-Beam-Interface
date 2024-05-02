@@ -276,13 +276,16 @@ class CommandType(enum.IntEnum):
     Delay               = 0x03
     ExternalCtrl        = 0x04
     Blank               = 0x05
+    BlankInline         = 0x06
+    Unblank             = 0x07
+    UnblankInline       = 0x08
 
     RasterRegion        = 0x10
     RasterPixels        = 0x11
     RasterPixelRun      = 0x12
     RasterPixelFreeRun  = 0x13
     VectorPixel         = 0x14
-
+    VectorPixelMinDwell = 0x15
 
 class SynchronizeCommand(Command):
     def __init__(self, *, cookie: int, raster_mode: bool, output_mode: OutputMode=OutputMode.SixteenBit):
@@ -326,19 +329,23 @@ class BeamType(enum.IntEnum):
     Ion = 2
 
 class _BlankCommand(Command):
-    def __init__(self, enable, beam_type):
-        assert enable <= 1
-        assert (beam_type == BeamType.Electron) | (beam_type == BeamType.Ion)
+    def __init__(self, enable:bool, inline:bool):
         self._enable = enable
-        self._beam_type = beam_type
+        self._inline = inline
 
     def __repr__(self):
-        return f"_BlankCommand(enable={self._enable}, beam_type={self._beam_type})"
+        return f"_BlankCommand(enable={self._enable}, inline={self._inline})"
 
     @Command.log_transfer
     async def transfer(self, stream: Stream):
-        combined = int(self._beam_type<<1 | self._enable)
-        cmd = struct.pack(">BB", CommandType.Blank, combined)
+        if self._enable & ~self._inline:
+            cmd = struct.pack(">B", CommandType.Blank)
+        if self._enable & self._inline:
+            cmd = struct.pack(">B", CommandType.BlankInline)
+        if ~self._enable & ~self._inline:
+            cmd = struct.pack(">B", CommandType.Unblank)
+        if ~self._enable & self._inline:
+            cmd = struct.pack(">B", CommandType.UnblankInline)
         stream.send(cmd)
 
 
@@ -556,9 +563,10 @@ class _VectorPixelCommand(Command):
 
     @Command.log_transfer
     async def transfer(self, stream: Stream, output_mode:OutputMode=OutputMode.SixteenBit):
-        cmd = struct.pack(">BHHH", CommandType.VectorPixel, self._x_coord, self._y_coord, self._dwell)
-        # res = await stream.xchg(cmd, 2)
-        # data, = struct.unpack(res, ">H")
+        if self._dwell == 1:
+            cmd = struct.pack(">BHH", CommandType.VectorPixelMinDwell, self._x_coord, self._y_coord)
+        else:
+            cmd = struct.pack(">BHHH", CommandType.VectorPixel, self._x_coord, self._y_coord, self._dwell-1)
         stream.send(cmd)
         stream.send(struct.pack(">B", CommandType.Flush))
         return await self.recv_res(1, stream, output_mode)
