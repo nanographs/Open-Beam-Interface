@@ -3,13 +3,15 @@
 | Synchronize        | 0x00 | Cookie (2)            |               |
 |                    |      | Mode (1)              | raster (1)    |
 |                    |      |                       | output (2)    |
-| Abort              | 0x01 | -                     |-              |
-| Flush              | 0x02 | -                     |-              |
+| Abort              | 0x01 | -                     |               |
+| Flush              | 0x02 | -                     |               |
 | Delay              | 0x03 | DwellTime (2)         |               |
 | ExternalCtrl       | 0x04 | ExternalCtrl (1)      | Enable (1)    |
 |                    |      |                       | BeamType (2)  |
-| Blank              | 0x05 | Blank (1)             | Enable (1)    |
-|                    |      |                       | BeamType (2)  |
+| Blank              | 0x05 | -                     |               |
+| BlankInline        | 0x06 | -                     |               |
+| Unblank            | 0x07 | -                     |               |
+| UnblankInline      | 0x08 | -                     |               |
 | RasterRegion       | 0x10 | x_start (2)           |               |
 |                    |      | x_count (2)           |               | 
 |                    |      | x_step (2)            |               |
@@ -24,6 +26,8 @@
 | VectorPixel        | 0x14 | x_coord (2)           |               |
 |                    |      | y_coord (2)           |               |
 |                    |      | DwellTime(2)          |               |
+| VectorPixelMinDwell| 0x15 | x_coord (2)           |               |
+|                    |      | y_coord (2)           |               |
 
 
 ## Synchronize: Mode
