@@ -17,7 +17,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Generate lockfile
-        working-directory: ./software
+        working-directory: ./Gateware
         run: pdm lock --group :all ${{ matrix.dep-versions == 'minimal' && '--strategy direct_minimal_versions' || '' }}
       - name: Install dependencies
         working-directory: ./Gateware
