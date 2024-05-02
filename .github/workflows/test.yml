@@ -23,6 +23,7 @@ jobs:
         working-directory: ./Gateware
         run: pdm sync  
       - name: Run tests  
+        working-directory: ./Gateware
         run: |  
           pdm run test
         
