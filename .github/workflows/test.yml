@@ -11,14 +11,20 @@ jobs:
   
     steps:  
       - uses: actions/checkout@v3  
-      - name: Set up Python ${{ matrix.python-version }}  
-        uses: actions/setup-python@v4  
-        with:  
-          python-version: ${{ matrix.python-version }}  
+      - name: Set up PDM
+        uses: pdm-project/setup-pdm@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Generate lockfile
+        working-directory: ./software
+        run: pdm lock --group :all ${{ matrix.dep-versions == 'minimal' && '--strategy direct_minimal_versions' || '' }}
+      - name: Install dependencies
+        working-directory: ./Gateware
       - name: Install dependencies  
         run: |  
           python -m pip install --upgrade pip  
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi  
       - name: Run tests  
         run: |  
-          python -m unittest glasgowcontrib.applet.open_beam_interface.test
+          pdm run test
+        
