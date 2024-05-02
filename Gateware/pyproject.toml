@@ -13,6 +13,9 @@ dependencies = [
 [project.entry-points."glasgow.applet"]
 open_beam_interface = "glasgowcontrib.applet.open_beam_interface:OBIApplet"
 
+[project.scripts]
+obi_run = "run:run"
+
 [build-system]
 requires = ["pdm-backend"]
 build-backend = "pdm.backend"
