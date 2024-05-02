@@ -30,4 +30,5 @@ run_script.cmd = "glasgow script {args} open_beam_interface -V 5 --pin-ext-ibeam
 test.cmd = "python -m unittest glasgowcontrib.applet.open_beam_interface.test"
 
 [tool.pdm.dev-dependencies]
-test = ["amaranth@ git+https://github.com/whitequark/amaranth@testbenchessssss"]
+test = ["glasgow@https://github.com/isabelburgos/glasgow",
+        "amaranth@ git+https://github.com/whitequark/amaranth@testbenchessssss"]
