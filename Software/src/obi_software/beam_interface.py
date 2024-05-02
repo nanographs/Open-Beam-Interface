@@ -776,14 +776,15 @@ class RasterStreamCommand(Command):
         return f"RasterStreamCommand(cookie={self._cookie}, x_range={self._x_range}, y_range={self._y_range}, dwells=<list of {len(self._dwells)}>)"
 
     @Command.log_transfer
-    async def transfer(self, stream: Stream, latency: int):
-        await SynchronizeCommand(cookie=self._cookie, raster_mode=True).transfer(stream)
+    async def transfer(self, stream: Stream, latency: int, output_mode: OutputMode=OutputMode.SixteenBit):
+        await SynchronizeCommand(cookie=self._cookie, raster_mode=True, output_mode = output_mode).transfer(stream)
         await _RasterRegionCommand(x_range=self._x_range, y_range=self._y_range).transfer(stream)
         total, done = self._x_range.count * self._y_range.count, 0
-        async for chunk in _RasterPixelsCommand(dwells=self._dwells).transfer(stream, latency=latency):
+        async for chunk in _RasterPixelsCommand(dwells=self._dwells).transfer(stream, latency=latency, output_mode=output_mode):
             yield chunk
-            done += len(chunk)
-            self._logger.debug(f"total={total} done={done}")
+            #done += len(chunk)
+            #self._logger.debug(f"total={total} done={done}")
+        await stream.flush()
 
 
 class RasterScanCommand(Command):

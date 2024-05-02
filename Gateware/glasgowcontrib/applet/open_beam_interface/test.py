@@ -878,10 +878,15 @@ class OBIAppletTestCase(unittest.TestCase):
                 await iface.write(ExternalCtrlCommand(enable=1, beam_type=2).message)
                 await iface.write(DelayCommand(delay=10).message)
                 await iface.write(UnblankInlineCommand().message)
-                for n in range(1,4):
+                for n in range(1,3):
                     await iface.write(VectorPixelCommand(x_coord=n, y_coord=n, dwell=1).message)
                 # for n in range(1,3):
                 #     await iface.write(VectorPixelCommand(x_coord=5*n, y_coord=5*n, dwell=4).message)
+                await iface.write(VectorPixelCommand(x_coord=7, y_coord=7, dwell=3).message)
+                await iface.write(BlankCommand().message)
+                await iface.write(DelayCommand(delay=3).message)
+                await iface.write(UnblankCommand().message)
+                await iface.write(VectorPixelCommand(x_coord=1, y_coord=1, dwell=1).message)
                 await iface.write(BlankCommand().message)
                 await iface.write(SynchronizeCommand(cookie=4, output=2, raster=0).message)
                 await iface.read(6)
