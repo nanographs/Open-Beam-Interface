@@ -7,7 +7,7 @@ license = {text = "0BSD OR Apache-2.0"}
 
 requires-python = "!=3.10.0,!=3.10.1,!=3.10.2,~=3.9"
 dependencies = [
-    "glasgow",
+    "glasgow"
 ]
 
 [project.entry-points."glasgow.applet"]
@@ -28,3 +28,6 @@ _.env = {GLASGOW_OUT_OF_TREE_APPLETS = "I-am-okay-with-breaking-changes"}
 run.cmd = "glasgow -v --statistics run open_beam_interface -V 5 --pin-ext-ibeam-scan-enable 0 --pin-ext-ibeam-scan-enable-2 1 --pin-ext-ibeam-blank-enable 2 --pin-ext-ibeam-blank-enable-2 3 --pin-ibeam-blank-low 4 --pin-ibeam-blank-high 5 tcp::2224"
 run_script.cmd = "glasgow script {args} open_beam_interface -V 5 --pin-ext-ibeam-scan-enable 0 --pin-ext-ibeam-scan-enable-2 1 --pin-ext-ibeam-blank-enable 2 --pin-ext-ibeam-blank-enable-2 3 --pin-ibeam-blank-low 4 --pin-ibeam-blank-high 5"
 test.cmd = "python -m unittest glasgowcontrib.applet.open_beam_interface.test"
+
+[tool.pdm.dev-dependencies]
+test = ["amaranth@ git+https://github.com/whitequark/amaranth@testbenchessssss"]
