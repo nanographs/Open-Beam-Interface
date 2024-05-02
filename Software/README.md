@@ -1,7 +1,7 @@
-to install:
+to install with gui:
 
 ```
-pipx install Open-Beam-Interface/Software -G gui
+pipx install Open-Beam-Interface/Software[gui]
 ```
 
 to run:
