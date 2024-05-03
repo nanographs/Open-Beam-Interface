@@ -206,7 +206,7 @@ class Connection:
 
         print("not synced")
 
-        cookie, self._next_cookie = self._next_cookie, self._next_cookie + 2 # even cookie
+        cookie, self._next_cookie = self._next_cookie, (self._next_cookie + 2) & 0xffff # even cookie
         self._logger.debug(f'synchronizing with cookie {cookie:#06x}')
         print("synchronizing with cookie")
 
