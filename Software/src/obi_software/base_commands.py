@@ -211,7 +211,7 @@ class CommandSequence(BaseCommand):
         self._output = output
         self._raster = raster
         self.add(SynchronizeCommand(cookie=123, output=output, raster=raster))
-    def add(self, other: bytes | bytearray | memoryview):
+    def add(self, other: BaseCommand):
         self._message.extend(other.message)
         #self._response.extend(other.response)
 
