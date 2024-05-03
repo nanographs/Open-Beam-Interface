@@ -12,6 +12,7 @@ import time
 from time import perf_counter
 
 from .support import dump_hex
+from .base_commands import CommandType, OutputMode, BeamType, DACCodeRange
 
 
 BIG_ENDIAN = (struct.pack('@H', 0x1234) == struct.pack('>H', 0x1234))
@@ -84,10 +85,6 @@ class Stream:
         stop = perf_counter()
         self._logger.debug(f"xchg time: {stop-start:.4f}")
 
-class OutputMode(enum.IntEnum):
-    SixteenBit          = 0
-    EightBit            = 1
-    NoOutput            = 2
 
 class Command(metaclass=ABCMeta):
     def __init_subclass__(cls):
@@ -269,24 +266,6 @@ class Connection:
             self._handle_incomplete_read(e)
 
 
-class CommandType(enum.IntEnum):
-    Synchronize         = 0x00
-    Abort               = 0x01
-    Flush               = 0x02
-    Delay               = 0x03
-    ExternalCtrl        = 0x04
-    Blank               = 0x05
-    BlankInline         = 0x06
-    Unblank             = 0x07
-    UnblankInline       = 0x08
-
-    RasterRegion        = 0x10
-    RasterPixels        = 0x11
-    RasterPixelRun      = 0x12
-    RasterPixelFreeRun  = 0x13
-    VectorPixel         = 0x14
-    VectorPixelMinDwell = 0x15
-
 class SynchronizeCommand(Command):
     def __init__(self, *, cookie: int, raster_mode: bool, output_mode: OutputMode=OutputMode.SixteenBit):
         assert cookie in range(0x0001, 0x10000, 2) # odd cookies only
@@ -324,9 +303,6 @@ class DelayCommand(Command):
         stream.send(cmd)
         # await stream.flush()
 
-class BeamType(enum.IntEnum):
-    Electron = 1
-    Ion = 2
 
 class _BlankCommand(Command):
     def __init__(self, enable:bool, inline:bool):
