@@ -2,6 +2,8 @@ from abc import ABCMeta, abstractmethod
 from dataclasses import dataclass
 import enum
 import struct
+import array
+from collections import deque
 
 class CommandType(enum.IntEnum):
     Synchronize         = 0x00
@@ -56,9 +58,25 @@ class BaseCommand(metaclass=ABCMeta):
     def message(self):
         ...
     
-    @property
-    def response(self):
-        return 0
+    # @property
+    # def response(self):
+    #     return 0
+
+class BaseResponse:
+    def __init__(self, name, length):
+        self.name = name
+        self.length = length
+    def __repr__(self):
+        return f"Response: {self.name} with length {self.length}"
+
+class ResponseCollection():
+    _responses = deque()
+    _length = 0
+    def __init__(self, responses:dict={}):
+        for name, length in responses.items():
+            print(f"adding {name}, {length}")
+            self._responses.append(BaseResponse(name, length))
+            self._length  += length
 
 class SynchronizeCommand(BaseCommand):
     def __init__(self, *, cookie: int, raster: bool, output: OutputMode=OutputMode.SixteenBit):
@@ -74,6 +92,11 @@ class SynchronizeCommand(BaseCommand):
         combined = int(self._output_mode<<1 | self._raster_mode)
         return struct.pack(">BHB", CommandType.Synchronize, self._cookie, combined)
 
+    def response(self, *, output_mode):
+        return ResponseCollection({
+            "sync": 2,
+            "cookie": 2
+        })
 
 class AbortCommand(BaseCommand):
     def __repr__(self):
@@ -82,6 +105,14 @@ class AbortCommand(BaseCommand):
     @property
     def message(self):
         return struct.pack(">B", CommandType.Abort)
+
+class FlushCommand(BaseCommand):
+    def __repr__(self):
+        return f"FlushCommand"
+    
+    @property
+    def message(self):
+        return struct.pack(">B", CommandType.Flush)
     
 
 class DelayCommand(BaseCommand):
@@ -119,16 +150,22 @@ class BlankCommand(BaseCommand):
             return struct.pack('>B', CommandType.UnblankInline)
 
 class BlankInlineCommand(BaseCommand):
+    def __repr__(self):
+        return f"BlankInlineCommand"
     @property
     def message(self):
         return struct.pack('>B', CommandType.BlankInline)
 
 class UnblankCommand(BaseCommand):
+    def __repr__(self):
+        return f"UnblankCommand"
     @property
     def message(self):
         return struct.pack('>B', CommandType.Unblank)
 
 class UnblankInlineCommand(BaseCommand):
+    def __repr__(self):
+        return f"UnblankInlineCommand"
     @property
     def message(self):
         return struct.pack('>B', CommandType.UnblankInline)
@@ -201,17 +238,23 @@ class RasterRegionCommand(BaseCommand):
 class RasterPixelsCommand(BaseCommand):
     def __init__(self, *, dwells: list[DwellTime]):
         assert len(dwells) <= 65536
-        self._dwells  = dwells
+        self._pixel_count = len(dwells)
+        self._dwells = array.array('H', dwells)
         
     def __repr__(self):
-        return f"RasterPixelsCommand(dwells=<list of {len(self._dwells)}>)"
+        return f"RasterPixelsCommand(dwells=<list of {self._pixel_count}>)"
 
     @property
     def message(self):
         commands = bytearray()
-        commands.extend(struct.pack(">BH", CommandType.RasterPixels, len(self._dwells) - 1))
+        commands.extend(struct.pack(">BH", CommandType.RasterPixels, self._pixel_count - 1))
         commands.extend(self._dwells)
         return commands
+    
+    def response(self, *, output_mode):
+        return ResponseCollection({
+            "RasterPixels": 2*self._pixel_count
+        })
 
 class RasterPixelRunCommand(BaseCommand):
     def __init__(self, *, dwell: DwellTime, length: int):
@@ -247,20 +290,35 @@ class VectorPixelCommand(BaseCommand):
             return struct.pack(">BHHH", CommandType.VectorPixel, self._x_coord, self._y_coord, self._dwell-1)
 
 class CommandSequence(BaseCommand):
-    _message = bytearray()
-    _response = bytearray()
     def __init__(self, output: OutputMode, raster:bool):
+        self._message = bytearray()
+        self._response = deque()
+        self._response_length = 0
         self._output = output
         self._raster = raster
-        self.add(SynchronizeCommand(cookie=123, output=output, raster=raster))
+        self.add(SynchronizeCommand(cookie=345, output=output, raster=raster))
     def add(self, other: BaseCommand):
+        #print(f"added {other!r}")
         self._message.extend(other.message)
-        #self._response.extend(other.response)
+        if self._output != OutputMode.NoOutput:
+            if "response" in dir(other):
+                res = other.response(output_mode=self._output)
+                #self._response += res._responses
+                while len(res._responses):
+                    self._response.append(res._responses.popleft())
+                self._response_length += res._length
+        # print(f"{self._response=}")
 
+    def unpack(self, data: bytes | bytearray | memoryview):
+        while len(self._response) > 0:
+            response = self._response.popleft()
+            response_data = data[:response.length]
+            print(f"{response.name}: {str(list(response_data))}")
+            data = data[response.length:]
+    
     @property
     def message(self):
         return self._message
-
 
 
 

@@ -2,6 +2,7 @@ from abc import ABCMeta, abstractmethod
 from dataclasses import dataclass
 import enum
 import struct
+from collections import deque
 
 class CommandType(enum.IntEnum):
     Synchronize         = 0x00
@@ -59,6 +60,19 @@ class BaseCommand(metaclass=ABCMeta):
     @property
     def response(self):
         return 0
+    
+    def __bytes__(self)
+        return self.message
+
+
+class ResponseCollection():
+    _responses = deque()
+    _length = 0
+    def __init__(self, responses:dict={}):
+        for name, length in responses.items():
+            self._responses.append(BaseResponse(name, length))
+            self._length  += length
+
 
 class SynchronizeCommand(BaseCommand):
     def __init__(self, *, cookie: int, raster: bool, output: OutputMode=OutputMode.SixteenBit):
@@ -73,6 +87,15 @@ class SynchronizeCommand(BaseCommand):
     def message(self):
         combined = int(self._output_mode<<1 | self._raster_mode)
         return struct.pack(">BHB", CommandType.Synchronize, self._cookie, combined)
+
+    @property
+    def response(self):
+        return ResponseCollection({
+            "sync": 2,
+            "cookie": 2
+        })
+
+
 
 
 class AbortCommand(BaseCommand):
@@ -248,14 +271,28 @@ class VectorPixelCommand(BaseCommand):
 
 class CommandSequence(BaseCommand):
     _message = bytearray()
-    _response = bytearray()
+    _response = deque()
+    _response_length = 0
     def __init__(self, output: OutputMode, raster:bool):
         self._output = output
         self._raster = raster
         self.add(SynchronizeCommand(cookie=123, output=output, raster=raster))
     def add(self, other: BaseCommand):
         self._message.extend(other.message)
-        #self._response.extend(other.response)
+        if hasattr(other, "response"):
+            assert isinstance(other.response, ResponseCollection)
+            res = other.response
+            self._response += res
+            print("adding response")
+            self._response_length += res.length
+
+    def unpack(self, data: bytes | bytearray | memoryview):
+        while len(self._response) > 0:
+            response = self._response.popleft()
+            response_data = data[:response.length]
+            print(f"{response.name}: {response_data}")
+            data = data[response.length:]
+
 
     @property
     def message(self):
