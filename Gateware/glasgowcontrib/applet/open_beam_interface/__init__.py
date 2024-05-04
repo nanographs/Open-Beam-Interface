@@ -1147,7 +1147,15 @@ class OBIInterface:
         print(str(list(data)))
     
     async def readuntil(self, separator=b'\n', *, flush=True):
-        if flush and len(self._out_buffer) > 0:
+        def find_sep(buffer, separator=b'\n', offset=0):
+            if buffer._chunk is None:
+                if not buffer._queue:
+                    raise IncompleteReadError
+                buffer._chunk  = buffer._queue.popleft()
+                buffer._offset = 0
+            return buffer._chunk.obj.find(separator)
+
+        if flush and len(self.lower._out_buffer) > 0:
             # Flush the buffer, so that everything written before the read reaches the device.
             await self.lower.flush(wait=False)
 
@@ -1163,7 +1171,7 @@ class OBIInterface:
 
             # Check if we now have enough data in the buffer for `separator` to fit.
             if buflen >= seplen:
-                isep = self.find(self.lower._in_buffer, separator)
+                isep = find_sep(self.lower._in_buffer, separator)
                 if isep != -1:
                     print(f"found {isep=}")
                     # `separator` is in the buffer. `isep` will be used later
@@ -1186,13 +1194,12 @@ class OBIInterface:
         result = memoryview(b"".join(chunks))
         return result
     
-    def find(self, buffer, separator=b'\n', offset=0):
-        if buffer._chunk is None:
-            if not buffer._queue:
-                raise IncompleteReadError
-            buffer._chunk  = buffer._queue.popleft()
-            buffer._offset = 0
-        return buffer._chunk.obj.find(separator)
+    async def transfer(self, seq): #CommandSequence
+        await self.lower.write(seq.message)
+        await self.lower.flush()
+        data = await self.lower.read(seq._response_length)
+        return seq.unpack(data)
+
 
 class OBIApplet(GlasgowApplet):
     required_revision = "C3"

@@ -48,6 +48,11 @@ class DwellTime(int):
         One DwellTime = 125 ns'''
     pass
 
+class DelayTime(int):
+    '''Delay time is measured in units of 48 MHz clock cycles.
+        One DelayTime = 20.833 ns'''
+    pass
+
 
 class BaseCommand(metaclass=ABCMeta):
     # def __init_subclass__(cls):
@@ -116,7 +121,7 @@ class FlushCommand(BaseCommand):
     
 
 class DelayCommand(BaseCommand):
-    def __init__(self, delay):
+    def __init__(self, delay:DelayTime):
         assert delay <= 65535
         self._delay = delay
 
