@@ -11,7 +11,7 @@ from amaranth.lib.wiring import In, Out, flipped
 
 from glasgow.support.logging import dump_hex
 from glasgow.support.endpoint import ServerEndpoint
-from .base_commands import AbortCommand
+# from .base_commands import CommandType
 
 # Overview of (linear) processing pipeline:
 # 1. PC software (in: user input, out: bytes)
@@ -184,7 +184,7 @@ class BusController(wiring.Component):
             with m.State("ADC_Read"):
                 #m.d.comb += self.bus.adc_le_clk.eq(1)
                 m.d.comb += self.bus.adc_oe.eq(1)
-                 # buffers up to self.adc_latency samples if skid_buffer.i.ready
+                # buffers up to self.adc_latency samples if skid_buffer.i.ready
                 m.d.comb += skid_buffer.i.valid.eq(accept_sample[self.adc_latency-1])
                 with m.If(self.dac_stream.valid & skid_buffer.i.ready):
                     # Latch DAC codes from input stream.
@@ -656,7 +656,7 @@ class CommandExecutor(wiring.Component):
     ext_ctrl_enable: Out(1)
     beam_type: Out(BeamType)
     # Input to Blanking control board
-    blank_enable: Out(1)
+    blank_enable: Out(1, reset=1)
 
     #Input to Serializer
     output_mode: Out(2)
@@ -1036,43 +1036,30 @@ class OBISubtarget(wiring.Component):
                 if hasattr(self.pads, pin_name):
                     m.d.comb += getattr(self.pads, pin_name).oe.eq(1)
                     m.d.comb += getattr(self.pads, pin_name).o.eq(signal)
+                        
+            connect_pin("ext_ibeam_scan_enable", executor.ext_ctrl_enable)
+            connect_pin("ext_ibeam_scan_enable_2", executor.ext_ctrl_enable)
+            connect_pin("ext_ibeam_blank_enable", executor.ext_ctrl_enable)
+            connect_pin("ext_ibeam_blank_enable_2", executor.ext_ctrl_enable)
+            connect_pin("ext_ebeam_scan_enable", executor.ext_ctrl_enable)
+            connect_pin("ext_ebeam_scan_enable_2", executor.ext_ctrl_enable)
+
+            with m.If(executor.beam_type == BeamType.NoBeam):
+                connect_pin("ebeam_blank", 1)
+                connect_pin("ibeam_blank_high", 1)
+                connect_pin("ibeam_blank_low", 0)
+
+            with m.Elif(executor.beam_type == BeamType.Electron):
+                connect_pin("ebeam_blank", executor.blank_enable)
+                connect_pin("ibeam_blank_high", 1)
+                connect_pin("ibeam_blank_low", 0)
+                
+            with m.Elif(executor.beam_type == BeamType.Ion):
+                connect_pin("ibeam_blank_high", executor.blank_enable)
+                connect_pin("ibeam_blank_low", ~executor.blank_enable)
+                connect_pin("ebeam_blank", 1)
             
-            # connect_pin("ext_ebeam_scan_enable_t", executor.ext_ebeam_enable)
-            # connect_pin("ext_ebeam_scan_enable_2_t", executor.ext_ebeam_enable)
-            # connect_pin("ext_ibeam_scan_enable_t", executor.ext_ibeam_enable)
-            # connect_pin("ext_ibeam_scan_enable_2_t", executor.ext_ibeam_enable)
-            # connect_pin("ext_ibeam_blank_enable_t", executor.ext_ibeam_enable)
-            # connect_pin("ext_ibeam_blank_enable_2_t", executor.ext_ibeam_enable)
-            # connect_pin("ibeam_blank_high", executor.ibeam_blank)
-            # connect_pin("ibeam_blank_low", ~executor.ibeam_blank)
 
-
-            with m.If(executor.beam_type == BeamType.Electron):
-                if hasattr(self.pads, "ext_ebeam_scan_enable_t"):
-                    m.d.comb += self.pads.ext_ebeam_scan_enable_t.oe.eq(1)
-                    m.d.comb += self.pads.ext_ebeam_scan_enable_t.o.eq(executor.ext_ctrl_enable)
-                if hasattr(self.pads, "ebeam_blank_t"):
-                    m.d.comb += self.pads.ebeam_blank_t.oe.eq(1)
-                    m.d.comb += self.pads.ebeam_blank_t.o.eq(executor.ext_blank_enable)
-            with m.If(executor.beam_type == BeamType.Ion):
-                if hasattr(self.pads, "ext_ibeam_scan_enable_t"):
-                    m.d.comb += self.pads.ext_ibeam_scan_enable_t.oe.eq(1)
-                    m.d.comb += self.pads.ext_ibeam_scan_enable_t.o.eq(executor.ext_ctrl_enable)
-                if hasattr(self.pads, "ext_ibeam_scan_enable_2_t"):
-                    m.d.comb += self.pads.ext_ibeam_scan_enable_2_t.oe.eq(1)
-                    m.d.comb += self.pads.ext_ibeam_scan_enable_2_t.o.eq(executor.ext_ctrl_enable)
-                if hasattr(self.pads, "ext_ibeam_blank_enable_t"):
-                    m.d.comb += self.pads.ext_ibeam_blank_enable_t.oe.eq(1)
-                    m.d.comb += self.pads.ext_ibeam_blank_enable_t.o.eq(executor.ext_ctrl_enable)
-                if hasattr(self.pads, "ext_ibeam_blank_enable_2_t"):
-                    m.d.comb += self.pads.ext_ibeam_blank_enable_2_t.oe.eq(1)
-                    m.d.comb += self.pads.ext_ibeam_blank_enable_2_t.o.eq(executor.ext_ctrl_enable)
-                if hasattr(self.pads, "ibeam_blank_low_t"):
-                    m.d.comb += self.pads.ibeam_blank_low_t.oe.eq(~executor.blank_enable)
-                    m.d.comb += self.pads.ibeam_blank_low_t.o.eq(1)
-                if hasattr(self.pads, "ibeam_blank_high_t"):
-                    m.d.comb += self.pads.ibeam_blank_high_t.oe.eq(executor.blank_enable)
-                    m.d.comb += self.pads.ibeam_blank_high_t.o.eq(1)
 
             m.d.comb += [
                 control.x_latch.o.eq(executor.bus.dac_x_le_clk),
@@ -1095,8 +1082,87 @@ class OBISubtarget(wiring.Component):
 import logging
 import random
 from glasgow.applet import *
-
 import struct
+
+
+class OBIInterface:
+    def __init__(self, iface):
+        self._synchronized = False
+        self._next_cookie = random.randrange(0, 0x10000, 2) # even cookies only
+        self.lower = iface
+    
+    @property
+    def synchronized(self):
+        """`True` if the instrument is ready to accept commands, `False` otherwise."""
+        return self._synchronized
+    
+    async def _synchronize(self):
+        print("synchronizing")
+        if self.synchronized:
+            print("already synced")
+            return
+
+        print("not synced")
+        cookie, self._next_cookie = self._next_cookie, (self._next_cookie + 2) & 0xffff # even cookie
+        #self._logger.debug(f'synchronizing with cookie {cookie:#06x}')
+        print("synchronizing with cookie")
+
+        cmd = struct.pack(">BHBB",
+            Command.Type.Synchronize.value, cookie, 0,
+            Command.Type.Flush.value)
+        await self.lower.write(cmd)
+        await self.lower.flush()
+        res = struct.pack(">HH", 0xffff, cookie)
+        data = await self.readuntil(res)
+        print(str(list(data)))
+    
+    async def readuntil(self, separator=b'\n', *, flush=True):
+        if flush and len(self._out_buffer) > 0:
+            # Flush the buffer, so that everything written before the read reaches the device.
+            await self.lower.flush(wait=False)
+
+        seplen = len(separator)
+        if seplen == 0:
+            raise ValueError('Separator should be at least one-byte string')
+        chunks = []
+
+        # Loop until we find `separator` in the buffer, exceed the buffer size,
+        # or an EOF has happened.
+        while True:
+            buflen = len(self.lower._in_buffer)
+
+            # Check if we now have enough data in the buffer for `separator` to fit.
+            if buflen >= seplen:
+                isep = self.find(self.lower._in_buffer, separator)
+                if isep != -1:
+                    print(f"found {isep=}")
+                    # `separator` is in the buffer. `isep` will be used later
+                    # to retrieve the data.
+                    break
+            else:
+                await self.lower._in_tasks.wait_one()
+
+            async with self.lower._in_pushback:
+                chunk = self.lower._in_buffer.read()
+                self.lower._in_pushback.notify_all()
+                chunks.append(chunk)
+        
+        async with self.lower._in_pushback:
+            chunk = self.lower._in_buffer.read(isep+seplen)
+            self.lower._in_pushback.notify_all()
+            chunks.append(chunk)
+        
+        # Always return a memoryview object, to avoid hard to detect edge cases downstream.
+        result = memoryview(b"".join(chunks))
+        return result
+    
+    def find(self, buffer, separator=b'\n', offset=0):
+        if buffer._chunk is None:
+            if not buffer._queue:
+                raise IncompleteReadError
+            buffer._chunk  = buffer._queue.popleft()
+            buffer._offset = 0
+        return buffer._chunk.obj.find(separator)
 
 class OBIApplet(GlasgowApplet):
     required_revision = "C3"
