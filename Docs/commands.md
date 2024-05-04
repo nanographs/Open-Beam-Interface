@@ -1,3 +1,4 @@
+```
 | Command            | Type | Payload (Bytes)       | Payload (Bits)|
 |--------------------|------|------------------     |---------------|
 | Synchronize        | 0x00 | Cookie (2)            |               |
@@ -24,6 +25,11 @@
 | VectorPixel        | 0x14 | x_coord (2)           |               |
 |                    |      | y_coord (2)           |               |
 |                    |      | DwellTime(2)          |               |
+```
+## How commands work
+Sending a sync comand sets what mode and output to configure for.
+
+
 
 
 ## Synchronize: Mode
