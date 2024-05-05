@@ -1,0 +1,35 @@
+kibot:
+  version: 1
+
+outputs:
+  - name: 'ibom'
+    comment: 'Interactive Bill of Materials'
+    type: ibom
+    dir: ibom
+
+  - name: 'bom'
+    comment: 'Bill of Materials'
+    type: bom
+    dir: .
+    options:
+      csv:
+        hide_pcb_info: true
+        hide_stats_info: true
+      format: CSV
+
+  - name: 'html_bom'
+    comment: 'HTML BOM'
+    type: bom
+    dir: .
+    options:
+      html:
+        datasheet_as_link: Datasheet
+        digikey_link: Digikey
+        title: 'Index MOBO Bill of Materials'
+
+  - name: 'print_sch'
+    comment: "Print schematic (PDF)"
+    type: pdf_sch_print
+    dir: .
+    options:
+      output: Schematic.pdf
