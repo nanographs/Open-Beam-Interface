@@ -1,3 +1,4 @@
+name: Export KiCad
 on: 
     push:
         paths:
@@ -17,14 +18,14 @@ jobs:
       # optional - prefix to output defined in config
         dir: kicad_export
       # optional - schematic file
-        schema: "Hardware/PCBs/Open Beam Interface/Open Beam Interface.sch"
+        schema: '"Hardware/PCBs/Open Beam Interface/Open Beam Interface.sch"'
       # optional - PCB design file
-        board: "Hardware/PCBs/Open Beam Interface/Open Beam Interface.kicad_pcb"
+        board: '"Hardware/PCBs/Open Beam Interface/Open Beam Interface.kicad_pcb"'
       # optional - verbose output info
         verbose: 0
     - name: upload results
       uses: actions/upload-artifact@v2
       with:
         name: obi_export
-        path: hardware/pcbs/open beam interface/
+        path: '"Hardware/PCBs/Open Beam Interface/"'
         
