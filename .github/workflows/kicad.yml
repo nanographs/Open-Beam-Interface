@@ -13,7 +13,7 @@ jobs:
         uses: sparkengineering/kicad-action@v1
         if: '!cancelled()'
         with:
-          kicad_sch: "Hardware/PCBs/Open-Beam-Interface/Open Beam Interface.kicad_sch"
+          kicad_sch: "/Hardware/PCBs/Open Beam Interface/Open Beam Interface.kicad_sch"
           sch_pdf: true # Generate PDF
           sch_bom: true # Generate BOM
           kicad_pcb: my-project.kicad_pcb
