@@ -9436,12 +9436,6 @@
 		(uuid "0d26d089-1aa8-495b-8c90-494bb1571c52")
 	)
 	(junction
-		(at 552.45 20.32)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "0d2b40ff-9c74-4632-8b2e-117cae0f200e")
-	)
-	(junction
 		(at 337.82 292.1)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -9904,12 +9898,6 @@
 		(uuid "4090596c-1e22-481f-99d4-cefc17f0555d")
 	)
 	(junction
-		(at 347.98 285.75)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "41362ef1-9dba-4075-9f0b-fdb1568ab124")
-	)
-	(junction
 		(at 63.5 270.51)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -10148,12 +10136,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "61e98022-c4e5-41d8-a470-76311f62fb09")
-	)
-	(junction
-		(at 495.3 27.94)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "62a42c2e-0208-404d-b667-e809a0af9248")
 	)
 	(junction
 		(at 350.52 386.08)
@@ -10876,12 +10858,6 @@
 		(uuid "c4f09b8f-f8b9-49ec-8609-5a9c2f89a136")
 	)
 	(junction
-		(at 360.68 285.75)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "c51dc73c-3a85-49c2-b466-23aab493cfd2")
-	)
-	(junction
 		(at 252.73 130.81)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -11042,12 +11018,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "d5c312dc-b3e5-41dc-9a58-3d7632f07e40")
-	)
-	(junction
-		(at 67.31 78.74)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "d603013e-09a9-4ae7-94d6-fe031eebe264")
 	)
 	(junction
 		(at 170.18 48.26)
@@ -11224,12 +11194,6 @@
 		(uuid "e9949f35-3b63-4625-8f74-7da4a515a26d")
 	)
 	(junction
-		(at 495.3 20.32)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "eb0508ef-069e-48a8-b76b-0b20a44c0bc2")
-	)
-	(junction
 		(at 81.28 361.95)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -11318,12 +11282,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "f79b38ba-a855-4bbf-b5a0-13f35a411441")
-	)
-	(junction
-		(at 552.45 27.94)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "f9b93948-bacb-448c-850a-61a721791fef")
 	)
 	(junction
 		(at 467.36 208.28)
@@ -14500,16 +14458,6 @@
 	)
 	(wire
 		(pts
-			(xy 347.98 279.4) (xy 347.98 285.75)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "1ce48bdf-b3d6-4a33-b67c-c1e73b6615a8")
-	)
-	(wire
-		(pts
 			(xy 327.66 383.54) (xy 327.66 386.08)
 		)
 		(stroke
@@ -15499,16 +15447,6 @@
 			(type default)
 		)
 		(uuid "2eea17e8-d300-4da8-8351-3c8bc6375101")
-	)
-	(wire
-		(pts
-			(xy 58.42 78.74) (xy 67.31 78.74)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "2f054d12-b9a8-4670-82f7-5d59a54ffcaa")
 	)
 	(wire
 		(pts
@@ -17559,7 +17497,7 @@
 	)
 	(wire
 		(pts
-			(xy 63.5 85.09) (xy 60.96 85.09)
+			(xy 63.5 87.63) (xy 60.96 87.63)
 		)
 		(stroke
 			(width 0)
@@ -17817,16 +17755,6 @@
 			(type default)
 		)
 		(uuid "587d7b53-f83e-4616-91f5-b3a4c41e82f0")
-	)
-	(wire
-		(pts
-			(xy 360.68 279.4) (xy 360.68 285.75)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "58bf6659-d3a5-4a05-8155-8705406f9441")
 	)
 	(wire
 		(pts
@@ -18761,16 +18689,6 @@
 	)
 	(wire
 		(pts
-			(xy 57.15 144.78) (xy 67.31 144.78)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "67260c9d-3a4e-417b-870c-656e192d21a0")
-	)
-	(wire
-		(pts
 			(xy 196.85 22.86) (xy 200.66 22.86)
 		)
 		(stroke
@@ -19611,16 +19529,6 @@
 			(type default)
 		)
 		(uuid "7a1b9d95-665d-40a0-b259-0c5fdcb737f6")
-	)
-	(wire
-		(pts
-			(xy 552.45 27.94) (xy 565.15 27.94)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "7a39dfdc-5435-4f93-844a-bc6dd904aa8d")
 	)
 	(wire
 		(pts
@@ -21684,7 +21592,7 @@
 	)
 	(wire
 		(pts
-			(xy 71.12 85.09) (xy 74.93 85.09)
+			(xy 71.12 87.63) (xy 74.93 87.63)
 		)
 		(stroke
 			(width 0)
@@ -22678,7 +22586,7 @@
 	)
 	(wire
 		(pts
-			(xy 50.8 85.09) (xy 53.34 85.09)
+			(xy 50.8 87.63) (xy 53.34 87.63)
 		)
 		(stroke
 			(width 0)
@@ -22838,16 +22746,6 @@
 	)
 	(wire
 		(pts
-			(xy 552.45 20.32) (xy 565.15 20.32)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b75f8834-0a4c-4da4-8ccc-988b698c1a49")
-	)
-	(wire
-		(pts
 			(xy 377.19 201.93) (xy 382.27 201.93)
 		)
 		(stroke
@@ -22986,16 +22884,6 @@
 			(type default)
 		)
 		(uuid "b9c2c14f-4781-4771-a7c5-7f862a1f0a86")
-	)
-	(wire
-		(pts
-			(xy 495.3 27.94) (xy 506.73 27.94)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "ba833b30-cd22-4023-a0aa-064b47339438")
 	)
 	(wire
 		(pts
@@ -25350,16 +25238,6 @@
 		)
 		(uuid "e2d1daae-aff9-41d6-adbe-75d5f8ca6518")
 	)
-	(wire
-		(pts
-			(xy 360.68 279.4) (xy 358.14 279.4)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "e2d7ba9a-be53-4b4c-bc6c-ffb1d1c640ff")
-	)
 	(bus
 		(pts
 			(xy 245.11 321.31) (xy 245.11 323.85)
@@ -25823,16 +25701,6 @@
 	)
 	(wire
 		(pts
-			(xy 495.3 20.32) (xy 506.73 20.32)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "eadcf76c-33a6-41f9-b48e-a88594701851")
-	)
-	(wire
-		(pts
 			(xy 394.97 190.5) (xy 394.97 201.93)
 		)
 		(stroke
@@ -25913,7 +25781,7 @@
 	)
 	(wire
 		(pts
-			(xy 50.8 71.12) (xy 50.8 85.09)
+			(xy 50.8 71.12) (xy 50.8 87.63)
 		)
 		(stroke
 			(width 0)
@@ -26230,16 +26098,6 @@
 			(type default)
 		)
 		(uuid "f259ff40-162a-4cfc-8990-c12da03c1be1")
-	)
-	(wire
-		(pts
-			(xy 347.98 279.4) (xy 350.52 279.4)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "f2684886-c9c3-41c5-b444-20b8dbbb4301")
 	)
 	(wire
 		(pts
@@ -34622,7 +34480,7 @@
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 67.31 85.09 90)
+		(at 67.31 87.63 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -34631,7 +34489,7 @@
 		(fields_autoplaced yes)
 		(uuid "1e38b72c-15aa-40ec-bd01-e01b38e64674")
 		(property "Reference" "R3"
-			(at 67.31 79.9297 90)
+			(at 67.31 82.4697 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -34639,7 +34497,7 @@
 			)
 		)
 		(property "Value" "3.3K"
-			(at 67.31 82.3539 90)
+			(at 67.31 84.8939 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -34647,7 +34505,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
-			(at 67.31 86.868 90)
+			(at 67.31 89.408 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -34656,7 +34514,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 67.31 85.09 0)
+			(at 67.31 87.63 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -34665,7 +34523,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 67.31 85.09 0)
+			(at 67.31 87.63 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -34674,7 +34532,7 @@
 			)
 		)
 		(property "Order Link" "Assortment"
-			(at 67.31 85.09 0)
+			(at 67.31 87.63 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -34683,7 +34541,7 @@
 			)
 		)
 		(property "DK Part Number" ""
-			(at 67.31 85.09 0)
+			(at 67.31 87.63 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -34692,7 +34550,7 @@
 			)
 		)
 		(property "Is Good" "y"
-			(at 67.31 85.09 0)
+			(at 67.31 87.63 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -34733,7 +34591,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "1.5K"
+		(property "Value" "750"
 			(at 58.42 307.975 90)
 			(effects
 				(font
@@ -38247,7 +38105,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "90.9K"
+		(property "Value" "82.5k"
 			(at 83.82 299.72 90)
 			(effects
 				(font
@@ -52803,7 +52661,7 @@
 	)
 	(symbol
 		(lib_id "Device:LED")
-		(at 57.15 85.09 180)
+		(at 57.15 87.63 180)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -52811,7 +52669,7 @@
 		(dnp no)
 		(uuid "7b01d29b-338c-4ebe-b466-cdb2e94e3162")
 		(property "Reference" "D2"
-			(at 57.15 82.55 0)
+			(at 57.15 85.09 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -52819,7 +52677,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 60.96 81.28 0)
+			(at 60.96 83.82 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -52827,7 +52685,7 @@
 			)
 		)
 		(property "Footprint" "LED_SMD:LED_0603_1608Metric"
-			(at 57.15 85.09 0)
+			(at 57.15 87.63 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -52836,7 +52694,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 57.15 85.09 0)
+			(at 57.15 87.63 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -52845,7 +52703,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 57.15 85.09 0)
+			(at 57.15 87.63 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -52854,7 +52712,7 @@
 			)
 		)
 		(property "Order Link" "https://www.digikey.com/en/products/detail/qt-brightek-qtb/QBLP601D-O/13278855"
-			(at 57.15 85.09 0)
+			(at 57.15 87.63 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -52863,7 +52721,7 @@
 			)
 		)
 		(property "DK Part Number" "1516-QBLP601D-OCT-ND"
-			(at 57.15 85.09 0)
+			(at 57.15 87.63 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -52872,7 +52730,7 @@
 			)
 		)
 		(property "Is Good" "Y"
-			(at 57.15 85.09 0)
+			(at 57.15 87.63 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -54426,7 +54284,7 @@
 	)
 	(symbol
 		(lib_id "power:GNDA")
-		(at 74.93 85.09 90)
+		(at 74.93 87.63 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -54435,7 +54293,7 @@
 		(fields_autoplaced yes)
 		(uuid "824f9824-51ab-4eeb-a991-4125c410d1cb")
 		(property "Reference" "#PWR017"
-			(at 81.28 85.09 0)
+			(at 81.28 87.63 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -54444,7 +54302,7 @@
 			)
 		)
 		(property "Value" "GNDA"
-			(at 78.105 85.4068 90)
+			(at 78.105 87.9468 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -54454,7 +54312,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 74.93 85.09 0)
+			(at 74.93 87.63 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -54463,7 +54321,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 74.93 85.09 0)
+			(at 74.93 87.63 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -54472,7 +54330,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 74.93 85.09 0)
+			(at 74.93 87.63 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -58631,7 +58489,7 @@
 				)
 			)
 		)
-		(property "Value" "68.1"
+		(property "Value" "3.3k"
 			(at 71.12 184.15 90)
 			(effects
 				(font
@@ -59790,7 +59648,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "10k"
+		(property "Value" "5k"
 			(at 63.5 266.065 90)
 			(effects
 				(font
@@ -62325,7 +62183,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "90.9K"
+		(property "Value" "82.5k"
 			(at 83.82 226.06 90)
 			(effects
 				(font
@@ -67030,7 +66888,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "10k"
+		(property "Value" "5k"
 			(at 63.5 192.405 90)
 			(effects
 				(font
@@ -71892,7 +71750,7 @@
 				)
 			)
 		)
-		(property "Value" "68.1"
+		(property "Value" "3.3k"
 			(at 71.12 257.81 90)
 			(effects
 				(font
