@@ -1,10 +1,12 @@
-on: [push]
-    # paths:
-    # - '**.sch'
-    # - '**.kicad_pcb'
-
+on: 
+    push:
+        paths:
+        - '**.sch'
+        - '**.kicad_pcb'
+        - '.github/**.yml' # Trigger on changes to the workflow file
+        - '**.kibot.yml' # Trigger on changes to the KiBot config file used in the workflow
 jobs:
-  example:
+  obi:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -13,16 +15,16 @@ jobs:
       # Required - kibot config file
         config: kibot/kibot.yaml
       # optional - prefix to output defined in config
-        dir: docs
+        dir: kicad_export
       # optional - schematic file
-        schema: '*.sch'
+        schema: 'hardware/pcbs/open beam interface/open beam interface.sch'
       # optional - PCB design file
-        board: '*.kicad_pcb'
+        board: 'hardware/pcbs/open beam interface/open beam interface.kicad_pcb'
       # optional - verbose output info
         verbose: 0
     - name: upload results
       uses: actions/upload-artifact@v2
       with:
-        name: kicad_export
-        path: kicad_export
+        name: obi_export
+        path: hardware/pcbs/open beam interface/
         
