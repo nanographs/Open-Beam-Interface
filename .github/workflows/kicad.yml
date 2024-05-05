@@ -1,8 +1,7 @@
-on:
-  push:
-    paths:
-    - '**.sch'
-    - '**.kicad_pcb'
+on: [push]
+    # paths:
+    # - '**.sch'
+    # - '**.kicad_pcb'
 
 jobs:
   example:
