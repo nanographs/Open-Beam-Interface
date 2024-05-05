@@ -642,10 +642,10 @@
           "show": false
         },
         {
-          "group_by": false,
+          "group_by": true,
           "label": "DK Part Number",
           "name": "DK Part Number",
-          "show": false
+          "show": true
         },
         {
           "group_by": false,

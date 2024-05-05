@@ -3464,7 +3464,7 @@
 		(descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
 		(tags "resistor")
 		(property "Reference" "R100"
-			(at 0 -1.43 270)
+			(at 0 -1.43 -90)
 			(layer "F.SilkS")
 			(hide yes)
 			(uuid "55617206-514f-4005-b4e7-f522c4e36d1e")
@@ -3476,7 +3476,7 @@
 			)
 		)
 		(property "Value" "10k"
-			(at 0 1.43 270)
+			(at 0 1.43 -90)
 			(layer "F.Fab")
 			(uuid "80946762-a285-4121-844a-4e346c4b9c86")
 			(effects
@@ -3654,7 +3654,7 @@
 			(uuid "a5549974-0de7-41c8-ae15-b3f1017d42cd")
 		)
 		(fp_text user "${REFERENCE}"
-			(at 0 0 270)
+			(at 0 0 -90)
 			(layer "F.Fab")
 			(uuid "b37c3a7e-ee00-4ba2-8cf5-aca95813ef04")
 			(effects
@@ -34184,7 +34184,7 @@
 			)
 		)
 		(property "DK Part Number" ""
-			(at 0 0 270)
+			(at 0 0 -90)
 			(layer "F.Fab")
 			(hide yes)
 			(uuid "31ed90db-3f97-402f-b255-38d62a17e32c")
@@ -34196,7 +34196,7 @@
 			)
 		)
 		(property "Is Good" "Y"
-			(at 0 0 270)
+			(at 0 0 -90)
 			(layer "F.Fab")
 			(hide yes)
 			(uuid "9aa32f49-5a86-4cdb-8695-8636c9cd639b")
@@ -34208,7 +34208,7 @@
 			)
 		)
 		(property "Order Link" "NA"
-			(at 0 0 270)
+			(at 0 0 -90)
 			(layer "F.Fab")
 			(hide yes)
 			(uuid "f6acc2a5-456e-47cd-93ea-ee42ed3a32e6")
@@ -49812,7 +49812,7 @@
 		(descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
 		(tags "resistor")
 		(property "Reference" "R99"
-			(at 0 -1.43 270)
+			(at 0 -1.43 -90)
 			(layer "F.SilkS")
 			(hide yes)
 			(uuid "f3340340-932d-4ff9-bf8e-26b615681bd1")
@@ -49824,7 +49824,7 @@
 			)
 		)
 		(property "Value" "10k"
-			(at 0 1.43 270)
+			(at 0 1.43 -90)
 			(layer "F.Fab")
 			(uuid "923c4983-691e-45e6-8ce5-36b0c6254e02")
 			(effects
@@ -50002,7 +50002,7 @@
 			(uuid "ac4f0503-e566-415a-b3ea-922f41fac026")
 		)
 		(fp_text user "${REFERENCE}"
-			(at 0 0 270)
+			(at 0 0 -90)
 			(layer "F.Fab")
 			(uuid "7c26efee-a48c-4316-8a24-a62513082dd2")
 			(effects
@@ -53988,7 +53988,7 @@
 			)
 		)
 		(property "DK Part Number" ""
-			(at 0 0 270)
+			(at 0 0 -90)
 			(layer "F.Fab")
 			(hide yes)
 			(uuid "2d04273e-03de-42f8-b5ae-6c2b907c9a59")
@@ -54000,7 +54000,7 @@
 			)
 		)
 		(property "Is Good" "Y"
-			(at 0 0 270)
+			(at 0 0 -90)
 			(layer "F.Fab")
 			(hide yes)
 			(uuid "3ad44208-e909-4908-9761-b893d918bbd8")
@@ -54012,7 +54012,7 @@
 			)
 		)
 		(property "Order Link" "NA"
-			(at 0 0 270)
+			(at 0 0 -90)
 			(layer "F.Fab")
 			(hide yes)
 			(uuid "6efdbb50-fc84-414e-a4f7-e5b0d7a21622")
@@ -82249,7 +82249,7 @@
 			)
 		)
 		(property "DK Part Number" ""
-			(at 0 0 270)
+			(at 0 0 -90)
 			(layer "F.Fab")
 			(hide yes)
 			(uuid "26bef4ca-e2d7-4b33-92dd-b0d8bd0a41ad")
@@ -82261,7 +82261,7 @@
 			)
 		)
 		(property "Is Good" "Y"
-			(at 0 0 270)
+			(at 0 0 -90)
 			(layer "F.Fab")
 			(hide yes)
 			(uuid "8d355d62-7d1d-41c8-977b-bcfc918f49cd")
@@ -82273,7 +82273,7 @@
 			)
 		)
 		(property "Order Link" "NA"
-			(at 0 0 270)
+			(at 0 0 -90)
 			(layer "F.Fab")
 			(hide yes)
 			(uuid "853c4df8-b0ff-4d1d-9831-82e03dbea5e8")
@@ -127584,9 +127584,9 @@
 			(pts
 				(xy 150.81 55.3) (xy 151.06 55.05) (xy 153.46 55.05) (xy 153.71 55.3) (xy 153.71 56.1) (xy 154.06 56.45)
 				(xy 154.81 56.45) (xy 155.16 56.1) (xy 155.16 55.3) (xy 155.41 55.05) (xy 160.26 55.05) (xy 160.51 55.3)
-				(xy 160.51 56.9) (xy 160.16 57.25) (xy 155.51 57.25) (xy 155.21 57.55) (xy 155.21 59.65) (xy 155.21 59.65)
-				(xy 155.21 60.75) (xy 154.71 61.25) (xy 153.11 61.25) (xy 152.96 61.1) (xy 152.96 59.8) (xy 153.56 59.2)
-				(xy 153.56 58.3) (xy 153.21 57.95) (xy 151.082166 57.95) (xy 150.81 57.678865)
+				(xy 160.51 56.9) (xy 160.16 57.25) (xy 155.51 57.25) (xy 155.21 57.55) (xy 155.21 59.65) (xy 155.21 60.75)
+				(xy 154.71 61.25) (xy 153.11 61.25) (xy 152.96 61.1) (xy 152.96 59.8) (xy 153.56 59.2) (xy 153.56 58.3)
+				(xy 153.21 57.95) (xy 151.082166 57.95) (xy 150.81 57.678865)
 			)
 		)
 		(filled_polygon
