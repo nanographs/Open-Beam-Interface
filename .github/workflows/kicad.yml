@@ -17,9 +17,9 @@ jobs:
       # optional - prefix to output defined in config
         dir: kicad_export
       # optional - schematic file
-        schema: 'hardware/pcbs/open beam interface/open beam interface.sch'
+        schema: "Hardware/PCBs/Open Beam Interface/Open Beam Interface.sch"
       # optional - PCB design file
-        board: 'hardware/pcbs/open beam interface/open beam interface.kicad_pcb'
+        board: "Hardware/PCBs/Open Beam Interface/Open Beam Interface.kicad_pcb"
       # optional - verbose output info
         verbose: 0
     - name: upload results
