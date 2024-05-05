@@ -1,30 +1,28 @@
-on: [push]
+on:
+  push:
+    paths:
+    - '**.sch'
+    - '**.kicad_pcb'
 
 jobs:
-  kicad_job:
+  example:
     runs-on: ubuntu-latest
-    name: My KiCad job
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Export production files
-        id: production
-        uses: sparkengineering/kicad-action@v1
-        if: '!cancelled()'
-        with:
-          kicad_sch: "/Hardware/PCBs/Open Beam Interface/Open Beam Interface.kicad_sch"
-          sch_pdf: true # Generate PDF
-          sch_bom: true # Generate BOM
-          kicad_pcb: my-project.kicad_pcb
-          pcb_gerbers: false # don't generate Gerbers
-
-      # Upload production files only if generation succeeded
-      - name: Upload production files
-        uses: actions/upload-artifact@v4
-        if: ${{ steps.production.conclusion == 'success' }}
-        with:
-          name: Production files
-          path: |
-            ${{ github.workspace }}/sch.pdf
-            ${{ github.workspace }}/bom.csv
+    - uses: actions/checkout@v2
+    - uses: nerdyscout/kicad-exports@v2.3.1
+      with:
+      # Required - kibot config file
+        config: kibot/kibot.yaml
+      # optional - prefix to output defined in config
+        dir: docs
+      # optional - schematic file
+        schema: '*.sch'
+      # optional - PCB design file
+        board: '*.kicad_pcb'
+      # optional - verbose output info
+        verbose: 0
+    - name: upload results
+      uses: actions/upload-artifact@v2
+      with:
+        name: kicad_export
+        path: kicad_export
