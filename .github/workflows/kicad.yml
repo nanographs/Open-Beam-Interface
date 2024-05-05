@@ -1,0 +1,30 @@
+on: [push]
+
+jobs:
+  kicad_job:
+    runs-on: ubuntu-latest
+    name: My KiCad job
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Export production files
+        id: production
+        uses: sparkengineering/kicad-action@v1
+        if: '!cancelled()'
+        with:
+          kicad_sch: "Hardware/PCBs/Open-Beam-Interface/Open Beam Interface.kicad_sch
+          sch_pdf: true # Generate PDF
+          sch_bom: true # Generate BOM
+          kicad_pcb: my-project.kicad_pcb
+          pcb_gerbers: false # don't generate Gerbers
+
+      # Upload production files only if generation succeeded
+      - name: Upload production files
+        uses: actions/upload-artifact@v4
+        if: ${{ steps.production.conclusion == 'success' }}
+        with:
+          name: Production files
+          path: |
+            ${{ github.workspace }}/sch.pdf
+            ${{ github.workspace }}/bom.csv
