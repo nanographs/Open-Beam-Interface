@@ -28,9 +28,9 @@ jobs:
       # optional - prefix to output defined in config
         dir: kicad_export
       # optional - schematic file
-        schema: ${OBI_PATH}.sch
+        schema: "${OBI_PATH}.sch"
       # optional - PCB design file
-        board: ${OBI_PATH}.kicad_pcb
+        board: "${OBI_PATH}.kicad_pcb"
       # optional - verbose output info
         verbose: 0
     - name: upload results
