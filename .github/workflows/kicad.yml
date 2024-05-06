@@ -6,11 +6,19 @@ on:
         - '**.kicad_pcb'
         - '.github/**.yml' # Trigger on changes to the workflow file
         - '**.kibot.yml' # Trigger on changes to the KiBot config file used in the workflow
+
+# To allow for manual triggering from the Action console, add workflow_dispatch
+    workflow_dispatch:
+        inputs:
+          name:
+            description: 'Kicad export'
+            required: false
+            default: 'Manual test run'
 jobs:
   obi:
     runs-on: ubuntu-latest
     env:
-        OBI_PATH = '"Hardware/PCBs/Open Beam Interface/Open Beam Interface"'
+        OBI_PATH: '"Hardware/PCBs/Open Beam Interface/Open Beam Interface"'
     steps:
     - uses: actions/checkout@v2
     - uses: nerdyscout/kicad-exports@v2.3.1
