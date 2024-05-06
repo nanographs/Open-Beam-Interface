@@ -247,7 +247,7 @@ class OBIAppletTestCase(unittest.TestCase):
         
         def test_delay_cmd():
             def put_testbench():
-                yield from put_stream(dut.usb_stream, 3) #Type
+                yield from put_stream(dut.usb_stream, 0x03) #Type
                 yield from put_stream(dut.usb_stream, 123) #Delay
                 yield from put_stream(dut.usb_stream, 234) 
 
@@ -261,28 +261,69 @@ class OBIAppletTestCase(unittest.TestCase):
 
             self.simulate(dut, [get_testbench,put_testbench], name = "cmd_delay")  
         
-        def test_extctrl_cmd():
+        def test_extctrlenable_cmd():
             def put_testbench():
-                yield from put_stream(dut.usb_stream, 4) #Type
-                enable = 1
-                beam_type = 2 #Electron
-                combined = int(beam_type<<1 | enable)
-                yield from put_stream(dut.usb_stream, combined) #Enable, #BeamType
-                yield from put_stream(dut.usb_stream, 1) 
+                yield from put_stream(dut.usb_stream, 0x04) #Type
 
             def get_testbench():
                 yield from get_stream(dut.cmd_stream, {
-                            "type": Command.Type.ExternalCtrl, 
+                            "type": Command.Type.EnableExtCtrl, 
                             "payload": {
                                 "external_ctrl": {
                                     "enable": 1,
-                                    "beam_type": BeamType.Ion
                                 }
                             }})
                 assert (yield dut.cmd_stream.valid) == 0
 
-            self.simulate(dut, [get_testbench,put_testbench], name = "cmd_extctrl")  
+            self.simulate(dut, [get_testbench,put_testbench], name = "cmd_extctrlenable")  
         
+        def test_extctrldisable_cmd():
+            def put_testbench():
+                yield from put_stream(dut.usb_stream, 0x05) #Type
+
+            def get_testbench():
+                yield from get_stream(dut.cmd_stream, {
+                            "type": Command.Type.DisableExtCtrl, 
+                            "payload": {
+                                "external_ctrl": {
+                                    "enable": 0,
+                                }
+                            }})
+                assert (yield dut.cmd_stream.valid) == 0
+
+            self.simulate(dut, [get_testbench,put_testbench], name = "cmd_extctrldisable")  
+        
+        def test_ebeamselect_cmd():
+            def put_testbench():
+                yield from put_stream(dut.usb_stream, 0x06) #Type
+
+            def get_testbench():
+                yield from get_stream(dut.cmd_stream, {
+                            "type": Command.Type.SelectEbeam, 
+                            "payload": {
+                                "beam_type": BeamType.Electron
+                            }})
+                assert (yield dut.cmd_stream.valid) == 0
+
+            self.simulate(dut, [get_testbench,put_testbench], name = "cmd_blank")  
+        
+        def test_blank_cmd():
+            def put_testbench():
+                yield from put_stream(dut.usb_stream, 0x09) #Type
+
+            def get_testbench():
+                yield from get_stream(dut.cmd_stream, {
+                            "type": Command.Type.Blank, 
+                            "payload": {
+                                "blank": {
+                                    "enable": 1,
+                                    "inline": 0
+                                }
+                            }})
+                assert (yield dut.cmd_stream.valid) == 0
+
+            self.simulate(dut, [get_testbench,put_testbench], name = "cmd_blank")  
+
         def test_rasterregion_cmd():
             def put_testbench():
                 cmd = struct.pack('>BHHHHHH', 0x10, 5, 2, 0x2_00, 9, 1, 0x5_00)
@@ -388,7 +429,10 @@ class OBIAppletTestCase(unittest.TestCase):
 
         test_synchronize_cmd()
         test_delay_cmd()
-        test_extctrl_cmd()
+        test_extctrlenable_cmd()
+        test_extctrldisable_cmd()
+        test_ebeamselect_cmd()
+        test_blank_cmd()
         test_rasterregion_cmd()
         test_rasterpixel_cmd()
         test_rasterpixelrun_cmd()
@@ -585,40 +629,105 @@ class OBIAppletTestCase(unittest.TestCase):
 
         
         class TestExtCtrlCommand(TestCommand):
-            def __init__(self, enable, beam_type):
+            def __init__(self, enable: bool):
                 self._enable = enable
+            
+            @property
+            def _command(self):
+                if self._enable:
+                    return {"type": Command.Type.EnableExtCtrl,
+                            "payload": {
+                                "external_ctrl": {
+                                    "enable": 1,
+                                    }
+                                }
+                            }
+                if not self._enable:
+                    return {"type": Command.Type.DisableExtCtrl,
+                            "payload": {
+                                "external_ctrl": {
+                                    "enable": 0,
+                                    }
+                                }
+                            }
+                    
+            @property
+            def _response(self):
+                return []
+        
+        class TestBeamSelectCommand(TestCommand):
+            def __init__(self, beam_type: BeamType):
                 self._beam_type = beam_type
             
             @property
             def _command(self):
-                return {"type": Command.Type.ExternalCtrl,
-                        "payload": {
-                            "external_ctrl": {
-                                "enable": self._enable,
-                                "beam_type": self._beam_type
+                if self._beam_type == BeamType.Electron:
+                    return {"type": Command.Type.SelectEbeam,
+                            "payload": {
+                                "beam_type": BeamType.Electron
                                 }
                             }
-                        }
+                elif self._beam_type == BeamType.Ion:
+                    return {"type": Command.Type.SelectIbeam,
+                            "payload": {
+                                "beam_type": BeamType.Ion
+                                }
+                            }
+                else:
+                    return {"type": Command.Type.SelectNoBeam,
+                            "payload": {
+                                "beam_type": BeamType.NoBeam
+                                }
+                            }
+
                     
             @property
             def _response(self):
                 return []
         
         class TestBlankCommand(TestCommand):
-            def __init__(self, enable, asynced):
+            def __init__(self, enable:bool, inline:bool):
                 self._enable = enable
-                self._asynced = asynced
+                self._inline = inline
             
             @property
             def _command(self):
-                return {"type": Command.Type.ExternalCtrl,
-                        "payload": {
-                            "blank": {
-                                "enable": self._enable,
-                                "asynced": self._asynced
+                if self._enable & ~self._inline:
+                    return {"type": Command.Type.Blank,
+                            "payload": {
+                                "blank": {
+                                    "enable": 1,
+                                    "inline": 0
+                                    }
                                 }
                             }
-                        }
+                if self._enable & self._inline:
+                    return {"type": Command.Type.BlankInline,
+                            "payload": {
+                                "blank": {
+                                    "enable": 1,
+                                    "inline": 1
+                                    }
+                                }
+                            }
+                if ~self._enable & ~self._inline:
+                    return {"type": Command.Type.Unblank,
+                            "payload": {
+                                "blank": {
+                                    "enable": 0,
+                                    "inline": 0
+                                    }
+                                }
+                            }
+                if ~self._enable & self._inline:
+                    return {"type": Command.Type.UnblankInline,
+                            "payload": {
+                                "blank": {
+                                    "enable": 0,
+                                    "inline": 1
+                                    }
+                                }
+                            }
                     
             @property
             def _response(self):
@@ -740,7 +849,8 @@ class OBIAppletTestCase(unittest.TestCase):
         
         def test_exec_2():
             test_seq = TestCommandSequence()
-            test_seq.add(TestExtCtrlCommand(1, BeamType.Electron))
+            test_seq.add(TestExtCtrlCommand(enable=True))
+            test_seq.add(TestBeamSelectCommand(beam_type=BeamType.Electron))
             test_seq.add(TestDelayCommand(960))
             test_seq.add(TestSyncCommand(505, 1), timeout_steps = 1000*BUS_CYCLES)
             test_seq.add(TestRasterRegionCommand(5, 3, 0x2_00, 9, 2, 0x5_00))
@@ -752,14 +862,16 @@ class OBIAppletTestCase(unittest.TestCase):
             test_seq = TestCommandSequence()
             test_seq.add(TestSyncCommand(502, 1))
             test_seq.add(TestSyncCommand(505, 1))
-            test_seq.add(TestExtCtrlCommand(1, BeamType.Electron))
+            test_seq.add(TestExtCtrlCommand(enable=True))
+            test_seq.add(TestBeamSelectCommand(beam_type=BeamType.Electron))
             test_seq.add(TestDelayCommand(960))
             test_seq.add(TestRasterRegionCommand(5, 3, 0x2_00, 9, 2, 0x5_00), timeout_steps=960*BUS_CYCLES)
             test_seq.add(TestRasterPixelFreeRunCommand(1, test_samples=20), timeout_steps = 960*BUS_CYCLES)
             test_seq.add(TestSyncCommand(502, 1))
             test_seq.add(TestRasterRegionCommand(5, 3, 0x2_00, 9, 2, 0x5_00), timeout_steps=960*BUS_CYCLES)
             test_seq.add(TestRasterPixelFreeRunCommand(1, test_samples=20), timeout_steps = 960*BUS_CYCLES)
-            test_seq.add(TestExtCtrlCommand(1, BeamType.Electron))
+            test_seq.add(TestExtCtrlCommand(enable=True))
+            test_seq.add(TestBeamSelectCommand(beam_type=BeamType.Electron))
             test_seq.add(TestDelayCommand(960))
             test_seq.add(TestSyncCommand(502, 1), timeout_steps = 960*BUS_CYCLES)
 
@@ -788,7 +900,8 @@ class OBIAppletTestCase(unittest.TestCase):
         
         def test_exec_6():
             test_seq = TestCommandSequence()
-            test_seq.add(TestExtCtrlCommand(1, BeamType.Ion))
+            test_seq.add(TestExtCtrlCommand(enable=True))
+            test_seq.add(TestBeamSelectCommand(beam_type=BeamType.Ion))
             test_seq.add(TestVectorPixelCommand(1, 1, 1))
             self.simulate(test_seq.dut, [test_seq._put_testbench, test_seq._get_testbench], name="exec_6")
 
@@ -875,7 +988,8 @@ class OBIAppletTestCase(unittest.TestCase):
                 await iface.write(SynchronizeCommand(cookie=4, output=2, raster=0).message)
                 #await iface.write(struct.pack(">BB",0x05, combined)) ## blank
                 await iface.write(BlankCommand().message)
-                await iface.write(ExternalCtrlCommand(enable=1, beam_type=2).message)
+                await iface.write(ExternalCtrlCommand(enable=True).message)
+                await iface.write(SelectIbeamCommand().message)
                 await iface.write(DelayCommand(delay=10).message)
                 await iface.write(UnblankInlineCommand().message)
                 for n in range(1,3):

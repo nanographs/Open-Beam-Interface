@@ -442,11 +442,15 @@ class Command(data.Struct):
         Abort               = 0x01
         Flush               = 0x02
         Delay               = 0x03
-        ExternalCtrl        = 0x04
-        Blank               = 0x05
-        BlankInline         = 0x06
-        Unblank             = 0x07
-        UnblankInline       = 0x08
+        EnableExtCtrl       = 0x04
+        DisableExtCtrl      = 0x05
+        SelectEbeam         = 0x06
+        SelectIbeam         = 0x07
+        SelectNoBeam        = 0x08
+        Blank               = 0x09
+        BlankInline         = 0x0a
+        Unblank             = 0x0b
+        UnblankInline       = 0x0d
 
         RasterRegion        = 0x10
         RasterPixel         = 0x11
@@ -468,8 +472,8 @@ class Command(data.Struct):
         "delay": DwellTime,
         "external_ctrl":       data.StructLayout({
             "enable": 1,
-            "beam_type": BeamType,
         }),
+        "beam_type": BeamType,
         "blank":       data.StructLayout({
             "enable": 1,
             "inline": 1,
@@ -516,9 +520,26 @@ class CommandParser(wiring.Component):
                         with m.Case(Command.Type.Delay):
                             m.next = "Payload_Delay_High"
 
-                        with m.Case(Command.Type.ExternalCtrl):
-                            m.next = "Payload_ExternalCtrl"
+                        with m.Case(Command.Type.EnableExtCtrl):
+                            m.d.sync += command.payload.external_ctrl.enable.eq(1)
+                            m.next = "Submit"
                         
+                        with m.Case(Command.Type.DisableExtCtrl):
+                            m.d.sync += command.payload.external_ctrl.enable.eq(0)
+                            m.next = "Submit"
+                        
+                        with m.Case(Command.Type.SelectNoBeam):
+                            m.d.sync += command.payload.beam_type.eq(BeamType.NoBeam)
+                            m.next = "Submit"
+                        
+                        with m.Case(Command.Type.SelectEbeam):
+                            m.d.sync += command.payload.beam_type.eq(BeamType.Electron)
+                            m.next = "Submit"
+                        
+                        with m.Case(Command.Type.SelectIbeam):
+                            m.d.sync += command.payload.beam_type.eq(BeamType.Ion)
+                            m.next = "Submit"
+
                         with m.Case(Command.Type.Blank):
                             m.d.sync += command.payload.blank.enable.eq(1)
                             m.d.sync += command.payload.blank.inline.eq(0)
@@ -581,8 +602,8 @@ class CommandParser(wiring.Component):
             DeserializeWord(command.payload.delay,
                 "Payload_Delay", "Submit")
 
-            Deserialize(command.payload.external_ctrl,
-                "Payload_ExternalCtrl", "Submit")
+            # Deserialize(command.payload.external_ctrl,
+            #     "Payload_ExternalCtrl", "Submit")
             
             # Deserialize(command.payload.blank,
             #     "Payload_Blank", "Submit")
@@ -768,11 +789,17 @@ class CommandExecutor(wiring.Component):
                         with m.Else():
                             m.d.sync += delay_counter.eq(delay_counter + 1)
 
-                    with m.Case(Command.Type.ExternalCtrl):
+                    with m.Case(Command.Type.EnableExtCtrl, Command.Type.DisableExtCtrl):
                         #Don't change control in the middle of previously submitted pixels
                         with m.If(self.supersampler.dac_stream.ready):
-                            m.d.sync += self.beam_type.eq(command.payload.external_ctrl.beam_type)
                             m.d.sync += self.ext_ctrl_enable.eq(command.payload.external_ctrl.enable)
+                            m.next = "Fetch"
+                    
+                    with m.Case(Command.Type.SelectEbeam, Command.Type.SelectIbeam,
+                                Command.Type.SelectNoBeam):
+                        #Don't change control in the middle of previously submitted pixels
+                        with m.If(self.supersampler.dac_stream.ready):
+                            m.d.sync += self.beam_type.eq(command.payload.beam_type)
                             m.next = "Fetch"
 
                     with m.Case(Command.Type.Blank, Command.Type.BlankInline,
