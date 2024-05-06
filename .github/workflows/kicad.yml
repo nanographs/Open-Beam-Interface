@@ -24,6 +24,7 @@ jobs:
     - name: Export Kicad files
       run: |
           cd 'Hardware/PCBs/Open Beam Interface'
+          ls
           kibot -c ../../../.github/workflows/kibot/kibot.yaml -e 'Open Beam Interface.kicad_sch' -b 'Open Beam Interface.kicad_pcb' -d 'Open Beam Interface'
     # - name: Upload Artifacts
     #   uses: actions/upload-artifact@v2
