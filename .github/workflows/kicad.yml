@@ -14,22 +14,25 @@ on:
             description: 'Kicad export'
             required: false
             default: 'Manual test run'
+
 jobs:
   obi:
     runs-on: ubuntu-latest
-    container: ghcr.io/inti-cmnb/kicad7_auto:1.6.5
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v2
-    - name: Export Kicad files
-      run: |
-          cd 'Hardware/PCBs/Open Beam Interface'
-          kibot -c ../../../.github/workflows/kibot/kibot.yml -e 'Open Beam Interface.kicad_sch' -b 'Open Beam Interface.kicad_pcb' -d 'Open Beam Interface'
-    # - name: Upload Artifacts
-    #   uses: actions/upload-artifact@v2
-    #   with:
-    #     name: obi
-    #     path: 'Hardware/PCBs/Open Beam Interface/obi'
-    #     if-no-files-found: error
-
+    - uses: actions/checkout@v2
+    - uses: INTI-CMNB/KiBot@v2
+      with:
+        # Required - kibot config file
+        config: .github/workflows/kibot/kibot.yml
+        # optional - prefix to output defined in config
+        dir: output
+        # optional - schematic file
+        schema: 'Hardware/PCBs/Open Beam Interface/Open Beam Interface.kicad_sch'
+        # optional - PCB design file
+        board: 'Hardware/PCBs/Open Beam Interface/Open Beam Interface.kicad_pcb'
+    - name: upload results
+      uses: actions/upload-artifact@v2
+      with:
+        name: output
+        path: output
         
