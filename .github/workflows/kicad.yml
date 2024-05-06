@@ -9,6 +9,8 @@ on:
 jobs:
   obi:
     runs-on: ubuntu-latest
+    env:
+        OBI_PATH = '"Hardware/PCBs/Open Beam Interface/Open Beam Interface"'
     steps:
     - uses: actions/checkout@v2
     - uses: nerdyscout/kicad-exports@v2.3.1
@@ -18,14 +20,14 @@ jobs:
       # optional - prefix to output defined in config
         dir: kicad_export
       # optional - schematic file
-        schema: '"Hardware/PCBs/Open Beam Interface/Open Beam Interface.sch"'
+        schema: ${OBI_PATH}.sch
       # optional - PCB design file
-        board: '"Hardware/PCBs/Open Beam Interface/Open Beam Interface.kicad_pcb"'
+        board: ${OBI_PATH}.kicad_pcb
       # optional - verbose output info
         verbose: 0
     - name: upload results
       uses: actions/upload-artifact@v2
       with:
         name: obi_export
-        path: '"Hardware/PCBs/Open Beam Interface/"'
+        path: ${OBI_PATH}/export
         
