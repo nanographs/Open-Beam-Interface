@@ -895,6 +895,18 @@ class OBIAppletTestCase(unittest.TestCase):
                 # for n in range(1,10):
                 #     await iface.write(VectorPixelCommand(x_coord=2*n, y_coord=2*n, dwell=4).message)
 
+            @applet_simulation_test("setup_test", args=["--pin-ext-ibeam-scan-enable", "0", "--pin-ext-ibeam-scan-enable-2", "1"])
+            async def raster_script_test(self):
+                iface = await self.run_simulated_applet()
+                conn = OBIInterface(iface)
+                sw = StreamWheel(conn)
+                f = StreamingFrameContext(x_pixels=512, y_pixels=512, bit_mode = OutputMode.SixteenBit)
+                f2 = StreamingFrameContext(x_pixels=1024, y_pixels=1024, bit_mode = OutputMode.SixteenBit)
+                sw.request_new_context(f)
+                sw.request_new_context(f2)
+                await sw.turn()
+
+
                 
 
             
@@ -905,6 +917,7 @@ class OBIAppletTestCase(unittest.TestCase):
         test_case.test_raster()
         test_case.test_benchmark()
         test_case.test_vector_blank()
+        # test_case.raster_script_test()
 
         
 

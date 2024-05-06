@@ -27,7 +27,6 @@ class TransferError(Exception):
 
 class Stream:
     _logger = logger.getChild("Stream")
-    high_water = 262144 #65536
 
     def __init__(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
         self._reader = reader
