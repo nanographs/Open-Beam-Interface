@@ -17,23 +17,20 @@ on:
 jobs:
   obi:
     runs-on: ubuntu-latest
+    container: ghcr.io/inti-cmnb/kicad8_auto:1.6.4
     steps:
-    - uses: actions/checkout@v2
-    - uses: nerdyscout/kicad-exports@v2.3.1
-      with:
-      # Required - kibot config file
-        config: kibot/kibot.yaml
-      # optional - prefix to output defined in config
-        dir: kicad_export
-      # optional - schematic file
-        schema: "''Hardware/PCBs/Open\ Beam\ Interface/Open\ Beam\ Interface.sch''"
-      # optional - PCB design file
-        board: "''Hardware/PCBs/Open\ Beam\ Interface/Open\ Beam\ Interface.kicad_pcb''"
-      # optional - verbose output info
-        verbose: 0
-    - name: upload results
-      uses: actions/upload-artifact@v2
-      with:
-        name: obi_export
-        path: ${OBI_PATH}/export
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+    - name: Export Kicad files
+      run: |
+          cd 'Hardware/PCBs/Open Beam Interface'
+          kibot -c ../../../.github/workflows/kibot/kibot.yaml -e 'Open Beam Interface.kicad_sch' -b 'Open Beam Interface.kicad_pcb' -d 'Open Beam Interface'
+    # - name: Upload Artifacts
+    #   uses: actions/upload-artifact@v2
+    #   with:
+    #     name: 
+    #     path: 
+    #     if-no-files-found: error
+    #     retention-days: 60
+
         
