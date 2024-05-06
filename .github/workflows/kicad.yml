@@ -34,5 +34,5 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: output
-        path: output
+        path: 'Hardware/PCBs/Open Beam Interface/output'
         
