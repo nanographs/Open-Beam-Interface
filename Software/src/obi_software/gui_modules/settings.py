@@ -1,5 +1,8 @@
 from PyQt6.QtWidgets import (QLabel, QGridLayout, QApplication, QWidget,
                              QSpinBox, QComboBox, QHBoxLayout, QVBoxLayout, QPushButton)
+import qasync
+from qasync import asyncSlot, asyncClose, QApplication, QEventLoop
+from ..stream_interface import BeamType, _BeamSelectCommand, _ExternalCtrlCommand, _BlankCommand
 
 
 class SettingBoxWithDefaults(QGridLayout):
@@ -176,6 +179,60 @@ class ImageSettings(QHBoxLayout):
         d = self.dwell.getval()
         return x, y, d
 
+class BeamSettings(QHBoxLayout):
+    def __init__(self, conn):
+        super().__init__()
+        self.conn = conn
+        self.ext_ctrl_btn = QPushButton("Click to Enable External Ctrl")
+        self.ext_ctrl_btn.setCheckable(True)
+        self.ext_ctrl_btn.clicked.connect(self.toggle_ext_ctrl)
+        self.addWidget(self.ext_ctrl_btn)
+        self.blank_btn = QPushButton("Click to Blank")
+        self.blank_btn.setCheckable(True)
+        self.blank_btn.clicked.connect(self.toggle_blank)
+        self.addWidget(self.blank_btn)
+        self.beam_menu = QComboBox()
+        self.beam_menu.addItems(["No Beam Selected", "Electron", "Ion"])
+        self.beam_menu.currentIndexChanged.connect(self.beam_select)
+        self.addWidget(self.beam_menu)
+    
+    @property
+    def beam_type(self):
+        beam_type = self.beam_menu.currentText()
+        if beam_type == "Electron":
+            return BeamType.Electron
+        elif beam_type == "Ion":
+            return BeamType.Ion
+        else:
+            return BeamType.NoBeam
+    
+    @asyncSlot()
+    async def toggle_ext_ctrl(self):
+        if self.ext_ctrl_btn.isChecked():
+            await self.conn.transfer(_ExternalCtrlCommand(enable=True))
+            self.ext_ctrl_btn.setText("Click to Disable External Ctrl")
+        else:
+            await self.conn.transfer(_ExternalCtrlCommand(enable=False))
+            self.ext_ctrl_btn.setText("Click to Enable External Ctrl")
+    @asyncSlot()
+    async def toggle_blank(self):
+        if self.blank_btn.isChecked():
+            await self.conn.transfer(_BlankCommand(enable=True))
+            self.blank_btn.setText("Click to Unblank")
+        else:
+            await self.conn.transfer(_BlankCommand(enable=False))
+            self.blank_btn.setText("Click to Blank")
+    @asyncSlot()
+    async def beam_select(self):
+        await self.conn.transfer(_BeamSelectCommand(beam_type=self.beam_type))
+    def disable_input(self):
+        self.ext_ctrl_btn.setEnabled(False)
+        self.blank_btn.setEnabled(False)
+        self.beam_menu.setEnabled(False)
+    def enable_input(self):
+        self.ext_ctrl_btn.setEnabled(True)
+        self.blank_btn.setEnabled(True)
+        self.beam_menu.setEnabled(True)
 
 if __name__ == "__main__":
     import sys

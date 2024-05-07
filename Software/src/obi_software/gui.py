@@ -16,7 +16,7 @@ from qasync import asyncSlot, asyncClose, QApplication, QEventLoop
 from .stream_interface import Connection, DACCodeRange, BeamType
 from .frame_buffer import FrameBuffer
 from .gui_modules.image_display import ImageDisplay
-from .gui_modules.settings import SettingBox, SettingBoxWithDefaults, ImageSettings
+from .gui_modules.settings import SettingBox, SettingBoxWithDefaults, ImageSettings, BeamSettings
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--config_path', required=True, 
@@ -116,9 +116,11 @@ class Window(QVBoxLayout):
         self.photo_settings.single_capture_btn.clicked.connect(self.capture_single_frame)
 
         combined_settings = QVBoxLayout()
-        self.beam_type_box = QComboBox()
-        self.beam_type_box.addItems(["Electron", "Ion"])
-        combined_settings.addWidget(self.beam_type_box)
+        #self.beam_type_box = QComboBox()
+        #self.beam_type_box.addItems(["Electron", "Ion"])
+        #combined_settings.addWidget(self.beam_type_box)
+        self.beam_settings = BeamSettings(self.conn)
+        combined_settings.addLayout(self.beam_settings)
         combined_settings.addLayout(self.photo_settings)
         combined_settings.addLayout(self.live_settings)
         self.addLayout(combined_settings)
@@ -144,11 +146,7 @@ class Window(QVBoxLayout):
 
     @property
     def beam_type(self):
-        beam_type = self.beam_type_box.currentText()
-        if beam_type == "Electron":
-            return BeamType.Electron
-        elif beam_type == "Ion":
-            return BeamType.Ion
+        return self.beam_settings.beam_type
 
     @property
     def live_parameters(self):
@@ -242,6 +240,7 @@ class Window(QVBoxLayout):
         self.photo_settings.single_capture_btn.setEnabled(False)
         self.photo_settings.disable_input()
         self.live_settings.disable_input()
+        self.beam_settings.disable_input()
         await self.fb.set_ext_ctrl(enable=1, beam_type=self.beam_type)
         print(f"{self.beam_type=}")
         await self.capture_frame_photo()
@@ -253,6 +252,7 @@ class Window(QVBoxLayout):
         self.photo_settings.single_capture_btn.setText("Acquire Photo")
         self.photo_settings.enable_input()
         self.live_settings.enable_input()
+        self.beam_settings.enable_input()
 
     async def capture_frame_live(self):
         x_range, y_range, dwell, latency = self.live_parameters
@@ -273,6 +273,7 @@ class Window(QVBoxLayout):
             self.fb._interrupt.clear()
             self.live_settings.disable_input()
             self.photo_settings.disable_input()
+            self.beam_settings.disable_input()
             self.live_settings.live_capture_btn.setText("Stop Live Scan")
             while True:
                 await self.capture_frame_live()
@@ -284,6 +285,7 @@ class Window(QVBoxLayout):
             self.live_settings.live_capture_btn.setText("Start Live Scan")
             self.live_settings.enable_input()
             self.photo_settings.enable_input()
+            self.beam_settings.enable_input()
         else:
             self.fb._interrupt.set()
             self.live_settings.live_capture_btn.setEnabled(False)
