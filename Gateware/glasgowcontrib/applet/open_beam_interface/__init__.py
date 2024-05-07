@@ -1063,7 +1063,7 @@ class OBISubtarget(wiring.Component):
                 if hasattr(self.pads, pin_name):
                     m.d.comb += getattr(self.pads, pin_name).oe.eq(1)
                     m.d.comb += getattr(self.pads, pin_name).o.eq(signal)
-                        
+            #### External IO control logic           
             connect_pin("ext_ibeam_scan_enable", executor.ext_ctrl_enable)
             connect_pin("ext_ibeam_scan_enable_2", executor.ext_ctrl_enable)
             connect_pin("ext_ibeam_blank_enable", executor.ext_ctrl_enable)
@@ -1071,23 +1071,30 @@ class OBISubtarget(wiring.Component):
             connect_pin("ext_ebeam_scan_enable", executor.ext_ctrl_enable)
             connect_pin("ext_ebeam_scan_enable_2", executor.ext_ctrl_enable)
 
-            with m.If(executor.beam_type == BeamType.NoBeam):
-                connect_pin("ebeam_blank", 1)
-                connect_pin("ebeam_blank_2", 1)
-                connect_pin("ibeam_blank_high", 1)
-                connect_pin("ibeam_blank_low", 0)
+            with m.If(executor.ext_ctrl_enable):
+                with m.If(executor.beam_type == BeamType.NoBeam):
+                    connect_pin("ebeam_blank", 1)
+                    connect_pin("ebeam_blank_2", 1)
+                    connect_pin("ibeam_blank_low", 0)
+                    connect_pin("ibeam_blank_high", 1)
 
-            with m.Elif(executor.beam_type == BeamType.Electron):
-                connect_pin("ebeam_blank", executor.blank_enable)
-                connect_pin("ebeam_blank_2", executor.blank_enable)
-                connect_pin("ibeam_blank_high", 1)
-                connect_pin("ibeam_blank_low", 0)
-                
-            with m.Elif(executor.beam_type == BeamType.Ion):
-                connect_pin("ibeam_blank_high", executor.blank_enable)
-                connect_pin("ibeam_blank_low", ~executor.blank_enable)
-                connect_pin("ebeam_blank", 1)
-                connect_pin("ebeam_blank_2", 1)
+                with m.Elif(executor.beam_type == BeamType.Electron):
+                    connect_pin("ebeam_blank", executor.blank_enable)
+                    connect_pin("ebeam_blank_2", executor.blank_enable)
+                    connect_pin("ibeam_blank_low", 0)
+                    connect_pin("ibeam_blank_high", 1)
+                    
+                with m.Elif(executor.beam_type == BeamType.Ion):
+                    connect_pin("ibeam_blank_high", executor.blank_enable)
+                    connect_pin("ibeam_blank_low", ~executor.blank_enable)
+                    connect_pin("ebeam_blank", 1)
+                    connect_pin("ebeam_blank_2", 1)
+            with m.Else():
+                # Do not blank if external control is not enables
+                connect_pin("ebeam_blank",0)
+                connect_pin("ebeam_blank_2",0)
+                connect_pin("ibeam_blank_low",1)
+                connect_pin("ibeam_blank_high",0)
             
 
 
