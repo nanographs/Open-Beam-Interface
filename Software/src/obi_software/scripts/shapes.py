@@ -4,7 +4,7 @@ import asyncio
 import argparse
 import matplotlib.pyplot as plt
 import logging
-from ..beam_interface import Connection, VectorPixelLinearRunCommand, _ExternalCtrlCommand, BeamType, setup_logging
+from ..beam_interface import Connection, VectorPixelLinearRunCommand, _ExternalCtrlCommand, _BeamSelectCommand, BeamType, setup_logging
 
 setup_logging({"Stream": logging.DEBUG})
 
@@ -59,7 +59,8 @@ def iterpattern(x, y, dwell, repeats=1):
 
 async def stream_pattern(x, y, dwell):
     conn = Connection('localhost', 2224)
-    await conn.transfer(_ExternalCtrlCommand(enable=True, beam_type=BeamType.Ion))
+    await conn.transfer(_ExternalCtrlCommand(enable=True))
+    await conn.transfer(_BeamSelectCommand(beam_type=BeamType.Ion))
     pattern = iterpattern(x, y, dwell, repeats=15)
     async for chunk in conn.transfer_multiple(VectorPixelLinearRunCommand(pattern_generator=pattern), 
                                         output_mode=0):
