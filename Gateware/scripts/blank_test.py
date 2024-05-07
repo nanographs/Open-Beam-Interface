@@ -5,7 +5,8 @@ loops = 1000
 
 seq = CommandSequence(output=OutputMode.NoOutput, raster=False)
 seq.add(BlankCommand())
-seq.add(ExternalCtrlCommand(beam_type=BeamType.Ion, enable=True))
+seq.add(EnableExtCtrlCommand())
+seq.add(SelectIbeamCommand())
 
 def dash_line(y):
     seq.add(UnblankInlineCommand())

@@ -156,6 +156,18 @@ class DisableExtCtrlCommand(BaseCommand):
     def message(self):
         return struct.pack('>B', CommandType.DisableExtCtrl)
 
+class SelectBeamCommand(BaseCommand):
+    def __init__(self, beam_type:BeamType):
+        self._beam_type = beam_type
+    @property
+    def message(self):
+        if self._beam_type == BeamType.Electron:
+            return struct.pack('>B', CommandType.SelectEbeam)
+        elif self._beam_type == BeamType.Ion:
+            return struct.pack('>B', CommandType.SelectIbeam)
+        else:
+            return struct.pack('>B', CommandType.SelectNoBeam)
+
 class SelectEbeamCommand(BaseCommand):
     @property
     def message(self):
