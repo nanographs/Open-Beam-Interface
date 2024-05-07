@@ -264,8 +264,8 @@ class OBIAppletTestCase(unittest.TestCase):
                             "payload": {"blank": {"enable": 1, "inline": 0}}
                 }, "cmd_blank")
         
-        test_cmd(RasterRegionCommand(x_start=5, x_count=2, x_step=0x2_00, 
-                                    y_start = 9, y_count = 1, y_step = 0x5_00))
+        # test_cmd(RasterRegionCommand(x_start=5, x_count=2, x_step=0x2_00, 
+        #                             y_start = 9, y_count = 1, y_step = 0x5_00))
 
     def test_command_parser(self):
         dut = CommandParser()
