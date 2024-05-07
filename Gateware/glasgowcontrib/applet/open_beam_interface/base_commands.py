@@ -254,7 +254,10 @@ class CommandSequence(BaseCommand):
         self._raster = raster
         self.add(SynchronizeCommand(cookie=123, output=output, raster=raster))
     def add(self, other: BaseCommand):
-        self._message.extend(other.message)
+        try:
+            self._message.extend(other.message)
+        except TypeError:
+            raise TypeError("Command syntax error. Did your use 'command' instead of 'command()'?")
         #self._response.extend(other.response)
 
     @property
