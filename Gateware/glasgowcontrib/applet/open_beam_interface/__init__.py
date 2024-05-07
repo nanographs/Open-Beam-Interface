@@ -1073,11 +1073,13 @@ class OBISubtarget(wiring.Component):
 
             with m.If(executor.beam_type == BeamType.NoBeam):
                 connect_pin("ebeam_blank", 1)
+                connect_pin("ebeam_blank_2", 1)
                 connect_pin("ibeam_blank_high", 1)
                 connect_pin("ibeam_blank_low", 0)
 
             with m.Elif(executor.beam_type == BeamType.Electron):
                 connect_pin("ebeam_blank", executor.blank_enable)
+                connect_pin("ebeam_blank_2", executor.blank_enable)
                 connect_pin("ibeam_blank_high", 1)
                 connect_pin("ibeam_blank_low", 0)
                 
@@ -1085,6 +1087,7 @@ class OBISubtarget(wiring.Component):
                 connect_pin("ibeam_blank_high", executor.blank_enable)
                 connect_pin("ibeam_blank_low", ~executor.blank_enable)
                 connect_pin("ebeam_blank", 1)
+                connect_pin("ebeam_blank_2", 1)
             
 
 
@@ -1202,7 +1205,8 @@ class OBIApplet(GlasgowApplet):
     __pins = ("ext_ebeam_scan_enable", "ext_ebeam_scan_enable_2",
                 "ext_ibeam_scan_enable", "ext_ibeam_scan_enable_2",
                 "ext_ibeam_blank_enable", "ext_ibeam_blank_enable_2",
-                "ibeam_blank_high", "ibeam_blank_low")
+                "ibeam_blank_high", "ibeam_blank_low",
+                "ebeam_blank", "ebeam_blank_2")
 
     @classmethod
     def add_build_arguments(cls, parser, access):
@@ -1216,6 +1220,8 @@ class OBIApplet(GlasgowApplet):
         access.add_pin_argument(parser, "ext_ibeam_blank_enable_2", default=None)
         access.add_pin_argument(parser, "ibeam_blank_high", default=None)
         access.add_pin_argument(parser, "ibeam_blank_low", default=None)
+        access.add_pin_argument(parser, "ebeam_blank", default=None)
+        access.add_pin_argument(parser, "ebeam_blank_2", default=None)
 
         parser.add_argument("--loopback",
             dest = "loopback", action = 'store_true',
