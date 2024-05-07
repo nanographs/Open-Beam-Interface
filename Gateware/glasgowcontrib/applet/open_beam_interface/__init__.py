@@ -901,6 +901,15 @@ class CommandExecutor(wiring.Component):
                     self.img_stream.valid.eq(1),
                 ]
                 with m.If(self.img_stream.ready):
+                    m.next="Write_FFFF_again"
+                    
+            
+            with m.State("Write_FFFF_again"):
+                m.d.comb += [
+                    self.img_stream.payload.eq(0xffff),
+                    self.img_stream.valid.eq(1),
+                ]
+                with m.If(self.img_stream.ready):
                     m.d.comb += sync_ack.eq(1)
                     m.next = "Imaging"
 

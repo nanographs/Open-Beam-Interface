@@ -6,7 +6,9 @@ import struct
 import array
 from collections import deque
 import random
+import re
 import numpy as np
+
 
 
 class CommandType(enum.IntEnum):
@@ -536,7 +538,9 @@ class FrameContext:
         print(f"ending with {self.y_ptr=}")
 
 class RollingContext:
-    SEP = b'\xff\xff'
+    SEP = b'\xff\xff\xff\xff'
+    config_match = re.compile(b'\xff{2}.{2}\xff{2}', flags=re.DOTALL)
+
     def __init__(self):
         self._context_dict = {}
         self._current_context = None
@@ -549,7 +553,10 @@ class RollingContext:
         self._context_dict.update({cookie:context})
         return cookie
     def get_context(self, cookie):
-        return self._context_dict.pop(cookie)
+        try:
+            return self._context_dict.pop(cookie)
+        except:
+            return None
     def process_with_context(self, data:bytes, context):
         print(f"processing with {context=}")
         if not context==None:
@@ -558,20 +565,23 @@ class RollingContext:
     def extract_context_and_process(self, data: bytes):
         print("processing data")
         isep = 0
+        n = re.finditer(self.config_match, data)
+        prev_stop = 0
+        prev_context = None
         while True:
-            if self.SEP in data:
-                isep = data.find(self.SEP)
-                cookie = data[isep+2:isep+4]
+            try:
+                match = next(n)
+                start, stop = match.span()
+                cookie = match.group()[2:4]
                 cookie = struct.unpack('>H', cookie)[0]
                 print(f"found {cookie=}, {type(cookie)=}")
-                print(f"{self._context_dict=}")
                 self._current_context, prev_context = self.get_context(cookie), self._current_context
-                self.process_with_context(data[:isep], prev_context)
-                data = data[isep+4:]
-            else:
+                self.process_with_context(data[prev_stop:start], prev_context)
+                prev_stop = stop
+            except StopIteration:
+                d = data[prev_stop:]
+                self.process_with_context(data[prev_stop:], self._current_context)
                 break
-    
-        self.process_with_context(data, self._current_context)
 
 
 class StreamingFrameContext(FrameContext):

@@ -875,7 +875,8 @@ class OBIAppletTestCase(unittest.TestCase):
                 await iface.write(SynchronizeCommand(cookie=4, output=2, raster=0).message)
                 #await iface.write(struct.pack(">BB",0x05, combined)) ## blank
                 await iface.write(BlankCommand().message)
-                await iface.write(ExternalCtrlCommand(enable=1, beam_type=2).message)
+                await iface.write(ExternalCtrlCommand(enable=1).message)
+                await iface.write(SelectBeamCommand(beam_type=BeamType.Electron).message)
                 await iface.write(DelayCommand(delay=10).message)
                 await iface.write(UnblankInlineCommand().message)
                 for n in range(1,3):
@@ -898,13 +899,17 @@ class OBIAppletTestCase(unittest.TestCase):
             @applet_simulation_test("setup_test", args=["--pin-ext-ibeam-scan-enable", "0", "--pin-ext-ibeam-scan-enable-2", "1"])
             async def raster_script_test(self):
                 iface = await self.run_simulated_applet()
-                conn = OBIInterface(iface)
-                sw = StreamWheel(conn)
-                f = StreamingFrameContext(x_pixels=512, y_pixels=512, bit_mode = OutputMode.SixteenBit)
-                f2 = StreamingFrameContext(x_pixels=1024, y_pixels=1024, bit_mode = OutputMode.SixteenBit)
-                sw.request_new_context(f)
-                sw.request_new_context(f2)
-                await sw.turn()
+                f_range = DACCodeRange(start=0, count = 10, step = 0x02_00)
+                await iface.write(SynchronizeCommand(cookie=523, raster=1).message)
+                await iface.write(RasterRegionCommand(x_range=f_range, y_range=f_range).message)
+                await iface.write(RasterPixelFreeRunCommand(dwell=1).message)
+                data = await iface.read(100)
+                print(data)
+                await iface.write(SynchronizeCommand(cookie=813, raster=1).message)
+                await iface.write(RasterRegionCommand(x_range=f_range, y_range=f_range).message)
+                await iface.write(RasterPixelFreeRunCommand(dwell=1).message)
+                data = await iface.read(14)
+                print(data)
 
 
                 
@@ -917,7 +922,7 @@ class OBIAppletTestCase(unittest.TestCase):
         test_case.test_raster()
         test_case.test_benchmark()
         test_case.test_vector_blank()
-        # test_case.raster_script_test()
+        test_case.raster_script_test()
 
         
 
