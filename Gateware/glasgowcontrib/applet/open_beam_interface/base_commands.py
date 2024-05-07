@@ -545,6 +545,7 @@ class RollingContext:
         self._context_dict = {}
         self._current_context = None
         self._next_cookie = random.randrange(0, 0x10000, 2) # even cookies only
+        self._search_buffer = bytearray() # holds a max of 5 bytes
     def get_next_cookie(self):
         cookie, self._next_cookie = self._next_cookie, (self._next_cookie + 2) & 0xffff # even cookie
         return cookie
@@ -562,9 +563,13 @@ class RollingContext:
         if not context==None:
             context.insert_data(data)
             context.process()
-    def extract_context_and_process(self, data: bytes):
+    def extract_context_and_process(self, data: memoryview):
         print("processing data")
         isep = 0
+        if len(self._search_buffer) > 0:
+            data = self._search_buffer + bytes(data)
+        else: 
+            data = bytes(data)
         n = re.finditer(self.config_match, data)
         prev_stop = 0
         prev_context = None
@@ -581,6 +586,8 @@ class RollingContext:
             except StopIteration:
                 d = data[prev_stop:]
                 self.process_with_context(data[prev_stop:], self._current_context)
+                if prev_stop < (len(data) - 6):
+                    self._search_buffer.extend(data[len(data)-5:])
                 break
 
 
@@ -629,7 +636,7 @@ class StreamWheel:
             print("reading")
             data = await self.conn.read(self.MAX_CHUNK)
             print(f"read {len(data)} bytes")
-            self.cm.extract_context_and_process(bytes(data))
+            self.cm.extract_context_and_process(data)
 
 
 
