@@ -219,117 +219,57 @@ class OBIAppletTestCase(unittest.TestCase):
     def test_command_parser_2(self):
         dut = CommandParser()
 
-        def test_cmd(command:BaseCommand, response: dict):
-            for byte in command.message:
-                yield from put_stream(dut.usb_stream, byte)
-
-    def test_command_parser(self):
-        dut = CommandParser()
-
-        def test_synchronize_cmd():
+        def test_cmd(command:BaseCommand, response: dict, name:str="cmd"):
             def put_testbench():
-                yield from put_stream(dut.usb_stream, 0) #Type
-                yield from put_stream(dut.usb_stream, 123) #Cookie
-                yield from put_stream(dut.usb_stream, 234)
-                output_mode = 2 #No Output
-                raster_mode = 1
-                mode = int(output_mode<<1 | raster_mode)
-                yield from put_stream(dut.usb_stream, mode) 
-
+                for byte in command.message:
+                    yield from put_stream(dut.usb_stream, byte)
             def get_testbench():
-                yield from get_stream(dut.cmd_stream, {
-                            "type": Command.Type.Synchronize, 
+                yield from get_stream(dut.cmd_stream, response)
+                assert (yield dut.cmd_stream.valid) == 0
+            self.simulate(dut, [get_testbench,put_testbench], name="parse_" + name)  
+        
+        test_cmd(SynchronizeCommand(cookie=123, raster=True, output=OutputMode.SixteenBit),
+                {"type": Command.Type.Synchronize, 
                             "payload": {
                                 "synchronize": {
                                     "cookie": 123*256 + 234,
                                     "mode": {
                                         "raster": 1,
                                         "output": 2
-                                    }
-                                }
-                            }})
-                assert (yield dut.cmd_stream.valid) == 0
+                }}}}, "cmd_sync")
 
-            self.simulate(dut, [get_testbench,put_testbench], name = "cmd_sync")  
-        
-        def test_delay_cmd():
-            def put_testbench():
-                yield from put_stream(dut.usb_stream, 0x03) #Type
-                yield from put_stream(dut.usb_stream, 123) #Delay
-                yield from put_stream(dut.usb_stream, 234) 
-
-            def get_testbench():
-                yield from get_stream(dut.cmd_stream, {
-                            "type": Command.Type.Delay, 
+        test_cmd(DelayCommand(delay=960),
+                {"type": Command.Type.Delay, 
                             "payload": {
-                                "delay": 123*256 + 234
-                            }})
-                assert (yield dut.cmd_stream.valid) == 0
-
-            self.simulate(dut, [get_testbench,put_testbench], name = "cmd_delay")  
+                                "delay": 960}
+                }, "cmd_delay")
         
-        def test_extctrlenable_cmd():
-            def put_testbench():
-                yield from put_stream(dut.usb_stream, 0x04) #Type
-
-            def get_testbench():
-                yield from get_stream(dut.cmd_stream, {
-                            "type": Command.Type.EnableExtCtrl, 
-                            "payload": {
-                                "external_ctrl": {
-                                    "enable": 1,
-                                }
-                            }})
-                assert (yield dut.cmd_stream.valid) == 0
-
-            self.simulate(dut, [get_testbench,put_testbench], name = "cmd_extctrlenable")  
+        test_cmd(EnableExtCtrlCommand(),
+                {"type": Command.Type.EnableExtCtrl, 
+                            "payload": {"external_ctrl": {"enable": 1}}
+                }, "cmd_extctrlenable")
         
-        def test_extctrldisable_cmd():
-            def put_testbench():
-                yield from put_stream(dut.usb_stream, 0x05) #Type
-
-            def get_testbench():
-                yield from get_stream(dut.cmd_stream, {
-                            "type": Command.Type.DisableExtCtrl, 
-                            "payload": {
-                                "external_ctrl": {
-                                    "enable": 0,
-                                }
-                            }})
-                assert (yield dut.cmd_stream.valid) == 0
-
-            self.simulate(dut, [get_testbench,put_testbench], name = "cmd_extctrldisable")  
+        test_cmd(DisableExtCtrlCommand(),
+                {"type": Command.Type.DisableExtCtrl, 
+                            "payload": {"external_ctrl": {"enable": 0}}
+                }, "cmd_extctrldisable")
         
-        def test_ebeamselect_cmd():
-            def put_testbench():
-                yield from put_stream(dut.usb_stream, 0x06) #Type
-
-            def get_testbench():
-                yield from get_stream(dut.cmd_stream, {
-                            "type": Command.Type.SelectEbeam, 
-                            "payload": {
-                                "beam_type": BeamType.Electron
-                            }})
-                assert (yield dut.cmd_stream.valid) == 0
-
-            self.simulate(dut, [get_testbench,put_testbench], name = "cmd_blank")  
+        test_cmd(SelectEbeamCommand(),
+                {"type": Command.Type.SelectEbeam, 
+                            "payload": {"beam_type": BeamType.Electron}
+                }, "cmd_selectebeam")
         
-        def test_blank_cmd():
-            def put_testbench():
-                yield from put_stream(dut.usb_stream, 0x09) #Type
+        test_cmd(BlankCommand(),
+                {"type": Command.Type.Blank, 
+                            "payload": {"blank": {"enable": 1, "inline": 0}}
+                }, "cmd_blank")
+        
+        test_cmd(RasterRegionCommand(x_start=5, x_count=2, x_step=0x2_00, 
+                                    y_start = 9, y_count = 1, y_step = 0x5_00))
 
-            def get_testbench():
-                yield from get_stream(dut.cmd_stream, {
-                            "type": Command.Type.Blank, 
-                            "payload": {
-                                "blank": {
-                                    "enable": 1,
-                                    "inline": 0
-                                }
-                            }})
-                assert (yield dut.cmd_stream.valid) == 0
+    def test_command_parser(self):
+        dut = CommandParser()
 
-            self.simulate(dut, [get_testbench,put_testbench], name = "cmd_blank")  
 
         def test_rasterregion_cmd():
             def put_testbench():
@@ -434,12 +374,6 @@ class OBIAppletTestCase(unittest.TestCase):
 
             self.simulate(dut, [get_testbench,put_testbench], name = "cmd_vectorpixel")  
 
-        test_synchronize_cmd()
-        test_delay_cmd()
-        test_extctrlenable_cmd()
-        test_extctrldisable_cmd()
-        test_ebeamselect_cmd()
-        test_blank_cmd()
         test_rasterregion_cmd()
         test_rasterpixel_cmd()
         test_rasterpixelrun_cmd()
