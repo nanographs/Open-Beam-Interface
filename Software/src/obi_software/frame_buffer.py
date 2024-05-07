@@ -6,7 +6,7 @@ import numpy as np
 import logging
 import tifffile
 
-from .beam_interface import RasterScanCommand, RasterFreeScanCommand, setup_logging, DACCodeRange, BeamType, ExternalCtrlCommand
+from .stream_interface import RasterScanCommand, RasterFreeScanCommand, setup_logging, DACCodeRange, BeamType, ExternalCtrlCommand, _BlankCommand
 from .tiff_export import draw_scalebar
 
 setup_logging({"Command": logging.DEBUG, "Stream": logging.DEBUG})
@@ -99,15 +99,15 @@ class FrameBuffer():
             return Frame(x_range, y_range)
 
     async def set_ext_ctrl(self, enable, beam_type):
-        print(beam_type)
         await self.conn.transfer(ExternalCtrlCommand(enable=enable, beam_type=beam_type))
+        await self.conn.transfer(_BlankCommand(enable=~enable))
 
     async def capture_frame(self, x_range, y_range, *, dwell, latency, frame=None):
         frame = self.get_frame(x_range,y_range)
         res = array.array('H')
         pixels_per_chunk = self.opt_chunk_size(frame)
         print(f"{pixels_per_chunk=}")
-        cmd = RasterScanCommand(cookie=self.conn.get_cookie(),
+        cmd = RasterScanCommand(cookie=123,
             x_range=x_range, y_range=y_range, dwell=dwell)
         async for chunk in self.conn.transfer_multiple(cmd, latency=latency):
             print(f"have {len(res)=}. got {len(chunk)=}")

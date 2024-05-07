@@ -8,14 +8,18 @@ class CommandType(enum.IntEnum):
     Abort               = 0x01
     Flush               = 0x02
     Delay               = 0x03
-    ExternalCtrl        = 0x04
-    Blank               = 0x05
-    BlankInline         = 0x06
-    Unblank             = 0x07
-    UnblankInline       = 0x08
+    EnableExtCtrl       = 0x04
+    DisableExtCtrl      = 0x05
+    SelectEbeam         = 0x06
+    SelectIbeam         = 0x07
+    SelectNoBeam        = 0x08
+    Blank               = 0x09
+    BlankInline         = 0x0a
+    Unblank             = 0x0b
+    UnblankInline       = 0x0d
 
     RasterRegion        = 0x10
-    RasterPixels        = 0x11
+    RasterPixel         = 0x11
     RasterPixelRun      = 0x12
     RasterPixelFreeRun  = 0x13
     VectorPixel         = 0x14
@@ -129,18 +133,55 @@ class UnblankInlineCommand(BaseCommand):
         return struct.pack('>B', CommandType.UnblankInline)
 
 class ExternalCtrlCommand(BaseCommand):
-    def __init__(self, enable:bool, beam_type:BeamType):
-        assert (beam_type == BeamType.Electron) | (beam_type == BeamType.Ion)
+    def __init__(self, enable:bool):
         self._enable = enable
-        self._beam_type = beam_type
 
     def __repr__(self):
-        return f"ExternalCtrlCommand(enable={self._enable}, beam_type={self._beam_type})"
+        return f"ExternalCtrlCommand(enable={self._enable})"
 
     @property
     def message(self):
-        combined = int(self._beam_type<<1 | self._enable)
-        return struct.pack(">BB", CommandType.ExternalCtrl, combined)
+        if self._enable:
+            return struct.pack(">B", CommandType.EnableExtCtrl)
+        if not self._enable:
+            return struct.pack(">B", CommandType.DisableExtCtrl)
+
+class EnableExtCtrlCommand(BaseCommand):
+    @property
+    def message(self):
+        return struct.pack('>B', CommandType.EnableExtCtrl)
+
+class DisableExtCtrlCommand(BaseCommand):
+    @property
+    def message(self):
+        return struct.pack('>B', CommandType.DisableExtCtrl)
+
+class SelectBeamCommand(BaseCommand):
+    def __init__(self, beam_type:BeamType):
+        self._beam_type = beam_type
+    @property
+    def message(self):
+        if self._beam_type == BeamType.Electron:
+            return struct.pack('>B', CommandType.SelectEbeam)
+        elif self._beam_type == BeamType.Ion:
+            return struct.pack('>B', CommandType.SelectIbeam)
+        else:
+            return struct.pack('>B', CommandType.SelectNoBeam)
+
+class SelectEbeamCommand(BaseCommand):
+    @property
+    def message(self):
+        return struct.pack('>B', CommandType.SelectEbeam)
+
+class SelectIbeamCommand(BaseCommand):
+    @property
+    def message(self):
+        return struct.pack('>B', CommandType.SelectIbeam)
+
+class SelectNoBeamCommand(BaseCommand):
+    @property
+    def message(self):
+        return struct.pack('>B', CommandType.SelectNoBeam)
 
 class RasterRegionCommand(BaseCommand):
     def __init__(self, *, x_range: DACCodeRange, y_range: DACCodeRange):
@@ -218,6 +259,7 @@ class CommandSequence(BaseCommand):
     @property
     def message(self):
         return self._message
+
 
 
 

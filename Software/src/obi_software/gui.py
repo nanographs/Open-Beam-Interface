@@ -13,7 +13,7 @@ from PyQt6.QtWidgets import (QHBoxLayout, QMainWindow,
 import qasync
 from qasync import asyncSlot, asyncClose, QApplication, QEventLoop
 
-from .beam_interface import Connection, DACCodeRange, BeamType
+from .stream_interface import Connection, DACCodeRange, BeamType
 from .frame_buffer import FrameBuffer
 from .gui_modules.image_display import ImageDisplay
 from .gui_modules.settings import SettingBox, SettingBoxWithDefaults, ImageSettings
@@ -243,6 +243,7 @@ class Window(QVBoxLayout):
         self.photo_settings.disable_input()
         self.live_settings.disable_input()
         await self.fb.set_ext_ctrl(enable=1, beam_type=self.beam_type)
+        print(f"{self.beam_type=}")
         await self.capture_frame_photo()
         await self.fb.set_ext_ctrl(enable=0, beam_type=self.beam_type)
         self.save_image()

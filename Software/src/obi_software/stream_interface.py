@@ -268,7 +268,7 @@ class Connection:
 
 class SynchronizeCommand(Command):
     def __init__(self, *, cookie: int, raster_mode: bool, output_mode: OutputMode=OutputMode.SixteenBit):
-        assert cookie in range(0x0001, 0x10000, 2) # odd cookies only
+        assert cookie in range(0x0001, 0x10000, 2)  # odd cookies only
         self._cookie = cookie
         self._raster_mode = raster_mode
         self._output_mode = output_mode
@@ -305,7 +305,7 @@ class DelayCommand(Command):
 
 
 class _BlankCommand(Command):
-    def __init__(self, enable:bool, inline:bool):
+    def __init__(self, enable:bool, inline:bool=False):
         self._enable = enable
         self._inline = inline
 
@@ -326,18 +326,35 @@ class _BlankCommand(Command):
 
 
 class _ExternalCtrlCommand(Command):
-    def __init__(self, enable:bool, beam_type):
-        assert (beam_type == BeamType.Electron) | (beam_type == BeamType.Ion)
+    def __init__(self, enable:bool):
         self._enable = enable
-        self._beam_type = beam_type
 
     def __repr__(self):
-        return f"_ExternalCtrlCommand(enable={self._enable}, beam_type={self._beam_type})"
+        return f"_ExternalCtrlCommand(enable={self._enable})"
 
     @Command.log_transfer
     async def transfer(self, stream: Stream):
-        combined = int(self._beam_type<<1 | self._enable)
-        cmd = struct.pack(">BB", CommandType.ExternalCtrl, combined)
+        if self._enable:
+            cmd = struct.pack(">B", CommandType.EnableExtCtrl)
+        if not self._enable:
+            cmd = struct.pack(">B", CommandType.DisableExtCtrl)
+        stream.send(cmd)
+
+class _BeamSelectCommand(Command):
+    def __init__(self, beam_type:BeamType):
+        self._beam_type = BeamType
+
+    def __repr__(self):
+        return f"_BeamSelectCommand(beam_type={self._beam_type})"
+
+    @Command.log_transfer
+    async def transfer(self, stream: Stream):
+        if self._beam_type == BeamType.Electron:
+            cmd = struct.pack(">B", CommandType.SelectEbeam)
+        elif self._beam_type == BeamType.Ion:
+            cmd = struct.pack(">B", CommandType.SelectIbeam)
+        else: 
+            cmd = struct.pack(">B", CommandType.SelectNoBeam)
         stream.send(cmd)
 
 
@@ -356,8 +373,10 @@ class ExternalCtrlCommand(Command):
 
     @Command.log_transfer
     async def transfer(self, stream: Stream):
-        await _ExternalCtrlCommand(self._enable, self._beam_type).transfer(stream)
+        await _ExternalCtrlCommand(self._enable).transfer(stream)
+        await _BeamSelectCommand(self._beam_type).transfer(stream)
         await DelayCommand(RELAY_DELAY_CYCLES).transfer(stream)
+        await stream.flush()
 
 
 
