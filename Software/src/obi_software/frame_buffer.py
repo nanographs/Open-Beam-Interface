@@ -99,8 +99,8 @@ class FrameBuffer():
             return Frame(x_range, y_range)
 
     async def set_ext_ctrl(self, enable, beam_type):
+        print(f"{beam_type=}")
         await self.conn.transfer(ExternalCtrlCommand(enable=enable, beam_type=beam_type))
-        await self.conn.transfer(_BlankCommand(enable=~enable))
 
     async def capture_frame(self, x_range, y_range, *, dwell, latency, frame=None):
         frame = self.get_frame(x_range,y_range)

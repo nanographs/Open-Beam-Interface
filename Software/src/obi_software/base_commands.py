@@ -31,6 +31,7 @@ class OutputMode(enum.IntEnum):
     NoOutput            = 2
 
 class BeamType(enum.IntEnum):
+    NoBeam              = 0
     Electron            = 1
     Ion                 = 2
 
@@ -102,19 +103,19 @@ class BlankCommand(BaseCommand):
         self._inline = inline
 
     def __repr__(self):
-        return f"BlankCommand(enable={self._enable}, asynced={self._asynced})"
+        return f"BlankCommand(enable={self._enable}, inline={self._inline})"
 
     @property
     def message(self):
         #combined = int(self._inline<<1 | self._enable)
         #return struct.pack(">BB", CommandType.Blank, combined)
-        if self._enable & ~self._inline:
+        if self._enable and not self._inline:
             return struct.pack('>B', CommandType.Blank)
-        elif self._enable & self._inline:
+        elif self._enable and self._inline:
             return struct.pack('>B', CommandType.BlankInline)
-        elif ~self._enable & ~self._inline:
+        elif not (self._enable and self._inline):
             return struct.pack('>B', CommandType.Unblank)
-        elif ~self._enable & self._inline:
+        elif not self._enable and self._inline:
             return struct.pack('>B', CommandType.UnblankInline)
 
 class BlankInlineCommand(BaseCommand):

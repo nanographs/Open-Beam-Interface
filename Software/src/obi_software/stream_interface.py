@@ -314,14 +314,15 @@ class _BlankCommand(Command):
 
     @Command.log_transfer
     async def transfer(self, stream: Stream):
-        if self._enable & ~self._inline:
+        if self._enable and not self._inline:
             cmd = struct.pack(">B", CommandType.Blank)
-        if self._enable & self._inline:
+        if self._enable and self._inline:
             cmd = struct.pack(">B", CommandType.BlankInline)
-        if ~self._enable & ~self._inline:
+        if not (self._enable and self._inline):
             cmd = struct.pack(">B", CommandType.Unblank)
-        if ~self._enable & self._inline:
+        if not self._enable and self._inline:
             cmd = struct.pack(">B", CommandType.UnblankInline)
+        print(f"{cmd=}")
         stream.send(cmd)
 
 
@@ -342,7 +343,8 @@ class _ExternalCtrlCommand(Command):
 
 class _BeamSelectCommand(Command):
     def __init__(self, beam_type:BeamType):
-        self._beam_type = BeamType
+        assert (beam_type == BeamType.Electron) | (beam_type == BeamType.Ion) | (beam_type==BeamType.NoBeam)
+        self._beam_type = beam_type
 
     def __repr__(self):
         return f"_BeamSelectCommand(beam_type={self._beam_type})"
@@ -364,7 +366,6 @@ RELAY_DELAY_CYCLES = int(20 * pow(10, -6) / (1/(48 * pow(10,6))))
 class ExternalCtrlCommand(Command):
     def __init__(self, enable, beam_type):
         assert enable <= 1
-        assert (beam_type == BeamType.Electron) | (beam_type == BeamType.Ion)
         self._enable = enable
         self._beam_type = beam_type
 
@@ -373,6 +374,7 @@ class ExternalCtrlCommand(Command):
 
     @Command.log_transfer
     async def transfer(self, stream: Stream):
+        await _BlankCommand(enable=(1-self._enable), inline=True).transfer(stream)
         await _ExternalCtrlCommand(self._enable).transfer(stream)
         await _BeamSelectCommand(self._beam_type).transfer(stream)
         await DelayCommand(RELAY_DELAY_CYCLES).transfer(stream)

@@ -215,6 +215,13 @@ class OBIAppletTestCase(unittest.TestCase):
             assert (yield dut.roi_stream.ready) == 1
 
         self.simulate(dut, [get_testbench,put_testbench], name = "raster_scanner")  
+    
+    def test_command_parser_2(self):
+        dut = CommandParser()
+
+        def test_cmd(command:BaseCommand, response: dict):
+            for byte in command.message:
+                yield from put_stream(dut.usb_stream, byte)
 
     def test_command_parser(self):
         dut = CommandParser()
