@@ -24,11 +24,12 @@ for _ in range(loops):
     dash_line(4096)
     dash_line(12288)
 
+
 seq.add(DisableExtCtrlCommand())
 
 for _ in range(loops):
     await iface.write(seq.message)
     await iface.flush()
 
-
+response = await iface.read()
 

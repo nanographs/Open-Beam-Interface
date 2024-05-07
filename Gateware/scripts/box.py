@@ -5,9 +5,13 @@ seq = CommandSequence(output=OutputMode.NoOutput, raster=False)
 ## ...
 seq.add(BlankCommand())
 seq.add(EnableExtCtrlCommand())
+seq.add(DelayCommand(5760))
 seq.add(SelectIbeamCommand())
+seq.add(UnblankInlineCommand())
 
-dwell = 2
+
+dwell = 65536
+
 
 def box(x_start, y_start, x_width, y_height):
     ## start ______ x = x_start + x_width, y = y_start
@@ -15,12 +19,16 @@ def box(x_start, y_start, x_width, y_height):
     ##       ------ x = x_start + x_width, y = y_start + y_height
     for x in range(x_start, x_start+x_width):
         seq.add(VectorPixelCommand(x_coord=x, y_coord = y_start, dwell = dwell))
+        print(f"{x=}")
     for y in range(y_start, y_start+y_height):
         seq.add(VectorPixelCommand(x_coord=x_start+x_width, y_coord = y, dwell = dwell))
-    for x in range(x_start, x_start+x_width, -1):
+        print(f"{y=}")
+    for x in range(x_start+x_width, x_start, -1):
         seq.add(VectorPixelCommand(x_coord=x, y_coord = y_start+y_height, dwell = dwell))
-    for y in range(y_start, y_start+y_height, -1):
+        print(f"{x=}")
+    for y in range(y_start+y_height, y_start, -1):
         seq.add(VectorPixelCommand(x_coord=x_start, y_coord = y, dwell = dwell))
+        print(f"{y=}")
 
 
 box(5000, 5000, 5000, 5000)
@@ -29,3 +37,4 @@ seq.add(DisableExtCtrlCommand())
 
 
 await iface.write(seq.message)
+await iface.flush()
