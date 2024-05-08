@@ -7,7 +7,7 @@ from abc import ABCMeta, abstractmethod
 from . import StreamSignature
 from . import Supersampler, RasterScanner, RasterRegion
 from . import CommandParser, CommandExecutor, Command, BeamType
-from . import BusController
+from . import BusController, Flippenator
 from .base_commands import *
 
 
@@ -113,8 +113,10 @@ def get_stream(stream, payload, timeout_steps=10):
         wrapped_payload = stream.payload.shape().const(payload)
     else:
         wrapped_payload = payload
-    # assert data == wrapped_payload,\
-    #     f"payload: {prettier_print(data)} != {prettier_print(payload)} (expected)"
+    assert data == wrapped_payload,\
+        f"payload: {prettier_print(data)} != {prettier_print(wrapped_payload)} (expected)"
+        
+
 
 
 class OBIAppletTestCase(unittest.TestCase):
@@ -189,6 +191,83 @@ class OBIAppletTestCase(unittest.TestCase):
 
         self.simulate(dut, [put_testbench, get_testbench], name = "ss_avg2")
 
+    def test_flippenator(self):
+        dut = Flippenator()
+
+        def test_xflip():
+            def put_testbench():
+                yield dut.xflip.eq(1)
+                yield from put_stream(dut.in_stream, {
+                    "dac_x_code": 1,
+                    "dac_y_code": 16383,
+                    "last": 1,
+                    "blank": {
+                        "enable": 1,
+                        "request": 1
+                    }
+                })
+            def get_testbench():
+                yield from get_stream(dut.out_stream, {
+                    "dac_x_code": 16383,
+                    "dac_y_code": 16383,
+                    "last": 1,
+                    "blank": {
+                        "enable": 1,
+                        "request": 1
+                    }
+                })
+            self.simulate(dut, [get_testbench,put_testbench], name="flippenator_xflip")  
+        
+        def test_yflip():
+            def put_testbench():
+                yield dut.yflip.eq(1)
+                yield from put_stream(dut.in_stream, {
+                    "dac_x_code": 1,
+                    "dac_y_code": 16383,
+                    "last": 1,
+                    "blank": {
+                        "enable": 1,
+                        "request": 1
+                    }
+                })
+            def get_testbench():
+                yield from get_stream(dut.out_stream, {
+                    "dac_x_code": 1,
+                    "dac_y_code": 1,
+                    "last": 1,
+                    "blank": {
+                        "enable": 1,
+                        "request": 1
+                    }
+                })
+            self.simulate(dut, [get_testbench,put_testbench], name="flippenator_yflip") 
+        def test_rot90():
+            def put_testbench():
+                yield dut.rotate90.eq(1)
+                yield from put_stream(dut.in_stream, {
+                    "dac_x_code": 1,
+                    "dac_y_code": 16383,
+                    "last": 1,
+                    "blank": {
+                        "enable": 1,
+                        "request": 1
+                    }
+                })
+            def get_testbench():
+                yield from get_stream(dut.out_stream, {
+                    "dac_x_code": 16383,
+                    "dac_y_code": 1,
+                    "last": 1,
+                    "blank": {
+                        "enable": 1,
+                        "request": 1
+                    }
+                })
+            self.simulate(dut, [get_testbench,put_testbench], name="flippenator_rot90")  
+        test_xflip()
+        test_yflip()
+        test_rot90()
+
     def test_raster_scanner(self):
         dut = RasterScanner()
 
@@ -228,11 +307,11 @@ class OBIAppletTestCase(unittest.TestCase):
                 assert (yield dut.cmd_stream.valid) == 0
             self.simulate(dut, [get_testbench,put_testbench], name="parse_" + name)  
         
-        test_cmd(SynchronizeCommand(cookie=123, raster=True, output=OutputMode.SixteenBit),
+        test_cmd(SynchronizeCommand(cookie=1024, raster=True, output=OutputMode.NoOutput),
                 {"type": Command.Type.Synchronize, 
                             "payload": {
                                 "synchronize": {
-                                    "cookie": 123*256 + 234,
+                                    "cookie": 1024,
                                     "mode": {
                                         "raster": 1,
                                         "output": 2
@@ -267,7 +346,7 @@ class OBIAppletTestCase(unittest.TestCase):
         # test_cmd(RasterRegionCommand(x_start=5, x_count=2, x_step=0x2_00, 
         #                             y_start = 9, y_count = 1, y_step = 0x5_00))
 
-    def test_command_parser(self):
+    def test_command_parser_1(self):
         dut = CommandParser()
 
 
