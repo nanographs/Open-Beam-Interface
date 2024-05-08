@@ -551,6 +551,54 @@ class Command(data.Struct):
         # usage: Command.serialize(Command.Type.Command4, payload=1234)
 
 
+class ByteCommandView(data.View):
+    def first_byte(self):
+        return self.as_value().value
+
+class ByteCommandLayout(data.Struct):
+    type: Command.Type
+    payload: data.UnionLayout({
+        "synchronize":      data.StructLayout({
+            "mode": 3
+        }),
+        "external_ctrl": 3,
+        "beam_type": 2,
+        "blank": 2
+    })
+
+        #     payload_byte: data.UnionLayout({
+        #             "synchronize":      data.StructLayout({
+        #                 "mode":         data.StructLayout ({
+        #                     "raster": 1,
+        #                     "output": OutputMode,
+        #                 }),
+        #                 "cookie": Cookie,
+        #             }),
+        #             "external_ctrl": data.StructLayout({
+        #                 "enable": 1,
+        #             }),
+        #             "beam_type": BeamType,
+        #             "blank":       data.StructLayout({
+        #                 "enable": 1,
+        #                 "inline": 1,
+        #             }),
+        #             "delay": DwellTime,
+        #             "raster_region":    RasterRegion,
+        #             "raster_pixel":     DwellTime,
+        #             "raster_pixel_run": data.StructLayout({
+        #                 "length":           16,
+        #                 "dwell_time":       DwellTime,
+        #             }),
+        #             "vector_pixel":     data.StructLayout({
+        #                 "x_coord":          14,
+        #                 "y_coord":          14,
+        #                 "dwell_time":       DwellTime,
+        #             })
+        #         })
+        # })
+
+
+
 class CommandParser(wiring.Component):
     usb_stream: In(StreamSignature(8))
     cmd_stream: Out(StreamSignature(Command))

@@ -7,6 +7,7 @@ from . import Command, CmdType
 
 BIG_ENDIAN = (struct.pack('@H', 0x1234) == struct.pack('>H', 0x1234))
 
+
 class OutputMode(enum.IntEnum):
     SixteenBit          = 0
     EightBit            = 1
