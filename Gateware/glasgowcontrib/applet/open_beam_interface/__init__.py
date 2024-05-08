@@ -558,22 +558,16 @@ class OutputMode(enum.Enum, shape = 2):
 
 
 
+
 class Command(data.Struct):
-    class Type(enum.Enum, shape=8):
+    class Type(enum.Enum, shape=5):
         Synchronize         = 0x00
         Abort               = 0x01
         Flush               = 0x02
         Delay               = 0x03
-        InlineDelay         = 0xa3
-        EnableExtCtrl       = 0x04
-        DisableExtCtrl      = 0x05
-        SelectEbeam         = 0x06
-        SelectIbeam         = 0x07
-        SelectNoBeam        = 0x08
-        Blank               = 0x09
-        BlankInline         = 0x0a
-        Unblank             = 0x0b
-        UnblankInline       = 0x0d
+        ExtCtrl             = 0x04
+        BeamSelect          = 0x05
+        Blank               = 0x06
 
         RasterRegion        = 0x10
         RasterPixel         = 0x11
@@ -581,15 +575,7 @@ class Command(data.Struct):
         RasterPixelFreeRun  = 0x13
         VectorPixel         = 0x14
         VectorPixelMinDwell = 0x15
-        FlipX               = 0x16
-        FlipY               = 0x17
-        Rotate90            = 0x18
-        UnFlipX             = 0x19
-        UnFlipY             = 0x20
-        UnRotate90          = 0x21
-
     type: Type
-
     payload: data.UnionLayout({
         "synchronize":      data.StructLayout({
             "cookie":           Cookie,
@@ -617,13 +603,56 @@ class Command(data.Struct):
             "x_coord":          14,
             "y_coord":          14,
             "dwell_time":       DwellTime,
-        }),
-        "transform":        data.StructLayout({
-            "xflip":            1,
-            "yflip":            1,
-            "rotate90":         1
         })
     })
+
+
+class ByteCommandView(data.View):
+    def first_byte(self):
+        return self.as_value().value
+
+class ByteCommandLayout(data.Struct):
+    type: Command.Type
+    payload: data.UnionLayout({
+        "synchronize":      data.StructLayout({
+            "mode": 3
+        }),
+        "external_ctrl": 3,
+        "beam_type": 2,
+        "blank": 2
+    })
+
+        #     payload_byte: data.UnionLayout({
+        #             "synchronize":      data.StructLayout({
+        #                 "mode":         data.StructLayout ({
+        #                     "raster": 1,
+        #                     "output": OutputMode,
+        #                 }),
+        #                 "cookie": Cookie,
+        #             }),
+        #             "external_ctrl": data.StructLayout({
+        #                 "enable": 1,
+        #             }),
+        #             "beam_type": BeamType,
+        #             "blank":       data.StructLayout({
+        #                 "enable": 1,
+        #                 "inline": 1,
+        #             }),
+        #             "delay": DwellTime,
+        #             "raster_region":    RasterRegion,
+        #             "raster_pixel":     DwellTime,
+        #             "raster_pixel_run": data.StructLayout({
+        #                 "length":           16,
+        #                 "dwell_time":       DwellTime,
+        #             }),
+        #             "vector_pixel":     data.StructLayout({
+        #                 "x_coord":          14,
+        #                 "y_coord":          14,
+        #                 "dwell_time":       DwellTime,
+        #             })
+        #         })
+        # })
+
 
 
 class CommandParser(wiring.Component):
@@ -639,10 +668,13 @@ class CommandParser(wiring.Component):
         with m.FSM():
             with m.State("Type"):
                 m.d.comb += self.usb_stream.ready.eq(1)
-                m.d.sync += command.type.eq(self.usb_stream.payload)
+                c = Signal(Command)
+                m.d.comb += c.eq(self.usb_stream.payload)
+                m.d.sync += command.type.eq(c.type)
                 with m.If(self.usb_stream.valid):
                     with m.Switch(self.usb_stream.payload):
                         with m.Case(Command.Type.Synchronize):
+                            m.d.sync += command.payload.synchronize.eq(c.payload.synchronize)
                             m.next = "Payload_Synchronize_1_High"
 
                         with m.Case(Command.Type.Abort):
@@ -654,68 +686,13 @@ class CommandParser(wiring.Component):
                         with m.Case(Command.Type.Delay, Command.Type.InlineDelay):
                             m.next = "Payload_Delay_High"
 
-                        with m.Case(Command.Type.EnableExtCtrl):
-                            m.d.sync += command.payload.external_ctrl.enable.eq(1)
+                        with m.Case(Command.Type.ExtCtrl):
                             m.next = "Submit"
                         
-                        with m.Case(Command.Type.DisableExtCtrl):
-                            m.d.sync += command.payload.external_ctrl.enable.eq(0)
-                            m.next = "Submit"
-                        
-                        with m.Case(Command.Type.SelectNoBeam):
-                            m.d.sync += command.payload.beam_type.eq(BeamType.NoBeam)
-                            m.next = "Submit"
-                        
-                        with m.Case(Command.Type.SelectEbeam):
-                            m.d.sync += command.payload.beam_type.eq(BeamType.Electron)
-                            m.next = "Submit"
-                        
-                        with m.Case(Command.Type.SelectIbeam):
-                            m.d.sync += command.payload.beam_type.eq(BeamType.Ion)
+                        with m.Case(Command.Type.BeamSelect):
                             m.next = "Submit"
 
                         with m.Case(Command.Type.Blank):
-                            m.d.sync += command.payload.blank.enable.eq(1)
-                            m.d.sync += command.payload.blank.inline.eq(0)
-                            m.next = "Submit"
-                        
-                        with m.Case(Command.Type.BlankInline):
-                            m.d.sync += command.payload.blank.enable.eq(1)
-                            m.d.sync += command.payload.blank.inline.eq(1)
-                            m.next = "Submit"
-                        
-                        with m.Case(Command.Type.Unblank):
-                            m.d.sync += command.payload.blank.enable.eq(0)
-                            m.d.sync += command.payload.blank.inline.eq(0)
-                            m.next = "Submit"
-                        
-                        with m.Case(Command.Type.UnblankInline):
-                            m.d.sync += command.payload.blank.enable.eq(0)
-                            m.d.sync += command.payload.blank.inline.eq(1)
-                            m.next = "Submit"
-
-                        with m.Case(Command.Type.FlipX):
-                            m.d.sync += command.payload.transform.xflip.eq(1)
-                            m.next = "Submit"
-
-                        with m.Case(Command.Type.UnFlipX):
-                            m.d.sync += command.payload.transform.xflip.eq(0)
-                            m.next = "Submit"
-
-                        with m.Case(Command.Type.FlipY):
-                            m.d.sync += command.payload.transform.yflip.eq(1)
-                            m.next = "Submit"
-
-                        with m.Case(Command.Type.UnFlipY):
-                            m.d.sync += command.payload.transform.yflip.eq(0)
-                            m.next = "Submit"
-                        
-                        with m.Case(Command.Type.Rotate90):
-                            m.d.sync += command.payload.transform.rotate90.eq(1)
-                            m.next = "Submit"
-
-                        with m.Case(Command.Type.UnRotate90):
-                            m.d.sync += command.payload.transform.rotate90.eq(0)
                             m.next = "Submit"
 
                         with m.Case(Command.Type.RasterRegion):
@@ -753,18 +730,10 @@ class CommandParser(wiring.Component):
                     f"{state_prefix}_Low",  next_state)
 
             DeserializeWord(command.payload.synchronize.cookie,
-                "Payload_Synchronize_1", "Payload_Synchronize_2")
-            Deserialize(command.payload.synchronize.mode,
-                "Payload_Synchronize_2", "Submit")
+                "Payload_Synchronize_1", "Submit")
 
             DeserializeWord(command.payload.delay,
                 "Payload_Delay", "Submit")
-
-            # Deserialize(command.payload.external_ctrl,
-            #     "Payload_ExternalCtrl", "Submit")
-            
-            # Deserialize(command.payload.blank,
-            #     "Payload_Blank", "Submit")
 
             DeserializeWord(command.payload.raster_region.x_start,
                 "Payload_Raster_Region_1", "Payload_Raster_Region_2_High")
@@ -959,26 +928,20 @@ class CommandExecutor(wiring.Component):
                             m.next = "Fetch"
                         with m.Else():
                             m.d.sync += delay_counter.eq(delay_counter + 1)
-                    
-                    with m.Case(Command.Type.InlineDelay):
-                        m.d.sync += inline_delay_counter.eq(command.payload.delay)
-                        m.next = "Fetch"
 
-                    with m.Case(Command.Type.EnableExtCtrl, Command.Type.DisableExtCtrl):
+                    with m.Case(Command.Type.ExtCtrl):
                         #Don't change control in the middle of previously submitted pixels
                         with m.If(self.supersampler.dac_stream.ready):
                             m.d.sync += self.ext_ctrl_enable.eq(command.payload.external_ctrl.enable)
                             m.next = "Fetch"
                     
-                    with m.Case(Command.Type.SelectEbeam, Command.Type.SelectIbeam,
-                                Command.Type.SelectNoBeam):
+                    with m.Case(Command.Type.BeamSelect):
                         #Don't change control in the middle of previously submitted pixels
                         with m.If(self.supersampler.dac_stream.ready):
                             m.d.sync += self.beam_type.eq(command.payload.beam_type)
                             m.next = "Fetch"
 
-                    with m.Case(Command.Type.Blank, Command.Type.BlankInline,
-                                Command.Type.Unblank, Command.Type.UnblankInline):
+                    with m.Case(Command.Type.Blank):
                         with m.If(command.payload.blank.inline):
                             m.d.sync += sync_blank.enable.eq(command.payload.blank.enable)
                             m.d.sync += sync_blank.request.eq(1)

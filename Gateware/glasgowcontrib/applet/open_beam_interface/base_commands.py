@@ -3,6 +3,7 @@ from dataclasses import dataclass
 import enum
 import struct
 import array
+from . import Command
 
 BIG_ENDIAN = (struct.pack('@H', 0x1234) == struct.pack('>H', 0x1234))
 
@@ -81,8 +82,21 @@ class SynchronizeCommand(BaseCommand):
 
     @property
     def message(self):
-        combined = int(self._output_mode<<1 | self._raster_mode)
-        return struct.pack(">BHB", CommandType.Synchronize, self._cookie, combined)
+        combined = Command.const({
+                                "type": Command.Type.Synchronize.value,
+                                "payload": {
+                                    "synchronize": {
+                                        "mode": {
+                                            "raster": self._raster_mode,
+                                            "output": self._output_mode,
+                                        }
+                                    }}})
+        combined = ByteCommandView(Command, combined).first_byte()
+        print(f"{combined=}")
+        #combined = int(self._output_mode<<5 | self._raster_mode <<3 | Command.Type.Synchronize.value)
+        print(f"cookie= {struct.pack(">H", self._cookie)}")
+        print(f"cmd= {struct.pack(">BH", combined, self._cookie)}")
+        return struct.pack(">BH", combined, self._cookie)
 
 
 class AbortCommand(BaseCommand):
@@ -112,25 +126,12 @@ class DelayCommand(BaseCommand):
 
     @property
     def message(self):
-        return struct.pack(">BH", CommandType.Delay, self._delay)
-
-class InlineDelayCommand(BaseCommand):
-    def __init__(self, delay):
-        assert delay <= 65535
-        self._delay = delay
-
-    def __repr__(self):
-        return f"InlineDelayCommand(delay={self._delay})"
-
-    @property
-    def message(self):
-        return struct.pack(">BH", CommandType.InlineDelay, self._delay)
-    
+        return struct.pack(">BH", Command.Type.Delay.value, self._delay)
     
 
 class BlankCommand(BaseCommand):
     def __init__(self, enable:bool=True, inline: bool=False):
-        self._enable = enable
+        self._enable = enablemaller
         self._inline = inline
 
     def __repr__(self):
@@ -138,43 +139,16 @@ class BlankCommand(BaseCommand):
 
     @property
     def message(self):
-        #combined = int(self._inline<<1 | self._enable)
-        #return struct.pack(">BB", CommandType.Blank, combined)
-        if self._enable and not self._inline:
-            return struct.pack('>B', CommandType.Blank)
-        elif self._enable and self._inline:
-            return struct.pack('>B', CommandType.BlankInline)
-        elif not (self._enable and self._inline):
-            return struct.pack('>B', CommandType.Unblank)
-        elif not self._enable and self._inline:
-            return struct.pack('>B', CommandType.UnblankInline)
-
-class TransformCommand(BaseCommand):
-    def __init__(self, xflip:bool=True, yflip:bool=True, rotate90:bool=True):
-        self._xflip = xflip
-        self._yflip = yflip
-        self._rotate90 = rotate90
-
-    def __repr__(self):
-        return f"TransformCommand(xflip={self._xflip}, yflip={self._yflip}, rotate90={self._rotate90})"
-
-    @property
-    def message(self):
-        cmd = bytearray()
-        if self._xflip:
-            cmd.extend(struct.pack('>B', CommandType.FlipX))
-        else:
-            cmd.extend(struct.pack('>B', CommandType.UnFlipX))
-        if self._yflip:
-            cmd.extend(struct.pack('>B', CommandType.FlipY))
-        else:
-            cmd.extend(struct.pack('>B', CommandType.UnFlipY))
-        if self._rotate90:
-            cmd.extend(struct.pack('>B', CommandType.Rotate90))
-        else:
-            cmd.extend(struct.pack('>B', CommandType.UnRotate90))
-        return cmd
-
+        combined = int(self._inline<<5 | self._enable << 3 | Command.Type.Blank.value)
+        return struct.pack(">B", combined)
+        # if self._enable and not self._inline:
+        #     return struct.pack('>B', CommandType.Blank)
+        # elif self._enable and self._inline:
+        #     return struct.pack('>B', CommandType.BlankInline)
+        # elif not (self._enable and self._inline):
+        #     return struct.pack('>B', CommandType.Unblank)
+        # elif not self._enable and self._inline:
+        #     return struct.pack('>B', CommandType.UnblankInline)
 
 
 class ExternalCtrlCommand(BaseCommand):
@@ -186,22 +160,15 @@ class ExternalCtrlCommand(BaseCommand):
 
     @property
     def message(self):
-        if self._enable:
-            return struct.pack(">B", CommandType.EnableExtCtrl)
-        if not self._enable:
-            return struct.pack(">B", CommandType.DisableExtCtrl)
+        combined = int(self._enable << 5 | Command.Type.ExtCtrl.value)
+
 
 class BeamSelectCommand(BaseCommand):
     def __init__(self, beam_type:BeamType):
         self._beam_type = beam_type
     @property
     def message(self):
-        if self._beam_type == BeamType.Electron:
-            return struct.pack('>B', CommandType.SelectEbeam)
-        elif self._beam_type == BeamType.Ion:
-            return struct.pack('>B', CommandType.SelectIbeam)
-        else:
-            return struct.pack('>B', CommandType.SelectNoBeam)
+        combined = int(Command.Type.BeamSelect.value << 5 | self._beam_type)
 
 
 class RasterRegionCommand(BaseCommand):
