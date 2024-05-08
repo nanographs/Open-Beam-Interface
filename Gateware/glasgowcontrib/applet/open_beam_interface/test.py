@@ -8,6 +8,7 @@ from abc import ABCMeta, abstractmethod
 from . import StreamSignature
 from . import Supersampler, RasterScanner, RasterRegion
 from . import CommandParser, CommandExecutor, Command, BeamType, OutputMode, CmdType
+from . import CommandParser, CommandExecutor, Command, BeamType, OutputMode
 from . import BusController, Flippenator
 from .base_commands import *
 
@@ -319,7 +320,21 @@ class OBIAppletTestCase(unittest.TestCase):
                             },
                             "cookie": 1024,
                 }}}, "cmd_sync")
+                {"type": Command.Type.Synchronize, 
+                    "payload": {
+                        "synchronize": {
+                            "mode": {
+                                "raster": 1,
+                                "output": 2,
+                            },
+                            "cookie": 1024,
+                }}}, "cmd_sync")
 
+        # test_cmd(DelayCommand(delay=960),
+        #         {"type": Command.Type.Delay, 
+        #                     "payload": {
+        #                         "delay": 960}
+        #         }, "cmd_delay")
         # test_cmd(DelayCommand(delay=960),
         #         {"type": Command.Type.Delay, 
         #                     "payload": {
@@ -330,12 +345,24 @@ class OBIAppletTestCase(unittest.TestCase):
         #         {"type": Command.Type.ExtCtrl, 
         #                 "payload": {"external_ctrl": {"enable": 1}}
         #         }, "cmd_extctrlenable")
+        # test_cmd(ExtCtrlCommand(),
+        #         {"type": Command.Type.ExtCtrl, 
+        #                 "payload": {"external_ctrl": {"enable": 1}}
+        #         }, "cmd_extctrlenable")
         
         # test_cmd(BeamSelectCommand(),
         #         {"type": Command.Type.BeamSelect, 
         #                     "payload": {"beam_type": BeamType.Electron}
         #         }, "cmd_selectebeam")
+        # test_cmd(BeamSelectCommand(),
+        #         {"type": Command.Type.BeamSelect, 
+        #                     "payload": {"beam_type": BeamType.Electron}
+        #         }, "cmd_selectebeam")
         
+        # test_cmd(BlankCommand(),
+        #         {"type": Command.Type.Blank, 
+        #                     "payload": {"blank": {"enable": 1, "inline": 0}}
+        #         }, "cmd_blank")
         # test_cmd(BlankCommand(),
         #         {"type": Command.Type.Blank, 
         #                     "payload": {"blank": {"enable": 1, "inline": 0}}
