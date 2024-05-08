@@ -127,8 +127,8 @@ class Flippenator(wiring.Component):
     })))
     def elaborate(self, platform):
         m = Module()
-        a = Signal()
-        b = Signal()
+        a = Signal(14)
+        b = Signal(14)
         with m.If(~self.out_stream.valid | (self.out_stream.valid & self.out_stream.ready)):
             m.d.comb += a.eq(Mux(self.rotate90, self.in_stream.payload.dac_x_code, self.in_stream.payload.dac_y_code))
             m.d.comb += b.eq(Mux(self.rotate90, self.in_stream.payload.dac_y_code, self.in_stream.payload.dac_x_code))
