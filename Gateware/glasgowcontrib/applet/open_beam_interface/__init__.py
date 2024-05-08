@@ -109,6 +109,38 @@ class PipelinedLoopbackAdapter(wiring.Component):
 
         return m
 
+class Flippenator(wiring.Component):
+    rotate90: In(1)
+    xflip: In(1)
+    yflip: In(1)
+    in_stream: In(StreamSignature(data.StructLayout({
+        "dac_x_code": 14,
+        "dac_y_code": 14,
+        "last":       1,
+        "blank": BlankRequest
+    })))
+    out_stream: Out(StreamSignature(data.StructLayout({
+        "dac_x_code": 14,
+        "dac_y_code": 14,
+        "last":       1,
+        "blank": BlankRequest
+    })))
+    def elaborate(self, platform):
+        m = Module()
+        a = Signal()
+        b = Signal()
+        with m.If(~self.out_stream.valid | (self.out_stream.valid & self.out_stream.ready)):
+            m.d.comb += a.eq(Mux(self.rotate90, self.in_stream.payload.dac_x_code, self.in_stream.payload.dac_y_code))
+            m.d.comb += b.eq(Mux(self.rotate90, self.in_stream.payload.dac_y_code, self.in_stream.payload.dac_x_code))
+            m.d.sync += self.out_stream.payload.dac_x_code.eq(Mux(self.xflip, a, -a)) #>> xscale)
+            m.d.sync += self.out_stream.payload.dac_y_code.eq(Mux(self.yflip, b, -b)) #>> yscale)
+            m.d.sync += self.out_stream.payload.last.eq(self.in_stream.payload.last)
+            m.d.sync += self.out_stream.payload.blank.eq(self.in_stream.payload.blank)
+            m.d.sync += self.out_stream.valid.eq(self.in_stream.valid)
+        m.d.comb += self.in_stream.ready.eq(self.out_stream.ready)
+        return m
+        
+
 
 class BusController(wiring.Component):
     # FPGA-side interface
@@ -686,6 +718,7 @@ class CommandExecutor(wiring.Component):
     def __init__(self, *, adc_latency=6):
         self.adc_latency = 6
         self.supersampler = Supersampler()
+        self.flippenator = Flippenator()
         super().__init__()
 
     def elaborate(self, platform):
@@ -695,10 +728,11 @@ class CommandExecutor(wiring.Component):
 
         m.submodules.bus_controller = bus_controller = BusController(adc_half_period=3, adc_latency=self.adc_latency)
         m.submodules.supersampler   = self.supersampler
+        m.submodules.flippenator    = self.flippenator
         m.submodules.raster_scanner = self.raster_scanner = RasterScanner()
 
-
-        wiring.connect(m, self.supersampler.super_dac_stream, bus_controller.dac_stream)
+        wiring.connect(m, self.supersampler.super_dac_stream, self.flippenator.in_stream)
+        wiring.connect(m, self.flippenator.out_stream, bus_controller.dac_stream)
         wiring.connect(m, bus_controller.adc_stream, self.supersampler.super_adc_stream)
         wiring.connect(m, flipped(self.bus), bus_controller.bus)
         m.d.comb += self.inline_blank.eq(bus_controller.inline_blank)
@@ -965,12 +999,16 @@ obi_resources  = [
 
 class OBISubtarget(wiring.Component):
     def __init__(self, *, pads, out_fifo, in_fifo, led, control, data, 
-                        benchmark_counters = None, sim=False, loopback=False):
+                        benchmark_counters = None, sim=False, loopback=False,
+                        flipx = False, flipy = False, rot90 = False):
         self.pads = pads
         self.out_fifo = out_fifo
         self.in_fifo  = in_fifo
         self.sim = sim
         self.loopback = loopback
+        self.flipx = flipx
+        self.flipy = flipy
+        self.rot90 = rot90
 
         if not benchmark_counters == None:
             self.benchmark = True
@@ -991,6 +1029,13 @@ class OBISubtarget(wiring.Component):
         m.submodules.parser     = parser     = CommandParser()
         m.submodules.executor   = executor   = CommandExecutor()
         m.submodules.serializer = serializer = ImageSerializer()
+
+        if self.flipx:
+            m.d.comb += executor.flippenator.xflip.eq(1)
+        if self.flipy:
+            m.d.comb += executor.flippenator.yflip.eq(1)
+        if self.rot90:
+            m.d.comb += executor.flippenator.rotate90.eq(1)
 
         if self.loopback:
             m.submodules.loopback_adapter = loopback_adapter = PipelinedLoopbackAdapter(executor.adc_latency)
@@ -1236,6 +1281,16 @@ class OBIApplet(GlasgowApplet):
         parser.add_argument("--benchmark",
             dest = "benchmark", action = 'store_true',
             help = "run benchmark test")
+        parser.add_argument("--flipx",
+            dest = "flipx", action = 'store_true',
+            help = "flip x axis")
+        parser.add_argument("--flipy",
+            dest = "flipy", action = 'store_true',
+            help = "flip y axis")
+        parser.add_argument("--rot90",
+            dest = "rot90", action = 'store_true',
+            help = "switch x and y axes")
+
 
     def build(self, target, args):
         target.platform.add_resources(obi_resources)
@@ -1252,7 +1307,10 @@ class OBIApplet(GlasgowApplet):
             "led": target.platform.request("led"),
             "control": target.platform.request("control"),
             "data": target.platform.request("data"),
-            "loopback": args.loopback
+            "loopback": args.loopback,
+            "flipx": args.flipx,
+            "flipy": args.flipy,
+            "rot90": args.rot90
         }
 
         if args.benchmark:

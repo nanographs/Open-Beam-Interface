@@ -863,7 +863,7 @@ class OBIAppletTestCase(unittest.TestCase):
         class OBIApplet_TestCase(GlasgowAppletTestCase, applet = OBIApplet):
             @synthesis_test
             def test_build(self):
-                self.assertBuilds(args=["--pin-ext-ebeam-scan-enable", "1"])
+                self.assertBuilds(args=["--pin-ext-ebeam-scan-enable", "1", "--flipx", "--flipy", "--rot90"])
             
             def setup_test(self):
                 self.build_simulated_applet()
