@@ -2,35 +2,9 @@ from abc import ABCMeta, abstractmethod
 from dataclasses import dataclass
 import enum
 import struct
-import array
-from . import Command
+from . import Command, ByteCommandView, ByteCommandLayout
+from amaranth import Signal
 
-BIG_ENDIAN = (struct.pack('@H', 0x1234) == struct.pack('>H', 0x1234))
-
-class CommandType(enum.IntEnum):
-    Synchronize         = 0x00
-    Abort               = 0x01
-    Flush               = 0x02
-    Delay               = 0x03
-    EnableExtCtrl       = 0x04
-    DisableExtCtrl      = 0x05
-    SelectEbeam         = 0x06
-    SelectIbeam         = 0x07
-    SelectNoBeam        = 0x08
-    Blank               = 0x09
-    BlankInline         = 0x0a
-    Unblank             = 0x0b
-    UnblankInline       = 0x0d
-
-    RasterRegion        = 0x10
-    RasterPixel         = 0x11
-    RasterPixelRun      = 0x12
-    RasterPixelFreeRun  = 0x13
-    VectorPixel         = 0x14
-    VectorPixelMinDwell = 0x15
-    FlipX               = 0x16
-    FlipY               = 0x17
-    Rotate90            = 0x18
 
 class OutputMode(enum.IntEnum):
     SixteenBit          = 0
@@ -70,27 +44,21 @@ class BaseCommand(metaclass=ABCMeta):
 class SynchronizeCommand(BaseCommand):
     def __init__(self, *, cookie: int, raster: bool, output: OutputMode=OutputMode.SixteenBit):
         self._cookie = cookie
-        self._raster_mode = raster
-        self._output_mode = output
+        self._raster = raster
+        self._output = output
 
     def __repr__(self):
-        return f"SynchronizeCommand(cookie={self._cookie}, raster_mode={self._raster_mode}, output_mode={self._output_mode})"
+        return f"SynchronizeCommand(cookie={self._cookie}, raster={self._raster}, outpute={self._output})"
 
     @property
     def message(self):
-        combined = Command.const({
-                                "type": Command.Type.Synchronize.value,
-                                "payload": {
-                                    "synchronize": {
-                                        "mode": {
-                                            "raster": self._raster_mode,
-                                            "output": self._output_mode,
-                                        }
-                                    }}})
-        combined = ByteCommandView(Command, combined).first_byte()
-        print(f"{combined=}")
-        combined = int(self._output_mode<<5 | self._raster_mode <<3 | Command.Type.Synchronize.value)
-        return struct.pack(">BH", combined, self._cookie)
+        print(f"{vars(Command)=}")
+        return Command.serialize(Command.Type.Synchronize, 
+            payload = {"synchronize": {
+                "mode": {
+                    "raster": self._raster,
+                    "output": self._output
+            }}})
 
 
 class AbortCommand(BaseCommand):
