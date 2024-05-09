@@ -116,14 +116,15 @@ class Flippenator(wiring.Component):
     in_stream: In(StreamSignature(data.StructLayout({
         "dac_x_code": 14,
         "dac_y_code": 14,
+        "blank": BlankRequest,
         "last":       1,
-        "blank": BlankRequest
+        
     })))
     out_stream: Out(StreamSignature(data.StructLayout({
         "dac_x_code": 14,
         "dac_y_code": 14,
+        "blank": BlankRequest,
         "last":       1,
-        "blank": BlankRequest
     })))
     def elaborate(self, platform):
         m = Module()
@@ -147,7 +148,7 @@ class BusController(wiring.Component):
     dac_stream: In(StreamSignature(data.StructLayout({
         "dac_x_code": 14,
         "dac_y_code": 14,
-        "blank":      BlankRequest
+        "blank":      BlankRequest,
         "last":       1,
     })))
 
@@ -468,31 +469,38 @@ class OutputMode(enum.Enum, shape = 2):
 
 # ===============================================================================================
 
-class Command(data.Struct):
-    class Type(enum.Enum, shape=5):
+class CmdType(enum.Enum, shape=5):
         Command1 = 1 # only type
         Command2 = 2 # type + payload bytes
         Command3 = 3 # type + payload bits
         Command4 = 4 # type + payload bits + payload bytes
+        Synchronize = 0x00
+
+
+class Command(data.Struct):
+    
 
     # Only used for transfer via USB, where the command is split into octets.
     class Header(data.Struct):
-        type:    Type,
-        payload: 8 - Shape.cast(Command.Type).width
+        type: CmdType
+        payload: 8 - Shape.cast(CmdType).width
 
     PAYLOAD_SIZE = { # type -> bytes
-        Type.Command1: 0,
-        Type.Command2: 4,
-        Type.Command3: 0,
-        Type.Command4: 4,
+        CmdType.Command1: 0,
+        CmdType.Command2: 4,
+        CmdType.Command3: 0,
+        CmdType.Command4: 4,
+        CmdType.Synchronize: 2
     }
     # will be replaced by Amaranth's `Choice` when it is a part of the public API
-    PAYLOAD_SIZE_ARRAY = Array([
-        sizes if value in SIZE else 0
+    def payload_size_array(PAYLOAD_SIZE, Type):
+        return Array([
+        sizes if value in PAYLOAD_SIZE else 0
         for value in range(1 << Shape.cast(Type).width)
-    ])
+        ])
+    PAYLOAD_SIZE_ARRAY = payload_size_array(PAYLOAD_SIZE, CmdType)
 
-    type: Type
+    type: CmdType
     payload: data.UnionLayout({
         "command1": data.StructLayout({
             "reserved": 0,
@@ -504,17 +512,24 @@ class Command(data.Struct):
         "command3": data.StructLayout({
             "reserved": 0,
             "payload":  3,
-        }),,
+        }),
         "command4": data.StructLayout({
             "reserved": 2,
             "payload":  33,
         }),
+        "synchronize": data.StructLayout({
+            "reserved": 0,
+            "mode": data.StructLayout({
+                "raster": 1,
+                "output": OutputMode
+            })
+        })
     })
 
     @classmethod
-    def serialize(cls, type: Type, **payload) -> bytes:
+    def serialize(cls, type: CmdType, **payload) -> bytes:
         # https://amaranth-lang.org/docs/amaranth/latest/stdlib/data.html#amaranth.lib.data.Const
-        command_length = cls.SIZE[type]
+        command_length = cls.PAYLOAD_SIZE[type]
         command_bits = data.Const(cls, {
             "type": type,
             "payload": {
@@ -540,9 +555,10 @@ class CommandParser(wiring.Component):
         command_header = Signal(Command.Header)
         command_header_reg = Signal(Command.Header)
         m.d.comb += command.type.eq(command_header.type)
-        m.d.comb += command.payload[:len(command_header.payload)].eq(command_header.payload)
+        m.d.comb += command.payload.as_value()[:len(command_header.payload)].eq(command_header.payload)
 
-        payload_size = Command.SIZE_ARRAY[command_header.type]
+        payload_size = Command.PAYLOAD_SIZE_ARRAY[command_header.type]
+        print(f"{max(payload_size)=}")
         payload_parsed = Signal(range(max(payload_size)))
 
         with m.FSM():
@@ -580,238 +596,137 @@ class CommandParser(wiring.Component):
 
 # ===============================================================================================
 
+# class CommandParser(wiring.Component):
+#     usb_stream: In(StreamSignature(8))
+#     cmd_stream: Out(StreamSignature(Command))
 
-class Command(data.Struct):
-    class Type(enum.Enum, shape=5):
-        Synchronize         = 0x00
-        Abort               = 0x01
-        Flush               = 0x02
-        Delay               = 0x03
-        ExtCtrl             = 0x04
-        BeamSelect          = 0x05
-        Blank               = 0x06
+#     def elaborate(self, platform):
+#         m = Module()
 
-        RasterRegion        = 0x10
-        RasterPixel         = 0x11
-        RasterPixelRun      = 0x12
-        RasterPixelFreeRun  = 0x13
-        VectorPixel         = 0x14
-        VectorPixelMinDwell = 0x15
-    type: Type
-    small_payload: data.UnionLayout({
-        "synchronize":      data.StructLayout({
-                "mode":         data.StructLayout ({
-                    "raster": 1,
-                    "output": OutputMode,
-                }),
-            }),
-            "external_ctrl": data.StructLayout({
-                "enable": 1,
-            }),
-            "beam_type": BeamType,
-            "blank":       data.StructLayout({
-                "enable": 1,
-                "inline": 1,
-            }),
-    })
-    payload: data.UnionLayout({
-            "synchronize":      data.StructLayout({
-                "cookie": Cookie,
-            }),
-            "delay": DwellTime,
-            "raster_region":    RasterRegion,
-            "raster_pixel":     DwellTime,
-            "raster_pixel_run": data.StructLayout({
-                "length":           16,
-                "dwell_time":       DwellTime,
-            }),
-            "vector_pixel":     data.StructLayout({
-                "x_coord":          14,
-                "y_coord":          14,
-                "dwell_time":       DwellTime,
-            })
-        })
+#         command = Signal(Command)
+#         m.d.comb += self.cmd_stream.payload.eq(command)
 
+#         with m.FSM():
+#             with m.State("Type"):
+#                 m.d.comb += self.usb_stream.ready.eq(1)
+#                 m.d.sync += command.type.eq(self.usb_stream.payload[:5])
+#                 m.d.sync += command.small_payload.eq(self.usb_stream.payload[5:])
+#                 with m.If(self.usb_stream.valid):
+#                     with m.Switch(self.usb_stream.payload[:5]):
+#                         with m.Case(Command.Type.Synchronize):
+#                             m.next = "Payload_Synchronize_1_High"
 
-class ByteCommandView(data.View):
-    def first_byte(self):
-        return self.as_value().value
+#                         with m.Case(Command.Type.Abort):
+#                             m.next = "Submit"
 
-class ByteCommandLayout(data.Struct):
-    type: Command.Type
-    payload: data.UnionLayout({
-        "synchronize":      data.StructLayout({
-            "mode": 3
-        }),
-        "external_ctrl": 3,
-        "beam_type": 2,
-        "blank": 2
-    })
+#                         with m.Case(Command.Type.Flush):
+#                             m.next = "Submit"
 
-        #     payload_byte: data.UnionLayout({
-        #             "synchronize":      data.StructLayout({
-        #                 "mode":         data.StructLayout ({
-        #                     "raster": 1,
-        #                     "output": OutputMode,
-        #                 }),
-        #                 "cookie": Cookie,
-        #             }),
-        #             "external_ctrl": data.StructLayout({
-        #                 "enable": 1,
-        #             }),
-        #             "beam_type": BeamType,
-        #             "blank":       data.StructLayout({
-        #                 "enable": 1,
-        #                 "inline": 1,
-        #             }),
-        #             "delay": DwellTime,
-        #             "raster_region":    RasterRegion,
-        #             "raster_pixel":     DwellTime,
-        #             "raster_pixel_run": data.StructLayout({
-        #                 "length":           16,
-        #                 "dwell_time":       DwellTime,
-        #             }),
-        #             "vector_pixel":     data.StructLayout({
-        #                 "x_coord":          14,
-        #                 "y_coord":          14,
-        #                 "dwell_time":       DwellTime,
-        #             })
-        #         })
-        # })
+#                         with m.Case(Command.Type.Delay):
+#                             m.next = "Payload_Delay_High"
 
-
-
-class CommandParser(wiring.Component):
-    usb_stream: In(StreamSignature(8))
-    cmd_stream: Out(StreamSignature(Command))
-
-    def elaborate(self, platform):
-        m = Module()
-
-        command = Signal(Command)
-        m.d.comb += self.cmd_stream.payload.eq(command)
-
-        with m.FSM():
-            with m.State("Type"):
-                m.d.comb += self.usb_stream.ready.eq(1)
-                m.d.sync += command.type.eq(self.usb_stream.payload[:5])
-                m.d.sync += command.small_payload.eq(self.usb_stream.payload[5:])
-                with m.If(self.usb_stream.valid):
-                    with m.Switch(self.usb_stream.payload[:5]):
-                        with m.Case(Command.Type.Synchronize):
-                            m.next = "Payload_Synchronize_1_High"
-
-                        with m.Case(Command.Type.Abort):
-                            m.next = "Submit"
-
-                        with m.Case(Command.Type.Flush):
-                            m.next = "Submit"
-
-                        with m.Case(Command.Type.Delay):
-                            m.next = "Payload_Delay_High"
-
-                        with m.Case(Command.Type.ExtCtrl):
-                            m.next = "Submit"
+#                         with m.Case(Command.Type.ExtCtrl):
+#                             m.next = "Submit"
                         
-                        with m.Case(Command.Type.BeamSelect):
-                            m.next = "Submit"
+#                         with m.Case(Command.Type.BeamSelect):
+#                             m.next = "Submit"
 
-                        with m.Case(Command.Type.Blank):
-                            m.next = "Submit"
+#                         with m.Case(Command.Type.Blank):
+#                             m.next = "Submit"
                         
-                        with m.Case(Command.Type.RasterRegion):
-                            m.next = "Payload_Raster_Region_1_High"
+#                         with m.Case(Command.Type.RasterRegion):
+#                             m.next = "Payload_Raster_Region_1_High"
 
-                        with m.Case(Command.Type.RasterPixel): # actually an array
-                            m.next = "Payload_Raster_Pixel_Count_High"
+#                         with m.Case(Command.Type.RasterPixel): # actually an array
+#                             m.next = "Payload_Raster_Pixel_Count_High"
 
-                        with m.Case(Command.Type.RasterPixelRun):
-                            m.next = "Payload_Raster_Pixel_Run_1_High"
+#                         with m.Case(Command.Type.RasterPixelRun):
+#                             m.next = "Payload_Raster_Pixel_Run_1_High"
 
-                        with m.Case(Command.Type.RasterPixelFreeRun):
-                            m.next = "Payload_Raster_Pixel_FreeRun_High"
+#                         with m.Case(Command.Type.RasterPixelFreeRun):
+#                             m.next = "Payload_Raster_Pixel_FreeRun_High"
 
-                        with m.Case(Command.Type.VectorPixel):
-                            m.next = "Payload_Vector_Pixel_1_High"
+#                         with m.Case(Command.Type.VectorPixel):
+#                             m.next = "Payload_Vector_Pixel_1_High"
                         
-                        with m.Case(Command.Type.VectorPixelMinDwell):
-                            m.d.sync += command.payload.vector_pixel.dwell_time.eq(0)
-                            m.next = "Payload_Vector_Pixel_MinDwell_1_High"
+#                         with m.Case(Command.Type.VectorPixelMinDwell):
+#                             m.d.sync += command.payload.vector_pixel.dwell_time.eq(0)
+#                             m.next = "Payload_Vector_Pixel_MinDwell_1_High"
 
-            def Deserialize(target, state, next_state):
-                #print(f'state: {state} -> next state: {next_state}')
-                with m.State(state):
-                    m.d.comb += self.usb_stream.ready.eq(1)
-                    with m.If(self.usb_stream.valid):
-                        m.d.sync += target.eq(self.usb_stream.payload)
-                        m.next = next_state
+#             def Deserialize(target, state, next_state):
+#                 #print(f'state: {state} -> next state: {next_state}')
+#                 with m.State(state):
+#                     m.d.comb += self.usb_stream.ready.eq(1)
+#                     with m.If(self.usb_stream.valid):
+#                         m.d.sync += target.eq(self.usb_stream.payload)
+#                         m.next = next_state
 
-            def DeserializeWord(target, state_prefix, next_state):
-                # print(f'\tdeserializing: {state_prefix} to {next_state}')
-                Deserialize(target[8:16],
-                    f"{state_prefix}_High", f"{state_prefix}_Low")
-                Deserialize(target[0:8],
-                    f"{state_prefix}_Low",  next_state)
+#             def DeserializeWord(target, state_prefix, next_state):
+#                 # print(f'\tdeserializing: {state_prefix} to {next_state}')
+#                 Deserialize(target[8:16],
+#                     f"{state_prefix}_High", f"{state_prefix}_Low")
+#                 Deserialize(target[0:8],
+#                     f"{state_prefix}_Low",  next_state)
 
-            DeserializeWord(command.payload.synchronize.cookie,
-                "Payload_Synchronize_1", "Submit")
+#             DeserializeWord(command.payload.synchronize.cookie,
+#                 "Payload_Synchronize_1", "Submit")
 
-            DeserializeWord(command.payload.delay,
-                "Payload_Delay", "Submit")
+#             DeserializeWord(command.payload.delay,
+#                 "Payload_Delay", "Submit")
 
-            DeserializeWord(command.payload.raster_region.x_start,
-                "Payload_Raster_Region_1", "Payload_Raster_Region_2_High")
-            DeserializeWord(command.payload.raster_region.x_count,
-                "Payload_Raster_Region_2", "Payload_Raster_Region_3_High")
-            DeserializeWord(command.payload.raster_region.x_step,
-                "Payload_Raster_Region_3", "Payload_Raster_Region_4_High")
-            DeserializeWord(command.payload.raster_region.y_start,
-                "Payload_Raster_Region_4", "Payload_Raster_Region_5_High")
-            DeserializeWord(command.payload.raster_region.y_count,
-                "Payload_Raster_Region_5", "Payload_Raster_Region_6_High")
-            DeserializeWord(command.payload.raster_region.y_step,
-                "Payload_Raster_Region_6", "Submit")
+#             DeserializeWord(command.payload.raster_region.x_start,
+#                 "Payload_Raster_Region_1", "Payload_Raster_Region_2_High")
+#             DeserializeWord(command.payload.raster_region.x_count,
+#                 "Payload_Raster_Region_2", "Payload_Raster_Region_3_High")
+#             DeserializeWord(command.payload.raster_region.x_step,
+#                 "Payload_Raster_Region_3", "Payload_Raster_Region_4_High")
+#             DeserializeWord(command.payload.raster_region.y_start,
+#                 "Payload_Raster_Region_4", "Payload_Raster_Region_5_High")
+#             DeserializeWord(command.payload.raster_region.y_count,
+#                 "Payload_Raster_Region_5", "Payload_Raster_Region_6_High")
+#             DeserializeWord(command.payload.raster_region.y_step,
+#                 "Payload_Raster_Region_6", "Submit")
 
-            raster_pixel_count = Signal(16)
-            DeserializeWord(raster_pixel_count,
-                "Payload_Raster_Pixel_Count", "Payload_Raster_Pixel_Array_High")
-            DeserializeWord(command.payload.raster_pixel,
-                "Payload_Raster_Pixel_Array", "Payload_Raster_Pixel_Array_Submit")
-            with m.State("Payload_Raster_Pixel_Array_Submit"):
-                m.d.comb += self.cmd_stream.valid.eq(1)
-                with m.If(self.cmd_stream.ready):
-                    with m.If(raster_pixel_count == 0):
-                        m.next = "Type"
-                    with m.Else():
-                        m.d.sync += raster_pixel_count.eq(raster_pixel_count - 1)
-                        m.next = "Payload_Raster_Pixel_Array_High"
+#             raster_pixel_count = Signal(16)
+#             DeserializeWord(raster_pixel_count,
+#                 "Payload_Raster_Pixel_Count", "Payload_Raster_Pixel_Array_High")
+#             DeserializeWord(command.payload.raster_pixel,
+#                 "Payload_Raster_Pixel_Array", "Payload_Raster_Pixel_Array_Submit")
+#             with m.State("Payload_Raster_Pixel_Array_Submit"):
+#                 m.d.comb += self.cmd_stream.valid.eq(1)
+#                 with m.If(self.cmd_stream.ready):
+#                     with m.If(raster_pixel_count == 0):
+#                         m.next = "Type"
+#                     with m.Else():
+#                         m.d.sync += raster_pixel_count.eq(raster_pixel_count - 1)
+#                         m.next = "Payload_Raster_Pixel_Array_High"
 
-            DeserializeWord(command.payload.raster_pixel_run.length,
-                "Payload_Raster_Pixel_Run_1", "Payload_Raster_Pixel_Run_2_High")
-            DeserializeWord(command.payload.raster_pixel_run.dwell_time,
-                "Payload_Raster_Pixel_Run_2", "Submit")
+#             DeserializeWord(command.payload.raster_pixel_run.length,
+#                 "Payload_Raster_Pixel_Run_1", "Payload_Raster_Pixel_Run_2_High")
+#             DeserializeWord(command.payload.raster_pixel_run.dwell_time,
+#                 "Payload_Raster_Pixel_Run_2", "Submit")
 
-            DeserializeWord(command.payload.raster_pixel,
-                "Payload_Raster_Pixel_FreeRun", "Submit")
+#             DeserializeWord(command.payload.raster_pixel,
+#                 "Payload_Raster_Pixel_FreeRun", "Submit")
 
-            DeserializeWord(command.payload.vector_pixel.x_coord,
-                "Payload_Vector_Pixel_1", "Payload_Vector_Pixel_2_High")
-            DeserializeWord(command.payload.vector_pixel.y_coord,
-                "Payload_Vector_Pixel_2", "Payload_Vector_Pixel_3_High")
-            DeserializeWord(command.payload.vector_pixel.dwell_time,
-                "Payload_Vector_Pixel_3", "Submit")
+#             DeserializeWord(command.payload.vector_pixel.x_coord,
+#                 "Payload_Vector_Pixel_1", "Payload_Vector_Pixel_2_High")
+#             DeserializeWord(command.payload.vector_pixel.y_coord,
+#                 "Payload_Vector_Pixel_2", "Payload_Vector_Pixel_3_High")
+#             DeserializeWord(command.payload.vector_pixel.dwell_time,
+#                 "Payload_Vector_Pixel_3", "Submit")
             
-            DeserializeWord(command.payload.vector_pixel.x_coord,
-                "Payload_Vector_Pixel_MinDwell_1", "Payload_Vector_Pixel_MinDwell_2_High")
-            DeserializeWord(command.payload.vector_pixel.y_coord,
-                "Payload_Vector_Pixel_MinDwell_2", "Submit")
+#             DeserializeWord(command.payload.vector_pixel.x_coord,
+#                 "Payload_Vector_Pixel_MinDwell_1", "Payload_Vector_Pixel_MinDwell_2_High")
+#             DeserializeWord(command.payload.vector_pixel.y_coord,
+#                 "Payload_Vector_Pixel_MinDwell_2", "Submit")
 
-            with m.State("Submit"):
-                m.d.comb += self.cmd_stream.valid.eq(1)
-                with m.If(self.cmd_stream.ready):
-                    m.next = "Type"
+#             with m.State("Submit"):
+#                 m.d.comb += self.cmd_stream.valid.eq(1)
+#                 with m.If(self.cmd_stream.ready):
+#                     m.next = "Type"
 
-        return m
+#         return m
 
 #=========================================================================
 class CommandExecutor(wiring.Component):
