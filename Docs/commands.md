@@ -1,17 +1,14 @@
 | Command            | Type | Payload (Bytes)       | Payload (Bits)|
-|--------------------|------|------------------     |---------------|
-| Synchronize        | 0x00 | Cookie (2)            |               |
-|                    |      | Mode (1)              | raster (1)    |
-|                    |      |                       | output (2)    |
+|--------------------|------|-----------------------|---------------|
+| Synchronize        | 0x00 | Cookie (2)            | raster (1)    |
+|                    |      | Mode (1)              | output (2)    |
 | Abort              | 0x01 | -                     |               |
 | Flush              | 0x02 | -                     |               |
 | Delay              | 0x03 | DwellTime (2)         |               |
-| ExternalCtrl       | 0x04 | ExternalCtrl (1)      | Enable (1)    |
-|                    |      |                       | BeamType (2)  |
-| Blank              | 0x05 | -                     |               |
-| BlankInline        | 0x06 | -                     |               |
-| Unblank            | 0x07 | -                     |               |
-| UnblankInline      | 0x08 | -                     |               |
+| ExternalCtrl       | 0x04 |                       | Enable (1)    |
+| BeamSelect         | 0x05 | -                     |               |
+| Blank              | 0x06 | -                     | Enable(1)     |
+|                    |      |                       | Inline(1)     |
 | RasterRegion       | 0x10 | x_start (2)           |               |
 |                    |      | x_count (2)           |               | 
 |                    |      | x_step (2)            |               |
@@ -59,7 +56,7 @@
 | 0      | Disable external scan and blanking control |
 | 1      | Enable external scan and blanking control  |
 
-### BeamType
+## BeamSelect
 | BeamType | value    |
 |----------|----------|
 | 1        | Electron |
@@ -75,11 +72,11 @@
 | 0      | Disable blanking |
 | 1      | Enable blanking  |
 
-### BeamType
-| BeamType | value    |
-|----------|----------|
-| 1        | Electron |
-| 2        | Ion      |
+### inline
+| inline | function                                               |
+|--------|--------------------------------------------------------|       
+| 0      | Blanking input is executed immediately                 |
+| 1      | Blanking input is executed in sync with the next pixel |
 
 ## RasterRegion
 | field   | type     | function                |
@@ -93,3 +90,6 @@
 
 ## DwellTime
 One DwellTime unit = one minimum dwell cycle = 125 ns
+
+## Delay
+One Delay unit = one FPGA clock cycle = 20.83 ns
