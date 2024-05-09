@@ -48,14 +48,16 @@ class SynchronizeCommand(BaseCommand):
         self._cookie = cookie
         self._raster = raster
         self._output = output
+        self._raster = raster
+        self._output = output
 
     def __repr__(self):
         return f"SynchronizeCommand(cookie={self._cookie}, raster={self._raster}, outpute={self._output})"
 
     @property
     def message(self):
-        # print(f"{vars(Command)=}")
-        return Command.serialize(CmdType.Synchronize, 
+        print(f"{vars(Command)=}")
+        return Command.serialize(Command.Type.Synchronize, 
             payload = {"synchronize": {
                 "mode": {
                     "raster": self._raster,
