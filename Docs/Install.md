@@ -1,3 +1,4 @@
+# Gateware/Glasgow Applet
 ## MacOS
 ### glasgow
 Download glasgow from https://github.com/isabelburgos/glasgow
@@ -47,4 +48,33 @@ pdm run run
 to run a script in applet context:
 ```
 pdm run_script path/to/script
+```
+
+# GUI
+## MacOS
+
+### pipx
+```
+pipx install Open-Beam-Interface/Software
+```
+
+to run gui:
+```
+obi_gui [port] [--config-path] [--window-size]
+```
+
+### pdm
+```
+cd Open-Beam-Interface/Software
+pdm install -G gui
+```
+
+to run gui:
+```
+pdm run gui
+```
+
+to run a script in the venv:
+```
+pdm run path/to/script.py
 ```
