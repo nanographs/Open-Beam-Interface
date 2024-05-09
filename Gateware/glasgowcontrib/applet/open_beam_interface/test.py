@@ -8,7 +8,6 @@ from abc import ABCMeta, abstractmethod
 from . import StreamSignature
 from . import Supersampler, RasterScanner, RasterRegion
 from . import CommandParser, CommandExecutor, Command, BeamType, OutputMode, CmdType
-from . import CommandParser, CommandExecutor, Command, BeamType, OutputMode
 from . import BusController, Flippenator
 from .base_commands import *
 
@@ -312,15 +311,6 @@ class OBIAppletTestCase(unittest.TestCase):
         
         test_cmd(SynchronizeCommand(cookie=1024, raster=True, output=OutputMode.NoOutput),
                 {"type": CmdType.Synchronize, 
-                    "payload": {
-                        "synchronize": {
-                            "mode": {
-                                "raster": 1,
-                                "output": 2,
-                            },
-                            "cookie": 1024,
-                }}}, "cmd_sync")
-                {"type": Command.Type.Synchronize, 
                     "payload": {
                         "synchronize": {
                             "mode": {
