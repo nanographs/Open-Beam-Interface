@@ -6,9 +6,7 @@ authors = [{name = "nanographs"}]
 license = {text = "0BSD OR Apache-2.0"}
 
 requires-python = "!=3.10.0,!=3.10.1,!=3.10.2,~=3.9"
-dependencies = [
-    "glasgow@ git+https://github.com/isabelburgos/glasgow@main#subdirectory=software",
-]
+dependencies = ["glasgow"]
 
 [project.entry-points."glasgow.applet"]
 open_beam_interface = "glasgowcontrib.applet.open_beam_interface:OBIApplet"
@@ -31,4 +29,6 @@ test.cmd = "python -m unittest glasgowcontrib.applet.open_beam_interface.test"
 build.cmd = "AMARANTH_verbose=1 glasgow build open_beam_interface -V 5 --pin-ext-ibeam-scan-enable 0 --pin-ext-ibeam-scan-enable-2 1 --pin-ext-ibeam-blank-enable 2 --pin-ext-ibeam-blank-enable-2 3 --pin-ibeam-blank-low 4 --pin-ibeam-blank-high 5 --pin-ebeam-blank 6 --pin-ebeam-blank-2 7"
 
 [tool.pdm.dev-dependencies]
-test = ["amaranth@ git+https://github.com/whitequark/amaranth@testbenchessssss"]
+test = ["amaranth@ git+https://github.com/whitequark/amaranth@testbenchessssss",
+        "glasgow@ git+https://github.com/isabelburgos/glasgow@main#subdirectory=software",
+        ]
