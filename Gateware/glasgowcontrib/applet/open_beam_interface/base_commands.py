@@ -63,9 +63,7 @@ class SynchronizeCommand(BaseCommand):
                                     }}})
         combined = ByteCommandView(Command, combined).first_byte()
         print(f"{combined=}")
-        #combined = int(self._output_mode<<5 | self._raster_mode <<3 | Command.Type.Synchronize.value)
-        print(f"cookie= {struct.pack(">H", self._cookie)}")
-        print(f"cmd= {struct.pack(">BH", combined, self._cookie)}")
+        combined = int(self._output_mode<<5 | self._raster_mode <<3 | Command.Type.Synchronize.value)
         return struct.pack(">BH", combined, self._cookie)
 
 

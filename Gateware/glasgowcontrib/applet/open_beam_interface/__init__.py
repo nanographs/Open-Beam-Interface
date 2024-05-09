@@ -147,8 +147,8 @@ class BusController(wiring.Component):
     dac_stream: In(StreamSignature(data.StructLayout({
         "dac_x_code": 14,
         "dac_y_code": 14,
+        "blank":      BlankRequest
         "last":       1,
-        "blank": BlankRequest
     })))
 
     adc_stream: Out(StreamSignature(data.StructLayout({
@@ -462,11 +462,123 @@ class BeamType(enum.Enum, shape = 2):
     Ion                 = 2
 
 class OutputMode(enum.Enum, shape = 2):
-    SixteenBit          = 0x00
-    EightBit            = 0x01
-    NoOutput            = 0x02
+    SixteenBit          = 0
+    EightBit            = 1
+    NoOutput            = 2
+
+# ===============================================================================================
+
+class Command(data.Struct):
+    class Type(enum.Enum, shape=5):
+        Command1 = 1 # only type
+        Command2 = 2 # type + payload bytes
+        Command3 = 3 # type + payload bits
+        Command4 = 4 # type + payload bits + payload bytes
+
+    # Only used for transfer via USB, where the command is split into octets.
+    class Header(data.Struct):
+        type:    Type,
+        payload: 8 - Shape.cast(Command.Type).width
+
+    PAYLOAD_SIZE = { # type -> bytes
+        Type.Command1: 0,
+        Type.Command2: 4,
+        Type.Command3: 0,
+        Type.Command4: 4,
+    }
+    # will be replaced by Amaranth's `Choice` when it is a part of the public API
+    PAYLOAD_SIZE_ARRAY = Array([
+        sizes if value in SIZE else 0
+        for value in range(1 << Shape.cast(Type).width)
+    ])
+
+    type: Type
+    payload: data.UnionLayout({
+        "command1": data.StructLayout({
+            "reserved": 0,
+        }),
+        "command2": data.StructLayout({
+            "reserved": 3,
+            "data":     32,
+        }),
+        "command3": data.StructLayout({
+            "reserved": 0,
+            "payload":  3,
+        }),,
+        "command4": data.StructLayout({
+            "reserved": 2,
+            "payload":  33,
+        }),
+    })
+
+    @classmethod
+    def serialize(cls, type: Type, **payload) -> bytes:
+        # https://amaranth-lang.org/docs/amaranth/latest/stdlib/data.html#amaranth.lib.data.Const
+        command_length = cls.SIZE[type]
+        command_bits = data.Const(cls, {
+            "type": type,
+            "payload": {
+                "reserved": 0,
+                **payload
+            }
+        }).value
+        return command_bits.to_bytes(command_length, byteorder="little")
+    
+        # usage: Command.serialize(Command.Type.Command4, payload=1234)
 
 
+class CommandParser(wiring.Component):
+    usb_stream: In(StreamSignature(8))
+    cmd_stream: Out(StreamSignature(Command))
+
+    def elaborate(self, platform):
+        m = Module()
+
+        command = Signal(Command)
+        m.d.comb += self.cmd_stream.payload.eq(command)
+
+        command_header = Signal(Command.Header)
+        command_header_reg = Signal(Command.Header)
+        m.d.comb += command.type.eq(command_header.type)
+        m.d.comb += command.payload[:len(command_header.payload)].eq(command_header.payload)
+
+        payload_size = Command.SIZE_ARRAY[command_header.type]
+        payload_parsed = Signal(range(max(payload_size)))
+
+        with m.FSM():
+            with m.State("Type"):
+                m.d.comb += self.usb_stream.ready.eq(1)
+                m.d.comb += command_header.eq(self.usb_stream.payload)
+                m.d.comb += command.type.eq(command_header.type)
+                m.d.comb += command.payload[:len(command_header.payload)].eq(command_header.payload)
+
+                with m.If(self.usb_stream.valid):
+                    with m.If(payload_size == 0):
+                        m.d.comb += self.cmd_stream.valid.eq(1)
+                        m.d.comb += self.usb_stream.ready.eq(self.cmd_stream.ready)
+                    with m.Else():
+                        m.d.sync += command_header_reg.eq(self.usb_stream.payload)
+                        m.next = "Payload"
+
+            with m.State("Payload"):
+                m.d.comb += command_header.eq(command_header_reg)
+                m.d.comb += command.type.eq(command_header.type)
+                m.d.comb += command.payload[:len(command_header.payload)].eq(command_header.payload)
+
+                with m.If(self.usb_stream.valid):
+                    m.d.sync += (command.payload[len(command_header.payload):]
+                        .word_select(payload_parsed, 8)).eq(self.usb_stream.payload)
+                    m.d.sync += payload_parsed.eq(payload_parsed + 1)
+                    with m.If(payload_parsed + 1 == payload_size):
+                        m.next = "Submit_with_payload"
+            
+            with m.State("Submit_with_payload"):
+                m.d.comb += self.cmd_stream.valid.eq(1)
+                with m.If(self.cmd_stream.ready):
+                    m.next = "Type"
+
+
+# ===============================================================================================
 
 
 class Command(data.Struct):
@@ -486,13 +598,12 @@ class Command(data.Struct):
         VectorPixel         = 0x14
         VectorPixelMinDwell = 0x15
     type: Type
-    payload: data.UnionLayout({
-            "synchronize":      data.StructLayout({
+    small_payload: data.UnionLayout({
+        "synchronize":      data.StructLayout({
                 "mode":         data.StructLayout ({
                     "raster": 1,
                     "output": OutputMode,
                 }),
-                "cookie": Cookie,
             }),
             "external_ctrl": data.StructLayout({
                 "enable": 1,
@@ -501,6 +612,11 @@ class Command(data.Struct):
             "blank":       data.StructLayout({
                 "enable": 1,
                 "inline": 1,
+            }),
+    })
+    payload: data.UnionLayout({
+            "synchronize":      data.StructLayout({
+                "cookie": Cookie,
             }),
             "delay": DwellTime,
             "raster_region":    RasterRegion,
@@ -578,13 +694,11 @@ class CommandParser(wiring.Component):
         with m.FSM():
             with m.State("Type"):
                 m.d.comb += self.usb_stream.ready.eq(1)
-                c = Signal(Command)
-                m.d.comb += c.eq(self.usb_stream.payload)
-                m.d.sync += command.type.eq(c.type)
+                m.d.sync += command.type.eq(self.usb_stream.payload[:5])
+                m.d.sync += command.small_payload.eq(self.usb_stream.payload[5:])
                 with m.If(self.usb_stream.valid):
-                    with m.Switch(self.usb_stream.payload):
+                    with m.Switch(self.usb_stream.payload[:5]):
                         with m.Case(Command.Type.Synchronize):
-                            m.d.sync += command.payload.synchronize.eq(c.payload.synchronize)
                             m.next = "Payload_Synchronize_1_High"
 
                         with m.Case(Command.Type.Abort):
