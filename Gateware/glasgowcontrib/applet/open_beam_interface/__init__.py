@@ -488,8 +488,6 @@ class Command(data.Struct):
     class Header(data.Struct):
         type: CmdType
         payload: 8 - Shape.cast(CmdType).width
-        type: CmdType
-        payload: 8 - Shape.cast(CmdType).width
 
     PAYLOAD_SIZE = { # type -> bytes
         CmdType.Command1: 0,
@@ -537,17 +535,22 @@ class Command(data.Struct):
 
     @classmethod
     def serialize(cls, type: CmdType, payload) -> bytes:
+        dic = {"type": type, "payload": {**payload} }
+        print(f"{dic=}")
         # https://amaranth-lang.org/docs/amaranth/latest/stdlib/data.html#amaranth.lib.data.Const
-        print(f"{payload=}")
-        print(f"{cls.as_shape()=}")
+        command_bits = cls.const({"type": type,
+                        "payload":
+                        {**payload}}).as_value()
+        print(f"{command_bits=}")
         command_length = cls.PAYLOAD_SIZE[type]
-        command_bits = data.Const(cls, {
-            "type": type,
-            "payload": {
-                "reserved": 0,
-                **payload
-            }
-        }).value
+
+        # command_bits = data.Const(cls, {
+        #     "type": type,
+        #     "payload": {
+        #         "reserved": 0,
+        #         #**payload
+        #     }
+        # }).value
         return command_bits.to_bytes(command_length, byteorder="little")
     
         # usage: Command.serialize(Command.Type.Command4, payload=1234)
