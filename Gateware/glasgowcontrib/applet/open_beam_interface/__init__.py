@@ -580,7 +580,7 @@ class Command(data.Struct):
         payload: 8 - Shape.cast(CmdType).width
 
     PAYLOAD_SIZE = { # type -> bytes
-        # CmdType.Command1: 0,
+        CmdType.Command1: 0,
         CmdType.Command2: 4,
         CmdType.Command3: 0,
         CmdType.Command4: 4,
@@ -596,9 +596,9 @@ class Command(data.Struct):
 
     type: CmdType
     payload: data.UnionLayout({
-        # "command1": data.StructLayout({
-        #     "reserved": 0,
-        # }),
+        "command1": data.StructLayout({
+            "reserved": 0,
+        }),
         "command2": data.StructLayout({
             "reserved": 3,
             "data":     32,
@@ -606,7 +606,6 @@ class Command(data.Struct):
         "command3": data.StructLayout({
             "reserved": 0,
             "payload":  3,
-        }),
         }),
         "command4": data.StructLayout({
             "reserved": 2,
@@ -622,6 +621,7 @@ class Command(data.Struct):
                 "cookie": 16
             })
         })
+    })
 
     @classmethod
     def serialize(cls, type: CmdType, payload) -> bytes:
