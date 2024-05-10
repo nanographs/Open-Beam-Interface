@@ -89,6 +89,14 @@ class AbortCommand(BaseCommand):
     def message(self):
         return struct.pack(">B", CommandType.Abort)
     
+class FlushCommand(BaseCommand):
+    def __repr__(self):
+        return f"FlushCommand"
+    
+    @property
+    def message(self):
+        return struct.pack(">B", CommandType.Flush)
+    
 
 class DelayCommand(BaseCommand):
     def __init__(self, delay):
@@ -206,7 +214,6 @@ class RasterRegionCommand(BaseCommand):
 
 class RasterPixelsCommand(BaseCommand):
     def __init__(self, *, dwells: list[DwellTime]):
-        assert len(dwells) <= 65536
         self._dwells  = dwells
         
     def __repr__(self):
@@ -253,16 +260,47 @@ class RasterPixelsCommand(BaseCommand):
 class RasterPixelRunCommand(BaseCommand):
     def __init__(self, *, dwell: DwellTime, length: int):
         assert dwell <= 65536
-        assert length <= 65536, "Run length counter is 16 bits"
         self._dwell   = dwell
         self._length  = length
 
     def __repr__(self):
         return f"RasterPixelRunCommand(dwell={self._dwell}, length={self._length})"
 
+    def _iter_chunks(self):
+        max_counter = 65536
+        assert self._dwell < max_counter, f"Pixel dwell time ({self._dwell}) higher than 65536. Dwell times are limited to 16 bit values"
+
+        commands = b""
+        def append_command(run_length):
+            nonlocal commands
+            commands += struct.pack(">BHH", CommandType.RasterPixelRun, run_length - 1, self._dwell)
+
+        pixel_count = 0
+        total_dwell = 0
+        for _ in range(self._length):
+            pixel_count += 1
+            total_dwell += self._dwell
+            if total_dwell >= max_counter:
+                append_command(pixel_count)
+                print(f"{len(commands)=}, {pixel_count=}, {total_dwell=}")
+                yield (commands, pixel_count)
+                commands = b""
+                pixel_count = 0
+                total_dwell = 0
+        if pixel_count > 0:
+            append_command(pixel_count)
+            yield (commands, pixel_count)
+
     @property
     def message(self):
-        return struct.pack(">BHH", CommandType.RasterPixelRun, self._length - 1, self._dwell)
+        commands = bytearray()
+        for command_chunk, pixel_count in self._iter_chunks():
+            print(f"{len(command_chunk)=}")
+            commands.extend(command_chunk)
+        return commands
+        print(f"{len(commands)=}")
+
+        #return struct.pack(">BHH", CommandType.RasterPixelRun, self._length - 1, self._dwell)
 
 class VectorPixelCommand(BaseCommand):
     def __init__(self, *, x_coord: int, y_coord: int, dwell: DwellTime):
@@ -291,6 +329,7 @@ class CommandSequence(BaseCommand):
         self._raster = raster
         self.add(SynchronizeCommand(cookie=123, output=output, raster=raster))
     def add(self, other: BaseCommand):
+        print(f"adding {other!r}")
         try:
             self._message.extend(other.message)
         except TypeError:
