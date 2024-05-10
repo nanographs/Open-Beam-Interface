@@ -27,6 +27,9 @@ class CommandType(enum.IntEnum):
     RasterPixelFreeRun  = 0x13
     VectorPixel         = 0x14
     VectorPixelMinDwell = 0x15
+    FlipX               = 0x16
+    FlipY               = 0x17
+    Rotate90            = 0x18
 
 class OutputMode(enum.IntEnum):
     SixteenBit          = 0
