@@ -2,6 +2,9 @@ from abc import ABCMeta, abstractmethod
 from dataclasses import dataclass
 import enum
 import struct
+import array
+
+BIG_ENDIAN = (struct.pack('@H', 0x1234) == struct.pack('>H', 0x1234))
 
 class CommandType(enum.IntEnum):
     Synchronize         = 0x00
@@ -205,12 +208,43 @@ class RasterPixelsCommand(BaseCommand):
         
     def __repr__(self):
         return f"RasterPixelsCommand(dwells=<list of {len(self._dwells)}>)"
+    
+    def _iter_chunks(self):
+        max_counter = 65536
+        assert not any(dwell > max_counter for dwell in self._dwells), "Pixel dwell time higher than 65536. Dwell times are limited to 16 bit values"
+
+        commands = b""
+        def append_command(chunk):
+            nonlocal commands
+            commands += struct.pack(">BH", CommandType.RasterPixel, len(chunk) - 1)
+            if not BIG_ENDIAN: # there is no `array.array('>H')`
+                chunk.byteswap()
+            commands += chunk.tobytes()
+
+        chunk = array.array('H')
+        pixel_count = 0
+        total_dwell  = 0
+        for pixel in self._dwells:
+            chunk.append(pixel)
+            pixel_count += 1
+            total_dwell  += pixel
+            if len(chunk) == 0xffff or total_dwell >= max_counter:
+                append_command(chunk)
+                del chunk[:] # clear
+            if total_dwell >= max_counter:
+                yield (commands, pixel_count)
+                commands = b""
+                pixel_count = 0
+                total_dwell = 0
+        if chunk:
+            append_command(chunk)
+            yield (commands, pixel_count)
 
     @property
     def message(self):
         commands = bytearray()
-        commands.extend(struct.pack(">BH", CommandType.RasterPixels, len(self._dwells) - 1))
-        commands.extend(self._dwells)
+        for command_chunk, pixel_count in self._iter_chunks():
+            commands.extend(command_chunk)
         return commands
 
 class RasterPixelRunCommand(BaseCommand):
