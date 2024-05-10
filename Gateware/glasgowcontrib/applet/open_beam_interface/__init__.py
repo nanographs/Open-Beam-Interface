@@ -110,10 +110,13 @@ class PipelinedLoopbackAdapter(wiring.Component):
 
         return m
 
+class Transforms(data.Struct):
+    xflip: 1
+    yflip: 1
+    rotate90: 1
+
 class Flippenator(wiring.Component):
-    rotate90: In(1)
-    xflip: In(1)
-    yflip: In(1)
+    transforms: In(Transforms)
     in_stream: In(StreamSignature(data.StructLayout({
         "dac_x_code": 14,
         "dac_y_code": 14,
@@ -132,10 +135,10 @@ class Flippenator(wiring.Component):
         a = Signal(14)
         b = Signal(14)
         with m.If(~self.out_stream.valid | (self.out_stream.valid & self.out_stream.ready)):
-            m.d.comb += a.eq(Mux(self.rotate90, self.in_stream.payload.dac_x_code, self.in_stream.payload.dac_y_code))
-            m.d.comb += b.eq(Mux(self.rotate90, self.in_stream.payload.dac_y_code, self.in_stream.payload.dac_x_code))
-            m.d.sync += self.out_stream.payload.dac_x_code.eq(Mux(self.xflip, a, -a)) #>> xscale)
-            m.d.sync += self.out_stream.payload.dac_y_code.eq(Mux(self.yflip, b, -b)) #>> yscale)
+            m.d.comb += a.eq(Mux(self.transforms.rotate90, self.in_stream.payload.dac_x_code, self.in_stream.payload.dac_y_code))
+            m.d.comb += b.eq(Mux(self.transforms.rotate90, self.in_stream.payload.dac_y_code, self.in_stream.payload.dac_x_code))
+            m.d.sync += self.out_stream.payload.dac_x_code.eq(Mux(self.transforms.xflip, a, -a)) #>> xscale)
+            m.d.sync += self.out_stream.payload.dac_y_code.eq(Mux(self.transforms.yflip, b, -b)) #>> yscale)
             m.d.sync += self.out_stream.payload.last.eq(self.in_stream.payload.last)
             m.d.sync += self.out_stream.payload.blank.eq(self.in_stream.payload.blank)
             m.d.sync += self.out_stream.valid.eq(self.in_stream.valid)
@@ -748,6 +751,7 @@ class CommandExecutor(wiring.Component):
     #: Active if `Synchronize`, `Flush`, or `Abort` was the last received command.
     flush: Out(1)
 
+    default_transforms: In(Transforms)
     # Input to Scan/Signal Selector Relay Board
     ext_ctrl_enable: Out(1)
     beam_type: Out(BeamType)
@@ -889,7 +893,15 @@ class CommandExecutor(wiring.Component):
                                 m.d.sync += async_blank.enable.eq(command.payload.blank.enable)
                                 m.d.sync += async_blank.request.eq(1)
                                 m.next = "Fetch"
-                        
+
+                    with m.Case(Command.Type.FlipX, Command.Type.UnFlipX):
+                        m.d.sync += self.flippenator.transforms.flipx.eq(command.transform.flipx ^ self.default_transforms.flipx)
+                    
+                    with m.Case(Command.Type.FlipY, Command.Type.UnFlipY):
+                        m.d.sync += self.flippenator.transforms.flipy.eq(command.transform.flipy ^ self.default_transforms.flipy)
+                    
+                    with m.Case(Command.Type.Rotate90, Command.Type.UnRotate90):
+                        m.d.sync += self.flippenator.transforms.rotate90.eq(command.transform.rotate90 ^ self.default_transforms.rotate90)
 
                     with m.Case(Command.Type.RasterRegion):
                         m.d.sync += raster_region.eq(command.payload.raster_region)
@@ -1039,6 +1051,7 @@ obi_resources  = [
 ]
 
 class OBISubtarget(wiring.Component):
+    transforms: Out(Transforms)
     def __init__(self, *, pads, out_fifo, in_fifo, led, control, data, 
                         benchmark_counters = None, sim=False, loopback=False,
                         flipx = False, flipy = False, rot90 = False):
@@ -1047,9 +1060,6 @@ class OBISubtarget(wiring.Component):
         self.in_fifo  = in_fifo
         self.sim = sim
         self.loopback = loopback
-        self.flipx = flipx
-        self.flipy = flipy
-        self.rot90 = rot90
 
         if not benchmark_counters == None:
             self.benchmark = True
@@ -1072,11 +1082,12 @@ class OBISubtarget(wiring.Component):
         m.submodules.serializer = serializer = ImageSerializer()
 
         if self.flipx:
-            m.d.comb += executor.flippenator.xflip.eq(1)
+            m.d.comb += self.transforms.xflip.eq(1)
         if self.flipy:
-            m.d.comb += executor.flippenator.yflip.eq(1)
+            m.d.comb += self.transforms.yflip.eq(1)
         if self.rot90:
-            m.d.comb += executor.flippenator.rotate90.eq(1)
+            m.d.comb += self.transforms.rotate90.eq(1)
+        m.d.comb += executor.default_transforms.eq(self.transforms)
 
         if self.loopback:
             m.submodules.loopback_adapter = loopback_adapter = PipelinedLoopbackAdapter(executor.adc_latency)
