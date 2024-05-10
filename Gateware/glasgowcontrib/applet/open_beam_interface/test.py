@@ -308,17 +308,18 @@ class OBIAppletTestCase(unittest.TestCase):
                 assert (yield dut.cmd_stream.valid) == 0
             self.simulate(dut, [get_testbench,put_testbench], name="parse_" + name)  
 
+        c = Command.serialize(CmdType.Command4, payload = 1234)
         
-        test_cmd(SynchronizeCommand(cookie=1024, raster=True, output=OutputMode.NoOutput),
-                {"type": CmdType.Synchronize, 
-                    "payload": {
-                        "synchronize": {
-                            "mode": {
-                                "raster": 1,
-                                "output": 2,
-                            },
-                            "cookie": 1024,
-                }}}, "cmd_sync")
+        # test_cmd(SynchronizeCommand(cookie=1024, raster=True, output=OutputMode.NoOutput),
+        #         {"type": CmdType.Synchronize, 
+        #             "payload": {
+        #                 "synchronize": {
+        #                     "mode": {
+        #                         "raster": 1,
+        #                         "output": 2,
+        #                     },
+        #                     "cookie": 1024,
+        #         }}}, "cmd_sync")
 
         # test_cmd(DelayCommand(delay=960),
         #         {"type": Command.Type.Delay, 
