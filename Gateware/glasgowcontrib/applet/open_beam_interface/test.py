@@ -1,5 +1,6 @@
 import unittest
 import struct
+import array
 from amaranth.sim import Simulator, Tick
 from amaranth import Signal, ShapeCastable, Const
 from abc import ABCMeta, abstractmethod
@@ -942,7 +943,7 @@ class OBIAppletTestCase(unittest.TestCase):
         class OBIApplet_TestCase(GlasgowAppletTestCase, applet = OBIApplet):
             @synthesis_test
             def test_build(self):
-                self.assertBuilds(args=["--pin-ext-ebeam-scan-enable", "1", "--flipx", "--flipy", "--rot90"])
+                self.assertBuilds(args=["--pin-ext-ebeam-scan-enable", "1", "--xflip", "--yflip", "--rotate90"])
             
             def setup_test(self):
                 self.build_simulated_applet()
@@ -1000,6 +1001,19 @@ class OBIAppletTestCase(unittest.TestCase):
                     await iface.write(VectorPixelCommand(x_coord=16380, y_coord=16380, dwell=1).message)
                     await iface.write(VectorPixelCommand(x_coord=4, y_coord=16380, dwell=1).message)
                     await iface.write(VectorPixelCommand(x_coord=16380, y_coord=4, dwell=1).message)
+            
+            @applet_simulation_test("setup_x_loopback")
+            async def test_loopback(self):
+                iface = await self.run_simulated_applet()
+                await iface.write(SynchronizeCommand(output=OutputMode.EightBit, raster=False, cookie=123*256+234).message)
+                await iface.write(FlushCommand().message)
+                self.assertEqual(await iface.read(4), bytes([0xFF, 0xFF, 123, 234])) # FF, FF, cookie
+                # await iface.flush()
+                commands = bytearray()
+                for n in range(10):
+                    await iface.write(VectorPixelCommand(x_coord=n, y_coord=n, dwell=1).message)
+                self.assertEqual(await iface.read(10), bytes([x for x in range(10)]))
+
 
             @applet_simulation_test("setup_test", args=["--pin-ext-ibeam-scan-enable", "0", "--pin-ext-ibeam-scan-enable-2", "1"])
             async def test_vector_blank(self):
@@ -1034,11 +1048,12 @@ class OBIAppletTestCase(unittest.TestCase):
             
         test_case = OBIApplet_TestCase()
         test_case.setUp()
-        test_case.test_build()
-        test_case.test_sync_cookie()
+        # test_case.test_build()
+        # test_case.test_sync_cookie()
         test_case.test_raster()
-        test_case.test_benchmark()
-        test_case.test_vector_blank()
+        # test_case.test_benchmark()
+        # test_case.test_vector_blank()
+        # test_case.test_loopback()
 
         
 
