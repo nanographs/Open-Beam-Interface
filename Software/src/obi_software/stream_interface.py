@@ -424,7 +424,7 @@ class _RasterPixelsCommand(Command):
         commands = b""
         def append_command(chunk):
             nonlocal commands
-            commands += struct.pack(">BH", CommandType.RasterPixels, len(chunk) - 1)
+            commands += struct.pack(">BH", CommandType.RasterPixel, len(chunk) - 1)
             if not BIG_ENDIAN: # there is no `array.array('>H')`
                 chunk.byteswap()
             commands += chunk.tobytes()
