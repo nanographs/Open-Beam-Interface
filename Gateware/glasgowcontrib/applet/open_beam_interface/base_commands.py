@@ -2,7 +2,7 @@ from abc import ABCMeta, abstractmethod
 from dataclasses import dataclass
 import enum
 import struct
-from . import Command
+from . import Command, CmdType
 
 
 class OutputMode(enum.IntEnum):
@@ -51,8 +51,8 @@ class SynchronizeCommand(BaseCommand):
 
     @property
     def message(self):
-        print(f"{vars(Command)=}")
-        return Command.serialize(Command.Type.Synchronize, 
+        # print(f"{vars(Command)=}")
+        return Command.serialize(CmdType.Synchronize, 
             payload = {"synchronize": {
                 "mode": {
                     "raster": self._raster,
