@@ -492,7 +492,7 @@ class Command(data.Struct):
         payload: 8 - Shape.cast(CmdType).width
 
     PAYLOAD_SIZE = { # type -> bytes
-        CmdType.Command1: 0,
+        # CmdType.Command1: 0,
         CmdType.Command2: 4,
         CmdType.Command3: 0,
         CmdType.Command4: 4,
@@ -536,7 +536,7 @@ class Command(data.Struct):
         })
 
     @classmethod
-    def serialize(cls, type: CmdType, **payload) -> bytes:
+    def serialize(cls, type: CmdType, payload) -> bytes:
         # https://amaranth-lang.org/docs/amaranth/latest/stdlib/data.html#amaranth.lib.data.Const
         print(f"{payload=}")
         print(f"{cls.as_shape()=}")
@@ -569,15 +569,16 @@ class CommandParser(wiring.Component):
         m.d.comb += command.payload.as_value()[:len(command_header.payload)].eq(command_header.payload)
 
         payload_size = Command.PAYLOAD_SIZE_ARRAY[command_header.type]
-        print(f"{max(payload_size)=}")
-        payload_parsed = Signal(range(max(payload_size)))
+        payload_parsed = Signal(range(max(Command.PAYLOAD_SIZE_ARRAY)))
+
+        command_reg = Signal(Command)
 
         with m.FSM():
             with m.State("Type"):
                 m.d.comb += self.usb_stream.ready.eq(1)
                 m.d.comb += command_header.eq(self.usb_stream.payload)
                 m.d.comb += command.type.eq(command_header.type)
-                m.d.comb += command.payload[:len(command_header.payload)].eq(command_header.payload)
+                m.d.comb += command.payload.as_value()[:len(command_header.payload)].eq(command_header.payload)
 
                 with m.If(self.usb_stream.valid):
                     with m.If(payload_size == 0):
@@ -590,19 +591,21 @@ class CommandParser(wiring.Component):
             with m.State("Payload"):
                 m.d.comb += command_header.eq(command_header_reg)
                 m.d.comb += command.type.eq(command_header.type)
-                m.d.comb += command.payload[:len(command_header.payload)].eq(command_header.payload)
+                m.d.comb += command.payload.as_value()[:len(command_header.payload)].eq(command_header.payload)
 
                 with m.If(self.usb_stream.valid):
-                    m.d.sync += (command.payload[len(command_header.payload):]
+                    m.d.sync += (command_reg.payload.as_value()[len(command_header.payload):]
                         .word_select(payload_parsed, 8)).eq(self.usb_stream.payload)
                     m.d.sync += payload_parsed.eq(payload_parsed + 1)
                     with m.If(payload_parsed + 1 == payload_size):
                         m.next = "Submit_with_payload"
             
             with m.State("Submit_with_payload"):
+                m.d.comb += command.eq(command_reg)
                 m.d.comb += self.cmd_stream.valid.eq(1)
                 with m.If(self.cmd_stream.ready):
                     m.next = "Type"
+        return m
 
 
 # ===============================================================================================
