@@ -135,10 +135,10 @@ class Flippenator(wiring.Component):
         a = Signal(14)
         b = Signal(14)
         with m.If(~self.out_stream.valid | (self.out_stream.valid & self.out_stream.ready)):
-            m.d.comb += a.eq(Mux(self.transforms.rotate90, self.in_stream.payload.dac_y_code, self.in_stream.payload.dac_x_code))
-            m.d.comb += b.eq(Mux(self.transforms.rotate90, self.in_stream.payload.dac_x_code, self.in_stream.payload.dac_y_code))
-            m.d.sync += self.out_stream.payload.dac_x_code.eq(Mux(self.transforms.xflip, -a, a)) #>> xscale)
-            m.d.sync += self.out_stream.payload.dac_y_code.eq(Mux(self.transforms.yflip, -b, b)) #>> yscale)
+            m.d.comb += a.eq(Mux(self.rotate90, self.in_stream.payload.dac_x_code, self.in_stream.payload.dac_y_code))
+            m.d.comb += b.eq(Mux(self.rotate90, self.in_stream.payload.dac_y_code, self.in_stream.payload.dac_x_code))
+            m.d.sync += self.out_stream.payload.dac_x_code.eq(Mux(self.xflip, a, -a)) #>> xscale)
+            m.d.sync += self.out_stream.payload.dac_y_code.eq(Mux(self.yflip, b, -b)) #>> yscale)
             m.d.sync += self.out_stream.payload.last.eq(self.in_stream.payload.last)
             m.d.sync += self.out_stream.payload.blank.eq(self.in_stream.payload.blank)
             m.d.sync += self.out_stream.valid.eq(self.in_stream.valid)
@@ -1092,15 +1092,7 @@ class CommandExecutor(wiring.Component):
                                 m.d.sync += async_blank.enable.eq(command.payload.blank.enable)
                                 m.d.sync += async_blank.request.eq(1)
                                 m.next = "Fetch"
-
-                    with m.Case(Command.Type.FlipX, Command.Type.UnFlipX):
-                        m.d.sync += command_transforms.xflip.eq(command.payload.transform.xflip)
-                    
-                    with m.Case(Command.Type.FlipY, Command.Type.UnFlipY):
-                        m.d.sync += command_transforms.yflip.eq(command.payload.transform.yflip)
-                    
-                    with m.Case(Command.Type.Rotate90, Command.Type.UnRotate90):
-                        m.d.sync += command_transforms.rotate90.eq(command.payload.transform.rotate90)
+                        
 
                     with m.Case(Command.Type.RasterRegion):
                         m.d.sync += raster_region.eq(command.payload.raster_region)
@@ -1255,6 +1247,7 @@ obi_resources  = [
 ]
 
 class OBISubtarget(wiring.Component):
+    transforms: Out(Transforms)
     def __init__(self, *, pads, out_fifo, in_fifo, led, control, data, 
                         benchmark_counters = None, sim=False, loopback=False,
                         xflip = False, yflip = False, rotate90 = False, out_only=False):
@@ -1288,13 +1281,12 @@ class OBISubtarget(wiring.Component):
         m.submodules.executor   = executor   = CommandExecutor(out_only=self.out_only)
         m.submodules.serializer = serializer = ImageSerializer()
 
-        if self.xflip:
-            m.d.comb += executor.default_transforms.xflip.eq(1)
-        if self.yflip:
-            m.d.comb += executor.default_transforms.yflip.eq(1)
-        if self.rotate90:
-            m.d.comb += executor.default_transforms.rotate90.eq(1)
-        
+        if self.flipx:
+            m.d.comb += executor.flippenator.xflip.eq(1)
+        if self.flipy:
+            m.d.comb += executor.flippenator.yflip.eq(1)
+        if self.rot90:
+            m.d.comb += executor.flippenator.rotate90.eq(1)
 
         if self.loopback:
             m.submodules.loopback_adapter = loopback_adapter = PipelinedLoopbackAdapter(executor.adc_latency)
