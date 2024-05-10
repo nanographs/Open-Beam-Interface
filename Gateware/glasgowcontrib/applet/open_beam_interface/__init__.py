@@ -135,8 +135,8 @@ class Flippenator(wiring.Component):
         with m.If(~self.out_stream.valid | (self.out_stream.valid & self.out_stream.ready)):
             m.d.comb += a.eq(Mux(self.transforms.rotate90, self.in_stream.payload.dac_x_code, self.in_stream.payload.dac_y_code))
             m.d.comb += b.eq(Mux(self.transforms.rotate90, self.in_stream.payload.dac_y_code, self.in_stream.payload.dac_x_code))
-            m.d.sync += self.out_stream.payload.dac_x_code.eq(Mux(self.transforms.xflip, a, -a)) #>> xscale)
-            m.d.sync += self.out_stream.payload.dac_y_code.eq(Mux(self.transforms.yflip, b, -b)) #>> yscale)
+            m.d.sync += self.out_stream.payload.dac_x_code.eq(Mux(self.transforms.xflip, -a, a)) #>> xscale)
+            m.d.sync += self.out_stream.payload.dac_y_code.eq(Mux(self.transforms.yflip, -b, b)) #>> yscale)
             m.d.sync += self.out_stream.payload.last.eq(self.in_stream.payload.last)
             m.d.sync += self.out_stream.payload.blank.eq(self.in_stream.payload.blank)
             m.d.sync += self.out_stream.valid.eq(self.in_stream.valid)
@@ -531,8 +531,8 @@ class Command(data.Struct):
             "dwell_time":       DwellTime,
         }),
         "transform":        data.StructLayout({
-            "flipx":            1,
-            "flipy":            1,
+            "xflip":            1,
+            "yflip":            1,
             "rotate90":         1
         })
     })
@@ -607,27 +607,27 @@ class CommandParser(wiring.Component):
                             m.next = "Submit"
 
                         with m.Case(Command.Type.FlipX):
-                            m.d.sync += command.payload.transform.flipx.eq(1)
+                            m.d.sync += command.payload.transform.xflip.eq(1)
                             m.next = "Submit"
 
                         with m.Case(Command.Type.UnFlipX):
-                            m.d.sync += command.payload.transform.flipx.eq(0)
+                            m.d.sync += command.payload.transform.xflip.eq(0)
                             m.next = "Submit"
 
                         with m.Case(Command.Type.FlipY):
-                            m.d.sync += command.payload.transform.flipy.eq(1)
+                            m.d.sync += command.payload.transform.yflip.eq(1)
                             m.next = "Submit"
 
                         with m.Case(Command.Type.UnFlipY):
-                            m.d.sync += command.payload.transform.flipy.eq(0)
+                            m.d.sync += command.payload.transform.yflip.eq(0)
                             m.next = "Submit"
                         
                         with m.Case(Command.Type.Rotate90):
-                            m.d.sync += command.payload.transform.rotate.eq(1)
+                            m.d.sync += command.payload.transform.rotate90.eq(1)
                             m.next = "Submit"
 
                         with m.Case(Command.Type.UnRotate90):
-                            m.d.sync += command.payload.transform.rotate.eq(0)
+                            m.d.sync += command.payload.transform.rotate90.eq(0)
                             m.next = "Submit"
 
                         with m.Case(Command.Type.RasterRegion):
@@ -889,13 +889,13 @@ class CommandExecutor(wiring.Component):
                                 m.next = "Fetch"
 
                     with m.Case(Command.Type.FlipX, Command.Type.UnFlipX):
-                        m.d.sync += self.flippenator.transforms.flipx.eq(command.transform.flipx ^ self.default_transforms.flipx)
+                        m.d.sync += self.flippenator.transforms.xflip.eq(command.payload.transform.xflip ^ self.default_transforms.xflip)
                     
                     with m.Case(Command.Type.FlipY, Command.Type.UnFlipY):
-                        m.d.sync += self.flippenator.transforms.flipy.eq(command.transform.flipy ^ self.default_transforms.flipy)
+                        m.d.sync += self.flippenator.transforms.yflip.eq(command.payload.transform.yflip ^ self.default_transforms.yflip)
                     
                     with m.Case(Command.Type.Rotate90, Command.Type.UnRotate90):
-                        m.d.sync += self.flippenator.transforms.rotate90.eq(command.transform.rotate90 ^ self.default_transforms.rotate90)
+                        m.d.sync += self.flippenator.transforms.rotate90.eq(command.payload.transform.rotate90 ^ self.default_transforms.rotate90)
 
                     with m.Case(Command.Type.RasterRegion):
                         m.d.sync += raster_region.eq(command.payload.raster_region)
@@ -1045,15 +1045,17 @@ obi_resources  = [
 ]
 
 class OBISubtarget(wiring.Component):
-    transforms: Out(Transforms)
     def __init__(self, *, pads, out_fifo, in_fifo, led, control, data, 
                         benchmark_counters = None, sim=False, loopback=False,
-                        flipx = False, flipy = False, rot90 = False):
+                        xflip = False, yflip = False, rotate90 = False):
         self.pads = pads
         self.out_fifo = out_fifo
         self.in_fifo  = in_fifo
         self.sim = sim
         self.loopback = loopback
+        self.xflip = xflip
+        self.yflip = yflip
+        self.rotate90 = rotate90
 
         if not benchmark_counters == None:
             self.benchmark = True
@@ -1075,13 +1077,13 @@ class OBISubtarget(wiring.Component):
         m.submodules.executor   = executor   = CommandExecutor()
         m.submodules.serializer = serializer = ImageSerializer()
 
-        if self.flipx:
-            m.d.comb += self.transforms.xflip.eq(1)
-        if self.flipy:
-            m.d.comb += self.transforms.yflip.eq(1)
-        if self.rot90:
-            m.d.comb += self.transforms.rotate90.eq(1)
-        m.d.comb += executor.default_transforms.eq(self.transforms)
+        if self.xflip:
+            m.d.comb += executor.default_transforms.xflip.eq(1)
+        if self.yflip:
+            m.d.comb += executor.default_transforms.yflip.eq(1)
+        if self.rotate90:
+            m.d.comb += executor.default_transforms.rotate90.eq(1)
+        
 
         if self.loopback:
             m.submodules.loopback_adapter = loopback_adapter = PipelinedLoopbackAdapter(executor.adc_latency)
@@ -1327,14 +1329,14 @@ class OBIApplet(GlasgowApplet):
         parser.add_argument("--benchmark",
             dest = "benchmark", action = 'store_true',
             help = "run benchmark test")
-        parser.add_argument("--flipx",
-            dest = "flipx", action = 'store_true',
+        parser.add_argument("--xflip",
+            dest = "xflip", action = 'store_true',
             help = "flip x axis")
-        parser.add_argument("--flipy",
-            dest = "flipy", action = 'store_true',
+        parser.add_argument("--yflip",
+            dest = "yflip", action = 'store_true',
             help = "flip y axis")
-        parser.add_argument("--rot90",
-            dest = "rot90", action = 'store_true',
+        parser.add_argument("--rotate90",
+            dest = "rotate90", action = 'store_true',
             help = "switch x and y axes")
 
 
@@ -1354,9 +1356,9 @@ class OBIApplet(GlasgowApplet):
             "control": target.platform.request("control"),
             "data": target.platform.request("data"),
             "loopback": args.loopback,
-            "flipx": args.flipx,
-            "flipy": args.flipy,
-            "rot90": args.rot90
+            "xflip": args.xflip,
+            "yflip": args.yflip,
+            "rotate90": args.rotate90
         }
 
         if args.benchmark:
@@ -1377,7 +1379,8 @@ class OBIApplet(GlasgowApplet):
         # await device.set_voltage("AB", 0)
         # await asyncio.sleep(5)
         iface = await device.demultiplexer.claim_interface(self, self.mux_interface, args,
-            read_buffer_size=131072*16, write_buffer_size=131072*17)
+            # read_buffer_size=131072*16, write_buffer_size=131072*16)
+            read_buffer_size=16384*16384, write_buffer_size=16384*16384)
         
         if args.benchmark:
             output_mode = 2 #no output
