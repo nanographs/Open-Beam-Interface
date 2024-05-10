@@ -1,7 +1,7 @@
 from glasgowcontrib.applet.open_beam_interface.base_commands import *
 
 '''
-CommandSequence sends a sync command with the following configurations options:
+CommandSequence sends a sync command with the following configuration options:
 output=
     - OutputMode.NoOutput
     - OutputMode.EightBit
@@ -20,7 +20,7 @@ seq.add(EnableExtCtrlCommand())
 ## seq.add(SelectEbeamCommand())
 ## seq.add(SelectIbeamCommand())
 
-'''Add your seqence of commands below here'''
+'''Add your sequence of commands below here'''
 
 
 
@@ -30,7 +30,7 @@ seq.add(EnableExtCtrlCommand())
 '''Return beam control to the microscope'''
 seq.add(DisableExtCtrlCommand())
 
-'''Send the seqence of commands to the Open Beam Interface'''
+'''Send the sequence of commands to the Open Beam Interface'''
 await iface.write(seq.message)
 '''Recieve the data back from the Open Beam Interface'''
 response = await iface.read()
