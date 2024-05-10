@@ -2,39 +2,8 @@ from abc import ABCMeta, abstractmethod
 from dataclasses import dataclass
 import enum
 import struct
-import array
-from . import Command
+from . import Command, CmdType
 
-BIG_ENDIAN = (struct.pack('@H', 0x1234) == struct.pack('>H', 0x1234))
-
-class CommandType(enum.IntEnum):
-    Synchronize         = 0x00
-    Abort               = 0x01
-    Flush               = 0x02
-    Delay               = 0x03
-    InlineDelay         = 0xa3
-    EnableExtCtrl       = 0x04
-    DisableExtCtrl      = 0x05
-    SelectEbeam         = 0x06
-    SelectIbeam         = 0x07
-    SelectNoBeam        = 0x08
-    Blank               = 0x09
-    BlankInline         = 0x0a
-    Unblank             = 0x0b
-    UnblankInline       = 0x0d
-
-    RasterRegion        = 0x10
-    RasterPixel         = 0x11
-    RasterPixelRun      = 0x12
-    RasterPixelFreeRun  = 0x13
-    VectorPixel         = 0x14
-    VectorPixelMinDwell = 0x15
-    FlipX               = 0x16
-    FlipY               = 0x17
-    Rotate90            = 0x18
-    UnFlipX             = 0x19
-    UnFlipY             = 0x20
-    UnRotate90          = 0x21
 
 class OutputMode(enum.IntEnum):
     SixteenBit          = 0
@@ -82,8 +51,8 @@ class SynchronizeCommand(BaseCommand):
 
     @property
     def message(self):
-        print(f"{vars(Command)=}")
-        return Command.serialize(Command.Type.Synchronize, 
+        # print(f"{vars(Command)=}")
+        return Command.serialize(CmdType.Synchronize, 
             payload = {"synchronize": {
                 "mode": {
                     "raster": self._raster,
