@@ -2,8 +2,10 @@ from abc import ABCMeta, abstractmethod
 from dataclasses import dataclass
 import enum
 import struct
+import array
 from . import Command, CmdType
 
+BIG_ENDIAN = (struct.pack('@H', 0x1234) == struct.pack('>H', 0x1234))
 
 class OutputMode(enum.IntEnum):
     SixteenBit          = 0
