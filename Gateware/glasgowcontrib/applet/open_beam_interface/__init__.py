@@ -574,6 +574,13 @@ class Command(data.Struct):
                 "roi": RasterRegion
             })
         }),
+        "raster_pixel": data.StructLayout({
+            "reserved": 0,
+            "payload": data.StructLayout({
+                "length": 16,
+                "dwell_time": DwellTime
+            })
+        }),
         "raster_pixel_run": data.StructLayout({
             "reserved": 0,
             "payload": data.StructLayout({
@@ -664,7 +671,47 @@ class CommandParser(wiring.Component):
                         .word_select(payload_parsed, 8)).eq(self.usb_stream.payload)
                     m.d.sync += payload_parsed.eq(payload_parsed + 1)
                     with m.If(payload_parsed + 1 == payload_size_reg):
-                        m.next = "Submit_with_payload"
+                        with m.If(command.type == CmdType.RasterPixel):
+                            m.d.sync += raster_pixel_count.eq(command.payload.raster_pixel.payload.length)
+                            m.next = "Payload_Raster_Pixel_Array_High"
+                        with m.Else():
+                            m.next = "Submit_with_payload"
+
+            def Deserialize(target, state, next_state):
+                #print(f'state: {state} -> next state: {next_state}')
+                with m.State(state):
+                    m.d.comb += self.usb_stream.ready.eq(1)
+                    m.d.comb += command_header.eq(command_header_reg)
+                    m.d.comb += command.type.eq(command_header.type)
+                    m.d.comb += command.payload.as_value()[:len(command_header.payload)].eq(command_header.payload)
+                    with m.If(self.usb_stream.valid):
+                        m.d.sync += target.eq(self.usb_stream.payload)
+                        m.next = next_state
+
+            def DeserializeWord(target, state_prefix, next_state):
+                # print(f'\tdeserializing: {state_prefix} to {next_state}')
+                Deserialize(target[8:16],
+                    f"{state_prefix}_High", f"{state_prefix}_Low")
+                Deserialize(target[0:8],
+                    f"{state_prefix}_Low",  next_state)
+                    
+
+            raster_pixel_count = Signal(16)
+            DeserializeWord(command_reg.payload.raster_pixel.payload.dwell_time,
+                "Payload_Raster_Pixel_Array", "Payload_Raster_Pixel_Array_Submit")
+
+            with m.State("Payload_Raster_Pixel_Array_Submit"):
+                m.d.comb += command_header.eq(command_header_reg)
+                m.d.comb += command.type.eq(command_header.type)
+                m.d.comb += command.payload.as_value()[:len(command_header.payload)].eq(command_header.payload)
+                m.d.comb += self.cmd_stream.valid.eq(1)
+                with m.If(self.cmd_stream.ready):
+                    with m.If(raster_pixel_count == 0):
+                        m.next = "Type"
+                    with m.Else():
+                        m.d.sync += raster_pixel_count.eq(raster_pixel_count - 1)
+                        m.next = "Payload_Raster_Pixel_Array_High"
+
             
             # with m.State("Submit_raster_pixel_run"):
             #     m.d.sync += raster_pixel_count.eq(raster_pixel_count-1)

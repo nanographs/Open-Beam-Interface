@@ -379,6 +379,15 @@ class OBIAppletTestCase(unittest.TestCase):
                                 "length": 4, #length = length-1 because of 0-indexing
                                 "dwell_time": 6
                 }}}}, "cmd_vectorpixel")
+        
+        test_cmd(RasterPixelsCommand(dwells = [1,2,3,4,5]),
+                {"type": CmdType.RasterPixel, 
+                    "payload": {
+                        "raster_pixel": {
+                            "payload": {
+                                "length": 4, #length = length-1 because of 0-indexing
+                }}}}, "cmd_rasterpixel")
+
 
         test_cmd(VectorPixelCommand(x_coord=4, y_coord=5, dwell= 6),
                 {"type": CmdType.VectorPixel, 

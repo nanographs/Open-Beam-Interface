@@ -291,10 +291,17 @@ class RasterPixelsCommand(BaseCommand):
         commands = bytearray()
         def append_command(chunk):
             nonlocal commands
-            commands += struct.pack(">BH", CommandType.RasterPixel, len(chunk) - 1)
+            cmd = Command.serialize(CmdType.RasterPixel, 
+                payload = 
+                {"raster_pixel": {
+                    "reserved": 0,
+                    "payload": {
+                        "length": len(chunk) - 1}    
+                }})
+            commands.extend(cmd)
             if not BIG_ENDIAN: # there is no `array.array('>H')`
                 chunk.byteswap()
-            commands += chunk.tobytes()
+            commands.extend(chunk.tobytes())
 
         chunk = array.array('H')
         pixel_count = 0
