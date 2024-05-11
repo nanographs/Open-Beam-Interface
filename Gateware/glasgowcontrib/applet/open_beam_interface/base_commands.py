@@ -56,13 +56,18 @@ class SynchronizeCommand(BaseCommand):
 
     @property
     def message(self):
-        # print(f"{vars(Command)=}")
         return Command.serialize(CmdType.Synchronize, 
-            payload = {"synchronize": {
-                "mode": {
-                    "raster": self._raster,
-                    "output": self._output
-            }}})
+                payload = 
+                {"synchronize": {
+                    "reserved": 0,
+                    "payload": {
+                        "mode": {
+                            "raster": self._raster,
+                            "output": self._output
+                        },
+                        "cookie": self._cookie
+                    }    
+                }})
 
 
 class AbortCommand(BaseCommand):
