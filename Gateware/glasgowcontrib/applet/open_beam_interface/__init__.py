@@ -588,6 +588,12 @@ class Command(data.Struct):
                 "dwell_time": DwellTime
             })
         }),
+        "raster_pixel_free_run": data.StructLayout({
+            "reserved": 0,
+            "payload": data.StructLayout({
+                "dwell_time": DwellTime
+            })
+        }),
         "vector_pixel": data.StructLayout({
             "reserved": 0,
             "payload": data.StructLayout({
@@ -595,6 +601,14 @@ class Command(data.Struct):
                 "x_coord": 14,
                 "y_coord": 14, 
                 "dwell_time": DwellTime
+            }),
+        }),
+        "vector_pixel_min": data.StructLayout({
+            "reserved": 0,
+            "payload": data.StructLayout({
+                "transform": Transforms,
+                "x_coord": 14,
+                "y_coord": 14,
             })
         }),
     })
