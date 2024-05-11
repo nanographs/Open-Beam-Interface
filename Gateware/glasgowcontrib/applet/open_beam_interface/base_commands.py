@@ -76,7 +76,11 @@ class FlushCommand(BaseCommand):
     
     @property
     def message(self):
-        return struct.pack(">B", CommandType.Flush)
+        return Command.serialize(CmdType.Flush, 
+                payload = 
+                {"flush": {
+                    "reserved": 0,  
+                }})
     
 
 class DelayCommand(BaseCommand):
