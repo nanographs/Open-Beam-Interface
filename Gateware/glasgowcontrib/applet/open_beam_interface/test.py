@@ -301,6 +301,7 @@ class OBIAppletTestCase(unittest.TestCase):
 
         def test_cmd(command:BaseCommand, response: dict, name:str="cmd"):
             def put_testbench():
+                print(f"{command.message}")
                 for byte in command.message:
                     yield from put_stream(dut.usb_stream, byte)
             def get_testbench():
@@ -308,29 +309,31 @@ class OBIAppletTestCase(unittest.TestCase):
                 assert (yield dut.cmd_stream.valid) == 0
             self.simulate(dut, [get_testbench,put_testbench], name="parse_" + name)  
 
-        c = Command.serialize(CmdType.Synchronize, 
-                payload = 
-                {"synchronize": {
-                    "reserved": 0,
-                    "payload": {
-                        "mode": {
-                            "raster": 1,
-                            "output": 1
-                        },
-                        "cookie": 1234
-                    }    
-                }})
-        
-        # test_cmd(SynchronizeCommand(cookie=1024, raster=True, output=OutputMode.NoOutput),
-        #         {"type": CmdType.Synchronize, 
+        # c = Command.serialize(CmdType.Synchronize, 
+        #         payload = 
+        #         {"synchronize": {
+        #             "reserved": 0,
         #             "payload": {
-        #                 "synchronize": {
-        #                     "mode": {
-        #                         "raster": 1,
-        #                         "output": 2,
-        #                     },
-        #                     "cookie": 1024,
-        #         }}}, "cmd_sync")
+        #                 "mode": {
+        #                     "raster": 0,
+        #                     "output": 1
+        #                 },
+        #                 "cookie": 1234
+        #             }    
+        #         }})
+        # print(f"{c=}")
+        
+        test_cmd(SynchronizeCommand(cookie=1024, raster=True, output=OutputMode.NoOutput),
+                {"type": CmdType.Synchronize, 
+                    "payload": {
+                        "synchronize": {
+                            "payload": {
+                                "mode": {
+                                    "raster": 1,
+                                    "output": 2,
+                                },
+                                "cookie": 1024,
+                }}}}, "cmd_sync")
 
         # test_cmd(DelayCommand(delay=960),
         #         {"type": Command.Type.Delay, 
