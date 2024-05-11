@@ -17,7 +17,9 @@ class DACCodeRange:
 class DwellTime(int):
     '''Dwell time is measured in units of ADC cycles.
         One DwellTime = 125 ns'''
-    pass
+    def __init__(self, value):
+        assert value <= 65536, f"Pixel dwell time {value} is higher than 65536. Dwell times are limited to 16 bit values"
+        self.value = value - 1 #Dwell time counter is 0-indexed
 
 
 class BaseCommand(metaclass=ABCMeta):
@@ -190,9 +192,9 @@ class RasterRegionCommand(BaseCommand):
                 }})
 
 class RasterPixelRunCommand(BaseCommand):
-    def __init__(self, *, dwell: DwellTime, length: int):
+    def __init__(self, *, dwell: int, length: int):
         assert dwell <= 65536
-        self._dwell   = dwell
+        self._dwell   = DwellTime(dwell)
         self._length  = length
 
     def __repr__(self):
@@ -200,7 +202,6 @@ class RasterPixelRunCommand(BaseCommand):
 
     def _iter_chunks(self):
         max_counter = 65536
-        assert self._dwell < max_counter, f"Pixel dwell time ({self._dwell}) higher than 65536. Dwell times are limited to 16 bit values"
 
         commands = bytearray()
         def append_command(run_length):
@@ -240,6 +241,24 @@ class RasterPixelRunCommand(BaseCommand):
             commands.extend(command_chunk)
         return commands
 
+class RasterPixelFreeRunCommand(BaseCommand):
+    def __init__(self, *, dwell: int):
+        assert dwell <= 65536
+        self._dwell   = DwellTime(dwell)
+
+    def __repr__(self):
+        return f"RasterPixelFreeRunCommand(dwell={self._dwell})"
+
+    @property
+    def message(self):
+        return Command.serialize(CmdType.RasterPixelFreeRun, 
+                payload = 
+                {"raster_pixel_free_run": {
+                    "reserved": 0,
+                    "payload": {
+                        "dwell_time": self._dwell
+                    }    
+                }})
 
 class VectorPixelCommand(BaseCommand):
     def __init__(self, *, x_coord: int, y_coord: int, dwell: DwellTime,
@@ -249,7 +268,7 @@ class VectorPixelCommand(BaseCommand):
         assert dwell <= 65536
         self._x_coord = x_coord
         self._y_coord = y_coord
-        self._dwell   = dwell
+        self._dwell   = DwellTime(dwell)
         self._xflip = xflip
         self._yflip = yflip
         self._rotate90 = rotate90
@@ -259,21 +278,37 @@ class VectorPixelCommand(BaseCommand):
 
     @property
     def message(self):
-        return Command.serialize(CmdType.VectorPixel, 
-                payload = 
-                {"vector_pixel": {
-                    "reserved": 0,
-                    "payload": {
-                        "transform": {
-                            "xflip": self._xflip,
-                            "yflip": self._yflip,
-                            "rotate90": self._rotate90,
-                        },
-                        "x_coord": self._x_coord,
-                        "y_coord": self._y_coord,
-                        "dwell_time": self._dwell
-                    }    
-                }})
+        if self._dwell == 0:
+            return Command.serialize(CmdType.VectorPixelMinDwell, 
+                    payload = 
+                    {"vector_pixel_min": {
+                        "reserved": 0,
+                        "payload": {
+                            "transform": {
+                                "xflip": self._xflip,
+                                "yflip": self._yflip,
+                                "rotate90": self._rotate90,
+                            },
+                            "x_coord": self._x_coord,
+                            "y_coord": self._y_coord,
+                        }    
+                    }})
+        else:
+            return Command.serialize(CmdType.VectorPixel, 
+                    payload = 
+                    {"vector_pixel": {
+                        "reserved": 0,
+                        "payload": {
+                            "transform": {
+                                "xflip": self._xflip,
+                                "yflip": self._yflip,
+                                "rotate90": self._rotate90,
+                            },
+                            "x_coord": self._x_coord,
+                            "y_coord": self._y_coord,
+                            "dwell_time": self._dwell
+                        }    
+                    }})
 
 
 
