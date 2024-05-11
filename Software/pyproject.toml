@@ -23,6 +23,7 @@ gui = ["PyQt6",
 
 [project.scripts]
 obi_gui = "obi_software.gui:run_gui"
+obi_shape = "obi_software.scripts.shapes:main"
 
 [build-system]
 requires = ["pdm-backend"]
