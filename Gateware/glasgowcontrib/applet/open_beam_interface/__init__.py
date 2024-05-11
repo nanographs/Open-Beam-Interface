@@ -519,11 +519,7 @@ class Command(data.Struct):
         CmdType.RasterPixelFreeRun: 2,
         CmdType.VectorPixel: 6,
         CmdType.VectorPixelMinDwell: 4
-        # CmdType.Command1: 0,
-        # CmdType.Command2: 4,
-        # CmdType.Command3: 0,
-        # CmdType.Command4: 4,
-        # CmdType.Command9: 5,
+
     }
     # will be replaced by Amaranth's `Choice` when it is a part of the public API
     def payload_size_array(PAYLOAD_SIZE, Type):
@@ -536,21 +532,21 @@ class Command(data.Struct):
 
     type: CmdType
     payload: data.UnionLayout({
-        "command1": data.StructLayout({
-            "reserved": 0,
-        }),
-        "command2": data.StructLayout({
-            "reserved": 3,
-            "data":     32,
-        }),
-        "command3": data.StructLayout({
-            "reserved": 0,
-            "payload":  3,
-        }),
-        "command4": data.StructLayout({
-            "reserved": 2,
-            "payload":  33,
-        }),
+        # "command1": data.StructLayout({
+        #     "reserved": 0,
+        # }),
+        # "command2": data.StructLayout({
+        #     "reserved": 3,
+        #     "data":     32,
+        # }),
+        # "command3": data.StructLayout({
+        #     "reserved": 0,
+        #     "payload":  3,
+        # }),
+        # "command4": data.StructLayout({
+        #     "reserved": 2,
+        #     "payload":  33,
+        # }),
         "synchronize": data.StructLayout({
             "reserved": 0,
             "payload": data.StructLayout({
@@ -559,6 +555,27 @@ class Command(data.Struct):
                     "output": OutputMode,
                 }),
                 "cookie": 16
+            })
+        }),
+        "abort": data.StructLayout({
+            "reserved": 0
+        }),
+        "flush": data.StructLayout({
+            "reserved": 0
+        }),
+        "external_ctrl": data.StructLayout({
+            "reserved": 0,
+            "payload": data.StructLayout({
+                "enable": 1
+            })
+        }),
+        "blank": data.StructLayout({
+            "reserved": 0,
+            "payload": data.StructLayout({
+                "blank": data.StructLayout({
+                    "enable": 1,
+                    "inline": 1
+                })
             })
         })
     })
