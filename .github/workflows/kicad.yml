@@ -17,6 +17,8 @@ on:
 
 jobs:
   obi:
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
