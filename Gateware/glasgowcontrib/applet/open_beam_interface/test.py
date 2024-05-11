@@ -308,20 +308,6 @@ class OBIAppletTestCase(unittest.TestCase):
                 yield from get_stream(dut.cmd_stream, response)
                 assert (yield dut.cmd_stream.valid) == 0
             self.simulate(dut, [get_testbench,put_testbench], name="parse_" + name)  
-
-        # c = Command.serialize(CmdType.Synchronize, 
-        #         payload = 
-        #         {"synchronize": {
-        #             "reserved": 0,
-        #             "payload": {
-        #                 "mode": {
-        #                     "raster": 0,
-        #                     "output": 1
-        #                 },
-        #                 "cookie": 1234
-        #             }    
-        #         }})
-        # print(f"{c=}")
         
         test_cmd(SynchronizeCommand(cookie=1024, raster=True, output=OutputMode.NoOutput),
                 {"type": CmdType.Synchronize, 
@@ -341,6 +327,11 @@ class OBIAppletTestCase(unittest.TestCase):
         test_cmd(FlushCommand(),
                 {"type": CmdType.Flush}, "cmd_flush")
         
+        test_cmd(ExternalCtrlCommand(enable=True),
+                {"type": CmdType.ExternalCtrl, 
+                        "payload": {"external_ctrl": {"payload": {"enable": 1}}}
+                }, "cmd_extctrlenable")
+
         test_cmd(BlankCommand(),
                 {"type": CmdType.Blank, 
                             "payload": {"blank": {"payload": { "blank": {"enable": 1, "inline": 0}}}}
@@ -357,10 +348,7 @@ class OBIAppletTestCase(unittest.TestCase):
         #                         "delay": 960}
         #         }, "cmd_delay")
         
-        # test_cmd(ExtCtrlCommand(),
-        #         {"type": Command.Type.ExtCtrl, 
-        #                 "payload": {"external_ctrl": {"enable": 1}}
-        #         }, "cmd_extctrlenable")
+
         # test_cmd(ExtCtrlCommand(),
         #         {"type": Command.Type.ExtCtrl, 
         #                 "payload": {"external_ctrl": {"enable": 1}}
