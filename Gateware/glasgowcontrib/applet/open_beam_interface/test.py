@@ -305,7 +305,7 @@ class OBIAppletTestCase(unittest.TestCase):
                 for byte in command.message:
                     yield from put_stream(dut.usb_stream, byte)
             def get_testbench():
-                yield from get_stream(dut.cmd_stream, response)
+                yield from get_stream(dut.cmd_stream, response, timeout_steps=len(command.message)*2)
                 assert (yield dut.cmd_stream.valid) == 0
             self.simulate(dut, [get_testbench,put_testbench], name="parse_" + name)  
         
@@ -347,38 +347,30 @@ class OBIAppletTestCase(unittest.TestCase):
                             "payload": {
                                 "delay": {"payload":{ "delay": 960}}}
                 }, "cmd_delay")
-        # test_cmd(DelayCommand(delay=960),
-        #         {"type": Command.Type.Delay, 
-        #                     "payload": {
-        #                         "delay": 960}
-        #         }, "cmd_delay")
-        
 
-        # test_cmd(ExtCtrlCommand(),
-        #         {"type": Command.Type.ExtCtrl, 
-        #                 "payload": {"external_ctrl": {"enable": 1}}
-        #         }, "cmd_extctrlenable")
+        x_range = DACCodeRange(start=5, count=2, step=0x2_00)
+        y_range = DACCodeRange(start=9, count=1, step=0x5_00)
+
+        test_cmd(RasterRegionCommand(x_range=x_range, y_range=y_range),
+                {"type": CmdType.RasterRegion, 
+                    "payload": {
+                        "raster_region": {
+                            "payload": {
+                                "transform": {
+                                    "xflip": 0,
+                                    "yflip": 0,
+                                    "rotate90": 0
+                                },
+                                "roi": {
+                                    "x_start": 5,
+                                    "x_count": 2,
+                                    "x_step": 0x2_00,
+                                    "y_start": 9,
+                                    "y_count": 1,
+                                    "y_step": 0x5_00
+                                }
+                }}}}, "cmd_rasterregion")
         
-        # test_cmd(BeamSelectCommand(),
-        #         {"type": Command.Type.BeamSelect, 
-        #                     "payload": {"beam_type": BeamType.Electron}
-        #         }, "cmd_selectebeam")
-        # test_cmd(BeamSelectCommand(),
-        #         {"type": Command.Type.BeamSelect, 
-        #                     "payload": {"beam_type": BeamType.Electron}
-        #         }, "cmd_selectebeam")
-        
-        # test_cmd(BlankCommand(),
-        #         {"type": Command.Type.Blank, 
-        #                     "payload": {"blank": {"enable": 1, "inline": 0}}
-        #         }, "cmd_blank")
-        # test_cmd(BlankCommand(),
-        #         {"type": Command.Type.Blank, 
-        #                     "payload": {"blank": {"enable": 1, "inline": 0}}
-        #         }, "cmd_blank")
-        
-        # test_cmd(RasterRegionCommand(x_start=5, x_count=2, x_step=0x2_00, 
-        #                             y_start = 9, y_count = 1, y_step = 0x5_00))
 
     def test_command_parser_1(self):
         dut = CommandParser()
