@@ -189,6 +189,42 @@ class RasterRegionCommand(BaseCommand):
                     }    
                 }})
 
+class VectorPixelCommand(BaseCommand):
+    def __init__(self, *, x_coord: int, y_coord: int, dwell: DwellTime,
+                        xflip=False, yflip=False, rotate90=False):
+        assert x_coord <= 65535
+        assert y_coord <= 65535
+        assert dwell <= 65536
+        self._x_coord = x_coord
+        self._y_coord = y_coord
+        self._dwell   = dwell
+        self._xflip = xflip
+        self._yflip = yflip
+        self._rotate90 = rotate90
+
+    def __repr__(self):
+        return f"VectorPixelCommand(x_coord={self._x_coord}, y_coord={self._y_coord}, dwell={self._dwell}, x_flip={self._xflip}, y_flip={self._yflip}, rotate_90={self._rotate90})"
+
+    @property
+    def message(self):
+        return Command.serialize(CmdType.VectorPixel, 
+                payload = 
+                {"vector_pixel": {
+                    "reserved": 0,
+                    "payload": {
+                        "transform": {
+                            "xflip": self._xflip,
+                            "yflip": self._yflip,
+                            "rotate90": self._rotate90,
+                        },
+                        "x_coord": self._x_coord,
+                        "y_coord": self._y_coord,
+                        "dwell_time": self._dwell
+                    }    
+                }})
+
+
+
 class RasterPixelsCommand(BaseCommand):
     def __init__(self, *, dwells: list[DwellTime]):
         self._dwells  = dwells
@@ -279,24 +315,6 @@ class RasterPixelRunCommand(BaseCommand):
 
         #return struct.pack(">BHH", CommandType.RasterPixelRun, self._length - 1, self._dwell)
 
-class VectorPixelCommand(BaseCommand):
-    def __init__(self, *, x_coord: int, y_coord: int, dwell: DwellTime):
-        assert x_coord <= 65535
-        assert y_coord <= 65535
-        assert dwell <= 65536
-        self._x_coord = x_coord
-        self._y_coord = y_coord
-        self._dwell   = dwell
-
-    def __repr__(self):
-        return f"VectorPixelCommand(x_coord={self._x_coord}, y_coord={self._y_coord}, dwell={self._dwell})"
-
-    @property
-    def message(self):
-        if self._dwell == 1:
-            return struct.pack(">BHH", CommandType.VectorPixelMinDwell, self._x_coord, self._y_coord)
-        else:
-            return struct.pack(">BHHH", CommandType.VectorPixel, self._x_coord, self._y_coord, self._dwell-1)
 
 class CommandSequence(BaseCommand):
     _message = bytearray()
