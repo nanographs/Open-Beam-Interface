@@ -588,6 +588,13 @@ class Command(data.Struct):
                 "delay": 16
             })
         }),
+        "raster_region": data.StructLayout({
+            "reserved": 0,
+            "payload": data.StructLayout({
+                "transform": Transforms,
+                "roi": RasterRegion
+            })
+        }),
     })
 
     @classmethod

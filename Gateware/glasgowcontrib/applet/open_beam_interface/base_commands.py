@@ -148,28 +148,46 @@ class DelayCommand(BaseCommand):
         return Command.serialize(CmdType.Delay, 
                 payload = 
                 {"delay": {
+                    "reserved": 3,
                     "payload": {"delay": self._delay},  
                 }})
 
 
 
-
-
-
-
 class RasterRegionCommand(BaseCommand):
-    def __init__(self, *, x_range: DACCodeRange, y_range: DACCodeRange):
+    def __init__(self, *, x_range: DACCodeRange, y_range: DACCodeRange, 
+                xflip=False, yflip=False, rotate90=False):
         self._x_range = x_range
         self._y_range = y_range
+        self._xflip = xflip
+        self._yflip = yflip
+        self._rotate90 = rotate90
 
     def __repr__(self):
-        return f"RasterRegionCommand(x_range={self._x_range}, y_range={self._y_range})"
+        return f"RasterRegionCommand(x_range={self._x_range}, y_range={self._y_range}, x_flip={self._xflip}, y_flip={self._yflip}, rotate_90={self._rotate90})"
 
     @property
     def message(self):
-        return struct.pack(">BHHHHHH", CommandType.RasterRegion,
-            self._x_range.start, self._x_range.count, self._x_range.step,
-            self._y_range.start, self._y_range.count, self._y_range.step)
+        return Command.serialize(CmdType.RasterRegion, 
+                payload = 
+                {"raster_region": {
+                    "reserved": 0,
+                    "payload": {
+                        "transform": {
+                            "xflip": self._xflip,
+                            "yflip": self._yflip,
+                            "rotate90": self._rotate90,
+                        },
+                        "roi": {
+                            "x_start": self._x_range.start,
+                            "x_count": self._x_range.count,
+                            "x_step": self._x_range.step,
+                            "y_start": self._y_range.start,
+                            "y_count": self._y_range.count,
+                            "y_step": self._y_range.step
+                        }
+                    }    
+                }})
 
 class RasterPixelsCommand(BaseCommand):
     def __init__(self, *, dwells: list[DwellTime]):
