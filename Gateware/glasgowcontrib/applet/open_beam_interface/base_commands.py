@@ -129,10 +129,8 @@ class BlankCommand(BaseCommand):
                 {"blank": {
                     "reserved": 0,
                     "payload": {
-                        "blank": {
-                            "enable": self._enable,
-                            "inline": self._inline
-                        }
+                        "enable": self._enable,
+                        "inline": self._inline
                     }    
                 }})
 

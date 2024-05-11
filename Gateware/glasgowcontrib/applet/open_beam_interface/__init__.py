@@ -578,11 +578,9 @@ class Command(data.Struct):
         "blank": data.StructLayout({
             "reserved": 0,
             "payload": data.StructLayout({
-                "blank": data.StructLayout({
-                    "enable": 1,
-                    "inline": 1
+                "enable": 1,
+                "inline": 1
                 })
-            })
         }),
         "delay": data.StructLayout({
             "reserved": 0,
