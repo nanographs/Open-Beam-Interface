@@ -562,11 +562,26 @@ class OutputMode(enum.Enum, shape = 2):
 # ===============================================================================================
 
 class CmdType(enum.Enum, shape=5):
-        Command1 = 1 # only type
-        Command2 = 2 # type + payload bytes
-        Command3 = 3 # type + payload bits
-        Command4 = 4 # type + payload bits + payload bytes
-        Synchronize = 0x00
+        Synchronize = 0
+        Abort       = 1
+        Flush       = 2
+        Delay       = 3
+        ExternalCtrl = 4
+        BeamSelect = 5
+        Blank = 6
+
+        RasterRegion = 10
+        RasterPixel = 11
+        RasterPixelRun = 12
+        RasterPixelFreeRun = 13
+        VectorPixel = 14
+        VectorPixelMinDwell = 15
+        # Command1 = 1 # only type
+        # Command2 = 2 # type + payload bytes
+        # Command3 = 3 # type + payload bits
+        # Command4 = 4 # type + payload bits + payload bytes
+        # Command9 = 9
+        
 
 
 class Command(data.Struct):
@@ -578,16 +593,31 @@ class Command(data.Struct):
         payload: 8 - Shape.cast(CmdType).width
 
     PAYLOAD_SIZE = { # type -> bytes
-        CmdType.Command1: 0,
-        CmdType.Command2: 4,
-        CmdType.Command3: 0,
-        CmdType.Command4: 4,
-        CmdType.Synchronize: 2
+        CmdType.Synchronize: 2,
+        CmdType.Abort: 0,
+        CmdType.Flush: 0,
+        CmdType.Delay: 2,
+        CmdType.ExternalCtrl: 0,
+        CmdType.BeamSelect: 0,
+        CmdType.Blank: 0,
+
+        CmdType.RasterRegion: 12,
+        CmdType.RasterPixel: 2,
+        CmdType.RasterPixelRun: 4,
+        CmdType.RasterPixelFreeRun: 2,
+        CmdType.VectorPixel: 6,
+        CmdType.VectorPixelMinDwell: 4
+        # CmdType.Command1: 0,
+        # CmdType.Command2: 4,
+        # CmdType.Command3: 0,
+        # CmdType.Command4: 4,
+        # CmdType.Command9: 5,
     }
     # will be replaced by Amaranth's `Choice` when it is a part of the public API
     def payload_size_array(PAYLOAD_SIZE, Type):
         return Array([
-        value if value in PAYLOAD_SIZE.values() else 0
+        PAYLOAD_SIZE.get(Type._value2member_map_.get(value)) 
+        if value in Type._value2member_map_ else 0
         for value in range(1 << Shape.cast(Type).width)
         ])
     PAYLOAD_SIZE_ARRAY = payload_size_array(PAYLOAD_SIZE, CmdType)
@@ -624,22 +654,12 @@ class Command(data.Struct):
     @classmethod
     def serialize(cls, type: CmdType, payload) -> bytes:
         dic = {"type": type, "payload": {**payload} }
-        print(f"{dic=}")
         # https://amaranth-lang.org/docs/amaranth/latest/stdlib/data.html#amaranth.lib.data.Const
         command_bits = cls.const({"type": type,
                         "payload":
-                        {**payload}}).as_value()
-        print(f"{command_bits=}")
+                        {**payload}}).as_value().value
         command_length = cls.PAYLOAD_SIZE[type]
-
-        # command_bits = data.Const(cls, {
-        #     "type": type,
-        #     "payload": {
-        #         "reserved": 0,
-        #         #**payload
-        #     }
-        # }).value
-        return command_bits.to_bytes(command_length, byteorder="little")
+        return command_bits.to_bytes(command_length+1, byteorder="little")
     
         # usage: Command.serialize(Command.Type.Command4, payload=1234)
 
@@ -659,8 +679,22 @@ class CommandParser(wiring.Component):
         m.d.comb += command.type.eq(command_header.type)
         m.d.comb += command.payload.as_value()[:len(command_header.payload)].eq(command_header.payload)
 
-        payload_size = Command.PAYLOAD_SIZE_ARRAY[command_header.type]
+        # payload_size = Command.PAYLOAD_SIZE_ARRAY[command_header.type]
+        print(f"{type(Command.PAYLOAD_SIZE_ARRAY)=}")
         payload_parsed = Signal(range(max(Command.PAYLOAD_SIZE_ARRAY)))
+        payload_size = Signal.like(payload_parsed)
+        payload_size_reg = Signal.like(payload_parsed)
+        with m.Switch(command_header.type):
+            for commandtype in range(len(Command.PAYLOAD_SIZE_ARRAY)):
+                size = Command.PAYLOAD_SIZE_ARRAY[commandtype]
+                print(f"{commandtype=}, {size=}")
+                with m.Case(commandtype):
+                    m.d.comb += payload_size.eq(size)
+        with m.Switch(command_header_reg.type):
+            for commandtype in range(len(Command.PAYLOAD_SIZE_ARRAY)):
+                size = Command.PAYLOAD_SIZE_ARRAY[commandtype]
+                with m.Case(commandtype):
+                    m.d.comb += payload_size_reg.eq(size)
 
         command_reg = Signal(Command)
 
@@ -680,6 +714,7 @@ class CommandParser(wiring.Component):
                         m.next = "Payload"
 
             with m.State("Payload"):
+                m.d.comb += self.usb_stream.ready.eq(1)
                 m.d.comb += command_header.eq(command_header_reg)
                 m.d.comb += command.type.eq(command_header.type)
                 m.d.comb += command.payload.as_value()[:len(command_header.payload)].eq(command_header.payload)
@@ -688,11 +723,14 @@ class CommandParser(wiring.Component):
                     m.d.sync += (command_reg.payload.as_value()[len(command_header.payload):]
                         .word_select(payload_parsed, 8)).eq(self.usb_stream.payload)
                     m.d.sync += payload_parsed.eq(payload_parsed + 1)
-                    with m.If(payload_parsed + 1 == payload_size):
+                    with m.If(payload_parsed + 1 == payload_size_reg):
                         m.next = "Submit_with_payload"
             
             with m.State("Submit_with_payload"):
                 m.d.comb += command.eq(command_reg)
+                m.d.comb += command_header.eq(command_header_reg)
+                m.d.comb += command.type.eq(command_header.type)
+                m.d.comb += command.payload.as_value()[:len(command_header.payload)].eq(command_header.payload)
                 m.d.comb += self.cmd_stream.valid.eq(1)
                 with m.If(self.cmd_stream.ready):
                     m.next = "Type"
@@ -704,164 +742,6 @@ class CommandParser(wiring.Component):
 # class CommandParser(wiring.Component):
 #     usb_stream: In(StreamSignature(8))
 #     cmd_stream: Out(StreamSignature(Command))
-
-#     def elaborate(self, platform):
-#         m = Module()
-
-        command = Signal(Command)
-        m.d.comb += self.cmd_stream.payload.eq(command)
-
-        command_header = Signal(Command.Header)
-        command_header_reg = Signal(Command.Header)
-        m.d.comb += command.type.eq(command_header.type)
-        m.d.comb += command.payload.as_value()[:len(command_header.payload)].eq(command_header.payload)
-
-        payload_size = Command.PAYLOAD_SIZE_ARRAY[command_header.type]
-        payload_parsed = Signal(range(max(Command.PAYLOAD_SIZE_ARRAY)))
-
-        command_reg = Signal(Command)
-
-        with m.FSM():
-            with m.State("Type"):
-                m.d.comb += self.usb_stream.ready.eq(1)
-                m.d.comb += command_header.eq(self.usb_stream.payload)
-                m.d.comb += command.type.eq(command_header.type)
-                m.d.comb += command.payload.as_value()[:len(command_header.payload)].eq(command_header.payload)
-
-                with m.If(self.usb_stream.valid):
-                    with m.If(payload_size == 0):
-                        m.d.comb += self.cmd_stream.valid.eq(1)
-                        m.d.comb += self.usb_stream.ready.eq(self.cmd_stream.ready)
-                    with m.Else():
-                        m.d.sync += command_header_reg.eq(self.usb_stream.payload)
-                        m.next = "Payload"
-
-            with m.State("Payload"):
-                m.d.comb += command_header.eq(command_header_reg)
-                m.d.comb += command.type.eq(command_header.type)
-                m.d.comb += command.payload.as_value()[:len(command_header.payload)].eq(command_header.payload)
-
-                with m.If(self.usb_stream.valid):
-                    m.d.sync += (command_reg.payload.as_value()[len(command_header.payload):]
-                        .word_select(payload_parsed, 8)).eq(self.usb_stream.payload)
-                    m.d.sync += payload_parsed.eq(payload_parsed + 1)
-                    with m.If(payload_parsed + 1 == payload_size):
-                        m.next = "Submit_with_payload"
-            
-            with m.State("Submit_with_payload"):
-                m.d.comb += command.eq(command_reg)
-                m.d.comb += self.cmd_stream.valid.eq(1)
-                with m.If(self.cmd_stream.ready):
-                    m.next = "Type"
-        return m
-
-
-# ===============================================================================================
-
-
-class Command(data.Struct):
-    class Type(enum.Enum, shape=5):
-        Synchronize         = 0x00
-        Abort               = 0x01
-        Flush               = 0x02
-        Delay               = 0x03
-        ExtCtrl             = 0x04
-        BeamSelect          = 0x05
-        Blank               = 0x06
-
-        RasterRegion        = 0x10
-        RasterPixel         = 0x11
-        RasterPixelRun      = 0x12
-        RasterPixelFreeRun  = 0x13
-        VectorPixel         = 0x14
-        VectorPixelMinDwell = 0x15
-    type: Type
-    small_payload: data.UnionLayout({
-        "synchronize":      data.StructLayout({
-                "mode":         data.StructLayout ({
-                    "raster": 1,
-                    "output": OutputMode,
-                }),
-            }),
-            "external_ctrl": data.StructLayout({
-                "enable": 1,
-            }),
-            "beam_type": BeamType,
-            "blank":       data.StructLayout({
-                "enable": 1,
-                "inline": 1,
-            }),
-    })
-    payload: data.UnionLayout({
-            "synchronize":      data.StructLayout({
-                "cookie": Cookie,
-            }),
-            "delay": DwellTime,
-            "raster_region":    RasterRegion,
-            "raster_pixel":     DwellTime,
-            "raster_pixel_run": data.StructLayout({
-                "length":           16,
-                "dwell_time":       DwellTime,
-            }),
-            "vector_pixel":     data.StructLayout({
-                "x_coord":          14,
-                "y_coord":          14,
-                "dwell_time":       DwellTime,
-            })
-        })
-
-
-class ByteCommandView(data.View):
-    def first_byte(self):
-        return self.as_value().value
-
-class ByteCommandLayout(data.Struct):
-    type: Command.Type
-    payload: data.UnionLayout({
-        "synchronize":      data.StructLayout({
-            "mode": 3
-        }),
-        "external_ctrl": 3,
-        "beam_type": 2,
-        "blank": 2
-    })
-
-        #     payload_byte: data.UnionLayout({
-        #             "synchronize":      data.StructLayout({
-        #                 "mode":         data.StructLayout ({
-        #                     "raster": 1,
-        #                     "output": OutputMode,
-        #                 }),
-        #                 "cookie": Cookie,
-        #             }),
-        #             "external_ctrl": data.StructLayout({
-        #                 "enable": 1,
-        #             }),
-        #             "beam_type": BeamType,
-        #             "blank":       data.StructLayout({
-        #                 "enable": 1,
-        #                 "inline": 1,
-        #             }),
-        #             "delay": DwellTime,
-        #             "raster_region":    RasterRegion,
-        #             "raster_pixel":     DwellTime,
-        #             "raster_pixel_run": data.StructLayout({
-        #                 "length":           16,
-        #                 "dwell_time":       DwellTime,
-        #             }),
-        #             "vector_pixel":     data.StructLayout({
-        #                 "x_coord":          14,
-        #                 "y_coord":          14,
-        #                 "dwell_time":       DwellTime,
-        #             })
-        #         })
-        # })
-
-
-
-class CommandParser(wiring.Component):
-    usb_stream: In(StreamSignature(8))
-    cmd_stream: Out(StreamSignature(Command))
 
 #     def elaborate(self, platform):
 #         m = Module()
@@ -894,11 +774,11 @@ class CommandParser(wiring.Component):
 #                         with m.Case(Command.Type.BeamSelect):
 #                             m.next = "Submit"
 
-                        with m.Case(Command.Type.Blank):
-                            m.next = "Submit"
+#                         with m.Case(Command.Type.Blank):
+#                             m.next = "Submit"
                         
-                        with m.Case(Command.Type.RasterRegion):
-                            m.next = "Payload_Raster_Region_1_High"
+#                         with m.Case(Command.Type.RasterRegion):
+#                             m.next = "Payload_Raster_Region_1_High"
 
 #                         with m.Case(Command.Type.RasterPixel): # actually an array
 #                             m.next = "Payload_Raster_Pixel_Count_High"
