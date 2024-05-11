@@ -100,6 +100,20 @@ class ExternalCtrlCommand(BaseCommand):
                     }
                 }})
 
+class BeamSelectCommand(BaseCommand):
+    def __init__(self, beam_type:BeamType):
+        self._beam_type = beam_type
+    @property
+    def message(self):
+        return Command.serialize(CmdType.BeamSelect, 
+                payload = 
+                {"beam_select": {
+                    "reserved": 0,  
+                    "payload": {
+                        "beam_type": self._beam_type
+                    }
+                }})
+
 class BlankCommand(BaseCommand):
     def __init__(self, enable:bool=True, inline: bool=False):
         self._enable = enable
@@ -140,12 +154,8 @@ class DelayCommand(BaseCommand):
                 }})
 
 
-class BeamSelectCommand(BaseCommand):
-    def __init__(self, beam_type:BeamType):
-        self._beam_type = beam_type
-    @property
-    def message(self):
-        combined = int(Command.Type.BeamSelect.value << 5 | self._beam_type)
+
+
 
 
 
