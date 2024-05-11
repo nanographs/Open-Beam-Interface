@@ -82,7 +82,16 @@ class FlushCommand(BaseCommand):
                     "reserved": 0,  
                 }})
 
-    
+class ExternalCtrlCommand(BaseCommand):
+    def __init__(self, enable:bool):
+        self._enable = enable
+
+    def __repr__(self):
+        return f"ExternalCtrlCommand(enable={self._enable})"
+
+    @property
+    def message(self):
+        combined = int(self._enable << 5 | Command.Type.ExtCtrl.value) 
 
 class BlankCommand(BaseCommand):
     def __init__(self, enable:bool=True, inline: bool=False):
@@ -107,25 +116,6 @@ class BlankCommand(BaseCommand):
                 }})
 
 
-class ExternalCtrlCommand(BaseCommand):
-    def __init__(self, enable:bool):
-        self._enable = enable
-
-    def __repr__(self):
-        return f"ExternalCtrlCommand(enable={self._enable})"
-
-    @property
-    def message(self):
-        combined = int(self._enable << 5 | Command.Type.ExtCtrl.value)
-
-
-class BeamSelectCommand(BaseCommand):
-    def __init__(self, beam_type:BeamType):
-        self._beam_type = beam_type
-    @property
-    def message(self):
-        combined = int(Command.Type.BeamSelect.value << 5 | self._beam_type)
-
 class DelayCommand(BaseCommand):
     def __init__(self, delay):
         assert delay <= 65535
@@ -139,8 +129,18 @@ class DelayCommand(BaseCommand):
         return Command.serialize(CmdType.Delay, 
                 payload = 
                 {"delay": {
-                    "payload": 0,  
+                    "payload": {"delay": self._delay},  
                 }})
+
+
+class BeamSelectCommand(BaseCommand):
+    def __init__(self, beam_type:BeamType):
+        self._beam_type = beam_type
+    @property
+    def message(self):
+        combined = int(Command.Type.BeamSelect.value << 5 | self._beam_type)
+
+
 
 class RasterRegionCommand(BaseCommand):
     def __init__(self, *, x_range: DACCodeRange, y_range: DACCodeRange):
