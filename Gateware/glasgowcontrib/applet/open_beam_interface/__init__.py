@@ -569,6 +569,12 @@ class Command(data.Struct):
                 "enable": 1
             })
         }),
+        "beam_select": data.StructLayout({
+            "reserved": 0,
+            "payload": data.StructLayout({
+                "beam_type": BeamType
+            })
+        }),
         "blank": data.StructLayout({
             "reserved": 0,
             "payload": data.StructLayout({
