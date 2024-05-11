@@ -1,0 +1,62 @@
+Row,Description,Part,References,Value,Footprint,Quantity Per PCB,Status,Datasheet,Order Link,DK Part Number,Is Good
+1,,C,C50,12 pF,C_0603_1608Metric,1, ,~,Assortment,,Y
+2,,C,C12 C13 C15 C16 C24 C26 C27 C28 C29 C31 C32 C34 C35 C36 C37 C38 C39 C40 C41 C44 C45 C47 C48 C49 C53 C56 C57 C60 C61 C65 C66 C67 C68 C69 C70 C71 C72 C76 C77 C78 C79 C81 C82 C83,0.1 uF,C_0603_1608Metric,44, ,~,https://www.digikey.com/en/products/detail/samsung-electro-mechanics/CL10B104KA8NNNC/3886664,1276-1006-1-ND,Y
+3,,C,C58 C59,1 uF,C_0603_1608Metric,2, ,~,https://www.digikey.com/en/products/detail/samsung-electro-mechanics/CL10B105KP8NFNC/3887603?s=N4IgTCBcDaIMIBkCMAGAQqgrAaQAoA4A5AMUJAF0BfIA,1276-1945-1-ND,Y
+4,,C,C30 C52 C54,2.2 uF,C_0603_1608Metric,3, ,~,https://www.digikey.com/en/products/detail/samsung-electro-mechanics/CL10B225KP8NFNC/3887674?s=N4IgTCBcDaIMIBkCMAGAQmMBWA0gBQA4A5AMSJAF0BfIA,1276-2016-1-ND,Y
+5,,C,C3 C4 C5 C6 C14 C17 C21 C22 C33 C42 C43 C62 C63 C64 C73 C75 C80 C84 C85 C86 C87 C88 C89,4.7u,C_1206_3216Metric,23, ,~,https://www.digikey.com/en/products/detail/samsung-electro-mechanics/CL31B475KAHNNWE/3888836?s=N4IgTCBcDaIMIBkDMBGAQgFgOwFYDSAggBIByJA6iALoC%2BQA,1276-3178-1-ND,Y
+6,,C,C1 C2 C11 C46,10u,C_1210_3225Metric,4, ,~,https://www.digikey.com/en/products/detail/samsung-electro-mechanics/CL32B106KAJ4PNE/11487783?s=N4IgTCBcDaIMIBkDMYBCBGADANgNIEEApAFgAUA5AAhAF0BfIA,1276-CL32B106KAJ4PNECT-ND,Y
+7,,C,C18 C19 C20 C25,10u,C_1210_3225_Kelvin_Connections,4, ,~,https://www.digikey.com/en/products/detail/samsung-electro-mechanics/CL32B106KAJ4PNE/11487783?s=N4IgTCBcDaIMIBkDMYBCBGADANgNIEEApAFgAUA5AAhAF0BfIA,1276-CL32B106KAJ4PNECT-ND,Y
+8,,C_Polarized,C7 C8 C9 C10,100 uF,CAP_20SVPF120M,4, ,https://industrial.panasonic.com/ww/products/pt/os-con/models/20SVPF120M,https://www.digikey.com/en/products/detail/panasonic-electronic-components/20SVPF120M/4204830,P16498CT-ND,Y
+9,,C,C74,C,C_0603_1608Metric,1, ,~,Assortment,,Y
+10,,C,C51 C55,C-Opt,C_0603_1608Metric,2, ,~,Assortment,,Y
+11,,Cable Pinout 1-8 Back,D1-D8_silk_labels,Cable Pinout 1-8 Back,Cable Pinout 1-8 Back,1, ,~,,,
+12,,Cable Pinout 9-16 Back,D9-D16_silk_labels,Cable Pinout 9-16 Back,Cable Pinout 9-16 Back,1, ,~,,,
+13,,LED,D1 D2 D3 D4 D5 D6 D8 D9,LED,LED_0603_1608Metric,8, ,~,https://www.digikey.com/en/products/detail/qt-brightek-qtb/QBLP601D-O/13278855,1516-QBLP601D-OCT-ND,Y
+14,,SMF20A,D10 D11 D12,SMF20A,D_SMF,3, ,https://www.littelfuse.com/~/media/electronics/datasheets/tvs_diodes/littelfuse_tvs_diode_smf4l_datasheet.pdf.pdf,https://www.digikey.com/en/products/detail/littelfuse-inc/SMF4L20AT1G/21320688,18-SMF4L20AT1GCT-ND,Y
+15,,BAT54S,D7,"SS423(TE85L,F)",SOT-416,1, ,https://toshiba.semicon-storage.com/info/1SS423_datasheet_en_20220720.pdf?did=4401&prodName=1SS423,https://www.digikey.com/en/products/detail/toshiba-semiconductor-and-storage/1SS423-TE85L-F/4305011,1SS423(TE85LF)CT-ND,Y
+16,,Fuse_Small,F1 F2 F3,Fuse_Small,,3, ,~,,,Y
+17,,FerriteBead,FB1 FB2 FB3 FB4,FerriteBead,L_0603_1608Metric,4, ,~,Assortment,,Y
+18,,Fuse_Holder,FH1 FH2 FH3,Fuse_Holder,01550900M,3, ,https://www.littelfuse.com/~/media/electronics/datasheets/fuses/littelfuse_fuse_154_154t_154l_154tl_datasheet.pdf.pdf,https://www.digikey.com/en/products/detail/littelfuse-inc/01550900M/2519878?s=N4IgTCBcDaIAwEYCsS4E45wLYgLoF8g,F1889-ND,Y
+19,,Conn_Coaxial,J5 J6 J8,Coaxial Con Amphenol 031-5538-10RFX,BNC_Amphenol_B6252HB-NPP3G-50_Horizontal_Flipable,3, , ~,https://www.digikey.com/en/products/detail/amphenol-rf/031-5538-10RFX/2041817,ARF1691-ND,Y
+20,,Male M8 Connector,J1,Conn_01x04_Shielded,M8 Right Angle Panel Mount Connector,1, ,~,https://www.binder-usa.com/us-en/products/automation-technology/m8/86-6319-1121-00004-m8-male-panel-mount-connector-4-shieldable-tht-ip67-front-fastened,,Y
+21,,Female M8 Connector,J7,Conn_01x04_Shielded,Female M8 Right Angle Panel Mount Connector,1, ,~,https://www.binder-usa.com/us-en/products/automation-technology/m8/86-6618-1121-00004-m8-female-panel-mount-connector-4-shieldable-tht-ip67-m10x075-front-fastened,,Y
+22,,Conn_02x10_Odd_Even,J2 J3 J4,Conn_02x10_Odd_Even,IDC-Header_2x10_P2.54mm_Vertical_No_Pin_1_Mark,3, ,~,https://www.digikey.com/en/products/detail/molex/0878342019/3303513?s=N4IgTCBcDaILIHsA2BTAHgAgAwA4DsOAzACxhYCMAnCALoC%2BQA,WM20559-ND,Y
+23,,Jumper_3_Bridged12,JP5 JP6 JP7,Jumper_3_Bridged12,R_0603_1608Metric 2 pos sellector,3, ,~,https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERJ-3GEY0R00V/135656,P0.0GCT-ND,Y
+24,,MMBT3904,Q1 Q2 Q3 Q4,MMBT3904TT1G,SOT-416,4, ,https://www.onsemi.com/pdf/datasheet/mmbt3904tt1-d.pdf,https://www.digikey.com/en/products/detail/onsemi/MMBT3904TT1G/919603,MMBT3904TT1GOSCT-ND,Y
+25,,R,R47 R48 R50 R51 R62 R63 R65 R68 R69 R71 R72 R74 R76 R77 R78 R79 R80 R82,0,R_0603_1608Metric,18, ,~,https://www.digikey.com/en/products/detail/te-connectivity-passive-product/CRG0603ZR/2380828 Assortment,A106051CT-ND,Y
+26,,R,R31 R32 R33 R34 R35 R36,25,R_0603_1608Metric,6, ,~,https://www.digikey.com/en/products/detail/yageo/RP0603BRD0725RL/16916489,13-RP0603BRD0725RLCT-ND,Y
+27,,R,R37 R38 R39 R40,301,R_0603_1608Metric,4, ,~,https://www.digikey.com/en/products/detail/te-connectivity-passive-product/RA73F1J226RBTD/16030916,1712-RA73F1J226RBTDCT-ND,Y
+28,,R,R58 R61 R64,500,R_0603_1608Metric,3, ,~,https://www.digikey.com/en/products/detail/vishay-dale/TNPU0603500RAZEN00/6615936,541-3301-1-ND,Y
+29,,R,R4,750,R_0603_1608Metric,1, ,~,Assortment,,y
+30,,R,R5 R17 R43 R44 R49 R52 R53 R54 R55 R56 R57 R94,1K,R_0603_1608Metric,12, ,~,Assortment,,y
+31,,R,R84,1.5K,R_0603_1608Metric,1, ,~,Assortment,,y
+32,,R,R59 R60 R75 R81,1.82K,R_0603_1608Metric,4, ,~,Assortment,,y
+33,,R,R95,2K,R_0603_1608Metric,1, ,~,Assortment,,Y
+34,,R,R29 R30,2.49K,R_0603_1608Metric,2, ,~,Assortment,,y
+35,,R,R3 R14 R86 R89,3.3K,R_0603_1608Metric,4, ,~,Assortment,,y
+36,,R,R41 R42 R45 R46,4.99K,R_1206_3216Metric,4, ,~,Assortment,,Y
+37,,R,R6 R66 R67 R85,5k,R_0603_1608Metric,4, ,~,Assortment,,Y
+38,,R,R8 R11 R13 R18 R20 R22 R23 R24 R25 R26 R88 R97 R98 R99 R100,10k,R_0603_1608Metric,15, ,~,Assortment,,Y
+39,,R,R27,10.2k,R_0603_1608Metric,1, ,~,Assortment,,y
+40,,R,R92,10.5k,R_0603_1608Metric,1, ,~,Assortment,,y
+41,,R,R91,12.1k,R_0603_1608Metric,1, ,~,Assortment,,y
+42,,R,R7 R9 R15 R21,13K,R_0603_1608Metric,4, ,~,Assortment,,y
+43,,R,R90,14k,R_0603_1608Metric,1, ,~,Assortment,,y
+44,,R,R93,18.7k,R_0603_1608Metric,1, ,~,Assortment,,y
+45,,R,R1 R83,33k,R_0603_1608Metric,2, ,~,Assortment,,Y
+46,,R,R28,37.4k,R_0603_1608Metric,1, ,~,Assortment,,y
+47,,R,R10 R87,82.5k,R_0603_1608Metric,2, ,~,Assortment,,y
+48,,R,R2 R16,140k,R_0603_1608Metric,2, ,~,Assortment,,Y
+49,,R,R12 R19,392K,R_0603_1608Metric,2, ,~,Assortment,,y
+50,,R_Potentiometer_Trim_US,RV3,2K,Potentiometer_Bourns_3224W_Vertical,1, ,https://www.bourns.com/docs/Product-Datasheets/3224.pdf,https://www.digikey.com/en/products/detail/bourns-inc/3224W-1-202E/225658,3224W-202ECT-ND,Y
+51,,R_Potentiometer_Trim_US,RV1 RV2 RV5 RV6 RV7,20K,Potentiometer_Bourns_3224W_Vertical,5, ,https://www.bourns.com/docs/Product-Datasheets/3224.pdf,https://www.digikey.com/en/products/detail/bourns-inc/3224W-1-202E/225658 https://www.digikey.com/en/products/detail/bourns-inc/3224W-1-203E/225661,3224W-202ECT-ND 118-3224W-1-203ECT-ND,Y
+52,,SP4T,SW1 SW2 SW3 SW4 SW5 SW6,~,Nidec SP4T CS-4-14NTA,6, ,https://www.nidec-copal-electronics.com/e/catalog/switch/cs-4.pdf,https://www.digikey.com/en/products/detail/nidec-components-corporation/CS-4-14NTA/948348,563-1037-1-ND,Y
+53,,7430,U20,7430,TSSOP-14_4.4x5mm_P0.65mm,1, ,https://www.ti.com/general/docs/suppproductinfo.tsp?distId=10&gotoUrl=https%3A%2F%2Fwww.ti.com%2Flit%2Fgpn%2Fcd74hc30,https://www.digikey.com/en/products/detail/texas-instruments/CD74HC30PWR/1506969,296-28615-1-ND,Y
+54,,ALVCH16373,U4 U5 U6,74ALVCH16373DGG:11,TSSOP-48_6.1x12.5mm_P0.5mm,3, ,,https://www.digikey.com/en/products/detail/nexperia-usa-inc/74ALVCH16373DGG-11/2228810,1727-8378-1-ND,Y
+55,,AD8137,U10,AD8137YRZ,SOIC-8_3.9x4.9mm_P1.27mm,1, ,,https://www.digikey.com/en/products/detail/analog-devices-inc/AD8137YRZ/669749,505-AD8137YRZ-ND,Y
+56,,AD9744,U7 U8,AD9744ARUZ,TSSOP-28_4.4x9.7mm_P0.65mm,2, ,https://www.analog.com/media/en/technical-documentation/data-sheets/AD9744.pdf,https://www.digikey.com/en/products/detail/analog-devices-inc/AD9744ARUZ/936549,505-AD9744ARUZ-ND,Y
+57,,LT1363,U13 U14 U15 U16 U17 U18,LT1363,SOIC-8_3.9x4.9mm_P1.27mm,6, ,https://www.analog.com/media/en/technical-documentation/data-sheets/1363fa.pdf,https://www.digikey.com/en/products/detail/analog-devices-inc/LT1363CS8-TRPBF/958986,505-LT1363CS8#TRPBFCT-ND,Y
+58,,LT3045_MSE,U1 U2 U19,LT3045,MSOP-12-1EP_3x4mm_P0.65mm_EP1.65x2.85mm_ThermalVias,3, ,https://www.analog.com/media/en/technical-documentation/data-sheets/LT3045.pdf,https://www.digikey.com/en/products/detail/analog-devices-inc/LT3045IMSE-TRPBF/6235368,505-LT3045IMSE#TRPBFCT-ND,Y
+59,,LT3094_MSE,U3,LT3094_MSE,MSOP-12-1EP_3x4mm_P0.65mm_EP1.65x2.85mm_ThermalVias,1, ,https://www.analog.com/media/en/technical-documentation/data-sheets/LT3094.pdf,https://www.digikey.com/en/products/detail/analog-devices-inc/LT3094EMSE-TRPBF/9606784,505-LT3094EMSE#TRPBFCT-ND,Y
+60,,LTC2246H,U9,LTC2246HLX#PBF,LQFP-48_7x7mm_P0.5mm,1, ,,https://www.digikey.com/en/products/detail/analog-devices-inc/LTC2246HLX-PBF/1931208,LTC2246HLX#PBF-ND,Y
+61,,THS4150,U11 U12,THS4151,HVSSOP-8-1_Expanded_Thermal_Pad_P0.65mm_EP1.57x1.89mm_ThermalVias,2, ,https://www.ti.com/lit/ds/symlink/ths4150.pdf,https://www.digikey.com/en/products/detail/texas-instruments/THS4151ID/380601,296-10054-5-ND,Y
