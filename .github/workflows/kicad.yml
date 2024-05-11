@@ -4,8 +4,8 @@ on:
         paths:
         - '**.sch'
         - '**.kicad_pcb'
-        # - '.github/**.yml' # Trigger on changes to the workflow file
-        # - '**.kibot.yml' # Trigger on changes to the KiBot config file used in the workflow
+        - '.github/**.yml' # Trigger on changes to the workflow file
+        - '**.kibot.yml' # Trigger on changes to the KiBot config file used in the workflow
 
 # To allow for manual triggering from the Action console, add workflow_dispatch
     workflow_dispatch:
@@ -36,15 +36,15 @@ jobs:
       with:
         # The arguments for the `git add` command (see the paragraph below for more info)
         # Default: '.'
-        # add: 'src'
+        add: 'Hardware/PCBs/Open Beam Interface/Open Beam Interface.kicad_sch'
     
         # The name of the user that will be displayed as the author of the commit.
         # Default: depends on the default_author input
-        author_name: Author Name
+        author_name: Isabel Burgos
     
         # The email of the user that will be displayed as the author of the commit.
         # Default: depends on the default_author input
-        author_email: mail@example.com
+        author_email: isabel@nanographs.io
     
         # Additional arguments for the git commit command. The --message argument is already set by the message input.
         # Default: ''
@@ -52,11 +52,11 @@ jobs:
     
         # The name of the custom committer you want to use, if different from the author of the commit.
         # Default: the name of the author (set with either author_name or default_author)
-        committer_name: Committer Name
+        committer_name: nano-kibot
     
         # The email of the custom committer you want to use, if different from the author of the commit.
         # Default: the email of the author (set with either author_email or default_author)
-        committer_email: mail@example.com
+        committer_email: isabel@nanographs.io
     
         # The local path to the directory where your repository is located. You should use actions/checkout first to set it up.
         # Default: '.'
@@ -76,7 +76,7 @@ jobs:
     
         # The message for the commit.
         # Default: 'Commit from GitHub Actions (name of the workflow)'
-        message: 'Automatically committed'
+        message: 'Automatically committed 🤖✨ by workflows/kicad.yml'
     
         # If this input is set, the action will push the commit to a new branch with this name.
         # Default: ''
