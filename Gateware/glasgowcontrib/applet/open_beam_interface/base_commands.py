@@ -81,24 +81,12 @@ class FlushCommand(BaseCommand):
                 {"flush": {
                     "reserved": 0,  
                 }})
-    
 
-class DelayCommand(BaseCommand):
-    def __init__(self, delay):
-        assert delay <= 65535
-        self._delay = delay
-
-    def __repr__(self):
-        return f"DelayCommand(delay={self._delay})"
-
-    @property
-    def message(self):
-        return struct.pack(">BH", Command.Type.Delay.value, self._delay)
     
 
 class BlankCommand(BaseCommand):
     def __init__(self, enable:bool=True, inline: bool=False):
-        self._enable = enablemaller
+        self._enable = enable
         self._inline = inline
 
     def __repr__(self):
@@ -106,16 +94,17 @@ class BlankCommand(BaseCommand):
 
     @property
     def message(self):
-        combined = int(self._inline<<5 | self._enable << 3 | Command.Type.Blank.value)
-        return struct.pack(">B", combined)
-        # if self._enable and not self._inline:
-        #     return struct.pack('>B', CommandType.Blank)
-        # elif self._enable and self._inline:
-        #     return struct.pack('>B', CommandType.BlankInline)
-        # elif not (self._enable and self._inline):
-        #     return struct.pack('>B', CommandType.Unblank)
-        # elif not self._enable and self._inline:
-        #     return struct.pack('>B', CommandType.UnblankInline)
+        return Command.serialize(CmdType.Blank, 
+                payload = 
+                {"blank": {
+                    "reserved": 0,
+                    "payload": {
+                        "blank": {
+                            "enable": self._enable,
+                            "inline": self._inline
+                        }
+                    }    
+                }})
 
 
 class ExternalCtrlCommand(BaseCommand):
@@ -137,6 +126,21 @@ class BeamSelectCommand(BaseCommand):
     def message(self):
         combined = int(Command.Type.BeamSelect.value << 5 | self._beam_type)
 
+class DelayCommand(BaseCommand):
+    def __init__(self, delay):
+        assert delay <= 65535
+        self._delay = delay
+
+    def __repr__(self):
+        return f"DelayCommand(delay={self._delay})"
+
+    @property
+    def message(self):
+        return Command.serialize(CmdType.Delay, 
+                payload = 
+                {"delay": {
+                    "payload": 0,  
+                }})
 
 class RasterRegionCommand(BaseCommand):
     def __init__(self, *, x_range: DACCodeRange, y_range: DACCodeRange):

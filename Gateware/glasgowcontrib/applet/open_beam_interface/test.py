@@ -340,6 +340,11 @@ class OBIAppletTestCase(unittest.TestCase):
         
         test_cmd(FlushCommand(),
                 {"type": CmdType.Flush}, "cmd_flush")
+        
+        test_cmd(BlankCommand(),
+                {"type": CmdType.Blank, 
+                            "payload": {"blank": {"payload": { "blank": {"enable": 1, "inline": 0}}}}
+                }, "cmd_blank")
 
         # test_cmd(DelayCommand(delay=960),
         #         {"type": Command.Type.Delay, 
