@@ -334,6 +334,9 @@ class OBIAppletTestCase(unittest.TestCase):
                                 },
                                 "cookie": 1024,
                 }}}}, "cmd_sync")
+        
+        test_cmd(AbortCommand(),
+                {"type": CmdType.Abort}, "cmd_sync")
 
         # test_cmd(DelayCommand(delay=960),
         #         {"type": Command.Type.Delay, 

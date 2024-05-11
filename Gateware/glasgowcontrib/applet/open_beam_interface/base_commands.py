@@ -3,20 +3,10 @@ from dataclasses import dataclass
 import enum
 import struct
 import array
-from . import Command, CmdType
+from . import Command, CmdType, OutputMode, BeamType
 
 BIG_ENDIAN = (struct.pack('@H', 0x1234) == struct.pack('>H', 0x1234))
 
-
-class OutputMode(enum.IntEnum):
-    SixteenBit          = 0
-    EightBit            = 1
-    NoOutput            = 2
-
-class BeamType(enum.IntEnum):
-    NoBeam              = 0
-    Electron            = 1
-    Ion                 = 2
 
 @dataclass
 class DACCodeRange:
@@ -48,8 +38,6 @@ class SynchronizeCommand(BaseCommand):
         self._cookie = cookie
         self._raster = raster
         self._output = output
-        self._raster = raster
-        self._output = output
 
     def __repr__(self):
         return f"SynchronizeCommand(cookie={self._cookie}, raster={self._raster}, outpute={self._output})"
@@ -76,7 +64,11 @@ class AbortCommand(BaseCommand):
     
     @property
     def message(self):
-        return struct.pack(">B", CommandType.Abort)
+        return Command.serialize(CmdType.Abort, 
+                payload = 
+                {"abort": {
+                    "reserved": 0,  
+                }})
     
 class FlushCommand(BaseCommand):
     def __repr__(self):
