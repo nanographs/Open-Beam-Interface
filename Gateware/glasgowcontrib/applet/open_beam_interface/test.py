@@ -371,6 +371,21 @@ class OBIAppletTestCase(unittest.TestCase):
                                 }
                 }}}}, "cmd_rasterregion")
         
+        test_cmd(VectorPixelCommand(x_coord=4, y_coord=5, dwell= 6),
+                {"type": CmdType.VectorPixel, 
+                    "payload": {
+                        "vector_pixel": {
+                            "payload": {
+                                "transform": {
+                                    "xflip": 0,
+                                    "yflip": 0,
+                                    "rotate90": 0
+                                },
+                                "x_coord": 4,
+                                "y_coord": 5,
+                                "dwell_time": 6
+                }}}}, "cmd_vectorpixel")
+        
 
     def test_command_parser_1(self):
         dut = CommandParser()
