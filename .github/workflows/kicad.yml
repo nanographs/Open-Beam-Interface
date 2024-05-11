@@ -4,8 +4,8 @@ on:
         paths:
         - '**.sch'
         - '**.kicad_pcb'
-        - '.github/**.yml' # Trigger on changes to the workflow file
-        - '**.kibot.yml' # Trigger on changes to the KiBot config file used in the workflow
+        # - '.github/**.yml' # Trigger on changes to the workflow file
+        # - '**.kibot.yml' # Trigger on changes to the KiBot config file used in the workflow
 
 # To allow for manual triggering from the Action console, add workflow_dispatch
     workflow_dispatch:
@@ -27,7 +27,7 @@ jobs:
         # Required - kibot config file
         config: .github/workflows/kibot/kibot.yml
         # optional - prefix to output defined in config
-        dir: output
+        dir: 'Hardware/PCBs/Open Beam Interface/'
         # optional - schematic file
         schema: 'Hardware/PCBs/Open Beam Interface/Open Beam Interface.kicad_sch'
         # optional - PCB design file
