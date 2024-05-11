@@ -477,10 +477,10 @@ class CmdType(enum.Enum, shape=5):
         Synchronize = 0
         Abort       = 1
         Flush       = 2
-        Delay       = 3
-        ExternalCtrl = 4
-        BeamSelect = 5
-        Blank = 6
+        ExternalCtrl = 3
+        BeamSelect = 4
+        Blank = 5
+        Delay  = 6
 
         RasterRegion = 10
         RasterPixel = 11
@@ -577,7 +577,13 @@ class Command(data.Struct):
                     "inline": 1
                 })
             })
-        })
+        }),
+        "delay": data.StructLayout({
+            "reserved": 0,
+            "payload": data.StructLayout({
+                "delay": 16
+            })
+        }),
     })
 
     @classmethod
