@@ -189,6 +189,58 @@ class RasterRegionCommand(BaseCommand):
                     }    
                 }})
 
+class RasterPixelRunCommand(BaseCommand):
+    def __init__(self, *, dwell: DwellTime, length: int):
+        assert dwell <= 65536
+        self._dwell   = dwell
+        self._length  = length
+
+    def __repr__(self):
+        return f"RasterPixelRunCommand(dwell={self._dwell}, length={self._length})"
+
+    def _iter_chunks(self):
+        max_counter = 65536
+        assert self._dwell < max_counter, f"Pixel dwell time ({self._dwell}) higher than 65536. Dwell times are limited to 16 bit values"
+
+        commands = bytearray()
+        def append_command(run_length):
+            nonlocal commands
+            cmd = Command.serialize(CmdType.RasterPixelRun, 
+                payload = 
+                {"raster_pixel_run": {
+                    "reserved": 0,
+                    "payload": {
+                        "length": run_length - 1,
+                        "dwell_time": self._dwell
+                    }    
+                }})
+            commands.extend(cmd)
+
+        pixel_count = 0
+        total_dwell = 0
+        for _ in range(self._length):
+            pixel_count += 1
+            total_dwell += self._dwell
+            if total_dwell >= max_counter:
+                append_command(pixel_count)
+                print(f"{len(commands)=}, {pixel_count=}, {total_dwell=}")
+                yield (commands, pixel_count)
+                commands = bytearray()
+                pixel_count = 0
+                total_dwell = 0
+        if pixel_count > 0:
+            append_command(pixel_count)
+            yield (commands, pixel_count)
+
+    @property
+    def message(self):
+        commands = bytearray()
+        for command_chunk, pixel_count in self._iter_chunks():
+            print(f"{len(command_chunk)=}")
+            commands.extend(command_chunk)
+        return commands
+
+
 class VectorPixelCommand(BaseCommand):
     def __init__(self, *, x_coord: int, y_coord: int, dwell: DwellTime,
                         xflip=False, yflip=False, rotate90=False):
@@ -236,7 +288,7 @@ class RasterPixelsCommand(BaseCommand):
         max_counter = 65536
         assert not any(dwell > max_counter for dwell in self._dwells), "Pixel dwell time higher than 65536. Dwell times are limited to 16 bit values"
 
-        commands = b""
+        commands = bytearray()
         def append_command(chunk):
             nonlocal commands
             commands += struct.pack(">BH", CommandType.RasterPixel, len(chunk) - 1)
@@ -256,7 +308,7 @@ class RasterPixelsCommand(BaseCommand):
                 del chunk[:] # clear
             if total_dwell >= max_counter:
                 yield (commands, pixel_count)
-                commands = b""
+                commands = bytearray()
                 pixel_count = 0
                 total_dwell = 0
         if chunk:
@@ -269,51 +321,6 @@ class RasterPixelsCommand(BaseCommand):
         for command_chunk, pixel_count in self._iter_chunks():
             commands.extend(command_chunk)
         return commands
-
-class RasterPixelRunCommand(BaseCommand):
-    def __init__(self, *, dwell: DwellTime, length: int):
-        assert dwell <= 65536
-        self._dwell   = dwell
-        self._length  = length
-
-    def __repr__(self):
-        return f"RasterPixelRunCommand(dwell={self._dwell}, length={self._length})"
-
-    def _iter_chunks(self):
-        max_counter = 65536
-        assert self._dwell < max_counter, f"Pixel dwell time ({self._dwell}) higher than 65536. Dwell times are limited to 16 bit values"
-
-        commands = b""
-        def append_command(run_length):
-            nonlocal commands
-            commands += struct.pack(">BHH", CommandType.RasterPixelRun, run_length - 1, self._dwell)
-
-        pixel_count = 0
-        total_dwell = 0
-        for _ in range(self._length):
-            pixel_count += 1
-            total_dwell += self._dwell
-            if total_dwell >= max_counter:
-                append_command(pixel_count)
-                print(f"{len(commands)=}, {pixel_count=}, {total_dwell=}")
-                yield (commands, pixel_count)
-                commands = b""
-                pixel_count = 0
-                total_dwell = 0
-        if pixel_count > 0:
-            append_command(pixel_count)
-            yield (commands, pixel_count)
-
-    @property
-    def message(self):
-        commands = bytearray()
-        for command_chunk, pixel_count in self._iter_chunks():
-            print(f"{len(command_chunk)=}")
-            commands.extend(command_chunk)
-        return commands
-        print(f"{len(commands)=}")
-
-        #return struct.pack(">BHH", CommandType.RasterPixelRun, self._length - 1, self._dwell)
 
 
 class CommandSequence(BaseCommand):

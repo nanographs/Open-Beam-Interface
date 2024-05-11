@@ -574,6 +574,13 @@ class Command(data.Struct):
                 "roi": RasterRegion
             })
         }),
+        "raster_pixel_run": data.StructLayout({
+            "reserved": 0,
+            "payload": data.StructLayout({
+                "length": 16,
+                "dwell_time": DwellTime
+            })
+        }),
         "vector_pixel": data.StructLayout({
             "reserved": 0,
             "payload": data.StructLayout({
@@ -613,8 +620,6 @@ class CommandParser(wiring.Component):
         m.d.comb += command.type.eq(command_header.type)
         m.d.comb += command.payload.as_value()[:len(command_header.payload)].eq(command_header.payload)
 
-        # payload_size = Command.PAYLOAD_SIZE_ARRAY[command_header.type]
-        print(f"{type(Command.PAYLOAD_SIZE_ARRAY)=}")
         payload_parsed = Signal(range(max(Command.PAYLOAD_SIZE_ARRAY)))
         payload_size = Signal.like(payload_parsed)
         payload_size_reg = Signal.like(payload_parsed)
@@ -631,6 +636,7 @@ class CommandParser(wiring.Component):
                     m.d.comb += payload_size_reg.eq(size)
 
         command_reg = Signal(Command)
+        raster_pixel_count = Signal(16)
 
         with m.FSM():
             with m.State("Type"):
@@ -660,6 +666,11 @@ class CommandParser(wiring.Component):
                     with m.If(payload_parsed + 1 == payload_size_reg):
                         m.next = "Submit_with_payload"
             
+            # with m.State("Submit_raster_pixel_run"):
+            #     m.d.sync += raster_pixel_count.eq(raster_pixel_count-1)
+            #     with m.If(raster_pixel_count==0):
+
+
             with m.State("Submit_with_payload"):
                 m.d.comb += command.eq(command_reg)
                 m.d.comb += command_header.eq(command_header_reg)
