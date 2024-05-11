@@ -36,7 +36,7 @@ jobs:
       with:
         # The arguments for the `git add` command (see the paragraph below for more info)
         # Default: '.'
-        add: 'Hardware/PCBs/Open Beam Interface/Open Beam Interface.kicad_sch'
+        add: '"Hardware/PCBs/Open Beam Interface/Open Beam Interface.kicad_sch"'
     
         # The name of the user that will be displayed as the author of the commit.
         # Default: depends on the default_author input
@@ -76,7 +76,7 @@ jobs:
     
         # The message for the commit.
         # Default: 'Commit from GitHub Actions (name of the workflow)'
-        message: 'Automatically committed 🤖✨ by workflows/kicad.yml'
+        message: 'Automatically committed'
     
         # If this input is set, the action will push the commit to a new branch with this name.
         # Default: ''
