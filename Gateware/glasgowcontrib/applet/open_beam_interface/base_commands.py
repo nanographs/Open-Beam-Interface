@@ -91,7 +91,14 @@ class ExternalCtrlCommand(BaseCommand):
 
     @property
     def message(self):
-        combined = int(self._enable << 5 | Command.Type.ExtCtrl.value) 
+        return Command.serialize(CmdType.ExternalCtrl, 
+                payload = 
+                {"external_ctrl": {
+                    "reserved": 0,  
+                    "payload": {
+                        "enable": self._enable
+                    }
+                }})
 
 class BlankCommand(BaseCommand):
     def __init__(self, enable:bool=True, inline: bool=False):
