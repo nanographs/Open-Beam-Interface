@@ -339,7 +339,7 @@ class OBIAppletTestCase(unittest.TestCase):
 
         test_cmd(BlankCommand(),
                 {"type": CmdType.Blank, 
-                            "payload": {"blank": {"payload": { "blank": {"enable": 1, "inline": 0}}}}
+                            "payload": {"blank": {"payload": {"enable": 1, "inline": 0}}}
                 }, "cmd_blank")
 
         test_cmd(DelayCommand(delay=960),
