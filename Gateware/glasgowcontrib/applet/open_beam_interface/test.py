@@ -336,7 +336,10 @@ class OBIAppletTestCase(unittest.TestCase):
                 }}}}, "cmd_sync")
         
         test_cmd(AbortCommand(),
-                {"type": CmdType.Abort}, "cmd_sync")
+                {"type": CmdType.Abort}, "cmd_abort")
+        
+        test_cmd(FlushCommand(),
+                {"type": CmdType.Flush}, "cmd_flush")
 
         # test_cmd(DelayCommand(delay=960),
         #         {"type": Command.Type.Delay, 
