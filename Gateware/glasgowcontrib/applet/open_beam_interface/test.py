@@ -331,6 +331,11 @@ class OBIAppletTestCase(unittest.TestCase):
                 {"type": CmdType.ExternalCtrl, 
                         "payload": {"external_ctrl": {"payload": {"enable": 1}}}
                 }, "cmd_extctrlenable")
+        
+        test_cmd(BeamSelectCommand(beam_type=BeamType.Electron),
+                {"type": CmdType.BeamSelect, 
+                            "payload": {"beam_select": {"payload": {"beam_type": BeamType.Electron}}}
+                }, "cmd_selectebeam")
 
         test_cmd(BlankCommand(),
                 {"type": CmdType.Blank, 
