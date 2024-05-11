@@ -575,13 +575,7 @@ class CmdType(enum.Enum, shape=5):
         RasterPixelRun = 12
         RasterPixelFreeRun = 13
         VectorPixel = 14
-        VectorPixelMinDwell = 15
-        # Command1 = 1 # only type
-        # Command2 = 2 # type + payload bytes
-        # Command3 = 3 # type + payload bits
-        # Command4 = 4 # type + payload bits + payload bytes
-        # Command9 = 9
-        
+        VectorPixelMinDwell = 15   
 
 
 class Command(data.Struct):
@@ -620,21 +614,6 @@ class Command(data.Struct):
 
     type: CmdType
     payload: data.UnionLayout({
-        # "command1": data.StructLayout({
-        #     "reserved": 0,
-        # }),
-        # "command2": data.StructLayout({
-        #     "reserved": 3,
-        #     "data":     32,
-        # }),
-        # "command3": data.StructLayout({
-        #     "reserved": 0,
-        #     "payload":  3,
-        # }),
-        # "command4": data.StructLayout({
-        #     "reserved": 2,
-        #     "payload":  33,
-        # }),
         "synchronize": data.StructLayout({
             "reserved": 0,
             "payload": data.StructLayout({
@@ -681,6 +660,15 @@ class Command(data.Struct):
             "payload": data.StructLayout({
                 "transform": Transforms,
                 "roi": RasterRegion
+            })
+        }),
+        "vector_pixel": data.StructLayout({
+            "reserved": 0,
+            "payload": data.StructLayout({
+                "transform": Transforms,
+                "x_coord": 14,
+                "y_coord": 14, 
+                "dwell_time": DwellTime
             })
         }),
     })
