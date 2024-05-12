@@ -301,8 +301,10 @@ class VectorPixelCommand(BaseCommand):
                                 "yflip": self._yflip,
                                 "rotate90": self._rotate90,
                             },
+                        "dac_stream": {
                             "x_coord": self._x_coord,
                             "y_coord": self._y_coord,
+                            }
                         }    
                     }})
         else:
@@ -316,9 +318,11 @@ class VectorPixelCommand(BaseCommand):
                                 "yflip": self._yflip,
                                 "rotate90": self._rotate90,
                             },
+                            "dac_stream": {
                             "x_coord": self._x_coord,
                             "y_coord": self._y_coord,
                             "dwell_time": self._dwell
+                            }
                         }    
                     }})
     @property
