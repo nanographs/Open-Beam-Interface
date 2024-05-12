@@ -846,15 +846,12 @@ class OBIAppletTestCase(unittest.TestCase):
             self.simulate(test_seq.dut, [test_seq._put_testbench, test_seq._get_testbench], name="exec_6")
 
 
-        #test_exec_1()
-        
-        #test_exec_5()
-        #test_exec_6()
-
-        # test_exec_2()
-        # test_exec_3()
+        test_exec_1()
+        test_exec_2()
+        test_exec_3()
         test_exec_4()
-        
+        test_exec_5()
+        test_exec_6()
 
     def test_all(self):
         from amaranth import Module
