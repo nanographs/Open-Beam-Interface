@@ -450,14 +450,13 @@ class OBIAppletTestCase(unittest.TestCase):
                     "type": Command.Type.Synchronize,
                     "payload": {
                         "synchronize": {
-                            "cookie": cookie,
-                            "mode" : {
-                                "raster": 1,
-                                "output": 0,
-                                }
-                            }
-                        }
-                    })
+                            "payload":{
+                                "cookie": cookie,
+                                "mode" : {
+                                    "raster": 1,
+                                    "output": 0,
+                                    }
+                                }}}})
             
             def get_testbench():
                 yield from get_stream(dut.img_stream, 65535) # FFFF
@@ -471,16 +470,15 @@ class OBIAppletTestCase(unittest.TestCase):
                 yield from put_stream(dut.cmd_stream, {
                     "type": Command.Type.RasterRegion,
                     "payload": {
-                        "raster_region": {
-                            "x_start": 5,
-                            "x_count": 2,
-                            "x_step": 0x2_00,
-                            "y_start": 9,
-                            "y_count": 1,
-                            "y_step": 0x5_00,
-                        }
-                    }
-                })
+                        "raster_region": { "payload": {
+                            "roi": {
+                                "x_start": 5,
+                                "x_count": 2,
+                                "x_step": 0x2_00,
+                                "y_start": 9,
+                                "y_count": 1,
+                                "y_step": 0x5_00,
+                            }}}}})
 
             def get_testbench():
                 yield from get_stream(dut.raster_scanner.roi_stream, 

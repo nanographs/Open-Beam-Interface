@@ -144,17 +144,18 @@ class Flippenator(wiring.Component):
             m.d.sync += self.out_stream.valid.eq(self.in_stream.valid)
         m.d.comb += self.in_stream.ready.eq(self.out_stream.ready)
         return m
-        
 
-
-class BusController(wiring.Component):
-    # FPGA-side interface
-    dac_stream: In(StreamSignature(data.StructLayout({
+DAC_Stream = StreamSignature(data.StructLayout({
         "dac_x_code": 14,
         "dac_y_code": 14,
         "blank":      BlankRequest,
         "last":       1,
-    })))
+    }))
+
+
+class BusController(wiring.Component):
+    # FPGA-side interface
+    dac_stream: In(DAC_Stream)
 
     adc_stream: Out(StreamSignature(data.StructLayout({
         "adc_code": 14,
@@ -818,11 +819,9 @@ class CommandExecutor(wiring.Component):
             with m.If(async_blank.request):
                 m.d.sync += next_blank_enable.eq(async_blank.enable)
                 m.d.sync += async_blank.request.eq(0)
-            
 
-
-        run_length = Signal.like(command.payload.raster_pixel_run.length)
-        raster_region = Signal.like(command.payload.raster_region)
+        run_length = Signal.like(command.payload.raster_pixel_run.payload.length)
+        raster_region = Signal.like(command.payload.raster_region.payload.roi)
         m.d.comb += [
             self.raster_scanner.roi_stream.payload.eq(raster_region),
             vector_stream.payload.eq(command.payload.vector_pixel)
@@ -842,65 +841,57 @@ class CommandExecutor(wiring.Component):
                 m.d.sync += self.flush.eq(0)
 
                 with m.Switch(command.type):
-                    with m.Case(Command.Type.Synchronize):
+                    with m.Case(CmdType.Synchronize):
                         m.d.sync += self.flush.eq(1)
                         m.d.comb += sync_req.eq(1)
                         with m.If(sync_ack):
-                            m.d.sync += raster_mode.eq(command.payload.synchronize.mode.raster)
-                            m.d.sync += output_mode.eq(command.payload.synchronize.mode.output)
+                            m.d.sync += raster_mode.eq(command.payload.synchronize.payload.mode.raster)
+                            m.d.sync += output_mode.eq(command.payload.synchronize.payload.mode.output)
                             m.next = "Fetch"
 
-                    with m.Case(Command.Type.Abort):
+                    with m.Case(CmdType.Abort):
                         m.d.sync += self.flush.eq(1)
                         m.d.comb += self.raster_scanner.abort.eq(1)
                         m.next = "Fetch"
 
-                    with m.Case(Command.Type.Flush):
+                    with m.Case(CmdType.Flush):
                         m.d.sync += self.flush.eq(1)
                         m.next = "Fetch"
 
-                    with m.Case(Command.Type.Delay):
-                        with m.If(delay_counter == command.payload.delay):
+                    with m.Case(CmdType.Delay):
+                        with m.If(delay_counter == command.payload.delay.payload.delay):
                             m.d.sync += delay_counter.eq(0)
                             m.next = "Fetch"
                         with m.Else():
                             m.d.sync += delay_counter.eq(delay_counter + 1)
 
-                    with m.Case(Command.Type.ExtCtrl):
+                    with m.Case(CmdType.ExternalCtrl):
                         #Don't change control in the middle of previously submitted pixels
                         with m.If(self.supersampler.dac_stream.ready):
-                            m.d.sync += self.ext_ctrl_enable.eq(command.payload.external_ctrl.enable)
+                            m.d.sync += self.ext_ctrl_enable.eq(command.payload.external_ctrl.payload.enable)
                             m.next = "Fetch"
                     
-                    with m.Case(Command.Type.BeamSelect):
+                    with m.Case(CmdType.BeamSelect):
                         #Don't change control in the middle of previously submitted pixels
                         with m.If(self.supersampler.dac_stream.ready):
-                            m.d.sync += self.beam_type.eq(command.payload.beam_type)
+                            m.d.sync += self.beam_type.eq(command.payload.beam_select.payload.beam_type)
                             m.next = "Fetch"
 
-                    with m.Case(Command.Type.Blank):
-                        with m.If(command.payload.blank.inline):
-                            m.d.sync += sync_blank.enable.eq(command.payload.blank.enable)
+                    with m.Case(CmdType.Blank):
+                        with m.If(command.payload.blank.payload.inline):
+                            m.d.sync += sync_blank.enable.eq(command.payload.blank.payload.enable)
                             m.d.sync += sync_blank.request.eq(1)
                             m.next = "Fetch"
                         with m.Else():
                             #Don't blank in the middle of previously submitted pixels
                             with m.If(self.supersampler.dac_stream.ready):
-                                m.d.sync += async_blank.enable.eq(command.payload.blank.enable)
+                                m.d.sync += async_blank.enable.eq(command.payload.blank.payload.enable)
                                 m.d.sync += async_blank.request.eq(1)
                                 m.next = "Fetch"
 
-                    with m.Case(Command.Type.FlipX, Command.Type.UnFlipX):
-                        m.d.sync += self.flippenator.transforms.xflip.eq(command.payload.transform.xflip ^ self.default_transforms.xflip)
-                    
-                    with m.Case(Command.Type.FlipY, Command.Type.UnFlipY):
-                        m.d.sync += self.flippenator.transforms.yflip.eq(command.payload.transform.yflip ^ self.default_transforms.yflip)
-                    
-                    with m.Case(Command.Type.Rotate90, Command.Type.UnRotate90):
-                        m.d.sync += self.flippenator.transforms.rotate90.eq(command.payload.transform.rotate90 ^ self.default_transforms.rotate90)
-
-                    with m.Case(Command.Type.RasterRegion):
-                        m.d.sync += raster_region.eq(command.payload.raster_region)
+                    with m.Case(CmdType.RasterRegion):
+                        m.d.sync += raster_region.eq(command.payload.raster_region.payload.roi)
+                        m.d.sync += self.flippenator.transforms.eq(command.payload.raster_region.payload.transform ^ self.default_transforms)
                         m.d.comb += [
                             self.raster_scanner.roi_stream.valid.eq(1),
                             self.raster_scanner.roi_stream.payload.eq(command.payload.raster_region),
@@ -908,34 +899,34 @@ class CommandExecutor(wiring.Component):
                         with m.If(self.raster_scanner.roi_stream.ready):
                             m.next = "Fetch"
 
-                    with m.Case(Command.Type.RasterPixel):
+                    with m.Case(CmdType.RasterPixel):
                         m.d.comb += [
                             self.raster_scanner.dwell_stream.valid.eq(1),
-                            self.raster_scanner.dwell_stream.payload.dwell_time.eq(command.payload.raster_pixel),
+                            self.raster_scanner.dwell_stream.payload.dwell_time.eq(command.payload.raster_pixel.payload.dwell_time),
                             self.raster_scanner.dwell_stream.payload.blank.eq(sync_blank)
                         ]
                         with m.If(self.raster_scanner.dwell_stream.ready):
                             m.d.comb += submit_pixel.eq(1)
                             m.next = "Fetch"
 
-                    with m.Case(Command.Type.RasterPixelRun):
+                    with m.Case(CmdType.RasterPixelRun):
                         m.d.comb += [
                             self.raster_scanner.dwell_stream.valid.eq(1),
-                            self.raster_scanner.dwell_stream.payload.dwell_time.eq(command.payload.raster_pixel_run.dwell_time),
+                            self.raster_scanner.dwell_stream.payload.dwell_time.eq(command.payload.raster_pixel_run.payload.dwell_time),
                             self.raster_scanner.dwell_stream.payload.blank.eq(sync_blank)
                         ]
                         with m.If(self.raster_scanner.dwell_stream.ready):
                             m.d.comb += submit_pixel.eq(1)
-                            with m.If(run_length == command.payload.raster_pixel_run.length):
+                            with m.If(run_length == command.payload.raster_pixel_run.payload.length):
                                 m.d.sync += run_length.eq(0)
                                 m.next = "Fetch"
                             with m.Else():
                                 m.d.sync += run_length.eq(run_length + 1)
 
-                    with m.Case(Command.Type.RasterPixelFreeRun):
+                    with m.Case(CmdType.RasterPixelFreeRun):
                         m.d.comb += [
                             self.raster_scanner.roi_stream.payload.eq(raster_region),
-                            self.raster_scanner.dwell_stream.payload.dwell_time.eq(command.payload.raster_pixel),
+                            self.raster_scanner.dwell_stream.payload.dwell_time.eq(command.payload.raster_pixel.payload.dwell_time),
                             self.raster_scanner.dwell_stream.payload.blank.eq(sync_blank)
                         ]
                         with m.If(self.cmd_stream.valid):
@@ -951,9 +942,13 @@ class CommandExecutor(wiring.Component):
                                 m.d.comb += submit_pixel.eq(1)
 
 
-                    with m.Case(Command.Type.VectorPixel, Command.Type.VectorPixelMinDwell):
+                    with m.Case(CmdType.VectorPixel, CmdType.VectorPixelMinDwell):
                         m.d.comb += vector_stream.valid.eq(1)
                         m.d.comb += vector_stream.payload.blank.eq(sync_blank)
+                        with m.If(command.type==CmdType.VectorPixel):
+                            m.d.sync += self.flippenator.transforms.eq(command.payload.vector_pixel.payload.transform ^ self.default_transforms)
+                        with m.If(command.type==CmdType.VectorPixelMinDwell):
+                            m.d.sync += self.flippenator.transforms.eq(command.payload.vector_pixel_min.payload.transform ^ self.default_transforms)
                         with m.If(vector_stream.ready):
                             m.d.comb += submit_pixel.eq(1)
                             m.next = "Fetch"
