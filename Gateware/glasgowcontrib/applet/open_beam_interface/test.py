@@ -519,14 +519,12 @@ class OBIAppletTestCase(unittest.TestCase):
 
             def put_testbench():
                 yield from put_stream(dut.cmd_stream, {
-                    "type": Command.Type.RasterPixelRun,
+                    "type": CmdType.RasterPixelRun,
                     "payload": {
-                        "raster_pixel_run": {
+                        "raster_pixel_run": { "payload": {
                             "length": 2,
                             "dwell_time": 1,
-                        } 
-                    }
-                })
+                        }}}})
 
             def get_testbench():
                 yield from get_stream(dut.raster_scanner.dwell_stream,  {
