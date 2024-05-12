@@ -145,19 +145,16 @@ class Flippenator(wiring.Component):
         m.d.comb += self.in_stream.ready.eq(self.out_stream.ready)
         return m
 
-DAC_Stream = StreamSignature(data.StructLayout({
+
+class BusController(wiring.Component):
+    # FPGA-side interface
+    dac_stream: In(StreamSignature(data.StructLayout({
         "dac_x_code": 14,
         "dac_y_code": 14,
         "blank":      BlankRequest,
         "last":       1,
-        "blank": BlankRequest,
         "delay": 3
-    }))
-
-
-class BusController(wiring.Component):
-    # FPGA-side interface
-    dac_stream: In(DAC_Stream)
+    })))
 
     adc_stream: Out(StreamSignature(data.StructLayout({
         "adc_code": 14,
@@ -375,8 +372,8 @@ class Supersampler(wiring.Component):
     super_dac_stream: Out(StreamSignature(data.StructLayout({
         "dac_x_code": 14,
         "dac_y_code": 14,
-        "last":       1,
         "blank": BlankRequest,
+        "last":       1,
         "delay": 3
     })))
 
@@ -687,17 +684,22 @@ class Command(data.Struct):
             "reserved": 0,
             "payload": data.StructLayout({
                 "transform": Transforms,
-                "x_coord": 14,
-                "y_coord": 14, 
-                "dwell_time": DwellTime
+                "dac_stream": data.StructLayout({
+                    "x_coord": 14,
+                    "y_coord": 14, 
+                    "dwell_time": DwellTime
+                })
             }),
         }),
         "vector_pixel_min": data.StructLayout({
             "reserved": 0,
             "payload": data.StructLayout({
                 "transform": Transforms,
+                "dac_stream": data.StructLayout({
                 "x_coord": 14,
                 "y_coord": 14,
+                "dwell_time": DwellTime
+                })
             })
         }),
     })
@@ -778,6 +780,8 @@ class CommandParser(wiring.Component):
                             m.d.sync += raster_pixel_count.eq(command.payload.raster_pixel.payload.length)
                             m.next = "Payload_Raster_Pixel_Array_High"
                         with m.Else():
+                            with m.If(command_type == CmdType.VectorPixelMinDwell):
+                                m.d.sync += command_reg.payload.vector_pixel_min.payload.dac_stream.dwell_time.eq(0)
                             m.next = "Submit_with_payload"
 
             def Deserialize(target, state, next_state):
@@ -1059,7 +1063,7 @@ class CommandExecutor(wiring.Component):
         raster_region = Signal.like(command.payload.raster_region.payload.roi)
         m.d.comb += [
             self.raster_scanner.roi_stream.payload.eq(raster_region),
-            vector_stream.payload.eq(command.payload.vector_pixel)
+            vector_stream.payload.eq(command.payload.vector_pixel.payload.dac_stream)
         ]
 
         sync_req = Signal()
