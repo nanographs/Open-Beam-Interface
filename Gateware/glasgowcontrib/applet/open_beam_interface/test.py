@@ -468,9 +468,14 @@ class OBIAppletTestCase(unittest.TestCase):
 
             def put_testbench():
                 yield from put_stream(dut.cmd_stream, {
-                    "type": Command.Type.RasterRegion,
+                    "type": CmdType.RasterRegion,
                     "payload": {
                         "raster_region": { "payload": {
+                            "transform": {
+                                "xflip": 1,
+                                "yflip": 0,
+                                "rotate90": 0,
+                            },
                             "roi": {
                                 "x_start": 5,
                                 "x_count": 2,
