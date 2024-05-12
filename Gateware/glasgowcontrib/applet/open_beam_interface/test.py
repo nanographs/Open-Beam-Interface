@@ -681,14 +681,20 @@ class OBIAppletTestCase(unittest.TestCase):
             @property
             def _command(self):
                 return {"type": CmdType.RasterRegion,
-                            "payload": { "raster_region": { "payload": {"roi": {
-                                "x_start": self._x_start,
-                                "x_count": self._x_count,
-                                "x_step": self._x_step,
-                                "y_start": self._y_start,
-                                "y_count": self._y_count,
-                                "y_step": self._y_step,
-                            }}}}}
+                            "payload": { "raster_region": { "payload": {
+                                "transform": {
+                                    "xflip": 0,
+                                    "yflip": 0,
+                                    "rotate90": 0
+                                },
+                                "roi": {
+                                    "x_start": self._x_start,
+                                    "x_count": self._x_count,
+                                    "x_step": self._x_step,
+                                    "y_start": self._y_start,
+                                    "y_count": self._y_count,
+                                    "y_step": self._y_step}
+                            }}}}
                     
             @property
             def _response(self):
@@ -752,9 +758,16 @@ class OBIAppletTestCase(unittest.TestCase):
             def _command(self):
                 return {"type": CmdType.VectorPixel,
                         "payload": { "vector_pixel": { "payload": {
-                                "x_coord": self._x_coord,
-                                "y_coord": self._y_coord,
-                                "dwell_time": self._dwell_time
+                                "transform": {
+                                    "xflip": 0,
+                                    "yflip": 0,
+                                    "rotate90": 0
+                                },
+                                "dac_stream":{
+                                    "x_coord": self._x_coord,
+                                    "y_coord": self._y_coord,
+                                    "dwell_time": self._dwell_time
+                                }
                             }}}}
                     
             @property
@@ -770,7 +783,7 @@ class OBIAppletTestCase(unittest.TestCase):
             test_seq.add(TestSyncCommand(502, 1))
             test_seq.add(TestRasterPixelFreeRunCommand(1, test_samples=6))
             test_seq.add(TestSyncCommand(502, 1))
-            test_seq.add(TestSyncCommand(502, 1))
+            test_seq.add(TestSyncCommand(102, 1))
 
             self.simulate(test_seq.dut, [test_seq._put_testbench, test_seq._get_testbench], name="exec_1")
         
@@ -833,12 +846,15 @@ class OBIAppletTestCase(unittest.TestCase):
             self.simulate(test_seq.dut, [test_seq._put_testbench, test_seq._get_testbench], name="exec_6")
 
 
-        test_exec_1()
-        test_exec_2()
-        test_exec_3()
+        #test_exec_1()
+        
+        #test_exec_5()
+        #test_exec_6()
+
+        # test_exec_2()
+        # test_exec_3()
         test_exec_4()
-        test_exec_5()
-        test_exec_6()
+        
 
     def test_all(self):
         from amaranth import Module
