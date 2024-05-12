@@ -585,17 +585,13 @@ class OBIAppletTestCase(unittest.TestCase):
             
             @property
             def _command(self):
-                return {"type": Command.Type.Synchronize,
-                        "payload": {
-                            "synchronize": {
+                return {"type": CmdType.Synchronize,
+                        "payload": {"synchronize": {"payload": {
                                 "cookie": self._cookie,
                                 "mode": {
                                     "raster": self._raster_mode,
                                     "output": self._output_mode, 
-                                    }
-                                }
-                            }
-                        }
+                                    }}}}}
                     
             @property
             def _response(self):
@@ -607,11 +603,10 @@ class OBIAppletTestCase(unittest.TestCase):
 
             @property
             def _command(self):
-                return {"type": Command.Type.Delay,
-                        "payload": {
+                return {"type": CmdType.Delay,
+                        "payload": { "delay": { "payload": {
                             "delay": self._delay
-                            }
-                        }
+                            }}}}
                     
             @property
             def _response(self):
@@ -620,7 +615,7 @@ class OBIAppletTestCase(unittest.TestCase):
         class TestFlushCommand(TestCommand):
             @property
             def _command(self):
-                return {"type": Command.Type.Flush,}
+                return {"type": CmdType.Flush}
                     
             @property
             def _response(self):
@@ -633,23 +628,11 @@ class OBIAppletTestCase(unittest.TestCase):
             
             @property
             def _command(self):
-                if self._enable:
-                    return {"type": Command.Type.EnableExtCtrl,
-                            "payload": {
-                                "external_ctrl": {
-                                    "enable": 1,
-                                    }
-                                }
-                            }
-                if not self._enable:
-                    return {"type": Command.Type.DisableExtCtrl,
-                            "payload": {
-                                "external_ctrl": {
-                                    "enable": 0,
-                                    }
-                                }
-                            }
-                    
+                return {"type": CmdType.ExternalCtrl,
+                        "payload": {
+                            "external_ctrl": {"payload": {
+                                "enable": self._enable,
+                                }}}}
             @property
             def _response(self):
                 return []
@@ -660,26 +643,11 @@ class OBIAppletTestCase(unittest.TestCase):
             
             @property
             def _command(self):
-                if self._beam_type == BeamType.Electron:
-                    return {"type": Command.Type.SelectEbeam,
-                            "payload": {
-                                "beam_type": BeamType.Electron
-                                }
-                            }
-                elif self._beam_type == BeamType.Ion:
-                    return {"type": Command.Type.SelectIbeam,
-                            "payload": {
-                                "beam_type": BeamType.Ion
-                                }
-                            }
-                else:
-                    return {"type": Command.Type.SelectNoBeam,
-                            "payload": {
-                                "beam_type": BeamType.NoBeam
-                                }
-                            }
-
-                    
+                    return {"type": CmdType.BeamSelect,
+                            "payload": { "beam_select": { "payload": {
+                                "beam_type": self._beam_type
+                                }}}}
+ 
             @property
             def _response(self):
                 return []
@@ -691,42 +659,11 @@ class OBIAppletTestCase(unittest.TestCase):
             
             @property
             def _command(self):
-                if self._enable & ~self._inline:
-                    return {"type": Command.Type.Blank,
-                            "payload": {
-                                "blank": {
-                                    "enable": 1,
-                                    "inline": 0
-                                    }
-                                }
-                            }
-                if self._enable & self._inline:
-                    return {"type": Command.Type.BlankInline,
-                            "payload": {
-                                "blank": {
-                                    "enable": 1,
-                                    "inline": 1
-                                    }
-                                }
-                            }
-                if ~self._enable & ~self._inline:
-                    return {"type": Command.Type.Unblank,
-                            "payload": {
-                                "blank": {
-                                    "enable": 0,
-                                    "inline": 0
-                                    }
-                                }
-                            }
-                if ~self._enable & self._inline:
-                    return {"type": Command.Type.UnblankInline,
-                            "payload": {
-                                "blank": {
-                                    "enable": 0,
-                                    "inline": 1
-                                    }
-                                }
-                            }
+                    return {"type": CmdTypeBlank,
+                            "payload": { "blank": { "payload": {
+                                    "enable": self._enable,
+                                    "inline": self._inline
+                                    }}}}
                     
             @property
             def _response(self):
@@ -743,18 +680,15 @@ class OBIAppletTestCase(unittest.TestCase):
             
             @property
             def _command(self):
-                return {"type": Command.Type.RasterRegion,
-                            "payload": {
-                            "raster_region": {
+                return {"type": CmdType.RasterRegion,
+                            "payload": { "raster_region": { "payload": {"roi": {
                                 "x_start": self._x_start,
                                 "x_count": self._x_count,
                                 "x_step": self._x_step,
                                 "y_start": self._y_start,
                                 "y_count": self._y_count,
                                 "y_step": self._y_step,
-                            }
-                        }
-                    }
+                            }}}}}
                     
             @property
             def _response(self):
@@ -767,14 +701,11 @@ class OBIAppletTestCase(unittest.TestCase):
 
             @property
             def _command(self):
-                return {"type": Command.Type.RasterPixelRun,
-                        "payload": {
-                            "raster_pixel_run": {
+                return {"type": CmdType.RasterPixelRun,
+                        "payload": { "raster_pixel_run": { "payload": {
                                 "length": self._length - 1,
                                 "dwell_time": self._dwell_time
-                            } 
-                        }
-                    }
+                            }}}}
                     
             @property
             def _response(self):
@@ -787,11 +718,10 @@ class OBIAppletTestCase(unittest.TestCase):
             
             @property
             def _command(self):
-                return {"type": Command.Type.RasterPixelFreeRun,
-                        "payload": {
-                            "raster_pixel":self._dwell_time
-                        }
-                    }
+                return {"type": CmdType.RasterPixelFreeRun,
+                        "payload": { "raster_pixel_free_run": {"payload": {
+                            "dwell_time":self._dwell_time
+                        }}}}
                     
             @property
             def _response(self):
@@ -811,6 +741,7 @@ class OBIAppletTestCase(unittest.TestCase):
                         n += 1
                         print(f"{n} valid samples")
                         yield Tick()
+
         class TestVectorPixelCommand(TestCommand):
             def __init__(self, x_coord, y_coord, dwell_time):
                 self._x_coord = x_coord
@@ -819,15 +750,12 @@ class OBIAppletTestCase(unittest.TestCase):
 
             @property
             def _command(self):
-                return {"type": Command.Type.VectorPixel,
-                        "payload": {
-                            "vector_pixel": {
+                return {"type": CmdType.VectorPixel,
+                        "payload": { "vector_pixel": { "payload": {
                                 "x_coord": self._x_coord,
                                 "y_coord": self._y_coord,
                                 "dwell_time": self._dwell_time
-                            } 
-                        }
-                    }
+                            }}}}
                     
             @property
             def _response(self):

@@ -34,6 +34,10 @@ class BaseCommand(metaclass=ABCMeta):
     @property
     def response(self):
         return 0
+    
+    @property
+    def test_response(self):
+        return []
 
 class SynchronizeCommand(BaseCommand):
     def __init__(self, *, cookie: int, raster: bool, output: OutputMode=OutputMode.SixteenBit):
@@ -58,6 +62,10 @@ class SynchronizeCommand(BaseCommand):
                         "cookie": self._cookie
                     }    
                 }})
+    
+    @property
+    def test_response(self):
+        return [65535, self._cookie]
 
 
 class AbortCommand(BaseCommand):
@@ -240,6 +248,10 @@ class RasterPixelRunCommand(BaseCommand):
             print(f"{len(command_chunk)=}")
             commands.extend(command_chunk)
         return commands
+    
+    @property
+    def test_response(self):
+        return [0]*self._length
 
 class RasterPixelFreeRunCommand(BaseCommand):
     def __init__(self, *, dwell: int):
@@ -309,6 +321,9 @@ class VectorPixelCommand(BaseCommand):
                             "dwell_time": self._dwell
                         }    
                     }})
+    @property
+    def test_response(self):
+        return [0]
 
 
 
@@ -363,6 +378,10 @@ class RasterPixelsCommand(BaseCommand):
         for command_chunk, pixel_count in self._iter_chunks():
             commands.extend(command_chunk)
         return commands
+    
+    @property
+    def test_response(self):
+        return [0]*len(self._dwells)
 
 
 class CommandSequence(BaseCommand):
