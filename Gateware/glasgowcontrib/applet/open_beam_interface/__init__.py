@@ -374,10 +374,14 @@ class Supersampler(wiring.Component):
 
 class RasterRegion(data.Struct):
     x_start: 14 # UQ(14,0)
+    reserved_x_start: 2
     x_count: 14 # UQ(14,0)
+    reserved_x_count: 2
     x_step:  16 # UQ(8,8)
     y_start: 14 # UQ(14,0)
+    reserved_y_start: 2
     y_count: 14 # UQ(14,0)
+    reserved_y_count: 2
     y_step:  16 # UQ(8,8)
 
 
@@ -600,7 +604,9 @@ class Command(data.Struct):
                 "transform": Transforms,
                 "dac_stream": data.StructLayout({
                     "x_coord": 14,
+                    "reserved_x": 2,
                     "y_coord": 14, 
+                    "reserved_y": 2,
                     "dwell_time": DwellTime
                 })
             }),
@@ -611,7 +617,9 @@ class Command(data.Struct):
                 "transform": Transforms,
                 "dac_stream": data.StructLayout({
                 "x_coord": 14,
+                "reserved_x": 2,
                 "y_coord": 14,
+                "reserved_y": 2,
                 "dwell_time": DwellTime
                 })
             })
@@ -620,7 +628,6 @@ class Command(data.Struct):
 
     @classmethod
     def serialize(cls, type: CmdType, payload) -> bytes:
-        dic = {"type": type, "payload": {**payload} }
         # https://amaranth-lang.org/docs/amaranth/latest/stdlib/data.html#amaranth.lib.data.Const
         command_bits = cls.const({"type": type,
                         "payload":
@@ -652,7 +659,6 @@ class CommandParser(wiring.Component):
         with m.Switch(command_header.type):
             for commandtype in range(len(Command.PAYLOAD_SIZE_ARRAY)):
                 size = Command.PAYLOAD_SIZE_ARRAY[commandtype]
-                print(f"{commandtype=}, {size=}")
                 with m.Case(commandtype):
                     m.d.comb += payload_size.eq(size)
         with m.Switch(command_header_reg.type):
@@ -694,7 +700,7 @@ class CommandParser(wiring.Component):
                             m.d.sync += raster_pixel_count.eq(command.payload.raster_pixel.payload.length)
                             m.next = "Payload_Raster_Pixel_Array_High"
                         with m.Else():
-                            with m.If(command_type == CmdType.VectorPixelMinDwell):
+                            with m.If(command.type == CmdType.VectorPixelMinDwell):
                                 m.d.sync += command_reg.payload.vector_pixel_min.payload.dac_stream.dwell_time.eq(0)
                             m.next = "Submit_with_payload"
 
