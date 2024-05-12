@@ -447,7 +447,7 @@ class OBIAppletTestCase(unittest.TestCase):
 
             def put_testbench():
                 yield from put_stream(dut.cmd_stream, {
-                    "type": Command.Type.Synchronize,
+                    "type": CmdType.Synchronize,
                     "payload": {
                         "synchronize": {
                             "payload":{
