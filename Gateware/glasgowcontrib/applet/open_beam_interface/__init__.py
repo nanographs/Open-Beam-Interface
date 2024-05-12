@@ -899,7 +899,7 @@ class CommandExecutor(wiring.Component):
 
                         m.d.comb += [
                             self.raster_scanner.roi_stream.valid.eq(1),
-                            self.raster_scanner.roi_stream.payload.eq(command.payload.raster_region),
+                            self.raster_scanner.roi_stream.payload.eq(command.payload.raster_region.payload.roi),
                         ]
                         with m.If(self.raster_scanner.roi_stream.ready):
                             m.next = "Fetch"
