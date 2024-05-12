@@ -891,7 +891,12 @@ class CommandExecutor(wiring.Component):
 
                     with m.Case(CmdType.RasterRegion):
                         m.d.sync += raster_region.eq(command.payload.raster_region.payload.roi)
-                        m.d.sync += self.flippenator.transforms.eq(command.payload.raster_region.payload.transform ^ self.default_transforms)
+                        # m.d.sync += self.flippenator.transforms.eq(command.payload.raster_region.payload.transform ^ self.default_transforms)
+                        m.d.sync += self.flippenator.transforms.xflip.eq(command.payload.raster_region.payload.transform.xflip ^ self.default_transforms.xflip)
+                        m.d.sync += self.flippenator.transforms.yflip.eq(command.payload.raster_region.payload.transform.yflip ^ self.default_transforms.yflip)
+                        m.d.sync += self.flippenator.transforms.rotate90.eq(command.payload.raster_region.payload.transform.rotate90 ^ self.default_transforms.rotate90)
+
+
                         m.d.comb += [
                             self.raster_scanner.roi_stream.valid.eq(1),
                             self.raster_scanner.roi_stream.payload.eq(command.payload.raster_region),
@@ -946,9 +951,13 @@ class CommandExecutor(wiring.Component):
                         m.d.comb += vector_stream.valid.eq(1)
                         m.d.comb += vector_stream.payload.blank.eq(sync_blank)
                         with m.If(command.type==CmdType.VectorPixel):
-                            m.d.sync += self.flippenator.transforms.eq(command.payload.vector_pixel.payload.transform ^ self.default_transforms)
+                            m.d.sync += self.flippenator.transforms.xflip.eq(command.payload.vector_pixel.payload.transform.xflip ^ self.default_transforms.xflip)
+                            m.d.sync += self.flippenator.transforms.yflip.eq(command.payload.vector_pixel.payload.transform.yflip ^ self.default_transforms.yflip)
+                            m.d.sync += self.flippenator.transforms.rotate90.eq(command.payload.vector_pixel.payload.transform.rotate90 ^ self.default_transforms.rotate90)
                         with m.If(command.type==CmdType.VectorPixelMinDwell):
-                            m.d.sync += self.flippenator.transforms.eq(command.payload.vector_pixel_min.payload.transform ^ self.default_transforms)
+                            m.d.sync += self.flippenator.transforms.xflip.eq(command.payload.vector_pixel_min.payload.transform.xflip ^ self.default_transforms.xflip)
+                            m.d.sync += self.flippenator.transforms.yflip.eq(command.payload.vector_pixel_min.payload.transform.yflip ^ self.default_transforms.yflip)
+                            m.d.sync += self.flippenator.transforms.rotate90.eq(command.payload.vector_pixel_min.payload.transform.rotate90 ^ self.default_transforms.rotate90)
                         with m.If(vector_stream.ready):
                             m.d.comb += submit_pixel.eq(1)
                             m.next = "Fetch"
@@ -975,7 +984,7 @@ class CommandExecutor(wiring.Component):
 
             with m.State("Write_cookie"):
                 m.d.comb += [
-                    self.img_stream.payload.eq(command.payload.synchronize.cookie),
+                    self.img_stream.payload.eq(command.payload.synchronize.payload.cookie),
                     self.img_stream.valid.eq(1),
                 ]
                 with m.If(self.img_stream.ready):
