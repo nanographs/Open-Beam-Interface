@@ -370,14 +370,6 @@ class OBIAppletTestCase(unittest.TestCase):
                                     "y_step": 0x5_00
                                 }
                 }}}}, "cmd_rasterregion")
-        
-        test_cmd(RasterPixelsCommand(dwells = [1,2,3,4,5]),
-                {"type": CmdType.RasterPixel, 
-                    "payload": {
-                        "raster_pixel": {
-                            "payload": {
-                                "length": 4, #length = length-1 because of 0-indexing
-                }}}}, "cmd_rasterpixel")
 
         test_cmd(RasterPixelRunCommand(length=5, dwell= 6),
                 {"type": CmdType.RasterPixelRun, 
@@ -412,7 +404,7 @@ class OBIAppletTestCase(unittest.TestCase):
                                 "y_coord": 5,
                                 "dwell_time": 6
                 }}}}, "cmd_vectorpixel")
-                
+
         test_cmd(VectorPixelCommand(x_coord=4, y_coord=5, dwell= 0),
                 {"type": CmdType.VectorPixelMinDwell, 
                     "payload": {
@@ -426,6 +418,26 @@ class OBIAppletTestCase(unittest.TestCase):
                                 "x_coord": 4,
                                 "y_coord": 5,
                 }}}}, "cmd_vectorpixelmin")
+    
+        def test_raster_pixels_cmd(command:BaseCommand):
+            def put_testbench():
+                print(f"{command.message}")
+                for byte in command.message:
+                    yield from put_stream(dut.usb_stream, byte)
+            def get_testbench():
+                for dwell in command._dwells:
+                    response = {"type": CmdType.RasterPixel, 
+                        "payload": {
+                            "raster_pixel": {
+                                "payload": {
+                                    "length": len(command._dwells)-1,
+                                    "dwell_time": dwell
+                    }}}}
+                    yield from get_stream(dut.cmd_stream, response, timeout_steps=len(command.message)*2)
+                    assert (yield dut.cmd_stream.valid) == 0
+            self.simulate(dut, [get_testbench,put_testbench], name="parse_cmd_rasterpixel")  
+        
+        test_raster_pixels_cmd(RasterPixelsCommand(dwells = [1,2,3,4,5]))
 
     def test_command_executor_individual(self):
         dut = CommandExecutor()
