@@ -197,7 +197,7 @@ class OBIAppletTestCase(unittest.TestCase):
 
         def test_xflip():
             def put_testbench():
-                yield dut.xflip.eq(1)
+                yield dut.transforms.xflip.eq(1)
                 yield from put_stream(dut.in_stream, {
                     "dac_x_code": 1,
                     "dac_y_code": 16383,
@@ -221,7 +221,7 @@ class OBIAppletTestCase(unittest.TestCase):
         
         def test_yflip():
             def put_testbench():
-                yield dut.yflip.eq(1)
+                yield dut.transforms.yflip.eq(1)
                 yield from put_stream(dut.in_stream, {
                     "dac_x_code": 1,
                     "dac_y_code": 16383,
@@ -244,7 +244,7 @@ class OBIAppletTestCase(unittest.TestCase):
             self.simulate(dut, [get_testbench,put_testbench], name="flippenator_yflip") 
         def test_rot90():
             def put_testbench():
-                yield dut.rotate90.eq(1)
+                yield dut.transforms.rotate90.eq(1)
                 yield from put_stream(dut.in_stream, {
                     "dac_x_code": 1,
                     "dac_y_code": 16383,
