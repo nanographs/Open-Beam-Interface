@@ -895,16 +895,14 @@ class OBIAppletTestCase(unittest.TestCase):
             async def test_sync_cookie(self):
                 iface = await self.run_simulated_applet()
                 #await iface.write(bytes([0, 123, 234])) # sync, cookie, raster_mode
-                await iface.write(SynchronizeCommand(cookie=1234, raster=False, output=OutputMode.SixteenBit).message)
-                #self.assertEqual(await iface.read(4), bytes([0xFF, 0xFF, 123, 234])) # FF, FF, cookie
+                await iface.write(SynchronizeCommand(cookie=123*256 + 234, raster=False, output=OutputMode.SixteenBit).message)
+                self.assertEqual(await iface.read(4), bytes([0xFF, 0xFF, 123, 234])) # FF, FF, cookie
             
             @applet_simulation_test("setup_x_loopback", args=["tcp::2222"], interact=True)
             async def test_raster(self):
                 iface = await self.run_simulated_applet()
-                await iface.write(bytes([0, 123, 234])) 
-                #self.assertEqual(await iface.read(4), bytes([0xFF, 0xFF, 234, 123])) # FF, FF, cookie
-                # await iface.write(struct.pack(">BHHHHHH", 0x10, 5,3, 0x2_00, 9,2, 0x5_00))
-                # await iface.write(struct.pack('>BHH', 0x12, 6, 2))
+                await iface.write(SynchronizeCommand(cookie=123*256 + 234, raster=False, output=OutputMode.NoOutput).message)
+                self.assertEqual(await iface.read(4), bytes([0xFF, 0xFF, 123, 234])) # FF, FF, cookie
                 x_range = DACCodeRange(start=5, count=2, step=0x2_00)
                 y_range = DACCodeRange(start=9, count=1, step=0x5_00)
                 await iface.write(RasterRegionCommand(x_range=x_range, y_range=y_range).message)
@@ -951,19 +949,19 @@ class OBIAppletTestCase(unittest.TestCase):
                 #await iface.write(struct.pack(">BB",0x05, combined)) ## blank
                 await iface.write(BlankCommand().message)
                 await iface.write(ExternalCtrlCommand(enable=True).message)
-                await iface.write(SelectIbeamCommand().message)
+                await iface.write(BeamSelectCommand(beam_type=BeamType.Ion).message)
                 await iface.write(DelayCommand(delay=10).message)
-                await iface.write(UnblankInlineCommand().message)
+                await iface.write(BlankCommand(enable=False).message)
                 for n in range(1,3):
                     await iface.write(VectorPixelCommand(x_coord=n, y_coord=n, dwell=1).message)
                 # for n in range(1,3):
                 #     await iface.write(VectorPixelCommand(x_coord=5*n, y_coord=5*n, dwell=4).message)
                 await iface.write(VectorPixelCommand(x_coord=7, y_coord=7, dwell=3).message)
-                await iface.write(BlankCommand().message)
+                await iface.write(BlankCommand(enable=True).message)
                 await iface.write(DelayCommand(delay=3).message)
-                await iface.write(UnblankCommand().message)
+                await iface.write(BlankCommand(enable=False).message)
                 await iface.write(VectorPixelCommand(x_coord=1, y_coord=1, dwell=1).message)
-                await iface.write(BlankCommand().message)
+                await iface.write(BlankCommand(enable=True).message)
                 await iface.write(SynchronizeCommand(cookie=4, output=2, raster=0).message)
                 await iface.read(6)
                 # await iface.write(ExternalCtrlCommand(enable=0, beam_type=2).message)
@@ -976,11 +974,11 @@ class OBIAppletTestCase(unittest.TestCase):
             
         test_case = OBIApplet_TestCase()
         test_case.setUp()
-        # test_case.test_build()
+        test_case.test_build()
         test_case.test_sync_cookie()
-        #test_case.test_raster()
-        # test_case.test_benchmark()
-        # test_case.test_vector_blank()
+        test_case.test_raster()
+        test_case.test_benchmark()
+        test_case.test_vector_blank()
         # test_case.test_loopback()
 
         
