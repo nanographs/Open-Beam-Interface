@@ -404,9 +404,7 @@ class RasterPixelRunCommand(BaseCommand):
     def __repr__(self):
         return f"RasterPixelRunCommand(dwell={self._dwell}, length={self._length})"
 
-    def _iter_chunks(self):
-        max_counter = 65536
-
+    def _iter_chunks(self, latency=65536):
         commands = bytearray()
         def append_command(run_length):
             nonlocal commands
@@ -426,7 +424,7 @@ class RasterPixelRunCommand(BaseCommand):
         for _ in range(self._length):
             pixel_count += 1
             total_dwell += self._dwell
-            if total_dwell >= max_counter:
+            if total_dwell >= max_latency:
                 append_command(pixel_count)
                 print(f"{len(commands)=}, {pixel_count=}, {total_dwell=}")
                 yield (commands, pixel_count)
@@ -534,9 +532,8 @@ class RasterPixelsCommand(BaseCommand):
     def __repr__(self):
         return f"RasterPixelsCommand(dwells=<list of {len(self._dwells)}>)"
     
-    def _iter_chunks(self):
-        max_counter = 65536
-        assert not any(dwell > max_counter for dwell in self._dwells), "Pixel dwell time higher than 65536. Dwell times are limited to 16 bit values"
+    def _iter_chunks(self, latency=65536):
+        assert not any(dwell > latency for dwell in self._dwells), f"Pixel dwell time higher than {latency}"
 
         commands = bytearray()
         def append_command(chunk):
@@ -560,10 +557,10 @@ class RasterPixelsCommand(BaseCommand):
             chunk.append(pixel)
             pixel_count += 1
             total_dwell  += pixel
-            if len(chunk) == 0xffff or total_dwell >= max_counter:
+            if len(chunk) == 0xffff or total_dwell >= latency:
                 append_command(chunk)
                 del chunk[:] # clear
-            if total_dwell >= max_counter:
+            if total_dwell >= latency:
                 yield (commands, pixel_count)
                 commands = bytearray()
                 pixel_count = 0

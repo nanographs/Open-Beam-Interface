@@ -2,7 +2,7 @@ from PyQt6.QtWidgets import (QLabel, QGridLayout, QApplication, QWidget,
                              QSpinBox, QComboBox, QHBoxLayout, QVBoxLayout, QPushButton)
 import qasync
 from qasync import asyncSlot, asyncClose, QApplication, QEventLoop
-from ..stream_interface import BeamType, _BeamSelectCommand, _ExternalCtrlCommand, _BlankCommand
+from ..stream_interface import BeamType, StreamBeamSelectCommand, StreamExternalCtrlCommand, StreamBlankCommand
 
 
 class SettingBoxWithDefaults(QGridLayout):
@@ -209,22 +209,22 @@ class BeamSettings(QHBoxLayout):
     @asyncSlot()
     async def toggle_ext_ctrl(self):
         if self.ext_ctrl_btn.isChecked():
-            await self.conn.transfer(_ExternalCtrlCommand(enable=True))
+            await self.conn.transfer(StreamExternalCtrlCommand(enable=True))
             self.ext_ctrl_btn.setText("Click to Disable External Ctrl")
         else:
-            await self.conn.transfer(_ExternalCtrlCommand(enable=False))
+            await self.conn.transfer(StreamExternalCtrlCommand(enable=False))
             self.ext_ctrl_btn.setText("Click to Enable External Ctrl")
     @asyncSlot()
     async def toggle_blank(self):
         if self.blank_btn.isChecked():
-            await self.conn.transfer(_BlankCommand(enable=True))
+            await self.conn.transfer(StreamBlankCommand(enable=True))
             self.blank_btn.setText("Click to Unblank")
         else:
-            await self.conn.transfer(_BlankCommand(enable=False))
+            await self.conn.transfer(StreamBlankCommand(enable=False))
             self.blank_btn.setText("Click to Blank")
     @asyncSlot()
     async def beam_select(self):
-        await self.conn.transfer(_BeamSelectCommand(beam_type=self.beam_type))
+        await self.conn.transfer(StreamBeamSelectCommand(beam_type=self.beam_type))
     def disable_input(self):
         self.ext_ctrl_btn.setEnabled(False)
         self.blank_btn.setEnabled(False)
