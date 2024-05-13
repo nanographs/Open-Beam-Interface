@@ -10,9 +10,7 @@ from amaranth.lib import enum, data, wiring
 from amaranth.lib.fifo import SyncFIFOBuffered
 from amaranth.lib.wiring import In, Out, flipped
 
-from glasgow.support.logging import dump_hex
-from glasgow.support.endpoint import ServerEndpoint
-# from .base_commands import CommandType
+from base_commands import Command, CmdType, BeamType, RasterRegion, OutputMode, Transforms, DwellTime
 
 # Overview of (linear) processing pipeline:
 # 1. PC software (in: user input, out: bytes)
@@ -83,7 +81,6 @@ BusSignature = wiring.Signature({
     "data_oe":  Out(1),
 })
 
-DwellTime = unsigned(16)
 
 class PipelinedLoopbackAdapter(wiring.Component):
     loopback_stream: In(unsigned(14))
@@ -323,10 +320,6 @@ class FastBusController(wiring.Component):
 
         return m
 #=========================================================================
-class Transforms(data.Struct):
-    xflip: 1
-    yflip: 1
-    rotate90: 1
 
 class Flippenator(wiring.Component):
     transforms: In(Transforms)
@@ -443,17 +436,6 @@ class Supersampler(wiring.Component):
 
 #=========================================================================
 
-class RasterRegion(data.Struct):
-    x_start: 14 # UQ(14,0)
-    padding_x_start: 2
-    x_count: 14 # UQ(14,0)
-    padding_x_count: 2
-    x_step:  16 # UQ(8,8)
-    y_start: 14 # UQ(14,0)
-    padding_y_start: 2
-    y_count: 14 # UQ(14,0)
-    padding_y_count: 2
-    y_step:  16 # UQ(8,8)
 
 
 class RasterScanner(wiring.Component):
@@ -531,177 +513,8 @@ class RasterScanner(wiring.Component):
 Cookie = unsigned(16)
 #: Arbitrary value for synchronization. When received, returned as-is in an USB IN frame.
 
-class BeamType(enum.Enum, shape = 2):
-    NoBeam              = 0
-    Electron            = 1
-    Ion                 = 2
-
-class OutputMode(enum.Enum, shape = 2):
-    SixteenBit          = 0
-    EightBit            = 1
-    NoOutput            = 2
 
 # ===============================================================================================
-
-class CmdType(enum.Enum, shape=5):
-        Synchronize = 0
-        Abort       = 1
-        Flush       = 2
-        ExternalCtrl = 3
-        BeamSelect = 4
-        Blank = 5
-        Delay  = 6
-
-        RasterRegion = 10
-        RasterPixel = 11
-        RasterPixelRun = 12
-        RasterPixelFreeRun = 13
-        VectorPixel = 14
-        VectorPixelMinDwell = 15   
-
-
-class Command(data.Struct):
-    
-
-    # Only used for transfer via USB, where the command is split into octets.
-    class Header(data.Struct):
-        type: CmdType
-        payload: 8 - Shape.cast(CmdType).width
-
-    PAYLOAD_SIZE = { # type -> bytes
-        CmdType.Synchronize: 2,
-        CmdType.Abort: 0,
-        CmdType.Flush: 0,
-        CmdType.Delay: 2,
-        CmdType.ExternalCtrl: 0,
-        CmdType.BeamSelect: 0,
-        CmdType.Blank: 0,
-
-        CmdType.RasterRegion: 12,
-        CmdType.RasterPixel: 2,
-        CmdType.RasterPixelRun: 4,
-        CmdType.RasterPixelFreeRun: 2,
-        CmdType.VectorPixel: 6,
-        CmdType.VectorPixelMinDwell: 4
-
-    }
-    # will be replaced by Amaranth's `Choice` when it is a part of the public API
-    def payload_size_array(PAYLOAD_SIZE, Type):
-        return Array([
-        PAYLOAD_SIZE.get(Type._value2member_map_.get(value)) 
-        if value in Type._value2member_map_ else 0
-        for value in range(1 << Shape.cast(Type).width)
-        ])
-    PAYLOAD_SIZE_ARRAY = payload_size_array(PAYLOAD_SIZE, CmdType)
-
-    type: CmdType
-    payload: data.UnionLayout({
-        "synchronize": data.StructLayout({
-            "reserved": 0,
-            "payload": data.StructLayout({
-                "mode": data.StructLayout({
-                    "raster": 1,
-                    "output": OutputMode,
-                }),
-                "cookie": 16
-            })
-        }),
-        "abort": data.StructLayout({
-            "reserved": 0
-        }),
-        "flush": data.StructLayout({
-            "reserved": 0
-        }),
-        "external_ctrl": data.StructLayout({
-            "reserved": 0,
-            "payload": data.StructLayout({
-                "enable": 1
-            })
-        }),
-        "beam_select": data.StructLayout({
-            "reserved": 0,
-            "payload": data.StructLayout({
-                "beam_type": BeamType
-            })
-        }),
-        "blank": data.StructLayout({
-            "reserved": 0,
-            "payload": data.StructLayout({
-                "enable": 1,
-                "inline": 1
-                })
-        }),
-        "delay": data.StructLayout({
-            "reserved": 0,
-            "payload": data.StructLayout({
-                "delay": 16
-            })
-        }),
-        "raster_region": data.StructLayout({
-            "reserved": 0,
-            "payload": data.StructLayout({
-                "transform": Transforms,
-                "roi": RasterRegion
-            })
-        }),
-        "raster_pixel": data.StructLayout({
-            "reserved": 0,
-            "payload": data.StructLayout({
-                "length": 16,
-                "dwell_time": DwellTime
-            })
-        }),
-        "raster_pixel_run": data.StructLayout({
-            "reserved": 0,
-            "payload": data.StructLayout({
-                "length": 16,
-                "dwell_time": DwellTime
-            })
-        }),
-        "raster_pixel_free_run": data.StructLayout({
-            "reserved": 0,
-            "payload": data.StructLayout({
-                "dwell_time": DwellTime
-            })
-        }),
-        "vector_pixel": data.StructLayout({
-            "reserved": 0,
-            "payload": data.StructLayout({
-                "transform": Transforms,
-                "dac_stream": data.StructLayout({
-                    "x_coord": 14,
-                    "padding_x": 2,
-                    "y_coord": 14, 
-                    "padding_y": 2,
-                    "dwell_time": DwellTime
-                })
-            }),
-        }),
-        "vector_pixel_min": data.StructLayout({
-            "reserved": 0,
-            "payload": data.StructLayout({
-                "transform": Transforms,
-                "dac_stream": data.StructLayout({
-                "x_coord": 14,
-                "padding_x": 2,
-                "y_coord": 14,
-                "padding_y": 2,
-                "dwell_time": DwellTime
-                })
-            })
-        }),
-    })
-
-    @classmethod
-    def serialize(cls, type: CmdType, payload) -> bytes:
-        # https://amaranth-lang.org/docs/amaranth/latest/stdlib/data.html#amaranth.lib.data.Const
-        command_bits = cls.const({"type": type,
-                        "payload":
-                        {**payload}}).as_value().value
-        command_length = cls.PAYLOAD_SIZE[type]
-        return command_bits.to_bytes(command_length+1, byteorder="little")
-    
-        # usage: Command.serialize(Command.Type.Command4, payload=1234)
 
 
 class CommandParser(wiring.Component):
@@ -1614,6 +1427,8 @@ class OBIApplet(GlasgowApplet):
     #     super().add_run_arguments(parser, access)
 
     async def run(self, device, args):
+        from glasgow.support.logging import dump_hex
+        from glasgow.support.endpoint import ServerEndpoint
         # await device.set_voltage("AB", 0)
         # await asyncio.sleep(5)
         iface = await device.demultiplexer.claim_interface(self, self.mux_interface, args,

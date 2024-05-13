@@ -1,9 +1,19 @@
 name: Run Unit Tests
 on: 
+<<<<<<< HEAD
     push:
         paths:
         - 'Gateware/*'
         - '.github/workflows/test.yml' # Trigger on changes to the workflow file
+||||||| parent of 8c9e963 (experiment with a different python packaging structure)
+  push:
+    paths:
+      - Gateware
+=======
+  push:
+    paths:
+      - obi_applet
+>>>>>>> 8c9e963 (experiment with a different python packaging structure)
   
 jobs:  
   build:  
@@ -20,13 +30,13 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Generate lockfile
-        working-directory: ./Gateware
+        working-directory: ./obi_applet
         run: pdm lock --group :all ${{ matrix.dep-versions == 'minimal' && '--strategy direct_minimal_versions' || '' }}
       - name: Install dependencies
-        working-directory: ./Gateware
+        working-directory: ./obi_applet
         run: pdm sync  
       - name: Run tests  
-        working-directory: ./Gateware
+        working-directory: ./obi_applet
         run: |  
           pdm run test
         
