@@ -132,20 +132,6 @@ class BlankCommand(BaseCommand):
         elif not self._enable and self._inline:
             return struct.pack('>B', CommandType.UnblankInline)
 
-class BlankInlineCommand(BaseCommand):
-    @property
-    def message(self):
-        return struct.pack('>B', CommandType.BlankInline)
-
-class UnblankCommand(BaseCommand):
-    @property
-    def message(self):
-        return struct.pack('>B', CommandType.Unblank)
-
-class UnblankInlineCommand(BaseCommand):
-    @property
-    def message(self):
-        return struct.pack('>B', CommandType.UnblankInline)
 
 class ExternalCtrlCommand(BaseCommand):
     def __init__(self, enable:bool):
@@ -161,17 +147,7 @@ class ExternalCtrlCommand(BaseCommand):
         if not self._enable:
             return struct.pack(">B", CommandType.DisableExtCtrl)
 
-class EnableExtCtrlCommand(BaseCommand):
-    @property
-    def message(self):
-        return struct.pack('>B', CommandType.EnableExtCtrl)
-
-class DisableExtCtrlCommand(BaseCommand):
-    @property
-    def message(self):
-        return struct.pack('>B', CommandType.DisableExtCtrl)
-
-class SelectBeamCommand(BaseCommand):
+class BeamSelectCommand(BaseCommand):
     def __init__(self, beam_type:BeamType):
         self._beam_type = beam_type
     @property
@@ -183,20 +159,6 @@ class SelectBeamCommand(BaseCommand):
         else:
             return struct.pack('>B', CommandType.SelectNoBeam)
 
-class SelectEbeamCommand(BaseCommand):
-    @property
-    def message(self):
-        return struct.pack('>B', CommandType.SelectEbeam)
-
-class SelectIbeamCommand(BaseCommand):
-    @property
-    def message(self):
-        return struct.pack('>B', CommandType.SelectIbeam)
-
-class SelectNoBeamCommand(BaseCommand):
-    @property
-    def message(self):
-        return struct.pack('>B', CommandType.SelectNoBeam)
 
 class RasterRegionCommand(BaseCommand):
     def __init__(self, *, x_range: DACCodeRange, y_range: DACCodeRange):
@@ -339,6 +301,7 @@ class CommandSequence(BaseCommand):
     @property
     def message(self):
         return self._message
+
 
 
 
