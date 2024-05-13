@@ -4,10 +4,10 @@ seq = CommandSequence(output=OutputMode.NoOutput, raster=False)
 ## seq.add(Command())
 ## ...
 seq.add(BlankCommand())
-seq.add(EnableExtCtrlCommand())
+seq.add(ExternalCtrlCommand(enable=True))
 seq.add(DelayCommand(5760))
-seq.add(SelectIbeamCommand())
-seq.add(UnblankInlineCommand())
+seq.add(BeamSelectCommand(beam_type=BeamType.Ion))
+seq.add(BlankCommand(enable=False, inline=True))
 
 
 dwell = 65536
@@ -33,7 +33,7 @@ def box(x_start, y_start, x_width, y_height):
 
 box(5000, 5000, 5000, 5000)
 
-seq.add(DisableExtCtrlCommand())
+seq.add(ExternalCtrlCommand(enable=False))
 
 
 await iface.write(seq.message)

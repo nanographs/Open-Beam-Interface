@@ -13,9 +13,9 @@ raster=
 seq = CommandSequence(output=OutputMode.NoOutput, raster=False)
 
 '''Make sure beam is blanked before starting'''
-seq.add(BlankCommand())
+seq.add(BlankCommand(enable=True))
 '''Enable all of the external control relays'''
-seq.add(EnableExtCtrlCommand())
+seq.add(ExternalCtrlCommand(enable=True))
 '''Uncomment E or I beam to select what beam to use'''
 ## seq.add(SelectEbeamCommand())
 ## seq.add(SelectIbeamCommand())
