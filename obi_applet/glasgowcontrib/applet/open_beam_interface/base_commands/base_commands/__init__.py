@@ -262,6 +262,13 @@ class SynchronizeCommand(BaseCommand):
     @property
     def test_response(self):
         return [65535, self._cookie]
+    
+    @property
+    def byte_response(self):
+        cookie = struct.pack('<H', self._cookie)
+        print(f"{cookie=}")
+        print(f"{len(cookie)=}")
+        return struct.pack('<HBB', 0xffff, cookie[1], cookie[0])
 
 
 class AbortCommand(BaseCommand):
@@ -584,10 +591,10 @@ class RasterPixelsCommand(BaseCommand):
 class CommandSequence(BaseCommand):
     _message = bytearray()
     _response = bytearray()
-    def __init__(self, output: OutputMode, raster:bool):
+    def __init__(self, cookie: int=123, output: OutputMode=OutputMode.SixteenBit, raster:bool=False):
         self._output = output
         self._raster = raster
-        self.add(SynchronizeCommand(cookie=123, output=output, raster=raster))
+        self.add(SynchronizeCommand(cookie=cookie, output=output, raster=raster))
     def add(self, other: BaseCommand):
         # print(f"adding {other!r}")
         try:
