@@ -4,29 +4,29 @@ seq = CommandSequence(output=OutputMode.NoOutput, raster=False)
 ## seq.add(Command())
 ## ...
 seq.add(BlankCommand())
-seq.add(EnableExtCtrlCommand())
+seq.add(ExternalCtrlCommand(enable=True))
 seq.add(DelayCommand(5760))
-seq.add(SelectIbeamCommand())
+seq.add(BeamSelectCommand(beam_type=BeamType.Ion))
 
 
 dwell = 1
 
 for x in range(10000000):
-    seq.add(UnblankInlineCommand())
+    seq.add(BlankCommand(enable=False, inline=True))
     seq.add(VectorPixelCommand(x_coord=2000, y_coord = 5000, dwell = dwell))
     seq.add(BlankCommand())
 
-    seq.add(UnblankInlineCommand())
+    seq.add(BlankCommand(enable=False, inline=True))
     seq.add(VectorPixelCommand(x_coord=8000, y_coord = 5000, dwell = dwell))
 
     seq.add(VectorPixelCommand(x_coord=14000, y_coord = 5000, dwell = dwell))
     seq.add(BlankCommand())
 
-    seq.add(UnblankInlineCommand())
+    seq.add(BlankCommand(enable=False, inline=True))
     seq.add(VectorPixelCommand(x_coord=14000, y_coord = 10000, dwell = dwell))
     seq.add(BlankCommand())
 
-    seq.add(UnblankInlineCommand())
+    seq.add(BlankCommand(enable=False, inline=True))
     seq.add(VectorPixelCommand(x_coord=8000, y_coord = 10000, dwell = dwell))
 
     seq.add(VectorPixelCommand(x_coord=2000, y_coord = 10000, dwell = dwell))
@@ -37,7 +37,7 @@ for x in range(10000000):
 
 
 
-seq.add(DisableExtCtrlCommand())
+seq.add(ExternalCtrlCommand(enable=False))
 
 
 await iface.write(seq.message)
