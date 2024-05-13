@@ -6,7 +6,9 @@ import numpy as np
 import logging
 import tifffile
 
-from .stream_interface import RasterScanCommand, RasterFreeScanCommand, setup_logging, DACCodeRange, BeamType, ExternalCtrlCommand, _BlankCommand
+from base_commands import DACCodeRange, BeamType
+from .stream_interface import RasterScanCommand, RasterFreeScanCommand, setup_logging, RelayExternalCtrlCommand, StreamBlankCommand
+
 from .tiff_export import draw_scalebar
 
 setup_logging({"Command": logging.DEBUG, "Stream": logging.DEBUG})
@@ -100,7 +102,7 @@ class FrameBuffer():
 
     async def set_ext_ctrl(self, enable, beam_type):
         print(f"{beam_type=}")
-        await self.conn.transfer(ExternalCtrlCommand(enable=enable, beam_type=beam_type))
+        await self.conn.transfer(RelayExternalCtrlCommand(enable=enable, beam_type=beam_type))
 
     async def capture_frame(self, x_range, y_range, *, dwell, latency, frame=None):
         frame = self.get_frame(x_range,y_range)

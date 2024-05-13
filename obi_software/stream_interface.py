@@ -12,7 +12,7 @@ import time
 from time import perf_counter
 
 from .support import dump_hex
-from .base_commands import CommandType, OutputMode, BeamType, DACCodeRange
+from base_commands import *
 
 
 BIG_ENDIAN = (struct.pack('@H', 0x1234) == struct.pack('>H', 0x1234))
@@ -86,7 +86,7 @@ class Stream:
         self._logger.debug(f"xchg time: {stop-start:.4f}")
 
 
-class Command(metaclass=ABCMeta):
+class StreamCommand(metaclass=ABCMeta):
     def __init_subclass__(cls):
         cls._logger = logger.getChild(f"Command.{cls.__name__}")
 
@@ -277,226 +277,111 @@ class Connection:
         await self._stream.flush()
 
 
-class SynchronizeCommand(Command):
-    def __init__(self, *, cookie: int, raster_mode: bool, output_mode: OutputMode=OutputMode.SixteenBit):
-        assert cookie in range(0x0001, 0x10000, 2)  # odd cookies only
-        self._cookie = cookie
-        self._raster_mode = raster_mode
-        self._output_mode = output_mode
-        self._mode = int(self._output_mode<<1 | self._raster_mode)
-
-    def __repr__(self):
-        return f"SynchronizeCommand(cookie={self._cookie}, mode={self._mode} [raster_mode={self._raster_mode}, output_mode={self._output_mode}])"
+class StreamSynchronizeCommand(SynchronizeCommand, StreamCommand):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        assert self._cookie in range(0x0001, 0x10000, 2)  # odd cookies only
 
     @Command.log_transfer
     async def transfer(self, stream: Stream):
+<<<<<<< HEAD
         cmd = struct.pack(">BHBB", CommandType.Synchronize, self._cookie, self._mode, CommandType.Flush)
+||||||| parent of 4bf6e40 (migrate software commands to use base_commands as source)
+        cmd = struct.pack(">BHB", CommandType.Synchronize, self._cookie, self._mode)
+=======
+        cmd = self.message
+>>>>>>> 4bf6e40 (migrate software commands to use base_commands as source)
         res = await stream.xchg(cmd, recv_length=4)
         sync, cookie = struct.unpack(">HH", res)
         return cookie
 
 
-class AbortCommand(Command):
+class StreamAbortCommand(AbortCommand, StreamCommand):
     async def transfer(self, stream: Stream):
-        cmd = struct.pack(">B", CommandType.Abort)
-        stream.send(cmd)
+        stream.send(self.message)
         await stream.flush()
 
-class DelayCommand(Command):
-    def __init__(self, delay):
-        assert delay <= 65536
-        self._delay = delay
-    def __repr__(self):
-        return f"DelayCommand(delay={self._delay})"
-    @Command.log_transfer
-    async def transfer(self, stream: Stream):
-        cmd = struct.pack(">BH", CommandType.Delay, self._delay)
-        stream.send(cmd)
-        # await stream.flush()
-
-
-class _BlankCommand(Command):
-    def __init__(self, enable:bool, inline:bool=False):
-        self._enable = enable
-        self._inline = inline
-
-    def __repr__(self):
-        return f"_BlankCommand(enable={self._enable}, inline={self._inline})"
+class StreamDelayCommand(DelayCommand, StreamCommand):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     @Command.log_transfer
     async def transfer(self, stream: Stream):
-        if self._enable and not self._inline:
-            cmd = struct.pack(">B", CommandType.Blank)
-        if self._enable and self._inline:
-            cmd = struct.pack(">B", CommandType.BlankInline)
-        if not (self._enable and self._inline):
-            cmd = struct.pack(">B", CommandType.Unblank)
-        if not self._enable and self._inline:
-            cmd = struct.pack(">B", CommandType.UnblankInline)
-        print(f"{cmd=}")
-        stream.send(cmd)
+        stream.send(self.message)
 
 
-class _ExternalCtrlCommand(Command):
-    def __init__(self, enable:bool):
-        self._enable = enable
-
-    def __repr__(self):
-        return f"_ExternalCtrlCommand(enable={self._enable})"
+class StreamBlankCommand(BlankCommand, StreamCommand):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     @Command.log_transfer
     async def transfer(self, stream: Stream):
-        if self._enable:
-            cmd = struct.pack(">B", CommandType.EnableExtCtrl)
-        if not self._enable:
-            cmd = struct.pack(">B", CommandType.DisableExtCtrl)
-        stream.send(cmd)
+        stream.send(self.message)
 
-class _BeamSelectCommand(Command):
-    def __init__(self, beam_type:BeamType):
-        assert (beam_type == BeamType.Electron) | (beam_type == BeamType.Ion) | (beam_type==BeamType.NoBeam)
-        self._beam_type = beam_type
 
-    def __repr__(self):
-        return f"_BeamSelectCommand(beam_type={self._beam_type})"
+class StreamExternalCtrlCommand(ExternalCtrlCommand, StreamCommand):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     @Command.log_transfer
     async def transfer(self, stream: Stream):
-        if self._beam_type == BeamType.Electron:
-            cmd = struct.pack(">B", CommandType.SelectEbeam)
-        elif self._beam_type == BeamType.Ion:
-            cmd = struct.pack(">B", CommandType.SelectIbeam)
-        else: 
-            cmd = struct.pack(">B", CommandType.SelectNoBeam)
-        stream.send(cmd)
+        stream.send(self.message)
+
+class StreamBeamSelectCommand(BeamSelectCommand, StreamCommand):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    @Command.log_transfer
+    async def transfer(self, stream: Stream):
+        stream.send(self.message)
 
 
 # Scan Selector board uses TE 1462051-2 Relay
 # Switching delay is 20 ms
 RELAY_DELAY_CYCLES = int(20 * pow(10, -6) / (1/(48 * pow(10,6))))
-class ExternalCtrlCommand(Command):
+class RelayExternalCtrlCommand(StreamCommand):
     def __init__(self, enable, beam_type):
         assert enable <= 1
         self._enable = enable
         self._beam_type = beam_type
 
     def __repr__(self):
-        return f"ExternalCtrlCommand(enable={self._enable}, beam_type={self._beam_type})"
+        return f"RelayExternalCtrlCommand(enable={self._enable}, beam_type={self._beam_type})"
 
     @Command.log_transfer
     async def transfer(self, stream: Stream):
-        await _BlankCommand(enable=(1-self._enable), inline=True).transfer(stream)
-        await _ExternalCtrlCommand(self._enable).transfer(stream)
-        await _BeamSelectCommand(self._beam_type).transfer(stream)
+        await StreamBlankCommand(enable=(1-self._enable), inline=True).transfer(stream)
+        await StreamExternalCtrlCommand(self._enable).transfer(stream)
+        await StreamBeamSelectCommand(self._beam_type).transfer(stream)
         await DelayCommand(RELAY_DELAY_CYCLES).transfer(stream)
         await stream.flush()
 
 
-
-@dataclass
-class DACCodeRange:
-    start: int # UQ(14,0)
-    count: int # UQ(14,0)
-    step:  int # UQ(8,8)
-
-
-class _RasterRegionCommand(Command):
-    def __init__(self, *, x_range: DACCodeRange, y_range: DACCodeRange):
-        self._x_range = x_range
-        self._y_range = y_range
-
-    def __repr__(self):
-        return f"_RasterRegionCommand(x_range={self._x_range}, y_range={self._y_range})"
+class StreamRasterRegionCommand(RasterRegionCommand, StreamCommand):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     @Command.log_transfer
     async def transfer(self, stream: Stream):
-        cmd = struct.pack(">BHHHHHH", CommandType.RasterRegion,
-            self._x_range.start, self._x_range.count, self._x_range.step,
-            self._y_range.start, self._y_range.count, self._y_range.step)
-        stream.send(cmd)
+        stream.send(self.message)
         await stream.flush()
 
-
-class DwellTime(int):
-    pass
-
-
-class _RasterPixelsCommand(Command):
+class RasterPixelsCommand(RasterPixelsCommand, StreamCommand):
     """Commands are submitted in chunks of no longer than `latency` total dwell time, in ADC cycles."""
-    def __init__(self, *, dwells: list[DwellTime]):
-        self._dwells  = dwells
-
-    def __repr__(self):
-        return f"_RasterPixelsCommand(dwells=<list of {len(self._dwells)}>)"
-
-    def _iter_chunks(self, latency: int):
-        assert not any(dwell > latency for dwell in self._dwells), "Pixel dwell time higher than latency"
-
-        commands = b""
-        def append_command(chunk):
-            nonlocal commands
-            commands += struct.pack(">BH", CommandType.RasterPixel, len(chunk) - 1)
-            if not BIG_ENDIAN: # there is no `array.array('>H')`
-                chunk.byteswap()
-            commands += chunk.tobytes()
-
-        chunk = array.array('H')
-        pixel_count = 0
-        total_dwell  = 0
-        for pixel in self._dwells:
-            chunk.append(pixel)
-            pixel_count += 1
-            total_dwell  += pixel
-            if len(chunk) == 0xffff or total_dwell >= latency:
-                append_command(chunk)
-                del chunk[:] # clear
-            if total_dwell >= latency:
-                yield (commands, pixel_count)
-                commands = b""
-                pixel_count = 0
-                total_dwell = 0
-        if chunk:
-            append_command(chunk)
-            yield (commands, pixel_count)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     @Command.log_transfer
     async def transfer(self, stream: Stream, latency: int, output_mode:OutputMode=OutputMode.SixteenBit):
         for commands, pixel_count in self._iter_chunks(latency):
             stream.send(commands)
-            stream.send(struct.pack(">B", CommandType.Flush))
+            stream.send(FlushCommand().message)
             yield await self.recv_res(pixel_count, stream, output_mode)
 
 
-class _RasterPixelRunCommand(Command):
-    def __init__(self, *, dwell: DwellTime, length: int):
-        self._dwell   = dwell
-        self._length  = length
-
-    def __repr__(self):
-        return f"_RasterPixelRunCommand(dwell={self._dwell}, length={self._length})"
-
-    def _iter_chunks(self, latency: int):
-        assert not (self._dwell > latency), "Pixel dwell time higher than latency"
-
-        commands = b""
-        def append_command(run_length):
-            nonlocal commands
-            commands += struct.pack(">BHH", CommandType.RasterPixelRun, run_length - 1, self._dwell)
-
-        pixel_count = 0
-        total_dwell = 0
-        for _ in range(self._length):
-            pixel_count += 1
-            total_dwell += self._dwell
-            if total_dwell >= latency:
-                append_command(pixel_count)
-                yield (commands, pixel_count)
-                commands = b""
-                pixel_count = 0
-                total_dwell = 0
-        if pixel_count > 0:
-            append_command(pixel_count)
-            yield (commands, pixel_count)
+class StreamRasterPixelRunCommand(RasterPixelRunCommand, StreamCommand):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     @Command.log_transfer
     async def transfer(self, stream: Stream, latency: int, output_mode:OutputMode=OutputMode.SixteenBit):
@@ -510,13 +395,13 @@ class _RasterPixelRunCommand(Command):
             for commands, pixel_count in self._iter_chunks(latency):
                 self._logger.debug(f"sender: tokens={tokens}")
                 if tokens == 0:
-                    stream.send(struct.pack(">B", CommandType.Flush))
+                    stream.send(FlushCommand().message)
                     await stream.flush()
                     await token_fut
                 stream.send(commands)
                 tokens -= 1
                 await asyncio.sleep(0)
-            stream.send(struct.pack(">B", CommandType.Flush))
+            stream.send(FlushCommand().message)
             await stream.flush()
         asyncio.create_task(sender())
 
@@ -529,15 +414,12 @@ class _RasterPixelRunCommand(Command):
             yield await self.recv_res(pixel_count, stream, output_mode)
             
 
-class _RasterPixelFreeRunCommand(Command):
-    def __init__(self, *, dwell: DwellTime, interrupt: asyncio.Event):
-        self._dwell = dwell
+class StreamRasterPixelFreeRunCommand(RasterPixelFreeRunCommand, StreamCommand):
+    def __init__(self, *, interrupt: asyncio.Event,  **kwargs):
+        super().__init__(**kwargs)
         self._interrupt = interrupt
         self._done_sending = asyncio.Event()
 
-    def __repr__(self):
-        return f"_RasterPixelFreeRunCommand(dwell={self._dwell})"
-    
     def _iter_chunks(self, latency:int):
         assert not (self._dwell > latency), "Pixel dwell time higher than latency"
         while not self._interrupt.is_set():
@@ -547,10 +429,10 @@ class _RasterPixelFreeRunCommand(Command):
     async def transfer(self, stream: Stream, latency: int):
 
         async def sender():
-            stream.send(struct.pack('>BH', CommandType.RasterPixelFreeRun, self._dwell))
+            stream.send(self.message)
             for _ in self._iter_chunks(latency):
                 await asyncio.sleep(0)
-            stream.send(struct.pack('>BHB', CommandType.Synchronize, 666, 1))
+            stream.send(SynchronizeCommand(cookie=666, raster=True, output=OutputMode.SixteenBit).message)
             await stream.flush()
             self._done_sending.set()
 
@@ -560,27 +442,18 @@ class _RasterPixelFreeRunCommand(Command):
             yield await self.recv_res(pixel_count, stream, output_mode)
 
 
-class _VectorPixelCommand(Command):
-    def __init__(self, *, x_coord: int, y_coord: int, dwell: DwellTime):
-        self._x_coord = x_coord
-        self._y_coord = y_coord
-        self._dwell   = dwell
-
-    def __repr__(self):
-        return f"_VectorPixelCommand(x_coord={self._x_coord}, y_coord={self._y_coord}, dwell={self._dwell})"
+class StreamVectorPixelCommand(VectorPixelCommand, StreamCommand):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     @Command.log_transfer
     async def transfer(self, stream: Stream, output_mode:OutputMode=OutputMode.SixteenBit):
-        if self._dwell == 1:
-            cmd = struct.pack(">BHH", CommandType.VectorPixelMinDwell, self._x_coord, self._y_coord)
-        else:
-            cmd = struct.pack(">BHHH", CommandType.VectorPixel, self._x_coord, self._y_coord, self._dwell-1)
-        stream.send(cmd)
+        stream.send(self.message)
         stream.send(struct.pack(">B", CommandType.Flush))
         return await self.recv_res(1, stream, output_mode)
 
 
-class VectorPixelLinearRunCommand(Command):
+class VectorPixelLinearRunCommand(StreamCommand):
     def __init__(self, *, pattern_generator):
         self._pattern_generator = pattern_generator
 
@@ -594,7 +467,7 @@ class VectorPixelLinearRunCommand(Command):
         for x_coord, y_coord, dwell in self._pattern_generator:
             pixel_count += 1
             total_dwell += dwell
-            commands.extend(struct.pack(">BHHH", CommandType.VectorPixel, x_coord, y_coord, dwell))
+            commands.extend(VectorPixelCommand(x_coord=x_coord, y_coord=y_coord, dwell=dwell).message)
         print("iter_chunks: reached end of pattern generator")
         return commands, pixel_count
     
@@ -605,7 +478,7 @@ class VectorPixelLinearRunCommand(Command):
         MAX_OUT_BUFFER = 131072
         commands, pixel_count = self._iter_chunks()
 
-        await SynchronizeCommand(cookie=123, raster_mode=False, output_mode=output_mode).transfer(stream)
+        await StreamSynchronizeCommand(cookie=123, raster_mode=False, output_mode=output_mode).transfer(stream)
 
         async def sender():
             nonlocal commands
@@ -615,7 +488,7 @@ class VectorPixelLinearRunCommand(Command):
                 commands = commands[MAX_OUT_BUFFER:]
             if len(commands) > 0:
                 stream.send(commands)
-            stream.send(struct.pack(">B", CommandType.Flush))
+            stream.send(FlushCommand().message)
             await stream.flush()
             stop = perf_counter()
             self._logger.debug(f"sender: time - {stop-start:.4f}")
@@ -623,19 +496,18 @@ class VectorPixelLinearRunCommand(Command):
         await sender()
         yield await self.recv_res(pixel_count, stream, output_mode)
 
-class BenchmarkTransfer(Command):
+class BenchmarkTransfer(StreamCommand):
     def __repr__(self):
         return f"BenchmarkTransfer)"
 
     @Command.log_transfer
     async def transfer(self, stream: Stream, output_mode: OutputMode=OutputMode.NoOutput):
-        await SynchronizeCommand(cookie=123, raster_mode=False, 
+        await StreamSynchronizeCommand(cookie=123, raster_mode=False, 
                                 output_mode=output_mode).transfer(stream)
         commands = bytearray()
         for _ in range(131072*16):
-            #commands.extend(struct.pack(">BHHH", 0x14, 0, 16383, 2))
-            #commands.extend(struct.pack(">BHHH", 0x14, 16383, 0, 2))
-            commands.extend(struct.pack(">BHHH", 0x14, 0,0, 20))
+            commands.extend(VectorPixelCommand(x_coord=0, y_coord=16383, dwell=1).message)
+            commands.extend(VectorPixelCommand(x_coord=16383, y_coord=0, dwell=1).message)
         length = len(commands)
         pixel_count = int(length/7)
         while True:
@@ -652,7 +524,7 @@ class BenchmarkTransfer(Command):
 
 
 
-class VectorPixelRunCommand(Command):
+class VectorPixelRunCommand(StreamCommand):
     def __init__(self, *, pattern_generator):
         self._pattern_generator = pattern_generator
 
@@ -667,7 +539,7 @@ class VectorPixelRunCommand(Command):
         for x_coord, y_coord, dwell in self._pattern_generator:
             pixel_count += 1
             total_dwell += dwell
-            commands.extend(struct.pack(">BHHH", CommandType.VectorPixel, x_coord, y_coord, dwell))
+            commands.extend(VectorPixelCommand(x_coord = x_coord, y_coord=y_coord, dwell=dwell))
             if total_dwell >= latency: #or pixel_count > 0xffff :
                 latency = yield commands, pixel_count, total_dwell
                 commands = bytearray()
@@ -718,7 +590,7 @@ class VectorPixelRunCommand(Command):
                 try:
                     if latency_in_flight >= HIGH_WATER_MARK: # & pixels_in_flight > 16384:
                         print(f"sender: {latency_in_flight=} >= {HIGH_WATER_MARK=}, waiting for drain")
-                        stream.send(struct.pack(">B", CommandType.Flush))
+                        stream.send(FlushCommand().message)
                         fill_fut.set_result(None)
                         fill_fut = asyncio.Future()
                         await stream.flush()
@@ -778,7 +650,7 @@ class VectorPixelRunCommand(Command):
                 break
 
 
-class RasterStreamCommand(Command):
+class RasterStreamCommand(StreamCommand):
     def __init__(self, *, cookie: int, x_range: DACCodeRange, y_range: DACCodeRange, dwells: list[DwellTime]):
         assert (x_range.count * y_range.count) % len(dwells) == 0, \
             "Pixel count not multiple of raster scan point count"
@@ -793,17 +665,17 @@ class RasterStreamCommand(Command):
 
     @Command.log_transfer
     async def transfer(self, stream: Stream, latency: int, output_mode: OutputMode=OutputMode.SixteenBit):
-        await SynchronizeCommand(cookie=self._cookie, raster_mode=True, output_mode = output_mode).transfer(stream)
-        await _RasterRegionCommand(x_range=self._x_range, y_range=self._y_range).transfer(stream)
+        await StreamSynchronizeCommand(cookie=self._cookie, raster_mode=True, output_mode = output_mode).transfer(stream)
+        await StreamRasterRegionCommand(x_range=self._x_range, y_range=self._y_range).transfer(stream)
         total, done = self._x_range.count * self._y_range.count, 0
-        async for chunk in _RasterPixelsCommand(dwells=self._dwells).transfer(stream, latency=latency, output_mode=output_mode):
+        async for chunk in StreamRasterPixelsCommand(dwells=self._dwells).transfer(stream, latency=latency, output_mode=output_mode):
             yield chunk
             #done += len(chunk)
             #self._logger.debug(f"total={total} done={done}")
         await stream.flush()
 
 
-class RasterScanCommand(Command):
+class RasterScanCommand(StreamCommand):
     def __init__(self, *, cookie: int, x_range: DACCodeRange, y_range: DACCodeRange, dwell: DwellTime):
         self._cookie  = cookie
         self._x_range = x_range
@@ -815,16 +687,16 @@ class RasterScanCommand(Command):
 
     @Command.log_transfer
     async def transfer(self, stream: Stream, latency: int):
-        await SynchronizeCommand(cookie=self._cookie, raster_mode=True).transfer(stream)
-        await _RasterRegionCommand(x_range=self._x_range, y_range=self._y_range).transfer(stream)
+        await StreamSynchronizeCommand(cookie=self._cookie, raster_mode=True).transfer(stream)
+        await StreamRasterRegionCommand(x_range=self._x_range, y_range=self._y_range).transfer(stream)
         total, done = self._x_range.count * self._y_range.count, 0
-        async for chunk in _RasterPixelRunCommand(dwell=self._dwell, length=total).transfer(stream, latency):
+        async for chunk in StreamRasterPixelRunCommand(dwell=self._dwell, length=total).transfer(stream, latency):
             yield chunk
             done += len(chunk)
             self._logger.debug(f"{total=} {done=}")
 
 
-class RasterFreeScanCommand(Command):
+class RasterFreeScanCommand(StreamCommand):
     def __init__(self, *, cookie: int, x_range: DACCodeRange, y_range: DACCodeRange, dwell: DwellTime, interrupt: asyncio.Event):
         self._cookie  = cookie
         self._x_range = x_range
@@ -837,10 +709,10 @@ class RasterFreeScanCommand(Command):
 
     @Command.log_transfer
     async def transfer(self, stream: Stream, latency: int):
-        await SynchronizeCommand(cookie=self._cookie, raster_mode=True).transfer(stream)
-        await _RasterRegionCommand(x_range=self._x_range, y_range=self._y_range).transfer(stream)
+        await StreamSynchronizeCommand(cookie=self._cookie, raster_mode=True).transfer(stream)
+        await StreamRasterRegionCommand(x_range=self._x_range, y_range=self._y_range).transfer(stream)
         count = 0
-        async for chunk in _RasterPixelFreeRunCommand(dwell=self._dwell, interrupt=self._interrupt).transfer(stream, latency):
+        async for chunk in StreamRasterPixelFreeRunCommand(dwell=self._dwell, interrupt=self._interrupt).transfer(stream, latency):
             yield chunk
             count += len(chunk)
             self._logger.debug(f"{count=}")
