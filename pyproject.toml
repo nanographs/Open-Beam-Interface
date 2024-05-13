@@ -5,12 +5,17 @@ description = "Software for electron microscope image capture with Glasgow and O
 authors = [
     {name = "isabelburgos", email = "isabel@nanographs.io"},
 ]
-dependencies = ["numpy",
-                "tifffile",
-                "ome-types",
-                "Pillow",
-                "hilbertcurve",
-                "matplotlib"]
+dependencies = [
+    "numpy",
+    "tifffile",
+    "ome-types",
+    "Pillow",
+    "hilbertcurve",
+    "matplotlib",
+    "glasgow",
+    #     "amaranth @git+https://github.com/amaranth-lang/amaranth@main",
+    "obi-commands @ file:///${PROJECT_ROOT}/obi_applet/glasgowcontrib/applet/open_beam_interface/base_commands",
+]
 requires-python = ">=3.11"
 readme = "README.md"
 license = {text = "\"0BSD OR Apache-2.0\""}
@@ -30,11 +35,13 @@ requires = ["pdm-backend"]
 build-backend = "pdm.backend"
 
 
-[tool.pdm]
-distribution = true
-
 [tool.pdm.scripts]
 gui.cmd = "python -m obi_software.gui 2224 --config_path ~/open-beam-interface/microscope.toml"
 debug_gui.cmd = "python -m obi_software.gui 2224 --debug --config_path ~/open-beam-interface/microscope.toml"
 test.cmd = "python -m unittest test"
 hilbert.cmd = "python -m obi_software.hilbert"
+
+[tool.pdm.dev-dependencies]
+test = ["amaranth@ git+https://github.com/whitequark/amaranth@testbenchessssss",
+        "glasgow@ git+https://github.com/isabelburgos/glasgow@main#subdirectory=software",
+        ]

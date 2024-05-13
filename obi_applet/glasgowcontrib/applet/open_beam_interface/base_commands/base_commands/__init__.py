@@ -3,9 +3,205 @@ from dataclasses import dataclass
 import enum
 import struct
 import array
-from . import Command, CmdType, OutputMode, BeamType
+
+from amaranth import *
+from amaranth import ShapeCastable
+from amaranth.lib import enum, data
+
 
 BIG_ENDIAN = (struct.pack('@H', 0x1234) == struct.pack('>H', 0x1234))
+
+
+DwellTime = unsigned(16)
+
+class RasterRegion(data.Struct):
+    x_start: 14 # UQ(14,0)
+    padding_x_start: 2
+    x_count: 14 # UQ(14,0)
+    padding_x_count: 2
+    x_step:  16 # UQ(8,8)
+    y_start: 14 # UQ(14,0)
+    padding_y_start: 2
+    y_count: 14 # UQ(14,0)
+    padding_y_count: 2
+    y_step:  16 # UQ(8,8)
+
+class BeamType(enum.Enum, shape = 2):
+    NoBeam              = 0
+    Electron            = 1
+    Ion                 = 2
+
+class OutputMode(enum.Enum, shape = 2):
+    SixteenBit          = 0
+    EightBit            = 1
+    NoOutput            = 2
+
+class Transforms(data.Struct):
+    xflip: 1
+    yflip: 1
+    rotate90: 1
+
+
+class CmdType(enum.Enum, shape=5):
+        Synchronize = 0
+        Abort       = 1
+        Flush       = 2
+        ExternalCtrl = 3
+        BeamSelect = 4
+        Blank = 5
+        Delay  = 6
+
+        RasterRegion = 10
+        RasterPixel = 11
+        RasterPixelRun = 12
+        RasterPixelFreeRun = 13
+        VectorPixel = 14
+        VectorPixelMinDwell = 15   
+
+
+class Command(data.Struct):
+    
+
+    # Only used for transfer via USB, where the command is split into octets.
+    class Header(data.Struct):
+        type: CmdType
+        payload: 8 - Shape.cast(CmdType).width
+
+    PAYLOAD_SIZE = { # type -> bytes
+        CmdType.Synchronize: 2,
+        CmdType.Abort: 0,
+        CmdType.Flush: 0,
+        CmdType.Delay: 2,
+        CmdType.ExternalCtrl: 0,
+        CmdType.BeamSelect: 0,
+        CmdType.Blank: 0,
+
+        CmdType.RasterRegion: 12,
+        CmdType.RasterPixel: 2,
+        CmdType.RasterPixelRun: 4,
+        CmdType.RasterPixelFreeRun: 2,
+        CmdType.VectorPixel: 6,
+        CmdType.VectorPixelMinDwell: 4
+
+    }
+    # will be replaced by Amaranth's `Choice` when it is a part of the public API
+    def payload_size_array(PAYLOAD_SIZE, Type):
+        return Array([
+        PAYLOAD_SIZE.get(Type._value2member_map_.get(value)) 
+        if value in Type._value2member_map_ else 0
+        for value in range(1 << Shape.cast(Type).width)
+        ])
+    PAYLOAD_SIZE_ARRAY = payload_size_array(PAYLOAD_SIZE, CmdType)
+
+    type: CmdType
+    payload: data.UnionLayout({
+        "synchronize": data.StructLayout({
+            "reserved": 0,
+            "payload": data.StructLayout({
+                "mode": data.StructLayout({
+                    "raster": 1,
+                    "output": OutputMode,
+                }),
+                "cookie": 16
+            })
+        }),
+        "abort": data.StructLayout({
+            "reserved": 0
+        }),
+        "flush": data.StructLayout({
+            "reserved": 0
+        }),
+        "external_ctrl": data.StructLayout({
+            "reserved": 0,
+            "payload": data.StructLayout({
+                "enable": 1
+            })
+        }),
+        "beam_select": data.StructLayout({
+            "reserved": 0,
+            "payload": data.StructLayout({
+                "beam_type": BeamType
+            })
+        }),
+        "blank": data.StructLayout({
+            "reserved": 0,
+            "payload": data.StructLayout({
+                "enable": 1,
+                "inline": 1
+                })
+        }),
+        "delay": data.StructLayout({
+            "reserved": 0,
+            "payload": data.StructLayout({
+                "delay": 16
+            })
+        }),
+        "raster_region": data.StructLayout({
+            "reserved": 0,
+            "payload": data.StructLayout({
+                "transform": Transforms,
+                "roi": RasterRegion
+            })
+        }),
+        "raster_pixel": data.StructLayout({
+            "reserved": 0,
+            "payload": data.StructLayout({
+                "length": 16,
+                "dwell_time": DwellTime
+            })
+        }),
+        "raster_pixel_run": data.StructLayout({
+            "reserved": 0,
+            "payload": data.StructLayout({
+                "length": 16,
+                "dwell_time": DwellTime
+            })
+        }),
+        "raster_pixel_free_run": data.StructLayout({
+            "reserved": 0,
+            "payload": data.StructLayout({
+                "dwell_time": DwellTime
+            })
+        }),
+        "vector_pixel": data.StructLayout({
+            "reserved": 0,
+            "payload": data.StructLayout({
+                "transform": Transforms,
+                "dac_stream": data.StructLayout({
+                    "x_coord": 14,
+                    "padding_x": 2,
+                    "y_coord": 14, 
+                    "padding_y": 2,
+                    "dwell_time": DwellTime
+                })
+            }),
+        }),
+        "vector_pixel_min": data.StructLayout({
+            "reserved": 0,
+            "payload": data.StructLayout({
+                "transform": Transforms,
+                "dac_stream": data.StructLayout({
+                "x_coord": 14,
+                "padding_x": 2,
+                "y_coord": 14,
+                "padding_y": 2,
+                "dwell_time": DwellTime
+                })
+            })
+        }),
+    })
+
+    @classmethod
+    def serialize(cls, type: CmdType, payload) -> bytes:
+        # https://amaranth-lang.org/docs/amaranth/latest/stdlib/data.html#amaranth.lib.data.Const
+        command_bits = cls.const({"type": type,
+                        "payload":
+                        {**payload}}).as_value().value
+        command_length = cls.PAYLOAD_SIZE[type]
+        return command_bits.to_bytes(command_length+1, byteorder="little")
+    
+        # usage: Command.serialize(Command.Type.Command4, payload=1234)
+
 
 
 @dataclass
@@ -14,7 +210,7 @@ class DACCodeRange:
     count: int # UQ(14,0)
     step:  int # UQ(8,8)
 
-class DwellTime(int):
+class DwellTimeVal(int):
     '''Dwell time is measured in units of ADC cycles.
         One DwellTime = 125 ns'''
     def __init__(self, value):
@@ -202,7 +398,7 @@ class RasterRegionCommand(BaseCommand):
 class RasterPixelRunCommand(BaseCommand):
     def __init__(self, *, dwell: int, length: int):
         assert dwell <= 65536
-        self._dwell   = DwellTime(dwell)
+        self._dwell   = DwellTimeVal(dwell)
         self._length  = length
 
     def __repr__(self):
@@ -256,7 +452,7 @@ class RasterPixelRunCommand(BaseCommand):
 class RasterPixelFreeRunCommand(BaseCommand):
     def __init__(self, *, dwell: int):
         assert dwell <= 65536
-        self._dwell   = DwellTime(dwell)
+        self._dwell   = DwellTimeVal(dwell)
 
     def __repr__(self):
         return f"RasterPixelFreeRunCommand(dwell={self._dwell})"
@@ -280,7 +476,7 @@ class VectorPixelCommand(BaseCommand):
         assert dwell <= 65536
         self._x_coord = x_coord
         self._y_coord = y_coord
-        self._dwell   = DwellTime(dwell)
+        self._dwell   = DwellTimeVal(dwell)
         self._xflip = xflip
         self._yflip = yflip
         self._rotate90 = rotate90
@@ -332,7 +528,7 @@ class VectorPixelCommand(BaseCommand):
 
 
 class RasterPixelsCommand(BaseCommand):
-    def __init__(self, *, dwells: list[DwellTime]):
+    def __init__(self, *, dwells: list[DwellTimeVal]):
         self._dwells  = dwells
         
     def __repr__(self):
@@ -406,14 +602,3 @@ class CommandSequence(BaseCommand):
     @property
     def message(self):
         return self._message
-
-
-
-
-            
-
-
-
-
-
-

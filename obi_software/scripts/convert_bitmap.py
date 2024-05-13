@@ -1,9 +1,10 @@
 import sys
+import pathlib
 import argparse
 import numpy as np
 import pathlib
 from PIL import Image, ImageChops
-from ..base_commands import *
+from base_commands import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('img_path',
