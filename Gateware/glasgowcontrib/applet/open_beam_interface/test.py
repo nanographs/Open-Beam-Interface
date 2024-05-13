@@ -1023,9 +1023,9 @@ class OBIAppletTestCase(unittest.TestCase):
                 #await iface.write(struct.pack(">BB",0x05, combined)) ## blank
                 await iface.write(BlankCommand().message)
                 await iface.write(ExternalCtrlCommand(enable=True).message)
-                await iface.write(SelectIbeamCommand().message)
+                await iface.write(BeamSelectCommand(beam_type=BeamType.Ion).message)
                 await iface.write(DelayCommand(delay=10).message)
-                await iface.write(UnblankInlineCommand().message)
+                await iface.write(BlankCommand(enable=False, inline=True).message)
                 for n in range(1,3):
                     await iface.write(VectorPixelCommand(x_coord=n, y_coord=n, dwell=1).message)
                 # for n in range(1,3):
@@ -1033,7 +1033,7 @@ class OBIAppletTestCase(unittest.TestCase):
                 await iface.write(VectorPixelCommand(x_coord=7, y_coord=7, dwell=3).message)
                 await iface.write(BlankCommand().message)
                 await iface.write(DelayCommand(delay=3).message)
-                await iface.write(UnblankCommand().message)
+                await iface.write(BlankCommand(enable=False).message)
                 await iface.write(VectorPixelCommand(x_coord=1, y_coord=1, dwell=1).message)
                 await iface.write(BlankCommand().message)
                 await iface.write(SynchronizeCommand(cookie=4, output=2, raster=0).message)
