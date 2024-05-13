@@ -1,6 +1,7 @@
 import sys
 import argparse
 import numpy as np
+import pathlib
 from PIL import Image, ImageChops
 from ..base_commands import *
 
@@ -24,12 +25,41 @@ pixels = list(np.ravel(array))
 print(f"loaded file from {args.img_path}")
 print(array)
 
-seq = CommandSequence()
-seq.add(SynchronizeCommand(cookie=123, raster_mode=True, output_mode=OutputMode.NoOutput))
-seq.add(RasterRegionCommand(x_range= x_range, y_range = y_range))
-seq.add(RasterPixelsCommand(dwells = pixels))
+seq = CommandSequence(raster=True, output=OutputMode.NoOutput)
 
-print("writing to stdout")
-sys.stdout.buffer.write(seq)
+def add_line(pixels, x_start, x_stop, y):
+    y_range = DACCodeRange(start=y, count=0, step=step)
+    x_range = DACCodeRange(start=x_start, count=(x_stop-x_start), step=step)
+    seq.add(RasterRegionCommand(x_range=x_range,y_range=y_range))
+    seq.add(RasterPixelsCommand(dwells=pixels))
+
+def optimize(array, seq):
+    for y in range(y_pixels):
+        pixel_dwells = []
+        drawing = False
+        x_start = 0
+        for x in range(x_pixels):
+            pixel_dwell = array[y][x]
+            if pixel_dwell > 1:
+                pixel_dwells.append(pixel_dwell)
+                if not drawing:
+                    x_start = x
+                drawing = True
+            else:
+                add_line(pixel_dwells, x_start, x, y)
+                pixel_dwells = []
+                x_start = 0
+                drawing = False
+
+optimize(array, seq)  
+print(seq.message)
+
+# seq = CommandSequence()
+# seq.add(SynchronizeCommand(cookie=123, raster_mode=True, output_mode=OutputMode.NoOutput))
+# seq.add(RasterRegionCommand(x_range= x_range, y_range = y_range))
+# seq.add(RasterPixelsCommand(dwells = pixels))
+
+# print("writing to stdout")
+# sys.stdout.buffer.write(seq)
 
 
