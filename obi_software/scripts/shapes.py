@@ -5,8 +5,8 @@ import argparse
 import matplotlib.pyplot as plt
 import logging
 import sys
-from ..stream_interface import Connection, VectorPixelLinearRunCommand, _ExternalCtrlCommand, _BeamSelectCommand, BeamType, setup_logging
-from ..base_commands import CommandSequence, VectorPixelCommand, SynchronizeCommand, ExternalCtrlCommand, BlankCommand, OutputMode, BeamType, SelectBeamCommand
+from ..stream_interface import Connection, VectorPixelLinearRunCommand, StreamExternalCtrlCommand, StreamBeamSelectCommand, BeamType, setup_logging
+from base_commands import CommandSequence, VectorPixelCommand, SynchronizeCommand, ExternalCtrlCommand, BlankCommand, OutputMode, BeamType, BeamSelectCommand
 
 setup_logging({"Stream": logging.DEBUG})
 
@@ -82,8 +82,8 @@ def iterpattern(x, y, dwell, repeats=1):
 
 async def stream_pattern(x, y, dwell):
     conn = Connection('localhost', 2224)
-    await conn.transfer(_ExternalCtrlCommand(enable=True))
-    await conn.transfer(_BeamSelectCommand(beam_type=BeamType.Ion))
+    await conn.transfer(StreamExternalCtrlCommand(enable=True))
+    await conn.transfer(StreamBeamSelectCommand(beam_type=BeamType.Ion))
     pattern = iterpattern(x, y, dwell, repeats=args.repeats)
     async for chunk in conn.transfer_multiple(VectorPixelLinearRunCommand(pattern_generator=pattern), 
                                         output_mode=0):
@@ -94,7 +94,7 @@ def buffer_pattern(x, y, dwell):
     pattern = iterpattern(x, y, dwell, repeats=args.repeats)
     seq = CommandSequence(output=OutputMode.NoOutput, raster = False)
     seq.add(BlankCommand(enable=True))
-    seq.add(SelectBeamCommand(beam_type = BeamType.Ion))
+    seq.add(BeamSelectCommand(beam_type = BeamType.Ion))
     seq.add(ExternalCtrlCommand(enable=True))
     seq.add(BlankCommand(enable=False, inline=True))
     for x, y, dwell in pattern:
@@ -112,5 +112,6 @@ def main():
     else:
         while True:
             asyncio.run(stream_pattern(x, y, args.dwell))
+main()
     
 

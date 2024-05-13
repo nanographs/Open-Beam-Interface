@@ -478,7 +478,7 @@ class VectorPixelLinearRunCommand(StreamCommand):
         MAX_OUT_BUFFER = 131072
         commands, pixel_count = self._iter_chunks()
 
-        await StreamSynchronizeCommand(cookie=123, raster_mode=False, output_mode=output_mode).transfer(stream)
+        #await StreamSynchronizeCommand(cookie=123, raster=False, output=output_mode).transfer(stream)
 
         async def sender():
             nonlocal commands
@@ -502,12 +502,15 @@ class BenchmarkTransfer(StreamCommand):
 
     @StreamCommand.log_transfer
     async def transfer(self, stream: Stream, output_mode: OutputMode=OutputMode.NoOutput):
-        await StreamSynchronizeCommand(cookie=123, raster=False, 
-                                output=output_mode).transfer(stream)
+        # await StreamSynchronizeCommand(cookie=123, raster=False, 
+        #                         output=output_mode).transfer(stream)
+        stream.send(SynchronizeCommand(cookie=123, raster=False, output=output_mode).message)
         commands = bytearray()
+        print("preparing commands...")
         for _ in range(131072*16):
             commands.extend(VectorPixelCommand(x_coord=0, y_coord=16383, dwell=1).message)
             commands.extend(VectorPixelCommand(x_coord=16383, y_coord=0, dwell=1).message)
+            print(f"{len(commands)=}")
         length = len(commands)
         pixel_count = int(length/7)
         while True:
