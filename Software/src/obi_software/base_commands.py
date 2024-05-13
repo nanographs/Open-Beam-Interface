@@ -30,6 +30,9 @@ class CommandType(enum.IntEnum):
     FlipX               = 0x16
     FlipY               = 0x17
     Rotate90            = 0x18
+    UnFlipX             = 0x19
+    UnFlipY             = 0x20
+    UnRotate90          = 0x21
 
 class OutputMode(enum.IntEnum):
     SixteenBit          = 0
@@ -131,6 +134,33 @@ class BlankCommand(BaseCommand):
             return struct.pack('>B', CommandType.Unblank)
         elif not self._enable and self._inline:
             return struct.pack('>B', CommandType.UnblankInline)
+
+class TransformCommand(BaseCommand):
+    def __init__(self, xflip:bool=True, yflip:bool=True, rotate90:bool=True):
+        self._xflip = xflip
+        self._yflip = yflip
+        self._rotate90 = rotate90
+
+    def __repr__(self):
+        return f"TransformCommand(xflip={self._xflip}, yflip={self._yflip}, rotate90={self._rotate90})"
+
+    @property
+    def message(self):
+        cmd = bytearray()
+        if self._xflip:
+            cmd.extend(struct.pack('>B', CommandType.FlipX))
+        else:
+            cmd.extend(struct.pack('>B', CommandType.UnFlipX))
+        if self._yflip:
+            cmd.extend(struct.pack('>B', CommandType.FlipY))
+        else:
+            cmd.extend(struct.pack('>B', CommandType.UnFlipY))
+        if self._rotate90:
+            cmd.extend(struct.pack('>B', CommandType.Rotate90))
+        else:
+            cmd.extend(struct.pack('>B', CommandType.UnRotate90))
+        return cmd
+
 
 
 class ExternalCtrlCommand(BaseCommand):
@@ -301,12 +331,6 @@ class CommandSequence(BaseCommand):
     @property
     def message(self):
         return self._message
-
-
-
-
-
-
 
             
 
