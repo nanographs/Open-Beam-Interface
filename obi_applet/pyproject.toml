@@ -40,5 +40,5 @@ build.cmd = "AMARANTH_verbose=1 glasgow build open_beam_interface -V 5 --pin-ext
 
 [tool.pdm.dev-dependencies]
 test = ["amaranth@ git+https://github.com/whitequark/amaranth@testbenchessssss",
-        # "glasgow@ git+https://github.com/isabelburgos/glasgow@main#subdirectory=software",
+        "glasgow@ git+https://github.com/isabelburgos/glasgow@main#subdirectory=software",
         ]
