@@ -207,11 +207,11 @@ class Connection:
         self._logger.debug(f'synchronizing with cookie {cookie:#06x}')
         print("synchronizing with cookie")
 
-        cmd = struct.pack(">BHBB",
-            CommandType.Synchronize, cookie, 0,
-            CommandType.Flush)
-        res = struct.pack(">HH", 0xffff, cookie)
-        self._stream.send(cmd)
+        seq = CommandSequence(cookie=cookie, output=OutputMode.SixteenBit, raster=False)
+        seq.add(FlushCommand())
+        res = SynchronizeCommand(cookie=cookie, output=OutputMode.SixteenBit, raster=False).byte_response
+        print(f"{res=}")
+        self._stream.send(seq.message)
         while True:
             print("trying to synchronize...")
             try:
@@ -282,7 +282,7 @@ class StreamSynchronizeCommand(SynchronizeCommand, StreamCommand):
         super().__init__(*args, **kwargs)
         assert self._cookie in range(0x0001, 0x10000, 2)  # odd cookies only
 
-    @Command.log_transfer
+    @StreamCommand.log_transfer
     async def transfer(self, stream: Stream):
 <<<<<<< HEAD
         cmd = struct.pack(">BHBB", CommandType.Synchronize, self._cookie, self._mode, CommandType.Flush)
@@ -293,7 +293,7 @@ class StreamSynchronizeCommand(SynchronizeCommand, StreamCommand):
 >>>>>>> 4bf6e40 (migrate software commands to use base_commands as source)
         res = await stream.xchg(cmd, recv_length=4)
         sync, cookie = struct.unpack(">HH", res)
-        return cookie
+        return cookie[:-1]
 
 
 class StreamAbortCommand(AbortCommand, StreamCommand):
@@ -305,7 +305,7 @@ class StreamDelayCommand(DelayCommand, StreamCommand):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    @Command.log_transfer
+    @StreamCommand.log_transfer
     async def transfer(self, stream: Stream):
         stream.send(self.message)
 
@@ -314,7 +314,7 @@ class StreamBlankCommand(BlankCommand, StreamCommand):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    @Command.log_transfer
+    @StreamCommand.log_transfer
     async def transfer(self, stream: Stream):
         stream.send(self.message)
 
@@ -323,7 +323,7 @@ class StreamExternalCtrlCommand(ExternalCtrlCommand, StreamCommand):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    @Command.log_transfer
+    @StreamCommand.log_transfer
     async def transfer(self, stream: Stream):
         stream.send(self.message)
 
@@ -331,7 +331,7 @@ class StreamBeamSelectCommand(BeamSelectCommand, StreamCommand):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    @Command.log_transfer
+    @StreamCommand.log_transfer
     async def transfer(self, stream: Stream):
         stream.send(self.message)
 
@@ -348,12 +348,12 @@ class RelayExternalCtrlCommand(StreamCommand):
     def __repr__(self):
         return f"RelayExternalCtrlCommand(enable={self._enable}, beam_type={self._beam_type})"
 
-    @Command.log_transfer
+    @StreamCommand.log_transfer
     async def transfer(self, stream: Stream):
         await StreamBlankCommand(enable=(1-self._enable), inline=True).transfer(stream)
         await StreamExternalCtrlCommand(self._enable).transfer(stream)
         await StreamBeamSelectCommand(self._beam_type).transfer(stream)
-        await DelayCommand(RELAY_DELAY_CYCLES).transfer(stream)
+        await StreamDelayCommand(RELAY_DELAY_CYCLES).transfer(stream)
         await stream.flush()
 
 
@@ -361,7 +361,7 @@ class StreamRasterRegionCommand(RasterRegionCommand, StreamCommand):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    @Command.log_transfer
+    @StreamCommand.log_transfer
     async def transfer(self, stream: Stream):
         stream.send(self.message)
         await stream.flush()
@@ -371,7 +371,7 @@ class RasterPixelsCommand(RasterPixelsCommand, StreamCommand):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    @Command.log_transfer
+    @StreamCommand.log_transfer
     async def transfer(self, stream: Stream, latency: int, output_mode:OutputMode=OutputMode.SixteenBit):
         for commands, pixel_count in self._iter_chunks(latency):
             stream.send(commands)
@@ -383,7 +383,7 @@ class StreamRasterPixelRunCommand(RasterPixelRunCommand, StreamCommand):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    @Command.log_transfer
+    @StreamCommand.log_transfer
     async def transfer(self, stream: Stream, latency: int, output_mode:OutputMode=OutputMode.SixteenBit):
         MAX_PIPELINE = 32
 
@@ -425,7 +425,7 @@ class StreamRasterPixelFreeRunCommand(RasterPixelFreeRunCommand, StreamCommand):
         while not self._interrupt.is_set():
             yield
 
-    @Command.log_transfer
+    @StreamCommand.log_transfer
     async def transfer(self, stream: Stream, latency: int):
 
         async def sender():
@@ -446,7 +446,7 @@ class StreamVectorPixelCommand(VectorPixelCommand, StreamCommand):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    @Command.log_transfer
+    @StreamCommand.log_transfer
     async def transfer(self, stream: Stream, output_mode:OutputMode=OutputMode.SixteenBit):
         stream.send(self.message)
         stream.send(struct.pack(">B", CommandType.Flush))
@@ -473,7 +473,7 @@ class VectorPixelLinearRunCommand(StreamCommand):
     
 
 
-    @Command.log_transfer
+    @StreamCommand.log_transfer
     async def transfer(self, stream: Stream, output_mode:OutputMode=OutputMode.SixteenBit):
         MAX_OUT_BUFFER = 131072
         commands, pixel_count = self._iter_chunks()
@@ -500,10 +500,10 @@ class BenchmarkTransfer(StreamCommand):
     def __repr__(self):
         return f"BenchmarkTransfer)"
 
-    @Command.log_transfer
+    @StreamCommand.log_transfer
     async def transfer(self, stream: Stream, output_mode: OutputMode=OutputMode.NoOutput):
-        await StreamSynchronizeCommand(cookie=123, raster_mode=False, 
-                                output_mode=output_mode).transfer(stream)
+        await StreamSynchronizeCommand(cookie=123, raster=False, 
+                                output=output_mode).transfer(stream)
         commands = bytearray()
         for _ in range(131072*16):
             commands.extend(VectorPixelCommand(x_coord=0, y_coord=16383, dwell=1).message)
@@ -568,7 +568,7 @@ class VectorPixelRunCommand(StreamCommand):
 
 
 
-    @Command.log_transfer
+    @StreamCommand.log_transfer
     async def transfer(self, stream: Stream, latency: int, dead_band: int, output_mode:OutputMode=OutputMode.SixteenBit):
         # DEAD_BAND = int(min(16384, int(latency)/8))
         HIGH_WATER_MARK = latency + dead_band
@@ -663,7 +663,7 @@ class RasterStreamCommand(StreamCommand):
     def __repr__(self):
         return f"RasterStreamCommand(cookie={self._cookie}, x_range={self._x_range}, y_range={self._y_range}, dwells=<list of {len(self._dwells)}>)"
 
-    @Command.log_transfer
+    @StreamCommand.log_transfer
     async def transfer(self, stream: Stream, latency: int, output_mode: OutputMode=OutputMode.SixteenBit):
         await StreamSynchronizeCommand(cookie=self._cookie, raster_mode=True, output_mode = output_mode).transfer(stream)
         await StreamRasterRegionCommand(x_range=self._x_range, y_range=self._y_range).transfer(stream)
@@ -685,9 +685,9 @@ class RasterScanCommand(StreamCommand):
     def __repr__(self):
         return f"RasterScanCommand(cookie={self._cookie}, x_range={self._x_range}, y_range={self._y_range}, dwell={self._dwell}>)"
 
-    @Command.log_transfer
+    @StreamCommand.log_transfer
     async def transfer(self, stream: Stream, latency: int):
-        await StreamSynchronizeCommand(cookie=self._cookie, raster_mode=True).transfer(stream)
+        await StreamSynchronizeCommand(cookie=self._cookie, raster=True).transfer(stream)
         await StreamRasterRegionCommand(x_range=self._x_range, y_range=self._y_range).transfer(stream)
         total, done = self._x_range.count * self._y_range.count, 0
         async for chunk in StreamRasterPixelRunCommand(dwell=self._dwell, length=total).transfer(stream, latency):
@@ -707,7 +707,7 @@ class RasterFreeScanCommand(StreamCommand):
     def __repr__(self):
         return f"RasterFreeScanCommand(cookie={self._cookie}, x_range={self._x_range}, y_range={self._y_range}, dwell={self._dwell}>)"
 
-    @Command.log_transfer
+    @StreamCommand.log_transfer
     async def transfer(self, stream: Stream, latency: int):
         await StreamSynchronizeCommand(cookie=self._cookie, raster_mode=True).transfer(stream)
         await StreamRasterRegionCommand(x_range=self._x_range, y_range=self._y_range).transfer(stream)
