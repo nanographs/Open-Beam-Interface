@@ -265,10 +265,10 @@ class SynchronizeCommand(BaseCommand):
     
     @property
     def byte_response(self):
-        cookie = struct.pack('<H', self._cookie)
+        cookie = struct.pack('>H', self._cookie)
         print(f"{cookie=}")
         print(f"{len(cookie)=}")
-        return struct.pack('<HBB', 0xffff, cookie[1], cookie[0])
+        return struct.pack('>HBB', 0xffff, cookie[0], cookie[1])
 
 
 class AbortCommand(BaseCommand):
