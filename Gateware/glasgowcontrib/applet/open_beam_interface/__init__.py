@@ -118,6 +118,103 @@ class SuperDACStream(data.Struct):
     padding_y: 2
     blank: BlankRequest
     last:       1
+    sample_adc: 1
+
+
+class FastBusController(wiring.Component):
+    # FPGA-side interface
+    dac_stream: In(StreamSignature(SuperDACStream))
+
+    adc_stream: Out(StreamSignature(data.StructLayout({
+        "adc_code": 14,
+        "adc_ovf":  1,
+        "last":     1,
+    })))
+
+    # IO-side interface
+    bus: Out(BusSignature)
+    inline_blank: Out(BlankRequest)
+
+    def __init__(self, *, adc_half_period: int, adc_latency: int):
+        assert (adc_half_period * 2) >= 4, "ADC period must be large enough for FSM latency"
+        self.adc_half_period = adc_half_period
+        self.adc_latency     = adc_latency
+
+        super().__init__()
+
+    def elaborate(self, platform):
+        m = Module()
+
+        adc_cycles = Signal(range(self.adc_half_period))
+        with m.If(adc_cycles == self.adc_half_period - 1):
+            m.d.sync += adc_cycles.eq(0)
+            m.d.sync += self.bus.adc_clk.eq(~self.bus.adc_clk)
+        with m.Else():
+            m.d.sync += adc_cycles.eq(adc_cycles + 1)
+        # ADC and DAC share the bus and have to work in tandem. The ADC conversion starts simultaneously
+        # with the DAC update, so the entire ADC period is available for DAC-scope-ADC propagation.
+        m.d.comb += self.bus.dac_clk.eq(self.bus.adc_clk)
+
+
+        # Queue; MSB = most recent sample, LSB = least recent sample
+        accept_sample = Signal(self.adc_latency)
+        # Queue; as above
+        last_sample = Signal(self.adc_latency)
+
+        m.submodules.skid_buffer = skid_buffer = \
+            SkidBuffer(self.adc_stream.payload.shape(), depth=self.adc_latency)
+        wiring.connect(m, flipped(self.adc_stream), skid_buffer.o)
+
+        adc_stream_data = Signal.like(self.adc_stream.payload) # FIXME: will not be needed after FIFOs have shapes
+        m.d.comb += [
+            # Cat(adc_stream_data.adc_code,
+            #     adc_stream_data.adc_ovf).eq(self.bus.i),
+            adc_stream_data.last.eq(last_sample[self.adc_latency-1]),
+            skid_buffer.i.payload.eq(adc_stream_data),
+        ]
+
+        dac_stream_data = Signal.like(self.dac_stream.payload)
+        m.d.comb += self.inline_blank.eq(dac_stream_data.blank)
+
+        m.d.comb += adc_stream_data.adc_code.eq(self.bus.data_i)
+
+
+        with m.FSM():
+            with m.State("X_DAC_Write"):
+                with m.If(self.dac_stream.valid):
+                    # Latch DAC codes from input stream.
+                    m.d.comb += self.dac_stream.ready.eq(1)
+                    m.d.sync += dac_stream_data.eq(self.dac_stream.payload)
+                m.d.comb += [
+                    self.bus.data_o.eq(self.dac_stream.payload.dac_x_code),
+                    self.bus.data_oe.eq(1),
+                ]
+                m.next = "X_DAC_Write_2"
+
+            with m.State("X_DAC_Write_2"):
+                m.d.comb += [
+                    self.bus.data_o.eq(dac_stream_data.dac_x_code),
+                    self.bus.data_oe.eq(1),
+                    self.bus.dac_x_le_clk.eq(1),
+                ]
+                m.next = "Y_DAC_Write"
+
+            with m.State("Y_DAC_Write"):
+                m.d.comb += [
+                    self.bus.data_o.eq(dac_stream_data.dac_y_code),
+                    self.bus.data_oe.eq(1),
+                ]
+                m.next = "Y_DAC_Write_2"
+
+            with m.State("Y_DAC_Write_2"):
+                m.d.comb += [
+                    self.bus.data_o.eq(dac_stream_data.dac_y_code),
+                    self.bus.data_oe.eq(1),
+                    self.bus.dac_y_le_clk.eq(1),
+                ]
+                m.next = "X_DAC_Write"
+
+        return m
 
 
 
@@ -178,7 +275,6 @@ class BusController(wiring.Component):
 
         m.d.comb += adc_stream_data.adc_code.eq(self.bus.data_i)
 
-        stalled = Signal()
 
         with m.FSM():
             with m.State("ADC_Wait"):
