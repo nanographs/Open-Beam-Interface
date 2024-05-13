@@ -10,6 +10,8 @@ from amaranth.lib import enum, data, wiring
 from amaranth.lib.fifo import SyncFIFOBuffered
 from amaranth.lib.wiring import In, Out, flipped
 
+from glasgow.support.logging import dump_hex
+from glasgow.support.endpoint import ServerEndpoint
 from base_commands import Command, CmdType, BeamType, RasterRegion, OutputMode, Transforms, DwellTime
 
 # Overview of (linear) processing pipeline:
@@ -1427,8 +1429,6 @@ class OBIApplet(GlasgowApplet):
     #     super().add_run_arguments(parser, access)
 
     async def run(self, device, args):
-        from glasgow.support.logging import dump_hex
-        from glasgow.support.endpoint import ServerEndpoint
         # await device.set_voltage("AB", 0)
         # await asyncio.sleep(5)
         iface = await device.demultiplexer.claim_interface(self, self.mux_interface, args,
