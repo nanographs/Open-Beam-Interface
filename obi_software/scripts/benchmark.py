@@ -2,7 +2,7 @@ import asyncio
 import time
 import logging
 import argparse
-from ..beam_interface import Connection, BenchmarkTransfer, setup_logging
+from ..stream_interface import Connection, BenchmarkTransfer, setup_logging
 
 
 
