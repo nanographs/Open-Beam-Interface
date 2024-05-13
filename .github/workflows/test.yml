@@ -11,9 +11,9 @@ on:
       - Gateware
 =======
   push:
-    paths:
-      - obi_applet
-      - '.github/test.yml' # Trigger on changes to the workflow file
+    # paths:
+    #   - obi_applet
+    #   - '.github/test.yml' # Trigger on changes to the workflow file
   
 jobs:  
   build:  
