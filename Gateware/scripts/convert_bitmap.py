@@ -6,14 +6,15 @@ from PIL import Image, ImageChops
 from base_commands import *
 
 parser = argparse.ArgumentParser()
-parser.add_argument('img_path',
-                    type=lambda p: pathlib.Path(p).expanduser(), #expand paths starting with ~ to absolute
-                    help='path to image file')
+# parser.add_argument('--img_path', required=True,
+#                     type=lambda p: pathlib.Path(p).expanduser(), #expand paths starting with ~ to absolute
+#                     help='path to image file')
 parser.add_argument('--show', action='store_true', help="just display the processed image")
 args = parser.parse_args()
 
-im = Image.open(args.img_path)
-print(f"loaded file from {args.img_path}")
+img_path = input("Enter image path: ")
+im = Image.open(img_path)
+print(f"loaded file from {img_path}")
 
 im = im.convert("L") ## 8 bit grayscale
 im = ImageChops.invert(im) ## 255 = longest dwell time, 0 = no dwell
