@@ -5,14 +5,16 @@ import pathlib
 from PIL import Image, ImageChops
 from base_commands import *
 
-parser = argparse.ArgumentParser()
+# parser = argparse.ArgumentParser()
 # parser.add_argument('--img_path', required=True,
 #                     type=lambda p: pathlib.Path(p).expanduser(), #expand paths starting with ~ to absolute
 #                     help='path to image file')
-parser.add_argument('--show', action='store_true', help="just display the processed image")
-args = parser.parse_args()
+# parser.add_argument('--show', action='store_true', help="just display the processed image")
+# args = parser.parse_args()
 
-img_path = input("Enter image path: ")
+p = input("Enter image path: ")
+img_path = pathlib.Path(p).expanduser()
+
 im = Image.open(img_path)
 print(f"loaded file from {img_path}")
 
@@ -32,12 +34,12 @@ print(f"input image: {x_pixels=}, {y_pixels=} -> {scaled_x_pixels=}, {scaled_y_p
 def level_adjust(pixel_value):
     return int(pixel_value*(160/255))
 pixel_range = im.getextrema()
-im = im.point(lambda p: level_adjust(p))
+#im = im.point(lambda p: level_adjust(p))
 scaled_pixel_range = im.getextrema()
 print(f"{pixel_range=} -> {scaled_pixel_range=}")
 
 array = np.asarray(im)
-
+im.show()
 def show():
     im.show()
 
@@ -67,8 +69,8 @@ async def pattern():
     seq.add(BlankCommand(enable=False, inline=True))
     seq.add(VectorPixelCommand(x_coord=0, y_coord=0, dwell=1))
 
-    for y in range(y_pixels):
-        for x in range(x_pixels):
+    for y in range(scaled_y_pixels):
+        for x in range(scaled_x_pixels):
             dwell = array[y][x]
             if dwell > 0:
                 seq.add(VectorPixelCommand(x_coord=x, y_coord = y, dwell=dwell))
@@ -79,11 +81,11 @@ async def pattern():
     print("done")
 
 
-if args.show:
-    show()
-else:
-    await setup()
-    await pattern()
-    await teardown()
+# if args.show:
+#     show()
+# else:
+await setup()
+await pattern()
+await teardown()
 
 
