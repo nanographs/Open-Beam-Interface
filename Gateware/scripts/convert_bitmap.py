@@ -34,7 +34,7 @@ print(f"input image: {x_pixels=}, {y_pixels=} -> {scaled_x_pixels=}, {scaled_y_p
 def level_adjust(pixel_value):
     return int(pixel_value*(160/255))
 pixel_range = im.getextrema()
-#im = im.point(lambda p: level_adjust(p))
+im = im.point(lambda p: level_adjust(p))
 scaled_pixel_range = im.getextrema()
 print(f"{pixel_range=} -> {scaled_pixel_range=}")
 
