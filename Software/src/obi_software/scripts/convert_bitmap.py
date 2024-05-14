@@ -6,7 +6,7 @@ from PIL import Image, ImageChops
 from ..base_commands import *
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--img_path', required=True, 
+parser.add_argument('img_path'
                     type=lambda p: pathlib.Path(p).expanduser(), #expand paths starting with ~ to absolute
                     help='path to image file')
 parser.add_argument('--show', action='store_true', help="display the processed image")

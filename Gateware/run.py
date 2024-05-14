@@ -7,15 +7,25 @@ import sys
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument("port")
+
 parser.add_argument('-c', '--config_path', required=False, 
                     #expand paths starting with ~ to absolute
                     type=lambda p: pathlib.Path(p).expanduser(), 
                     help='path to microscope.toml')
-parser.add_argument('-s','--script_path', required=False, 
+subparsers = parser.add_subparsers(title='mode',
+                                description='valid obi modes',
+                                help='server: launch server at port [PORT]. \n \
+                                    script: read script from path /path/to/script')
+parser_script = subparsers.add_parser('script')
+parser_script.add_argument('script_path',
                     #expand paths starting with ~ to absolute
                     type=lambda p: pathlib.Path(p).expanduser(), 
                     help='path to python script to execute in OBI applet')
+parser_script.set_defaults(script=True, server=False)
+parser_server = subparsers.add_parser('server')
+parser_server.add_argument("port")
+parser_server.set_defaults(script=False, server=True)
+
 args = parser.parse_args()
 
 pin_args = []
@@ -29,7 +39,7 @@ if args.config_path:
             pin_args += ["--pin-"+pin_name, str(pin_num)]
 
 endpoint_arg = []
-if args.port:
+if args.server:
     endpoint_arg += ["tcp::" + args.port]
 
 env = os.environ._data
@@ -37,10 +47,13 @@ env.update({"GLASGOW_OUT_OF_TREE_APPLETS":"I-am-okay-with-breaking-changes"})
 
 
 def run():
-    if args.script_path:
+    if args.script:
         glasgow_cmd = ["glasgow", "script", args.script_path, "open_beam_interface", "-V", "5"] + pin_args + endpoint_arg
-    else:
+    elif args.server:
         glasgow_cmd = ["glasgow", "run", "open_beam_interface", "-V", "5"] + pin_args + endpoint_arg
+    else:
+        print("Choose mode: obi_run script or obi_run server")
+        quit()
     glasgow = subprocess.Popen(glasgow_cmd,env=env, stdin=sys.stdin)
     glasgow.communicate()
 

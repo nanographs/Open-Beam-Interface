@@ -81,7 +81,7 @@ if args.show:
     show()
 else:
     await setup()
-    pattern()
+    await pattern()
     await teardown()
 
 
