@@ -69,7 +69,8 @@ async def pattern():
     for y in range(y_pixels):
         for x in range(x_pixels):
             dwell = array[y][x]
-            seq.add(VectorPixelCommand(x_coord=x, y_coord = y, dwell=dwell))
+            if dwell > 0:
+                seq.add(VectorPixelCommand(x_coord=x, y_coord = y, dwell=dwell))
     
     print("writing pattern")
     await iface.write(seq.message)
