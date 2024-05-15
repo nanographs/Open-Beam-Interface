@@ -6,7 +6,7 @@ from PIL import Image, ImageChops
 from ..base_commands import *
 
 parser = argparse.ArgumentParser()
-parser.add_argument('img_path'
+parser.add_argument('img_path',
                     type=lambda p: pathlib.Path(p).expanduser(), #expand paths starting with ~ to absolute
                     help='path to image file')
 parser.add_argument('--show', action='store_true', help="display the processed image")
@@ -48,15 +48,21 @@ def pattern():
     seq.add(BlankCommand(enable=False, inline=True))
     seq.add(VectorPixelCommand(x_coord=0, y_coord=0, dwell=1))
 
-    for y in range(y_pixels):
-        for x in range(x_pixels):
+    for y in range(scaled_y_pixels):
+        for x in range(scaled_x_pixels):
             dwell = array[y][x]
-            seq.add(VectorPixelCommand(x_coord=x, y_coord = y, dwell=dwell))
+            if dwell > 0:
+                seq.add(VectorPixelCommand(x_coord=x, y_coord = y, dwell=dwell))
+        progress = 20*y/16384
+        progress_bar = "".join(["#"]*int(progress))
+        print(f"{progress*100=:.2f}%, {y=}/16384")
+        print(progress_bar)
 
 if args.show:
     show()
 else:
+    show()
     pattern()
-    sys.stdout.buffer.write(pattern)
+    # sys.stdout.buffer.write(pattern)
 
 

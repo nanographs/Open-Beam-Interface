@@ -74,6 +74,10 @@ async def pattern():
             dwell = array[y][x]
             if dwell > 0:
                 seq.add(VectorPixelCommand(x_coord=x, y_coord = y, dwell=dwell))
+        progress = 20*y/16384
+        progress_bar = "".join(["#"]*int(progress))
+        print(f"{progress*100=:.2f}%, {y=}/16384")
+        print(progress_bar)
     
     print("writing pattern")
     await iface.write(seq.message)
