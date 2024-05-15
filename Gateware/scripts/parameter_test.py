@@ -33,13 +33,25 @@ print(f"{len(n_lines_array)=}")
 
 total_lines = 0
 
-for yn in range(len(y_sections)):
-    y_start = y_sections[yn]
-    n_lines = int(n_lines_array[yn])
-    print(f"{y_start=}, {n_lines=}, {y_start+n_lines=}")
-    for line in range(n_lines):
-        gradient_line(0, 16384, 1, int(y_start+4), dwells) #shift everything down 4 lines
-        y_start += 1
+def horizontal_lines():
+    for yn in range(len(y_sections)):
+        y_start = y_sections[yn]
+        n_lines = int(n_lines_array[yn])
+        print(f"{y_start=}, {n_lines=}, {y_start+n_lines=}")
+        for line in range(n_lines):
+            gradient_line(0, 16384, 1, int(y_start+4), dwells) #shift everything down 4 lines
+            y_start += 1
+
+
+def vertical_lines():
+    for y in range(16384):
+        for xn in range(len(y_sections)):
+            x_start = y_sections[xn]
+            n_lines = int(n_lines_array[yn])
+            print(f"{y_start=}, {n_lines=}, {y_start+n_lines=}")
+            for line in range(n_lines):
+                seq.add(VectorPixelCommand(x_coord=int(x_start), y_coord = int(y), dwell = int(dwells[x])))
+                x_start += 1
 
 seq.add(BlankCommand(enable=True))
 
