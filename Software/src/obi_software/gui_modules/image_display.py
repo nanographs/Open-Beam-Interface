@@ -12,7 +12,7 @@ from PyQt6.QtWidgets import (QHBoxLayout, QMainWindow,
                              QSpinBox)
 
 class ImageDisplay(pg.GraphicsLayoutWidget):
-    def __init__(self, y_height, x_width, invertY=True, invertX=True):
+    def __init__(self, y_height, x_width, invertY=True, invertX=False):
         super().__init__()
         self.y_height = y_height
         self.x_width = x_width
@@ -57,7 +57,7 @@ class ImageDisplay(pg.GraphicsLayoutWidget):
     def add_ROI(self):
         border = pg.mkPen(color = "#00ff00", width = 2)
         # Custom ROI for selecting an image region
-        self.roi = pg.ROI([.25*self.x_width, .25*self.y_height], [.5*self.x_width, .5*self.y_height], pen = border,
+        self.roi = pg.ROI([.25*self.x_width, .25*self.y_height], [.5*self.x_width, .5*self.y_height], pen = border, handlePen=border,
                         scaleSnap = True, translateSnap = True)
         self.roi.addScaleHandle([1, 1], [0, 0])
         self.roi.addScaleHandle([0, 0], [1, 1])
@@ -67,7 +67,8 @@ class ImageDisplay(pg.GraphicsLayoutWidget):
     
     def add_line(self):
         border = pg.mkPen(color = "#00ff00", width = 2)
-        self.line = pg.LineSegmentROI(positions = ([.25*self.x_width, .25*self.y_height],[.5*self.x_width, .25*self.y_height]))
+        self.line = pg.LineSegmentROI(positions = ([.25*self.x_width, .25*self.y_height],[.5*self.x_width, .25*self.y_height]),
+                        pen = border, handlePen=border,)
         self.image_view.addItem(self.line)
         self.line.setZValue(10)  # make sure line is drawn above image
 
@@ -104,12 +105,18 @@ class ImageDisplay(pg.GraphicsLayoutWidget):
         self.live_img.setImage(image, rect = (0,0, x_width, y_height), autoLevels=False)
         if not self.roi == None:
             self.roi.maxBounds = QtCore.QRectF(0, 0, x_width, y_height)
+        if (x_width != self.x_width) | (y_height != self.y_height):
+            self.image_view.autoRange()
+        self.x_width = x_width
+        self.y_height = y_height
         self.data = image
-        self.image_view.autoRange()
+        
 
 
     def setRange(self, y_height, x_width):
         self.image_view.setRange(QtCore.QRectF(0, 0, x_width, y_height))
+        self.x_width = x_width
+        self.y_height = y_height
     
     def showTest(self):
         # test_file = "software/glasgow/applet/video/scan_gen/output_formats/Nanographs Pattern Test Logo and Gradients.bmp"
