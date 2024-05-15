@@ -53,6 +53,8 @@ def vertical_lines():
                 seq.add(VectorPixelCommand(x_coord=int(x_start), y_coord = int(y), dwell = int(dwells[x])))
                 x_start += 1
 
+
+horizontal_lines()
 seq.add(BlankCommand(enable=True))
 
 print("writing")
