@@ -264,6 +264,12 @@ class Connection:
                 start = now
         except asyncio.IncompleteReadError as e:
             self._handle_incomplete_read(e)
+    
+    async def transfer_raw(self, command, flush:bool = False, **kwargs):
+        self._logger.debug(f"transfer {command!r}")
+        await self._synchronize() # may raise asyncio.IncompleteReadError
+        self._stream.send(command.message)
+        await self._stream.flush()
 
 
 class SynchronizeCommand(Command):
