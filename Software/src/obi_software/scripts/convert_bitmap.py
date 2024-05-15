@@ -55,7 +55,7 @@ def pattern():
                 seq.add(VectorPixelCommand(x_coord=x, y_coord = y, dwell=dwell))
         progress = 20*y/16384
         progress_bar = "".join(["#"]*int(progress))
-        print(f"{progress*100=:.2f}%, {y=}/16384")
+        print(f"{progress*5:.2f}%, {y=}/16384")
         print(progress_bar)
 
 if args.show:
