@@ -320,8 +320,9 @@ class CommandSequence(BaseCommand):
         self._output = output
         self._raster = raster
         self.add(SynchronizeCommand(cookie=123, output=output, raster=raster))
-    def add(self, other: BaseCommand):
-        print(f"adding {other!r}")
+    def add(self, other: BaseCommand, verbose=False):
+        if verbose:
+            print(f"adding {other!r}")
         try:
             self._message.extend(other.message)
         except TypeError:

@@ -166,7 +166,6 @@ class MainWindow(QVBoxLayout):
 
     @asyncSlot()
     async def toggle_ext_ctrl(self):
-        print("Hello?")
         if self.beam_settings.ctrl_btn.isChecked():
             cmds = setup()
             await self.conn.transfer_raw(cmds)
@@ -271,33 +270,21 @@ class MainWindow(QVBoxLayout):
         seq.add(BlankCommand(enable=False, inline=True))
         seq.add(VectorPixelCommand(x_coord=0, y_coord=0, dwell=1))
 
-        # start = time.time()
-        # for y in range(scaled_y_pixels):
-        #     for x in range(scaled_x_pixels):
-        #         dwell = self.bmp_settings.pattern_array[y][x]
-        #         if dwell > 0:
-        #             seq.add(VectorPixelCommand(x_coord=x, y_coord = y, dwell=dwell))
-        # stop = time.time()
-        # print(f"for loop time: {stop-start:.4f}")
+        for y in range(scaled_y_pixels):
+            for x in range(scaled_x_pixels):
+                dwell = self.bmp_settings.pattern_array[y][x]
+                if dwell > 0:
+                    seq.add(VectorPixelCommand(x_coord=x, y_coord = y, dwell=dwell))
+            progress = 20*y/16384
+            progress_bar = "".join(["#"]*int(progress))
+            print(f"{progress*5:.2f}%, {y=}/16384")
+            print(progress_bar)
 
-        start = time.time()
-        print(f"{self.bmp_settings.pattern_array.shape=}")
-        ay, ax = np.nonzero(self.bmp_settings.pattern_array)
-        print(f"{len(ax)=}, {ax.shape=}, {len(ay)=}, {ay.shape=}")
-        # for n in range(len(ax)):
-        #     x = ax[n]
-        #     y = ay[n]
-        #     dwell = self.bmp_settings.pattern_array[y][x]
-        #     print(f"{x=}, {y=}")
-        #     #seq.add(VectorPixelCommand(x_coord=x+1, y_coord = y+1, dwell=dwell))
-        stop = time.time()
-        print(f"np.nonzero time: {stop-start:.4f}")
-        
         seq.add(BlankCommand(enable=True))
-        # self.pattern_btn.setText("Writing pattern...")
-        # self.beam_settings.beam_state.setText("Writing pattern")
-        # await self.conn.transfer_raw(seq)
-        # self.beam_settings.beam_state.setText("Blanked")
+        self.pattern_btn.setText("Writing pattern...")
+        self.beam_settings.beam_state.setText("Writing pattern")
+        await self.conn.transfer_raw(seq)
+        self.beam_settings.beam_state.setText("Blanked")
         self.pattern_btn.setEnabled(True)
 
 
