@@ -96,7 +96,6 @@ class Worker(QObject):
         seq.add(BlankCommand(enable=False, inline=True))
         seq.add(VectorPixelCommand(x_coord=0, y_coord=0, dwell=1))
 
-        seq = CommandSequence(raster=False, output=OutputMode.NoOutput)
         seqbytes = bytearray(seq.message)
         pool = Pool()
         start = time.time()
