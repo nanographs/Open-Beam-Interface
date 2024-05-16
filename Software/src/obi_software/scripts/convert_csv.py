@@ -1,6 +1,8 @@
 import sys
 import argparse
 import numpy as np
+import pathlib
+from ..base_commands import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--dwell', type=int, help="dwell time per pixel", default=2)
@@ -9,8 +11,7 @@ parser.add_argument('--csv_path', required=True,
                     help='path to csv file with two columns, x and y')
 args = parser.parse_args()
 
-seq = CommandSequence()
-seq.add(SynchronizeCommand(cookie=123, raster_mode=False, output_mode=OutputMode.NoOutput))
+seq = CommandSequence(output=OutputMode.NoOutput, raster=False)
 
 file = open(args.csv_path)
 for line in file:
