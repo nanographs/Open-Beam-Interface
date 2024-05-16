@@ -4,6 +4,7 @@ import sys
 import numpy as np
 from PIL import Image, ImageChops
 import time
+from multiprocessing import Pool
 
 from PyQt6.QtWidgets import (QLabel, QGridLayout, QApplication, QWidget, QFileDialog, QCheckBox,
                             QProgressBar,
@@ -32,6 +33,18 @@ def teardown():
     seq.add(ExternalCtrlCommand(enable=False))
     seq.add(DelayCommand(5760))
     return seq
+
+
+def line(xarray):
+    if xarray:
+        y, xarray = xarray
+        c = bytearray()
+        for x in np.nonzero(xarray)[0]:
+            c.extend(VectorPixelCommand(x_coord=x, y_coord = y, dwell=xarray[x]).message)
+        # for x in range(len(xarray)):
+        #     dwell = xarray[x]
+        #     if dwell > 0:   
+        return c
 
 
 class Worker(QObject):
@@ -81,15 +94,20 @@ class Worker(QObject):
         seq.add(BlankCommand(enable=False, inline=True))
         seq.add(VectorPixelCommand(x_coord=0, y_coord=0, dwell=1))
 
-        for y in range(scaled_y_pixels):
-            for x in range(scaled_x_pixels):
-                dwell = self.pattern_array[y][x]
-                if dwell > 0:
-                    seq.add(VectorPixelCommand(x_coord=x, y_coord = y, dwell=dwell))
-            self.progress.emit(y)
+        seq = CommandSequence(raster=False, output=OutputMode.NoOutput)
+        seqbytes = bytearray(seq.message)
+        pool = Pool()
+        start = time.time()
+        n = 0
+        for i in pool.imap(line, enumerate(self.pattern_array)):
+            seqbytes.extend(i)
+            n += 1
+            print(f"{n}")
+            self.progress.emit(n)
+        pool.close()
 
-        seq.add(BlankCommand(enable=True))
-        self.pattern_seq = seq
+        seqbytes.extend(BlankCommand(enable=True).message)
+        self.pattern_seq = seqbytes
         self.vector_process_completed.emit(1)
 
 class PatternSettings(QHBoxLayout):
@@ -167,9 +185,6 @@ class ParameterData(QHBoxLayout):
         self.b.addWidget(QLabel(" ÷ 16384 -----> Pixel Size:"))
         self.pix_size = QLabel("      ")
         self.b.addWidget(self.pix_size)
-
-
-
 
         self.addLayout(self.vl)
         self.calculate_exposure()
@@ -359,8 +374,8 @@ class MainWindow(QVBoxLayout):
 
     def start_process_vector(self):
         self.vector_process.progress_bar.show()
-        self.pattern_btn.setEnabled(False)
-        self.pattern_btn.setText("Preparing pattern...")
+        self.vector_process.convert_btn.setEnabled(False)
+        self.vector_process.convert_btn.setText("Preparing pattern...")
         self.vector_process_requested.emit()
 
     def update_progress(self, v):
@@ -368,17 +383,19 @@ class MainWindow(QVBoxLayout):
 
     def complete_process_vector(self):
         self.vector_process.progress_bar.hide()
+        self.vector_process.convert_btn.hide()
+        self.vector_process.convert_btn.setEnabled(True)
         self.pattern_btn.setText("Write Pattern")
         self.pattern_btn.setEnabled(True)
-        self.pattern_btn.hide()
+        self.pattern_btn.show()
 
     
-
     @asyncSlot()
     async def write_pattern(self):
         self.pattern_btn.setText("Writing pattern...")
+        self.pattern_btn.setEnabled(False)
         self.beam_settings.beam_state.setText("Beam State: Writing pattern")
-        await self.conn.transfer_raw(self.worker.pattern_seq)
+        await self.conn.transfer_bytes(self.worker.pattern_seq)
         self.beam_settings.beam_state.setText("Beam State: Blanked")
         self.pattern_btn.setEnabled(True)
 
@@ -402,6 +419,10 @@ async def _main():
 
     with event_loop:
         event_loop.run_until_complete(app_close_event.wait())
+    
+    if window.worker.isRunning():
+        window.worker.terminate()
+        window.worker.wait()
 
 
 def main():

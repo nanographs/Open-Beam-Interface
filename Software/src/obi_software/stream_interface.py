@@ -270,6 +270,11 @@ class Connection:
         await self._synchronize() # may raise asyncio.IncompleteReadError
         self._stream.send(command.message)
         await self._stream.flush()
+    
+    async def transfer_bytes(self, data:bytes, flush:bool = False, **kwargs):
+        await self._synchronize() # may raise asyncio.IncompleteReadError
+        self._stream.send(data)
+        await self._stream.flush()
 
 
 class SynchronizeCommand(Command):
