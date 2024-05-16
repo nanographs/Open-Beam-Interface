@@ -3,8 +3,7 @@ import numpy as np
 
 
 seq = CommandSequence(output=OutputMode.NoOutput, raster=False)
-## seq.add(Command())
-## ...
+
 seq.add(BlankCommand(enable=True))
 seq.add(BeamSelectCommand(beam_type=BeamType.Electron))
 seq.add(ExternalCtrlCommand(enable=True))
