@@ -14,14 +14,17 @@ import qasync
 from qasync import asyncSlot, asyncClose, QApplication, QEventLoop
 import pyqtgraph as pg
 
-from ..stream_interface import Connection
+from ..stream_interface import Connection, setup_logging
 from ..base_commands import *
 from .image_display import ImageDisplay
 
 
+import logging
+setup_logging({"Command": logging.DEBUG, "Stream": logging.DEBUG})
 
 def setup(beam_type):
     seq = CommandSequence(output=OutputMode.NoOutput, raster=False)
+    #seq = CommandSequence(sync=False)
     seq.add(BlankCommand(enable=True))
     seq.add(BeamSelectCommand(beam_type=beam_type))
     seq.add(ExternalCtrlCommand(enable=True))
@@ -29,7 +32,8 @@ def setup(beam_type):
     return seq
 
 def teardown():
-    seq = CommandSequence(output=OutputMode.NoOutput, raster=False)
+    #seq = CommandSequence(output=OutputMode.NoOutput, raster=False)
+    seq = CommandSequence(sync=False)
     seq.add(ExternalCtrlCommand(enable=False))
     seq.add(DelayCommand(5760))
     return seq
@@ -49,6 +53,7 @@ def line(xarray):
 
 class Worker(QObject):
     progress = Signal(int)
+    process_img_output = Signal(str)
     file_import_completed = Signal(int)
     image_process_completed = Signal(int)
     vector_process_completed = Signal(int)
@@ -89,7 +94,8 @@ class Worker(QObject):
     @Slot(BeamType)
     def process_to_vector(self, beam_type):
         scaled_y_pixels, scaled_x_pixels = self.pattern_array.shape
-        seq = CommandSequence(raster=False, output=OutputMode.NoOutput)
+        #seq = CommandSequence(raster=False, output=OutputMode.NoOutput)
+        seq = CommandSequence(sync=False)
 
         ## Unblank with beam at position 0,0
         seq.add(BeamSelectCommand(beam_type = beam_type))
@@ -98,7 +104,6 @@ class Worker(QObject):
 
         seqbytes = bytearray(seq.message)
         pool = Pool()
-        start = time.time()
         n = 0
         for i in pool.imap(line, enumerate(self.pattern_array)):
             seqbytes.extend(i)
@@ -126,6 +131,8 @@ class PatternSettings(QHBoxLayout):
         self.addWidget(self.d_unit)
         self.process_btn = QPushButton("Resize and Process Image")
         self.addWidget(self.process_btn)
+
+        
     def hide(self):
         self.ilabel.hide()
         self.dlabel.hide()
@@ -133,6 +140,7 @@ class PatternSettings(QHBoxLayout):
         self.d_unit.hide()
         self.invert_check.hide()
         self.process_btn.hide()
+
     def show(self):
         self.ilabel.show()
         self.dlabel.show()
@@ -283,7 +291,6 @@ class MainWindow(QVBoxLayout):
         self.vector_process.convert_btn.clicked.connect(self.start_process_vector)
 
         self.pattern_btn = QPushButton("Write Pattern")
-        self.pattern_btn.setCheckable(True)
         self.pattern_btn.setEnabled(False)
         self.addWidget(self.pattern_btn)
         self.pattern_btn.hide()
@@ -392,7 +399,7 @@ class MainWindow(QVBoxLayout):
         self.image_process_requested.emit([dwell, invert_checked])
 
     def complete_process_image(self):
-        self.pattern_settings.process_btn.setText("Process")
+        self.pattern_settings.process_btn.setText("Resize and Process Image")
         self.pattern_settings.process_btn.setEnabled(True)
         self.vector_process.convert_btn.show()
         x, y = self.worker.pattern_array.shape
@@ -421,10 +428,14 @@ class MainWindow(QVBoxLayout):
     async def write_pattern(self):
         self.pattern_btn.setText("Writing pattern...")
         self.pattern_btn.setEnabled(False)
+        self.beam_settings.ctrl_btn.setEnabled(False)
         self.beam_settings.beam_state.setText("Beam State: Writing pattern")
+        print(f"{self.worker.pattern_seq=}")
         await self.conn.transfer_bytes(self.worker.pattern_seq)
         self.beam_settings.beam_state.setText("Beam State: Blanked")
         self.pattern_btn.setEnabled(True)
+        self.beam_settings.ctrl_btn.setEnabled(True)
+        self.pattern_btn.setText("Write Pattern")
 
 
 

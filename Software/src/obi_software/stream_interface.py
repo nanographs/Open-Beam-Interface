@@ -290,7 +290,7 @@ class SynchronizeCommand(Command):
 
     @Command.log_transfer
     async def transfer(self, stream: Stream):
-        cmd = struct.pack(">BHB", CommandType.Synchronize, self._cookie, self._mode)
+        cmd = struct.pack(">BHBB", CommandType.Synchronize, self._cookie, self.mode, CommandType.Flush)
         res = await stream.xchg(cmd, recv_length=4)
         sync, cookie = struct.unpack(">HH", res)
         return cookie
