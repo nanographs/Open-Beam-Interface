@@ -20,10 +20,10 @@ from .image_display import ImageDisplay
 
 
 
-def setup():
+def setup(beam_type):
     seq = CommandSequence(output=OutputMode.NoOutput, raster=False)
     seq.add(BlankCommand(enable=True))
-    seq.add(BeamSelectCommand(beam_type=BeamType.Electron))
+    seq.add(BeamSelectCommand(beam_type=beam_type))
     seq.add(ExternalCtrlCommand(enable=True))
     seq.add(DelayCommand(5760))
     return seq
@@ -85,12 +85,13 @@ class Worker(QObject):
         self.pattern_array = np.asarray(im)
         self.image_process_completed.emit(1)
 
-    @Slot()
-    def process_to_vector(self):
+    @Slot(BeamType)
+    def process_to_vector(self, beam_type):
         scaled_y_pixels, scaled_x_pixels = self.pattern_array.shape
         seq = CommandSequence(raster=False, output=OutputMode.NoOutput)
 
         ## Unblank with beam at position 0,0
+        seq.add(BeamSelectCommand(beam_type = beam_type))
         seq.add(BlankCommand(enable=False, inline=True))
         seq.add(VectorPixelCommand(x_coord=0, y_coord=0, dwell=1))
 
@@ -148,11 +149,22 @@ class FileImport(QHBoxLayout):
 class BeamSettings(QHBoxLayout):
     def __init__(self):
         super().__init__()
+        self.beam_type_menu = QComboBox()
+        self.beam_type_menu.addItems(["Electron", "Ion"])
+        self.addWidget(self.beam_type_menu)
         self.ctrl_btn = QPushButton("Take Control")
         self.ctrl_btn.setCheckable(True)
         self.addWidget(self.ctrl_btn)
         self.beam_state = QLabel("Beam State: Released")
         self.addWidget(self.beam_state)
+
+    
+    def get_beam_type(self):
+        beam_type = self.beam_type_menu.currentText()
+        if beam_type == "Electron":
+            return BeamType.Electron
+        elif beam_type == "Ion":
+            return BeamType.Ion
 
 
 class ParameterData(QHBoxLayout):
@@ -231,7 +243,7 @@ class VectorProcessState(QHBoxLayout):
 class MainWindow(QVBoxLayout):
     file_import_requested = Signal(str)
     image_process_requested = Signal(list)
-    vector_process_requested = Signal()
+    vector_process_requested = Signal(BeamType)
     def __init__(self, conn, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.conn = conn
@@ -296,12 +308,10 @@ class MainWindow(QVBoxLayout):
         self.pattern_settings.dlabel.setText(f"Max Dwell: {max_dwell} x 125 ns")
 
 
-
-
     @asyncSlot()
     async def toggle_ext_ctrl(self):
         if self.beam_settings.ctrl_btn.isChecked():
-            cmds = setup()
+            cmds = setup(self.beam_settings.get_beam_type())
             await self.conn.transfer_raw(cmds)
             self.beam_settings.beam_state.setText("Beam State: Blanked")
             self.beam_settings.ctrl_btn.setText("Release Control")
@@ -379,7 +389,7 @@ class MainWindow(QVBoxLayout):
         self.vector_process.progress_bar.show()
         self.vector_process.convert_btn.setEnabled(False)
         self.vector_process.convert_btn.setText("Preparing pattern...")
-        self.vector_process_requested.emit()
+        self.vector_process_requested.emit(self.beam_settings.get_beam_type())
 
     def update_progress(self, v):
         self.vector_process.progress_bar.setValue(v)
