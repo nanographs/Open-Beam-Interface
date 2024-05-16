@@ -80,7 +80,7 @@ class Worker(QObject):
         scaled_y_pixels = int(y_pixels*scale_factor)
         scaled_x_pixels = int(x_pixels*scale_factor)
         # https://pillow.readthedocs.io/en/stable/_modules/PIL/Image.html#Image.resize
-        im = im.resize((scaled_x_pixels, scaled_y_pixels))
+        im = im.resize((scaled_x_pixels, scaled_y_pixels), resampling = Image.Resampling.NEAREST)
         print(f"input image: {x_pixels=}, {y_pixels=} -> {scaled_x_pixels=}, {scaled_y_pixels=}")
 
         self.pattern_array = np.asarray(im)
