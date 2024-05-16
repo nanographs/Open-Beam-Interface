@@ -161,8 +161,10 @@ class ParameterData(QHBoxLayout):
         self.vl = QVBoxLayout()
         self.a = QHBoxLayout()
         self.b = QHBoxLayout()
+        self.c = QHBoxLayout()
         self.vl.addLayout(self.a)
         self.vl.addLayout(self.b)
+        self.vl.addLayout(self.c)
 
         self.a.addWidget(QLabel("Max Dwell:"))
         self.dwell = pg.SpinBox(value=80*125*pow(10,-9), suffix="s", siPrefix=True, step=125*pow(10,-9), compactHeight=False)
@@ -186,19 +188,20 @@ class ParameterData(QHBoxLayout):
         self.pix_size = QLabel("      ")
         self.b.addWidget(self.pix_size)
 
-        self.addLayout(self.vl)
-        self.calculate_exposure()
-
         self.measure_btn = QPushButton("Measure")
         self.measure_btn.setCheckable(True)
-        self.addWidget(self.measure_btn)
+        self.c.addWidget(self.measure_btn)
         self.measure_btn.hide()
         self.l_label = QLabel("Line Length:")
-        self.addWidget(self.l_label)
+        self.c.addWidget(self.l_label)
         self.l_size = QLabel("       ")
-        self.addWidget(self.l_size)
+        self.c.addWidget(self.l_size)
         self.l_size.hide()
         self.l_label.hide()
+        
+
+        self.addLayout(self.vl)
+        self.calculate_exposure()
 
     def calculate_exposure(self):
         hfov = self.hfov.interpret()
