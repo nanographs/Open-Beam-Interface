@@ -6,7 +6,9 @@ from PIL import Image, ImageChops
 import time
 
 from PyQt6.QtWidgets import (QLabel, QGridLayout, QApplication, QWidget, QFileDialog, QCheckBox,
+                            QProgressBar,
                              QSpinBox, QComboBox, QHBoxLayout, QVBoxLayout, QPushButton, QLineEdit)
+from PyQt6.QtCore import QThread, QObject, pyqtSignal as Signal, pyqtSlot as Slot
 import qasync
 from qasync import asyncSlot, asyncClose, QApplication, QEventLoop
 import pyqtgraph as pg
@@ -31,6 +33,65 @@ def teardown():
     seq.add(DelayCommand(5760))
     return seq
 
+
+class Worker(QObject):
+    progress = Signal(int)
+    file_import_completed = Signal(int)
+    image_process_completed = Signal(int)
+    vector_process_completed = Signal(int)
+
+    @Slot(str)
+    def import_file(self, img_path):
+        self.pattern_im = im = Image.open(img_path)
+        self.file_import_completed.emit(1)
+    
+    @Slot(list)
+    def process_image(self, vars):
+        dwell, invert_checked = vars
+        max_dwell = int((dwell*pow(10,9))/125) #convert to units of 125ns
+        im = self.pattern_im.convert("L") ## 8 bit grayscale. 255 = longest dwell time, 0 = no dwell
+        if invert_checked:
+            im = ImageChops.invert(im) 
+
+        ## scale dwell times 
+        def level_adjust(pixel_value):
+            return int(pixel_value*(max_dwell/255))
+        pixel_range = im.getextrema()
+        im = im.point(lambda p: level_adjust(p))
+        print(f"{pixel_range=} -> scaled_pixel_range= (0,{max_dwell})")
+
+        ## scale to 16384 x 16384
+        x_pixels, y_pixels = im._size
+        scale_factor = 16384/max(x_pixels, y_pixels)
+        scaled_y_pixels = int(y_pixels*scale_factor)
+        scaled_x_pixels = int(x_pixels*scale_factor)
+        # https://pillow.readthedocs.io/en/stable/_modules/PIL/Image.html#Image.resize
+        im = im.resize((scaled_x_pixels, scaled_y_pixels))
+        print(f"input image: {x_pixels=}, {y_pixels=} -> {scaled_x_pixels=}, {scaled_y_pixels=}")
+
+        self.pattern_array = np.asarray(im)
+        self.image_process_completed.emit(1)
+
+    @Slot()
+    def process_to_vector(self):
+        scaled_y_pixels, scaled_x_pixels = self.pattern_array.shape
+        seq = CommandSequence(raster=False, output=OutputMode.NoOutput)
+
+        ## Unblank with beam at position 0,0
+        seq.add(BlankCommand(enable=False, inline=True))
+        seq.add(VectorPixelCommand(x_coord=0, y_coord=0, dwell=1))
+
+        for y in range(scaled_y_pixels):
+            for x in range(scaled_x_pixels):
+                dwell = self.pattern_array[y][x]
+                if dwell > 0:
+                    seq.add(VectorPixelCommand(x_coord=x, y_coord = y, dwell=dwell))
+            self.progress.emit(y)
+
+        seq.add(BlankCommand(enable=True))
+        self.pattern_seq = seq
+        self.vector_process_completed.emit(1)
+
 class PatternSettings(QHBoxLayout):
     def __init__(self):
         super().__init__()
@@ -38,14 +99,18 @@ class PatternSettings(QHBoxLayout):
         self.addWidget(self.ilabel)
         self.invert_check = QCheckBox()
         self.addWidget(self.invert_check)
-        self.process_btn = QPushButton("Process")
+        self.dlabel = QLabel("Max Dwell Units:")
+        self.addWidget(self.dlabel)
+        self.process_btn = QPushButton("Resize and Process Image")
         self.addWidget(self.process_btn)
     def hide(self):
         self.ilabel.hide()
+        self.dlabel.hide()
         self.invert_check.hide()
         self.process_btn.hide()
     def show(self):
         self.ilabel.show()
+        self.dlabel.show()
         self.invert_check.show()
         self.process_btn.show()
     def get_settings(self):
@@ -53,21 +118,13 @@ class PatternSettings(QHBoxLayout):
         return checked
 
 
-class BmpSettings(QHBoxLayout):
+class FileImport(QHBoxLayout):
     def __init__(self):
         super().__init__()
         self.file_btn = QPushButton("Choose File")
         self.addWidget(self.file_btn)
-        self.pattern_im = None
-        self.pattern_array = None
-        self.addWidget(QLabel("Image Path: "))
         self.img_path_label = QLabel("")
         self.addWidget(self.img_path_label)
-        self.pattern_settings = PatternSettings()
-        self.addLayout(self.pattern_settings)
-        self.process_btn = self.pattern_settings.process_btn
-        self.pattern_settings.hide()
-
 
 
 class BeamSettings(QHBoxLayout):
@@ -76,8 +133,7 @@ class BeamSettings(QHBoxLayout):
         self.ctrl_btn = QPushButton("Take Control")
         self.ctrl_btn.setCheckable(True)
         self.addWidget(self.ctrl_btn)
-        self.addWidget(QLabel("Beam State: "))
-        self.beam_state = QLabel("Released")
+        self.beam_state = QLabel("Beam State: Released")
         self.addWidget(self.beam_state)
 
 
@@ -89,27 +145,31 @@ class ParameterData(QHBoxLayout):
         self.b = QHBoxLayout()
         self.vl.addLayout(self.a)
         self.vl.addLayout(self.b)
-        self.a.addWidget(QLabel("HFOV:"))
-        self.hfov = pg.SpinBox(value=.000001, suffix="m", siPrefix=True, step=.0000001, compactHeight=False)
-        self.a.addWidget(self.hfov)
 
+        self.a.addWidget(QLabel("Max Dwell:"))
+        self.dwell = pg.SpinBox(value=80*125*pow(10,-9), suffix="s", siPrefix=True, step=125*pow(10,-9), compactHeight=False)
+        self.a.addWidget(self.dwell)
         self.a.addWidget(QLabel("Beam Current"))
         self.current = pg.SpinBox(value=.000001, suffix="A", siPrefix=True, step=.0000001, compactHeight=False)
         self.a.addWidget(self.current)
 
-        self.a.addWidget(QLabel("Max Dwell Time"))
-        self.dwell = pg.SpinBox(value=80*125*pow(10,-9), suffix="s", siPrefix=True, step=125*pow(10,-9), compactHeight=False)
-        self.a.addWidget(self.dwell)
-
         self.dwell.valueChanged.connect(self.calculate_exposure)
-        self.hfov.valueChanged.connect(self.calculate_exposure)
+        
         self.current.valueChanged.connect(self.calculate_exposure)
-        self.b.addWidget(QLabel("Exposure:"))
+        self.a.addWidget(QLabel("-----> Exposure:"))
         self.exposure = QLabel("      ")
-        self.b.addWidget(self.exposure)
-        self.b.addWidget(QLabel("Pixel Size:"))
+        self.a.addWidget(self.exposure)
+
+        self.b.addWidget(QLabel("HFOV:"))
+        self.hfov = pg.SpinBox(value=.000001, suffix="m", siPrefix=True, step=.0000001, compactHeight=False)
+        self.hfov.valueChanged.connect(self.calculate_exposure)
+        self.b.addWidget(self.hfov)
+        self.b.addWidget(QLabel(" ÷ 16384 -----> Pixel Size:"))
         self.pix_size = QLabel("      ")
         self.b.addWidget(self.pix_size)
+
+
+
 
         self.addLayout(self.vl)
         self.calculate_exposure()
@@ -138,58 +198,119 @@ class ParameterData(QHBoxLayout):
             self.pix_size.setText(f"{pg.siFormat(pixel_size, suffix="m")}")
             self.exposure.setText(f"{pg.siFormat(exposure, suffix="C/m^2")}")
         
+class VectorProcessState(QHBoxLayout):
+    def __init__(self):
+        super().__init__()
+        self.convert_btn = QPushButton("Convert to Vector Stream")
+        self.addWidget(self.convert_btn)
+        self.convert_btn.hide()
+        self.progress_bar = QProgressBar(maximum=16384)
+        self.progress_bar.hide()
+        self.addWidget(self.progress_bar)
+
+
 
 class MainWindow(QVBoxLayout):
-    def __init__(self, conn):
+    file_import_requested = Signal(str)
+    image_process_requested = Signal(list)
+    vector_process_requested = Signal()
+    def __init__(self, conn, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.conn = conn
-        super().__init__()
+        self.addWidget(QLabel("Process Parameters:"))
+        self.param_data = ParameterData()
+        self.addLayout(self.param_data)
+        self.param_data.measure_btn.clicked.connect(self.toggle_measure)
+        self.param_data.dwell.valueChanged.connect(self.update_dwell)
+        self.image_display = ImageDisplay(512, 512)
+        self.addWidget(self.image_display)
+        self.image_display.hide()
+
+        self.file_import = FileImport()
+        self.addLayout(self.file_import)
+        self.file_import.file_btn.clicked.connect(self.file_dialog)
+
+        self.pattern_settings = PatternSettings()
+        self.addLayout(self.pattern_settings)
+        self.pattern_settings.process_btn.clicked.connect(self.start_process_image)
+        self.pattern_settings.hide()
+
         self.beam_settings = BeamSettings()
-        self.bmp_settings = BmpSettings()
         self.addLayout(self.beam_settings)
-        self.addLayout(self.bmp_settings)
         self.beam_settings.ctrl_btn.clicked.connect(self.toggle_ext_ctrl)
-        self.bmp_settings.file_btn.clicked.connect(self.file_dialog)
-        self.bmp_settings.process_btn.clicked.connect(self.process_image)
+
+        self.vector_process = VectorProcessState()
+        self.addLayout(self.vector_process)
+        self.vector_process.convert_btn.clicked.connect(self.start_process_vector)
+
         self.pattern_btn = QPushButton("Write Pattern")
         self.pattern_btn.setCheckable(True)
         self.pattern_btn.setEnabled(False)
         self.addWidget(self.pattern_btn)
         self.pattern_btn.hide()
-        self.pattern_btn.clicked.connect(self.run_pattern)
-        self.param_data = ParameterData()
-        self.addLayout(self.param_data)
-        self.param_data.measure_btn.clicked.connect(self.toggle_measure)
-        self.image_display = ImageDisplay(512, 512)
-        self.addWidget(self.image_display)
-        self.image_display.hide()
-        
+        self.pattern_btn.clicked.connect(self.write_pattern)
+
+        self.worker = Worker()
+        self.worker_thread = QThread()
+
+        self.worker.progress.connect(self.update_progress)
+        self.worker.file_import_completed.connect(self.complete_file_import)
+
+        self.file_import_requested.connect(self.worker.import_file)
+
+        self.worker.image_process_completed.connect(self.complete_process_image)
+
+        self.image_process_requested.connect(self.worker.process_image)
+
+        self.worker.vector_process_completed.connect(self.complete_process_vector)
+
+        self.vector_process_requested.connect(self.worker.process_to_vector)
+
+        # move worker to the worker thread
+        self.worker.moveToThread(self.worker_thread)
+
+        # start the thread
+        self.worker_thread.start()
+    
+    def update_dwell(self):
+        dwell = self.param_data.dwell.value()
+        max_dwell = int((dwell*pow(10,9))/125) #convert to units of 125ns
+        self.pattern_settings.dlabel.setText(f"Max Dwell: {max_dwell} x 125 ns")
+
+
+
 
     @asyncSlot()
     async def toggle_ext_ctrl(self):
         if self.beam_settings.ctrl_btn.isChecked():
             cmds = setup()
             await self.conn.transfer_raw(cmds)
-            self.beam_settings.beam_state.setText("Blanked")
+            self.beam_settings.beam_state.setText("Beam State: Blanked")
             self.beam_settings.ctrl_btn.setText("Release Control")
             self.pattern_btn.setEnabled(True)
         else:
             cmds = teardown()
             await self.conn.transfer_raw(cmds)
-            self.beam_settings.beam_state.setText("Released")
+            self.beam_settings.beam_state.setText("Beam State: Released")
             self.beam_settings.ctrl_btn.setText("Take Control")
             self.pattern_btn.setEnabled(False)
 
     @asyncSlot()
     async def file_dialog(self):
         img_path = QFileDialog.getOpenFileName()[0] #filter = "tr(Images (*.bmp))"
-        self.bmp_settings.img_path_label.setText(img_path)
-        self.bmp_settings.pattern_im = im = Image.open(img_path)
-        print(f"loaded file from {img_path}")
-
-        self.bmp_settings.pattern_settings.show()
-        self.bmp_settings.process_btn.setEnabled(True)
+        self.file_import.img_path_label.setText(img_path)
+        self.file_import_requested.emit(img_path)
+        
+    
+    def complete_file_import(self, v):
+        #self.vector_process.progress_bar.setValue(v)
+        self.pattern_btn.setEnabled(True)
+        #print(f"{self.worker.result=}")
+        self.pattern_settings.show()
+        self.update_dwell()
+        self.pattern_settings.process_btn.setEnabled(True)
         self.pattern_btn.hide()
-        a = np.asarray(im)
+        a = np.asarray(self.worker.pattern_im)
         x, y = a.shape
         self.image_display.setImage(y, x, a)
         self.image_display.show()
@@ -222,70 +343,45 @@ class MainWindow(QVBoxLayout):
             line_label = pg.siFormat(line_actual_size, suffix="m")
             self.param_data.l_size.setText(line_label)
 
-    @asyncSlot()
-    async def process_image(self):
-        self.bmp_settings.process_btn.setText("Processing")
-        self.bmp_settings.process_btn.setEnabled(False)
-        invert_checked = self.bmp_settings.pattern_settings.get_settings()
+    def start_process_image(self):
+        self.pattern_settings.process_btn.setText("Processing")
+        self.pattern_settings.process_btn.setEnabled(False)
+        invert_checked = self.pattern_settings.get_settings()
         dwell = self.param_data.dwell.value()
-        max_dwell = int((dwell*pow(10,9))/125) #convert to units of 125ns
-        im = self.bmp_settings.pattern_im.convert("L") ## 8 bit grayscale. 255 = longest dwell time, 0 = no dwell
-        if invert_checked:
-            im = ImageChops.invert(im) 
+        self.image_process_requested.emit([dwell, invert_checked])
 
-        ## scale dwell times 
-        def level_adjust(pixel_value):
-            return int(pixel_value*(max_dwell/255))
-        pixel_range = im.getextrema()
-        im = im.point(lambda p: level_adjust(p))
-        print(f"{pixel_range=} -> scaled_pixel_range= (0,{max_dwell})")
+    def complete_process_image(self):
+        self.pattern_settings.process_btn.setText("Process")
+        self.pattern_settings.process_btn.setEnabled(True)
+        self.vector_process.convert_btn.show()
+        x, y = self.worker.pattern_array.shape
+        self.image_display.setImage(y, x, self.worker.pattern_array)
 
-        ## scale to 16384 x 16384
-        x_pixels, y_pixels = im._size
-        scale_factor = 16384/max(x_pixels, y_pixels)
-        scaled_y_pixels = int(y_pixels*scale_factor)
-        scaled_x_pixels = int(x_pixels*scale_factor)
-        # https://pillow.readthedocs.io/en/stable/_modules/PIL/Image.html#Image.resize
-        im = im.resize((scaled_x_pixels, scaled_y_pixels))
-        print(f"input image: {x_pixels=}, {y_pixels=} -> {scaled_x_pixels=}, {scaled_y_pixels=}")
-
-        self.bmp_settings.pattern_array = np.asarray(im)
-        
-        self.bmp_settings.process_btn.setText("Process")
-        self.bmp_settings.process_btn.setEnabled(True)
-        self.pattern_btn.show()
-        x, y = self.bmp_settings.pattern_array.shape
-        self.image_display.setImage(y, x, self.bmp_settings.pattern_array)
-    
-        
-    
-    @asyncSlot()
-    async def run_pattern(self):
+    def start_process_vector(self):
+        self.vector_process.progress_bar.show()
         self.pattern_btn.setEnabled(False)
         self.pattern_btn.setText("Preparing pattern...")
-        scaled_y_pixels, scaled_x_pixels = self.bmp_settings.pattern_array.shape
-        seq = CommandSequence(raster=False, output=OutputMode.NoOutput)
+        self.vector_process_requested.emit()
 
-        ## Unblank with beam at position 0,0
-        seq.add(BlankCommand(enable=False, inline=True))
-        seq.add(VectorPixelCommand(x_coord=0, y_coord=0, dwell=1))
+    def update_progress(self, v):
+        self.vector_process.progress_bar.setValue(v)
 
-        for y in range(scaled_y_pixels):
-            for x in range(scaled_x_pixels):
-                dwell = self.bmp_settings.pattern_array[y][x]
-                if dwell > 0:
-                    seq.add(VectorPixelCommand(x_coord=x, y_coord = y, dwell=dwell))
-            progress = 20*y/16384
-            progress_bar = "".join(["#"]*int(progress))
-            print(f"{progress*5:.2f}%, {y=}/16384")
-            print(progress_bar)
-
-        seq.add(BlankCommand(enable=True))
-        self.pattern_btn.setText("Writing pattern...")
-        self.beam_settings.beam_state.setText("Writing pattern")
-        await self.conn.transfer_raw(seq)
-        self.beam_settings.beam_state.setText("Blanked")
+    def complete_process_vector(self):
+        self.vector_process.progress_bar.hide()
+        self.pattern_btn.setText("Write Pattern")
         self.pattern_btn.setEnabled(True)
+        self.pattern_btn.hide()
+
+    
+
+    @asyncSlot()
+    async def write_pattern(self):
+        self.pattern_btn.setText("Writing pattern...")
+        self.beam_settings.beam_state.setText("Beam State: Writing pattern")
+        await self.conn.transfer_raw(self.worker.pattern_seq)
+        self.beam_settings.beam_state.setText("Beam State: Blanked")
+        self.pattern_btn.setEnabled(True)
+
 
 
 
