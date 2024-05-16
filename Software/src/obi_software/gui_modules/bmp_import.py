@@ -62,6 +62,7 @@ class Worker(QObject):
     def process_image(self, vars):
         dwell, invert_checked = vars
         max_dwell = int((dwell*pow(10,9))/125) #convert to units of 125ns
+        self.max_dwell = max_dwell #keep track of this value for scaling image display levels
         im = self.pattern_im 
         if invert_checked:
             im = ImageChops.invert(im) 
@@ -118,18 +119,26 @@ class PatternSettings(QHBoxLayout):
         self.addWidget(self.ilabel)
         self.invert_check = QCheckBox()
         self.addWidget(self.invert_check)
-        self.dlabel = QLabel("Max Dwell Units:")
+        self.dlabel = QLabel("Max Dwell:")
         self.addWidget(self.dlabel)
+        self.dwell = pg.SpinBox(value=80*125*pow(10,-9), suffix="s", siPrefix=True, step=125*pow(10,-9), compactHeight=False)
+        self.addWidget(self.dwell)
+        self.d_unit = QLabel("")
+        self.addWidget(self.d_unit)
         self.process_btn = QPushButton("Resize and Process Image")
         self.addWidget(self.process_btn)
     def hide(self):
         self.ilabel.hide()
         self.dlabel.hide()
+        self.dwell.hide()
+        self.d_unit.hide()
         self.invert_check.hide()
         self.process_btn.hide()
     def show(self):
         self.ilabel.show()
         self.dlabel.show()
+        self.dwell.show()
+        self.d_unit.show()
         self.invert_check.show()
         self.process_btn.show()
     def get_settings(self):
@@ -181,13 +190,13 @@ class ParameterData(QHBoxLayout):
         self.a.addWidget(QLabel("Max Dwell:"))
         self.dwell = pg.SpinBox(value=80*125*pow(10,-9), suffix="s", siPrefix=True, step=125*pow(10,-9), compactHeight=False)
         self.a.addWidget(self.dwell)
+        self.dwell.valueChanged.connect(self.calculate_exposure)
+
         self.a.addWidget(QLabel("Beam Current"))
         self.current = pg.SpinBox(value=.000001, suffix="A", siPrefix=True, step=.0000001, compactHeight=False)
         self.a.addWidget(self.current)
-
-        self.dwell.valueChanged.connect(self.calculate_exposure)
-        
         self.current.valueChanged.connect(self.calculate_exposure)
+
         self.a.addWidget(QLabel("-----> Exposure:"))
         self.exposure = QLabel("      ")
         self.a.addWidget(self.exposure)
@@ -247,11 +256,11 @@ class MainWindow(QVBoxLayout):
     def __init__(self, conn, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.conn = conn
-        self.addWidget(QLabel("Process Parameters:"))
+        self.addWidget(QLabel("Calculate Process Parameters:"))
         self.param_data = ParameterData()
         self.addLayout(self.param_data)
         self.param_data.measure_btn.clicked.connect(self.toggle_measure)
-        self.param_data.dwell.valueChanged.connect(self.update_dwell)
+        self.param_data.dwell.valueChanged.connect(self.update_dwell_fromparamcalc)
         self.image_display = ImageDisplay(512, 512)
         self.addWidget(self.image_display)
         self.image_display.hide()
@@ -263,6 +272,7 @@ class MainWindow(QVBoxLayout):
         self.pattern_settings = PatternSettings()
         self.addLayout(self.pattern_settings)
         self.pattern_settings.process_btn.clicked.connect(self.start_process_image)
+        self.pattern_settings.dwell.valueChanged.connect(self.update_dwell_frompatternsettings)
         self.pattern_settings.hide()
 
         self.beam_settings = BeamSettings()
@@ -302,11 +312,17 @@ class MainWindow(QVBoxLayout):
         # start the thread
         self.worker_thread.start()
     
-    def update_dwell(self):
+    def update_dwell_frompatternsettings(self):
+        dwell = self.pattern_settings.dwell.value()
+        max_dwell = int((dwell*pow(10,9))/125) #convert to units of 125ns
+        self.pattern_settings.d_unit.setText(f"{max_dwell} x 125 ns")
+        self.param_data.dwell.setValue(dwell)
+
+    def update_dwell_fromparamcalc(self):
         dwell = self.param_data.dwell.value()
         max_dwell = int((dwell*pow(10,9))/125) #convert to units of 125ns
-        self.pattern_settings.dlabel.setText(f"Max Dwell: {max_dwell} x 125 ns")
-
+        self.pattern_settings.d_unit.setText(f"{max_dwell} x 125 ns")
+        self.pattern_settings.dwell.setValue(dwell)
 
     @asyncSlot()
     async def toggle_ext_ctrl(self):
@@ -331,11 +347,9 @@ class MainWindow(QVBoxLayout):
         
     
     def complete_file_import(self, v):
-        #self.vector_process.progress_bar.setValue(v)
         self.pattern_btn.setEnabled(True)
-        #print(f"{self.worker.result=}")
         self.pattern_settings.show()
-        self.update_dwell()
+        self.update_dwell_fromparamcalc()
         self.pattern_settings.process_btn.setEnabled(True)
         self.pattern_btn.hide()
         a = np.asarray(self.worker.pattern_im)
@@ -384,6 +398,7 @@ class MainWindow(QVBoxLayout):
         self.vector_process.convert_btn.show()
         x, y = self.worker.pattern_array.shape
         self.image_display.setImage(y, x, self.worker.pattern_array)
+        self.image_display.hist.setLevels(min=0, max=self.worker.max_dwell) # [black, white]
 
     def start_process_vector(self):
         self.vector_process.progress_bar.show()
