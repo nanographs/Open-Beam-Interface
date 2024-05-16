@@ -314,11 +314,11 @@ class VectorPixelCommand(BaseCommand):
             return struct.pack(">BHHH", CommandType.VectorPixel, self._x_coord, self._y_coord, self._dwell-1)
 
 class CommandSequence(BaseCommand):
-    _message = bytearray()
-    _response = bytearray()
     def __init__(self, output: OutputMode, raster:bool):
         self._output = output
         self._raster = raster
+        self._message = bytearray()
+        self._response = bytearray()
         self.add(SynchronizeCommand(cookie=123, output=output, raster=raster))
     def add(self, other: BaseCommand, verbose=False):
         if verbose:

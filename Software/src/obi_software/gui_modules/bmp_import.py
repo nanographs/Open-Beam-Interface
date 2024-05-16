@@ -55,14 +55,14 @@ class Worker(QObject):
 
     @Slot(str)
     def import_file(self, img_path):
-        self.pattern_im = im = Image.open(img_path)
+        self.pattern_im = im = Image.open(img_path).convert("L") ## 8 bit grayscale. 255 = longest dwell time, 0 = no dwell
         self.file_import_completed.emit(1)
     
     @Slot(list)
     def process_image(self, vars):
         dwell, invert_checked = vars
         max_dwell = int((dwell*pow(10,9))/125) #convert to units of 125ns
-        im = self.pattern_im.convert("L") ## 8 bit grayscale. 255 = longest dwell time, 0 = no dwell
+        im = self.pattern_im 
         if invert_checked:
             im = ImageChops.invert(im) 
 
