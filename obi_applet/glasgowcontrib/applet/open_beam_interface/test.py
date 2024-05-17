@@ -9,7 +9,7 @@ from . import StreamSignature
 from . import Supersampler, RasterScanner, RasterRegion
 from . import CommandParser, CommandExecutor, Command, BeamType, OutputMode, CmdType
 from . import BusController, Flippenator
-from base_commands import *
+from ....base_commands import *
 
 
 def put_dict(stream, signal):
