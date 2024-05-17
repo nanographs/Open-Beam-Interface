@@ -66,7 +66,7 @@ class Worker(QObject):
             arr = np.asarray(im)
             y_pix, x_pix, rgb = arr.shape
             newarr = np.zeros((y_pix, x_pix))
-            for y in range(y_pix),
+            for y in range(y_pix):
                 for x in range(x_pix):
                     r, g, b = arr[y][x]
                     newarr[x][y] = r
