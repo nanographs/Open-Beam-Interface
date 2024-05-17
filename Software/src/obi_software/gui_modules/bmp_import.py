@@ -103,12 +103,12 @@ class Worker(QObject):
         print(f"input image: {x_pixels=}, {y_pixels=} -> {scaled_x_pixels=}, {scaled_y_pixels=}")
 
         if label_checked:
-            font = ImageFont.truetype("Open-Beam-Interface/Software/src/obi_software/iAWriterQuattroV.ttf", size=500)
+            #font = ImageFont.truetype("Open-Beam-Interface/Software/src/obi_software/iAWriterQuattroV.ttf", size=500)
             label_text = f"{max_dwell*20.83:.0f} ns"
             draw = ImageDraw.Draw(im)
             x_width = len(label_text)
-            draw.rectangle([(0, 0),(x_width*300 + 10,490)], fill=0)
-            draw.text([10,10], label_text, fill=max_dwell, anchor = "lt",font=font) 
+            draw.rectangle([(0, 0),(x_width*250 + 10,490)], fill=0)
+            draw.text([10,10], label_text, fill=max_dwell, anchor = "lt",font_size=500) 
 
         self.pattern_array = np.asarray(im)
         self.image_process_completed.emit(1)
