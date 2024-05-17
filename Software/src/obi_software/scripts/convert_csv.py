@@ -14,14 +14,22 @@ args = parser.parse_args()
 seq = CommandSequence(output=OutputMode.NoOutput, raster=False)
 
 file = open(args.csv_path)
+prev_x = 0
+prev_y = 0
 for line in file:
     x, y = line.strip().split(',')
     x = int(float(x)*254)
     y = int(float(y)*254)
+    if (abs(prev_x-x) > 2000) or (abs(prev_y-y) > 2000):
+        #print(f"added blank between {x},{y} and prev {prev_x}, {prev_y}")
+        seq.add(BlankCommand(enable=True))
+        seq.add(BlankCommand(enable=False, inline=True))
     seq.add(VectorPixelCommand(x_coord = x, y_coord = y, dwell = args.dwell))
+    prev_x = x
+    prev_y = y
 
 
-sys.stdout.buffer.write(seq)
+sys.stdout.buffer.write(seq.message)
 
     
 
