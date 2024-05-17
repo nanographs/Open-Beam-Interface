@@ -313,6 +313,28 @@ class VectorPixelCommand(BaseCommand):
         else:
             return struct.pack(">BHHH", CommandType.VectorPixel, self._x_coord, self._y_coord, self._dwell-1)
 
+
+class VectorPixelFractionalDwellCommand(BaseCommand):
+    def __init__(self, *, x_coord: int, y_coord: int, dwell_fracs: int):
+        assert x_coord <= 65535
+        assert y_coord <= 65535
+        assert dwell_fracs <= 65536*6
+        self._x_coord = x_coord
+        self._y_coord = y_coord
+        self._dwell   = dwell_fracs//6
+        self._dwell_fracs = dwell_fracs%6
+
+    def __repr__(self):
+        return f"VectorPixelFractionalDwellCommand(x_coord={self._x_coord}, y_coord={self._y_coord}, dwell={self._dwell}, dwell_fracs={self._dwell_fracs})"
+
+    @property
+    def message(self):
+        seq = CommandSequence(sync=False)
+        seq.add(VectorPixelCommand(x_coord = self._x_coord, y_coord = self._y_coord, dwell = self._dwell))
+        seq.add(DelayCommand(delay = self._dwell_fracs))
+        return seq.message
+
+
 class CommandSequence(BaseCommand):
     def __init__(self, sync=True, *, output: OutputMode=OutputMode.SixteenBit, raster:bool=False):
         self._output = output

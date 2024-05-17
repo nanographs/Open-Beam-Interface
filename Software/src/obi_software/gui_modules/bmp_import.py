@@ -60,14 +60,27 @@ class Worker(QObject):
 
     @Slot(str)
     def import_file(self, img_path):
-        self.pattern_im = im = Image.open(img_path).convert("L") ## 8 bit grayscale. 255 = longest dwell time, 0 = no dwell
+        DEALWITHRGB = False
+        if not DEALWITHRGB:
+            im = Image.open(img_path)
+            arr = np.asarray(im)
+            y_pix, x_pix, rgb = arr.shape
+            newarr = np.zeros((y_pix, x_pix))
+            for y in range(y_pix),
+                for x in range(x_pix):
+                    r, g, b = arr[y][x]
+                    newarr[x][y] = r
+            self.pattern_im = Image.fromarray(newarr).convert("L")
+        else:
+            self.pattern_im = im = Image.open(img_path).convert("L") ## 8 bit grayscale. 255 = longest dwell time, 0 = no dwell
         self.file_import_completed.emit(1)
     
     @Slot(list)
     def process_image(self, vars):
         dwell, invert_checked, label_checked = vars
         print(f"{invert_checked=}, {label_checked=}")
-        max_dwell = int((dwell*pow(10,9))/125) #convert to units of 125ns
+        frac_dwell_size = 125/6
+        max_dwell = int((dwell*pow(10,9))/frac_dwell_size) #convert to units of 20.83ns
         self.max_dwell = max_dwell #keep track of this value for scaling image display levels
         im = self.pattern_im 
         if invert_checked:
@@ -75,7 +88,7 @@ class Worker(QObject):
 
         ## scale dwell times 
         def level_adjust(pixel_value):
-            return int(pixel_value*(max_dwell/255))
+            return int((pixel_value/255)*max_dwell)
         pixel_range = im.getextrema()
         im = im.point(lambda p: level_adjust(p))
         print(f"{pixel_range=} -> scaled_pixel_range= (0,{max_dwell})")
@@ -91,7 +104,7 @@ class Worker(QObject):
 
         if label_checked:
             font = ImageFont.truetype("Open-Beam-Interface/Software/src/obi_software/iAWriterQuattroV.ttf", size=500)
-            label_text = str(max_dwell)
+            label_text = f"{max_dwell*20.83:.0f} ns"
             draw = ImageDraw.Draw(im)
             x_width = len(label_text)
             draw.rectangle([(0, 0),(x_width*300 + 10,490)], fill=0)
@@ -139,7 +152,9 @@ class PatternSettings(QHBoxLayout):
         self.addWidget(self.label_check)
         self.dlabel = QLabel("Max Dwell:")
         self.addWidget(self.dlabel)
-        self.dwell = pg.SpinBox(value=80*125*pow(10,-9), suffix="s", siPrefix=True, step=125*pow(10,-9), compactHeight=False)
+        frac_dwell_size = 125/6
+        self.dwell = pg.SpinBox(value=80*125*pow(10,-9), suffix="s", siPrefix=True, step=frac_dwell_size*pow(10,-9), compactHeight=False)
+        self.dwell.setMinimum(125*pow(10,-9))
         self.addWidget(self.dwell)
         self.d_unit = QLabel("")
         self.addWidget(self.d_unit)
@@ -216,7 +231,9 @@ class ParameterData(QHBoxLayout):
         self.vl.addLayout(self.c)
 
         self.a.addWidget(QLabel("Max Dwell:"))
-        self.dwell = pg.SpinBox(value=80*125*pow(10,-9), suffix="s", siPrefix=True, step=125*pow(10,-9), compactHeight=False)
+        frac_dwell_size = 125/6
+        self.dwell = pg.SpinBox(value=80*125*pow(10,-9), suffix="s", siPrefix=True, step=frac_dwell_size*pow(10,-9), compactHeight=False)
+        self.dwell.setMinimum(125*pow(10,-9))
         self.a.addWidget(self.dwell)
         self.dwell.valueChanged.connect(self.calculate_exposure)
 
@@ -341,14 +358,16 @@ class MainWindow(QVBoxLayout):
     
     def update_dwell_frompatternsettings(self):
         dwell = self.pattern_settings.dwell.value()
-        max_dwell = int((dwell*pow(10,9))/125) #convert to units of 125ns
-        self.pattern_settings.d_unit.setText(f"{max_dwell} x 125 ns")
+        frac_dwell_size = 125/6
+        max_dwell = int((dwell*pow(10,9))/frac_dwell_size) #convert to units of 20.83 ns
+        self.pattern_settings.d_unit.setText(f"{max_dwell} x 20.83 ns")
         self.param_data.dwell.setValue(dwell)
 
     def update_dwell_fromparamcalc(self):
         dwell = self.param_data.dwell.value()
-        max_dwell = int((dwell*pow(10,9))/125) #convert to units of 125ns
-        self.pattern_settings.d_unit.setText(f"{max_dwell} x 125 ns")
+        frac_dwell_size = 125/6
+        max_dwell = int((dwell*pow(10,9))/frac_dwell_size) #convert to units of 20.83ns
+        self.pattern_settings.d_unit.setText(f"{max_dwell} x 20.83 ns")
         self.pattern_settings.dwell.setValue(dwell)
 
     @asyncSlot()
