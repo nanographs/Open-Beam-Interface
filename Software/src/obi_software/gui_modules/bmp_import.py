@@ -2,7 +2,7 @@ import asyncio
 import sys
 
 import numpy as np
-from PIL import Image, ImageChops
+from PIL import Image, ImageChops, ImageDraw, ImageFont
 import time
 from multiprocessing import Pool
 
@@ -65,7 +65,8 @@ class Worker(QObject):
     
     @Slot(list)
     def process_image(self, vars):
-        dwell, invert_checked = vars
+        dwell, invert_checked, label_checked = vars
+        print(f"{invert_checked=}, {label_checked=}")
         max_dwell = int((dwell*pow(10,9))/125) #convert to units of 125ns
         self.max_dwell = max_dwell #keep track of this value for scaling image display levels
         im = self.pattern_im 
@@ -88,8 +89,17 @@ class Worker(QObject):
         im = im.resize((scaled_x_pixels, scaled_y_pixels), resample = Image.Resampling.NEAREST)
         print(f"input image: {x_pixels=}, {y_pixels=} -> {scaled_x_pixels=}, {scaled_y_pixels=}")
 
+        if label_checked:
+            font = ImageFont.truetype("Open-Beam-Interface/Software/src/obi_software/iAWriterQuattroV.ttf", size=500)
+            label_text = str(max_dwell)
+            draw = ImageDraw.Draw(im)
+            x_width = len(label_text)
+            draw.rectangle([(0, 0),(x_width*300 + 10,490)], fill=0)
+            draw.text([10,10], label_text, fill=max_dwell, anchor = "lt",font=font) 
+
         self.pattern_array = np.asarray(im)
         self.image_process_completed.emit(1)
+
 
     @Slot(BeamType)
     def process_to_vector(self, beam_type):
@@ -119,10 +129,14 @@ class Worker(QObject):
 class PatternSettings(QHBoxLayout):
     def __init__(self):
         super().__init__()
-        self.ilabel = QLabel("Invert?")
+        self.ilabel = QLabel("Invert:")
         self.addWidget(self.ilabel)
         self.invert_check = QCheckBox()
         self.addWidget(self.invert_check)
+        self.llabel = QLabel("Label Dwell In Pattern:")
+        self.addWidget(self.llabel)
+        self.label_check = QCheckBox()
+        self.addWidget(self.label_check)
         self.dlabel = QLabel("Max Dwell:")
         self.addWidget(self.dlabel)
         self.dwell = pg.SpinBox(value=80*125*pow(10,-9), suffix="s", siPrefix=True, step=125*pow(10,-9), compactHeight=False)
@@ -136,6 +150,8 @@ class PatternSettings(QHBoxLayout):
     def hide(self):
         self.ilabel.hide()
         self.dlabel.hide()
+        self.llabel.hide()
+        self.label_check.hide()
         self.dwell.hide()
         self.d_unit.hide()
         self.invert_check.hide()
@@ -146,11 +162,16 @@ class PatternSettings(QHBoxLayout):
         self.dlabel.show()
         self.dwell.show()
         self.d_unit.show()
+        self.llabel.show()
+        self.label_check.show()
         self.invert_check.show()
         self.process_btn.show()
+
     def get_settings(self):
-        checked = self.invert_check.isChecked()
-        return checked
+        invertchecked = self.invert_check.isChecked()
+        labelchecked = self.label_check.isChecked()
+        dwell = self.dwell.value()
+        return dwell, invertchecked, labelchecked
 
 
 class FileImport(QHBoxLayout):
@@ -359,7 +380,7 @@ class MainWindow(QVBoxLayout):
         self.pattern_settings.process_btn.setEnabled(True)
         self.pattern_btn.hide()
         a = np.asarray(self.worker.pattern_im)
-        x, y = a.shape
+        y, x = a.shape
         self.image_display.setImage(y, x, a)
         self.image_display.show()
         self.param_data.measure_btn.show()
@@ -394,15 +415,14 @@ class MainWindow(QVBoxLayout):
     def start_process_image(self):
         self.pattern_settings.process_btn.setText("Processing")
         self.pattern_settings.process_btn.setEnabled(False)
-        invert_checked = self.pattern_settings.get_settings()
-        dwell = self.param_data.dwell.value()
-        self.image_process_requested.emit([dwell, invert_checked])
+        dwell, invert_checked, label_checked = self.pattern_settings.get_settings()
+        self.image_process_requested.emit([dwell, invert_checked, label_checked])
 
     def complete_process_image(self):
         self.pattern_settings.process_btn.setText("Resize and Process Image")
         self.pattern_settings.process_btn.setEnabled(True)
         self.vector_process.convert_btn.show()
-        x, y = self.worker.pattern_array.shape
+        y, x = self.worker.pattern_array.shape
         self.image_display.setImage(y, x, self.worker.pattern_array)
         self.image_display.hist.setLevels(min=0, max=self.worker.max_dwell) # [black, white]
 
