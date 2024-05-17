@@ -86,8 +86,8 @@ class Worker(QObject):
     
     @Slot(list)
     def process_image(self, vars):
-        dwell, dwell_step, invert_checked, label_checked = vars
-        self.max_dwell = dwell_step #keep track of this value for scaling image display levels
+        dwell, dwell_steps, invert_checked, label_checked = vars
+        self.max_dwell = dwell_steps #keep track of this value for scaling image display levels
         im = self.pattern_im 
         if invert_checked:
             im = ImageChops.invert(im) 
@@ -204,7 +204,7 @@ class PatternSettings(QHBoxLayout):
         self.addWidget(self.invert_check)
         self.llabel = QLabel("Label Dwell In Pattern:")
         self.addWidget(self.llabel)
-        self.label_check = QCheckBox()
+        self.label_check = QCheckBox() ## Label is added in Worker.process_image
         self.addWidget(self.label_check)
         self.dwell = DwellSetting(step_label=True)
         self.addLayout(self.dwell)
@@ -231,8 +231,8 @@ class PatternSettings(QHBoxLayout):
     def get_settings(self):
         invertchecked = self.invert_check.isChecked()
         labelchecked = self.label_check.isChecked()
-        dwell, dwell_step = self.dwell.get_value()
-        return dwell, dwell_step, invertchecked, labelchecked
+        dwell, dwell_steps = self.dwell.get_value()
+        return dwell, dwell_steps, invertchecked, labelchecked
 
 
 class FileImport(QHBoxLayout):
@@ -472,8 +472,8 @@ class MainWindow(QVBoxLayout):
     def start_process_image(self):
         self.pattern_settings.process_btn.setText("Processing")
         self.pattern_settings.process_btn.setEnabled(False)
-        dwell, dwell_step, invert_checked, label_checked = self.pattern_settings.get_settings()
-        self.image_process_requested.emit([dwell, dwell_step, invert_checked, label_checked])
+        dwell, dwell_steps, invert_checked, label_checked = self.pattern_settings.get_settings()
+        self.image_process_requested.emit([dwell, dwell_steps, invert_checked, label_checked])
 
     def complete_process_image(self):
         self.pattern_settings.process_btn.setText("Resize and Process Image")
@@ -495,6 +495,7 @@ class MainWindow(QVBoxLayout):
     def complete_process_vector(self):
         self.vector_process.progress_bar.hide()
         self.vector_process.convert_btn.hide()
+        self.vector_process.convert_btn.setText("Convert to Vector Stream")
         self.vector_process.convert_btn.setEnabled(True)
         self.pattern_btn.setText("Write Pattern")
         self.pattern_btn.setEnabled(True)
