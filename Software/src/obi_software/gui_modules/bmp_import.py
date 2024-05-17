@@ -69,7 +69,7 @@ class Worker(QObject):
             for y in range(y_pix):
                 for x in range(x_pix):
                     r, g, b = arr[y][x]
-                    newarr[x][y] = r
+                    newarr[y][x] = r
             self.pattern_im = Image.fromarray(newarr).convert("L")
         else:
             self.pattern_im = im = Image.open(img_path).convert("L") ## 8 bit grayscale. 255 = longest dwell time, 0 = no dwell
