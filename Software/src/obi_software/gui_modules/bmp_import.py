@@ -22,6 +22,9 @@ from .image_display import ImageDisplay
 import logging
 setup_logging({"Command": logging.DEBUG, "Stream": logging.DEBUG})
 
+FRACTIONAL_DWELL = True
+DEALWITHRGB = False
+
 def setup(beam_type):
     seq = CommandSequence(output=OutputMode.NoOutput, raster=False)
     #seq = CommandSequence(sync=False)
@@ -60,7 +63,6 @@ class Worker(QObject):
 
     @Slot(str)
     def import_file(self, img_path):
-        DEALWITHRGB = False
         if DEALWITHRGB:
             im = Image.open(img_path)
             arr = np.asarray(im)
@@ -77,21 +79,18 @@ class Worker(QObject):
     
     @Slot(list)
     def process_image(self, vars):
-        dwell, invert_checked, label_checked = vars
-        print(f"{invert_checked=}, {label_checked=}")
-        frac_dwell_size = 125/6
-        max_dwell = int((dwell*pow(10,9))/frac_dwell_size) #convert to units of 20.83ns
-        self.max_dwell = max_dwell #keep track of this value for scaling image display levels
+        dwell, dwell_step, invert_checked, label_checked = vars
+        self.max_dwell = dwell_step #keep track of this value for scaling image display levels
         im = self.pattern_im 
         if invert_checked:
             im = ImageChops.invert(im) 
 
         ## scale dwell times 
         def level_adjust(pixel_value):
-            return int((pixel_value/255)*max_dwell)
+            return int((pixel_value/255)*self.max_dwell)
         pixel_range = im.getextrema()
         im = im.point(lambda p: level_adjust(p))
-        print(f"{pixel_range=} -> scaled_pixel_range= (0,{max_dwell})")
+        print(f"{pixel_range=} -> scaled_pixel_range= (0,{self.max_dwell})")
 
         ## scale to 16384 x 16384
         x_pixels, y_pixels = im._size
@@ -104,11 +103,14 @@ class Worker(QObject):
 
         if label_checked:
             #font = ImageFont.truetype("Open-Beam-Interface/Software/src/obi_software/iAWriterQuattroV.ttf", size=500)
-            label_text = f"{max_dwell*20.83:.0f} ns"
+            if dwell*pow(10,9) > 1000: #the default font does not support "µ"
+                label_text = f"{dwell*pow(10,6):.0f} us" 
+            else:
+                label_text = f"{dwell*pow(10,9):.0f} ns" 
             draw = ImageDraw.Draw(im)
             x_width = len(label_text)
-            draw.rectangle([(0, 0),(x_width*250 + 10,490)], fill=0)
-            draw.text([10,10], label_text, fill=max_dwell, anchor = "lt",font_size=500) 
+            draw.rectangle([(0, 0),(x_width*270 + 10,450)], fill=0)
+            draw.text([10,10], label_text, fill=self.max_dwell, anchor = "lt",font_size=500) 
 
         self.pattern_array = np.asarray(im)
         self.image_process_completed.emit(1)
@@ -139,6 +141,53 @@ class Worker(QObject):
         self.pattern_seq = seqbytes
         self.vector_process_completed.emit(1)
 
+
+class DwellSpinbox(pg.SpinBox):
+    def __init__(self):
+        if FRACTIONAL_DWELL:
+            self.step = (125/6)*pow(10,-9) # 20.83 ns
+            self.step_str = "20.83 ns"
+        else:
+            self.step = 125*pow(10,-9) # 125 ns
+            self.step_str = "125 ns"
+        super().__init__(value=80*125*pow(10,-9), suffix="s", 
+                        siPrefix=True,
+                        compactHeight=False, step=self.step)
+        self.setMinimum(125*pow(10,-9))
+
+
+class DwellSetting(QHBoxLayout):
+    def __init__(self, step_label=False):
+        self.step_label = step_label
+        super().__init__()
+        self.dlabel = QLabel("Max Dwell:")
+        self.addWidget(self.dlabel)
+        self.dbox = DwellSpinbox()
+        self.addWidget(self.dbox)
+        self.d_unit = QLabel("")
+        self.addWidget(self.d_unit)
+    def get_value(self):
+        dwell = self.dbox.value()
+        dwell_steps = int(dwell/self.dbox.step) #convert to "units" of dwell time, 125ns or 20.83ns
+        if self.step_label:
+            self.d_unit.setText(f"{dwell_steps} x {self.dbox.step_str}")
+        return dwell, dwell_steps
+    def set_value(self, dwell):
+        self.dbox.setValue(dwell)
+        dwell_steps = int(dwell/self.dbox.step) #convert to "units" of dwell time, 125ns or 20.83ns
+        if self.step_label:
+            self.d_unit.setText(f"{dwell_steps} x {self.dbox.step_str}")
+    def hide(self):
+        self.dlabel.hide()
+        self.dbox.hide()
+        self.d_unit.hide()
+    def show(self):
+        self.dlabel.show()
+        self.dbox.show()
+        if self.step_label:
+            self.d_unit.show()
+
+
 class PatternSettings(QHBoxLayout):
     def __init__(self):
         super().__init__()
@@ -150,33 +199,23 @@ class PatternSettings(QHBoxLayout):
         self.addWidget(self.llabel)
         self.label_check = QCheckBox()
         self.addWidget(self.label_check)
-        self.dlabel = QLabel("Max Dwell:")
-        self.addWidget(self.dlabel)
-        frac_dwell_size = 125/6
-        self.dwell = pg.SpinBox(value=80*125*pow(10,-9), suffix="s", siPrefix=True, step=frac_dwell_size*pow(10,-9), compactHeight=False)
-        self.dwell.setMinimum(125*pow(10,-9))
-        self.addWidget(self.dwell)
-        self.d_unit = QLabel("")
-        self.addWidget(self.d_unit)
+        self.dwell = DwellSetting(step_label=True)
+        self.addLayout(self.dwell)
         self.process_btn = QPushButton("Resize and Process Image")
         self.addWidget(self.process_btn)
 
         
     def hide(self):
         self.ilabel.hide()
-        self.dlabel.hide()
         self.llabel.hide()
         self.label_check.hide()
         self.dwell.hide()
-        self.d_unit.hide()
         self.invert_check.hide()
         self.process_btn.hide()
 
     def show(self):
         self.ilabel.show()
-        self.dlabel.show()
         self.dwell.show()
-        self.d_unit.show()
         self.llabel.show()
         self.label_check.show()
         self.invert_check.show()
@@ -185,8 +224,8 @@ class PatternSettings(QHBoxLayout):
     def get_settings(self):
         invertchecked = self.invert_check.isChecked()
         labelchecked = self.label_check.isChecked()
-        dwell = self.dwell.value()
-        return dwell, invertchecked, labelchecked
+        dwell, dwell_step = self.dwell.get_value()
+        return dwell, dwell_step, invertchecked, labelchecked
 
 
 class FileImport(QHBoxLayout):
@@ -230,17 +269,15 @@ class ParameterData(QHBoxLayout):
         self.vl.addLayout(self.b)
         self.vl.addLayout(self.c)
 
-        self.a.addWidget(QLabel("Max Dwell:"))
-        frac_dwell_size = 125/6
-        self.dwell = pg.SpinBox(value=80*125*pow(10,-9), suffix="s", siPrefix=True, step=frac_dwell_size*pow(10,-9), compactHeight=False)
-        self.dwell.setMinimum(125*pow(10,-9))
-        self.a.addWidget(self.dwell)
-        self.dwell.valueChanged.connect(self.calculate_exposure)
+        self.dwell = DwellSetting()
+        self.a.addLayout(self.dwell)
+        # sigValueChanging is more responsive than valueChanged
+        self.dwell.dbox.sigValueChanging.connect(self.calculate_exposure)
 
         self.a.addWidget(QLabel("Beam Current"))
         self.current = pg.SpinBox(value=.000001, suffix="A", siPrefix=True, step=.0000001, compactHeight=False)
         self.a.addWidget(self.current)
-        self.current.valueChanged.connect(self.calculate_exposure)
+        self.current.sigValueChanging.connect(self.calculate_exposure)
 
         self.a.addWidget(QLabel("-----> Exposure:"))
         self.exposure = QLabel("      ")
@@ -248,7 +285,7 @@ class ParameterData(QHBoxLayout):
 
         self.b.addWidget(QLabel("HFOV:"))
         self.hfov = pg.SpinBox(value=.000001, suffix="m", siPrefix=True, step=.0000001, compactHeight=False)
-        self.hfov.valueChanged.connect(self.calculate_exposure)
+        self.hfov.sigValueChanging.connect(self.calculate_exposure)
         self.b.addWidget(self.hfov)
         self.b.addWidget(QLabel(" ÷ 16384 -----> Pixel Size:"))
         self.pix_size = QLabel("      ")
@@ -271,16 +308,16 @@ class ParameterData(QHBoxLayout):
 
     def calculate_exposure(self):
         hfov = self.hfov.interpret()
-        dwell = self.dwell.interpret()
+        dwell = self.dwell.dbox.interpret()
         current = self.current.interpret()
         if hfov and dwell and current:
             hfov = self.hfov.value()
-            dwell = self.dwell.value()
+            dwell = self.dwell.dbox.value()
             current = self.current.value()
             pixel_size = hfov/16384
             exposure = current*dwell/(pixel_size*pixel_size)
             self.pix_size.setText(f"{pg.siFormat(pixel_size, suffix="m")}")
-            self.exposure.setText(f"{pg.siFormat(exposure, suffix="C/m^2")}")
+            self.exposure.setText(f"{pg.siFormat(exposure, suffix="C/m^2")}") #1 GC/m^2 = 1 uC/cm^2
         
 class VectorProcessState(QHBoxLayout):
     def __init__(self):
@@ -305,7 +342,7 @@ class MainWindow(QVBoxLayout):
         self.param_data = ParameterData()
         self.addLayout(self.param_data)
         self.param_data.measure_btn.clicked.connect(self.toggle_measure)
-        self.param_data.dwell.valueChanged.connect(self.update_dwell_fromparamcalc)
+        self.param_data.dwell.dbox.sigValueChanging.connect(self.update_dwell_fromparamcalc)
         self.image_display = ImageDisplay(512, 512)
         self.addWidget(self.image_display)
         self.image_display.hide()
@@ -317,7 +354,7 @@ class MainWindow(QVBoxLayout):
         self.pattern_settings = PatternSettings()
         self.addLayout(self.pattern_settings)
         self.pattern_settings.process_btn.clicked.connect(self.start_process_image)
-        self.pattern_settings.dwell.valueChanged.connect(self.update_dwell_frompatternsettings)
+        self.pattern_settings.dwell.dbox.sigValueChanging.connect(self.update_dwell_frompatternsettings)
         self.pattern_settings.hide()
 
         self.beam_settings = BeamSettings()
@@ -357,18 +394,12 @@ class MainWindow(QVBoxLayout):
         self.worker_thread.start()
     
     def update_dwell_frompatternsettings(self):
-        dwell = self.pattern_settings.dwell.value()
-        frac_dwell_size = 125/6
-        max_dwell = int((dwell*pow(10,9))/frac_dwell_size) #convert to units of 20.83 ns
-        self.pattern_settings.d_unit.setText(f"{max_dwell} x 20.83 ns")
-        self.param_data.dwell.setValue(dwell)
+        dwell, dwell_steps = self.pattern_settings.dwell.get_value()
+        self.param_data.dwell.set_value(dwell)
 
     def update_dwell_fromparamcalc(self):
-        dwell = self.param_data.dwell.value()
-        frac_dwell_size = 125/6
-        max_dwell = int((dwell*pow(10,9))/frac_dwell_size) #convert to units of 20.83ns
-        self.pattern_settings.d_unit.setText(f"{max_dwell} x 20.83 ns")
-        self.pattern_settings.dwell.setValue(dwell)
+        dwell, dwell_steps = self.param_data.dwell.get_value()
+        self.pattern_settings.dwell.set_value(dwell)
 
     @asyncSlot()
     async def toggle_ext_ctrl(self):
@@ -434,8 +465,8 @@ class MainWindow(QVBoxLayout):
     def start_process_image(self):
         self.pattern_settings.process_btn.setText("Processing")
         self.pattern_settings.process_btn.setEnabled(False)
-        dwell, invert_checked, label_checked = self.pattern_settings.get_settings()
-        self.image_process_requested.emit([dwell, invert_checked, label_checked])
+        dwell, dwell_step, invert_checked, label_checked = self.pattern_settings.get_settings()
+        self.image_process_requested.emit([dwell, dwell_step, invert_checked, label_checked])
 
     def complete_process_image(self):
         self.pattern_settings.process_btn.setText("Resize and Process Image")
