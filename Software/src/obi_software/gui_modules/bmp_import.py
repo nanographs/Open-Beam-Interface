@@ -61,7 +61,7 @@ class Worker(QObject):
     @Slot(str)
     def import_file(self, img_path):
         DEALWITHRGB = False
-        if not DEALWITHRGB:
+        if DEALWITHRGB:
             im = Image.open(img_path)
             arr = np.asarray(im)
             y_pix, x_pix, rgb = arr.shape
