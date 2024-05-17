@@ -431,7 +431,7 @@ class RasterPixelRunCommand(BaseCommand):
         for _ in range(self._length):
             pixel_count += 1
             total_dwell += self._dwell
-            if total_dwell >= max_latency:
+            if total_dwell >= latency:
                 append_command(pixel_count)
                 print(f"{len(commands)=}, {pixel_count=}, {total_dwell=}")
                 yield (commands, pixel_count)
@@ -589,18 +589,20 @@ class RasterPixelsCommand(BaseCommand):
 
 
 class CommandSequence(BaseCommand):
-    _message = bytearray()
-    _response = bytearray()
-    def __init__(self, cookie: int=123, output: OutputMode=OutputMode.SixteenBit, raster:bool=False):
+    def __init__(self, sync:bool=True, cookie: int=123, output: OutputMode=OutputMode.SixteenBit, raster:bool=False):
+        self._message = bytearray()
+        self._response = bytearray()
         self._output = output
         self._raster = raster
-        self.add(SynchronizeCommand(cookie=cookie, output=output, raster=raster))
-    def add(self, other: BaseCommand):
-        # print(f"adding {other!r}")
+        if sync:
+            self.add(SynchronizeCommand(cookie=cookie, output=output, raster=raster))
+    def add(self, other: BaseCommand, verbose:bool=False):
+        if verbose:
+            print(f"adding {other!r}")
         try:
             self._message.extend(other.message)
         except TypeError:
-            raise TypeError("Command syntax error. Did your use 'command' instead of 'command()'?")
+            raise TypeError("Command syntax error. Did you use 'command' instead of 'command()'?")
         #self._response.extend(other.response)
 
     @property
