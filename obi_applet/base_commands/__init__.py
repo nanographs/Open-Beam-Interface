@@ -43,19 +43,19 @@ class Transforms(data.Struct):
 
 
 class CmdType(enum.Enum, shape=5):
-        Synchronize = 0
-        Abort       = 1
-        Flush       = 2
-        ExternalCtrl = 3
-        BeamSelect = 4
-        Blank = 5
-        Delay  = 6
+        Synchronize         = 0
+        Abort               = 1
+        Flush               = 2
+        ExternalCtrl        = 3
+        BeamSelect          = 4
+        Blank               = 5
+        Delay               = 6
 
-        RasterRegion = 10
-        RasterPixel = 11
-        RasterPixelRun = 12
-        RasterPixelFreeRun = 13
-        VectorPixel = 14
+        RasterRegion        = 10
+        RasterPixel         = 11
+        RasterPixelRun      = 12
+        RasterPixelFreeRun  = 13
+        VectorPixel         = 14
         VectorPixelMinDwell = 15   
 
 
@@ -589,15 +589,17 @@ class RasterPixelsCommand(BaseCommand):
 
 
 class CommandSequence(BaseCommand):
-    def __init__(self, sync:bool=True, cookie: int=123, output: OutputMode=OutputMode.SixteenBit, raster:bool=False):
+    def __init__(self, sync:bool=True, cookie: int=123, output: OutputMode=OutputMode.SixteenBit, raster:bool=False,
+                verbose:bool=False):
         self._message = bytearray()
         self._response = bytearray()
         self._output = output
         self._raster = raster
+        self.verbose = verbose
         if sync:
             self.add(SynchronizeCommand(cookie=cookie, output=output, raster=raster))
     def add(self, other: BaseCommand, verbose:bool=False):
-        if verbose:
+        if self.verbose:
             print(f"adding {other!r}")
         try:
             self._message.extend(other.message)
