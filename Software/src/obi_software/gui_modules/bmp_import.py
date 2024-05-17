@@ -23,7 +23,14 @@ import logging
 setup_logging({"Command": logging.DEBUG, "Stream": logging.DEBUG})
 
 FRACTIONAL_DWELL = True
+# VectorPixel commands have a minimum dwell of 125 ns (6 48 MHz clock cycles)
+# By adding a Delay command, the dwell time can be extended in units of 20.83 ns (one 48 MHz clock cycles)
+# Delay commands are 3 bytes long and take 3 clock cycles to parse serially
+# Therefore the fractional strategy might not be reliable between 125ns - 250ns
+# Additional development in gateware is required to have more control over the smallest dwell times.
 DEALWITHRGB = False
+# if you want to do something specific to convert RGB images to grayscale,
+# insert it in Worker.import_file, ~line 81
 
 def setup(beam_type):
     seq = CommandSequence(output=OutputMode.NoOutput, raster=False)
