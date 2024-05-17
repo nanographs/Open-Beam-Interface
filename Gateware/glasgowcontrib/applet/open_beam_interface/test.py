@@ -324,17 +324,17 @@ class OBIAppletTestCase(unittest.TestCase):
                                 "delay": 960}
                 }, "cmd_delay")
         
-        test_cmd(EnableExtCtrlCommand(),
+        test_cmd(ExternalCtrlCommand(enable=True),
                 {"type": Command.Type.EnableExtCtrl, 
                             "payload": {"external_ctrl": {"enable": 1}}
                 }, "cmd_extctrlenable")
         
-        test_cmd(DisableExtCtrlCommand(),
+        test_cmd(ExternalCtrlCommand(enable=False),
                 {"type": Command.Type.DisableExtCtrl, 
                             "payload": {"external_ctrl": {"enable": 0}}
                 }, "cmd_extctrldisable")
         
-        test_cmd(SelectEbeamCommand(),
+        test_cmd(BeamSelectCommand(beam_type=BeamType.Electron),
                 {"type": Command.Type.SelectEbeam, 
                             "payload": {"beam_type": BeamType.Electron}
                 }, "cmd_selectebeam")
@@ -526,7 +526,12 @@ class OBIAppletTestCase(unittest.TestCase):
                 })
 
             def get_testbench():
-                yield from get_stream(dut.raster_scanner.dwell_stream, 1)
+                yield from get_stream(dut.raster_scanner.dwell_stream, {
+                    "dwell_time": 1,
+                    "blank": {
+                        "enable": 0,
+                        "request": 0
+                    }})
 
             self.simulate(dut, [get_testbench,put_testbench], name = "exec_rasterpixel")  
         
@@ -544,8 +549,18 @@ class OBIAppletTestCase(unittest.TestCase):
                 })
 
             def get_testbench():
-                yield from get_stream(dut.raster_scanner.dwell_stream, 1)
-                yield from get_stream(dut.raster_scanner.dwell_stream, 1)
+                yield from get_stream(dut.raster_scanner.dwell_stream,  {
+                    "dwell_time": 1,
+                    "blank": {
+                        "enable": 0,
+                        "request": 0
+                    }})
+                yield from get_stream(dut.raster_scanner.dwell_stream,  {
+                    "dwell_time": 1,
+                    "blank": {
+                        "enable": 0,
+                        "request": 0
+                    }})
 
             self.simulate(dut, [get_testbench,put_testbench], name = "exec_rasterpixelrun")  
 
