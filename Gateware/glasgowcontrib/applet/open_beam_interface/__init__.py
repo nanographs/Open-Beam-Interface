@@ -783,6 +783,10 @@ class CommandExecutor(wiring.Component):
             "blank": BlankRequest
         })).create()
 
+        command_transforms = Signal(Transforms)
+        m.d.comb += self.flippenator.transforms.xflip.eq(command_transforms.xflip ^ self.default_transforms.xflip)
+        m.d.comb += self.flippenator.transforms.yflip.eq(command_transforms.yflip ^ self.default_transforms.yflip)
+        m.d.comb += self.flippenator.transforms.rotate90.eq(command_transforms.rotate90 ^ self.default_transforms.rotate90)
 
         raster_mode = Signal()
         output_mode = Signal(2)
@@ -889,13 +893,13 @@ class CommandExecutor(wiring.Component):
                                 m.next = "Fetch"
 
                     with m.Case(Command.Type.FlipX, Command.Type.UnFlipX):
-                        m.d.sync += self.flippenator.transforms.xflip.eq(command.payload.transform.xflip ^ self.default_transforms.xflip)
+                        m.d.sync += command_transforms.xflip.eq(command.payload.transform.xflip)
                     
                     with m.Case(Command.Type.FlipY, Command.Type.UnFlipY):
-                        m.d.sync += self.flippenator.transforms.yflip.eq(command.payload.transform.yflip ^ self.default_transforms.yflip)
+                        m.d.sync += command_transforms.yflip.eq(command.payload.transform.yflip)
                     
                     with m.Case(Command.Type.Rotate90, Command.Type.UnRotate90):
-                        m.d.sync += self.flippenator.transforms.rotate90.eq(command.payload.transform.rotate90 ^ self.default_transforms.rotate90)
+                        m.d.sync += command_transforms.rotate90.eq(command.payload.transform.rotate90)
 
                     with m.Case(Command.Type.RasterRegion):
                         m.d.sync += raster_region.eq(command.payload.raster_region)

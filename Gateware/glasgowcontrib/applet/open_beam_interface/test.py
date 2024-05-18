@@ -1045,11 +1045,11 @@ class OBIAppletTestCase(unittest.TestCase):
                     await iface.write(VectorPixelCommand(x_coord=n, y_coord=n, dwell=1).message)
                 # for n in range(1,3):
                 #     await iface.write(VectorPixelCommand(x_coord=5*n, y_coord=5*n, dwell=4).message)
-                await iface.write(VectorPixelCommand(x_coord=7, y_coord=7, dwell=3).message)
+                await iface.write(VectorPixelCommand(x_coord=7, y_coord=9, dwell=3).message)
                 await iface.write(BlankCommand().message)
                 await iface.write(DelayCommand(delay=3).message)
                 await iface.write(BlankCommand(enable=False).message)
-                await iface.write(VectorPixelCommand(x_coord=1, y_coord=1, dwell=1).message)
+                await iface.write(VectorPixelCommand(x_coord=3, y_coord=4, dwell=1).message)
                 await iface.write(BlankCommand().message)
                 await iface.write(SynchronizeCommand(cookie=4, output=2, raster=0).message)
                 await iface.read(6)
@@ -1063,11 +1063,11 @@ class OBIAppletTestCase(unittest.TestCase):
             
         test_case = OBIApplet_TestCase()
         test_case.setUp()
-        # test_case.test_build()
-        # test_case.test_sync_cookie()
+        test_case.test_build()
+        test_case.test_sync_cookie()
         test_case.test_raster()
-        # test_case.test_benchmark()
-        # test_case.test_vector_blank()
+        test_case.test_benchmark()
+        test_case.test_vector_blank()
         # test_case.test_loopback()
 
         
