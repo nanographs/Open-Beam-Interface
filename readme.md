@@ -37,6 +37,7 @@ Glasgow handles getting the bytes in and out of your computer. Our software take
 - [ ] Improve documentation
     - [ ] Block diagram of gateware architechture
     - [ ] Example scripts
+    - [ ] Analog adjustment procedure
 
 ## FAQ
 - How many bits are the DACs and ADCs
