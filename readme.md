@@ -37,7 +37,7 @@ Glasgow handles getting the bytes in and out of your computer. Our software take
 - How many bits are the DACs and ADCs
     - 14 bits
 - What are the range of dwell times?
-    - Currently we run everything at 250ns
+    - Minimumn dwell time is 125ns, with minimum temporal resolution of 20.83 ns
     - Hardware supports 50ns dwells when controlling both DACs and the ADC
     - Without sampling the ADC (no video signal), the hardware supports 25ns dwells
     - The limitng factor in most modes is USB bandwidth
