@@ -10,7 +10,7 @@ Built on [Glasgow](https://glasgow-embedded.org/), written in [Amaranth](https:/
 Glasgow makes getting bytes in and out of the FPGA over USB radically more accessibe. We use that to make getting data into and out of your microscope radically more accessible.
 
 ### Software
-Glasgow handles getting the bytes in and out of your computer. Our software takes those bytes and forms an image, while simultaneously streaming bytes to Glasgow to support raster and vector pattering applications.
+Glasgow handles getting the bytes in and out of your computer. Our software takes those bytes and forms an image, while simultaneously streaming bytes to Glasgow to support raster and vector patterning applications.
 
 ## Example Images
 ![Nanographs Logo Fib milled](Images/Nanographs%20Logo%20FIB%20Milled%20-%201.jpeg)
