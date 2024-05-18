@@ -508,7 +508,6 @@ class MainWindow(QVBoxLayout):
         self.pattern_btn.setEnabled(False)
         self.beam_settings.ctrl_btn.setEnabled(False)
         self.beam_settings.beam_state.setText("Beam State: Writing pattern")
-        print(f"{self.worker.pattern_seq=}")
         await self.conn.transfer_bytes(self.worker.pattern_seq)
         self.beam_settings.beam_state.setText("Beam State: Blanked")
         self.pattern_btn.setEnabled(True)
