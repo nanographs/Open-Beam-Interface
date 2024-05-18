@@ -4,7 +4,7 @@ on:
         paths:
         - '**.sch'
         - '**.kicad_pcb'
-        - '.github/**.yml' # Trigger on changes to the workflow file
+        - '.github/kicad.yml' # Trigger on changes to the workflow file
         - '**.kibot.yml' # Trigger on changes to the KiBot config file used in the workflow
 jobs:
   obi:
