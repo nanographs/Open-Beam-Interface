@@ -498,7 +498,6 @@ class MainWindow(QVBoxLayout):
         self.vector_process.convert_btn.setText("Convert to Vector Stream")
         self.vector_process.convert_btn.setEnabled(True)
         self.pattern_btn.setText("Write Pattern")
-        self.pattern_btn.setEnabled(True)
         self.pattern_btn.show()
 
     
