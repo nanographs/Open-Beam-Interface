@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - 'Gateware/**'
+      - '.github/test.yml' # Trigger on changes to the workflow file
   
 jobs:  
   build:  
