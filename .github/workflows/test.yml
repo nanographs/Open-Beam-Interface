@@ -1,9 +1,9 @@
 name: Run Unit Tests
 on: 
-  push:
-    paths:
-      - 'Gateware/*'
-      - '.github/workflows/test.yml' # Trigger on changes to the workflow file
+    push:
+        paths:
+        - 'Gateware/*'
+        - '.github/workflows/test.yml' # Trigger on changes to the workflow file
   
 jobs:  
   build:  
