@@ -27,17 +27,17 @@ Glasgow handles getting the bytes in and out of your computer. Our software take
 - [X] Raster pattern mode at 16,384 x 16,384 image resolution, with 8 bit grayscale dwelltimes
 - [X] Order and test V1.0 PCBs 
 - [x] Refactor gateware to support 16 bit grayscale vector and raster patterning (thanks Whitequark)
-- [ ] Intergrate refactored gateware with UI
-- [ ] Make minor desing-for-manufacturing and thermal changes to V1.1 PCBs (V1.1 uploaded in progress state)
-- [ ] Order and test blanking and external/internal scan sellect PCBs
-- [ ] Implement UI for new 16 bit grayscale imaging, vector and raster patterning modes.
+- [x] Integrate refactored gateware with UI
+- [x] Make minor design-for-manufacturing and thermal changes to V1.1 PCBs (V1.1 uploaded in progress state)
+- [x] Order and test blanking and external/internal scan sellect PCBs
+- [ ] Implement integrated UI for new 16 bit grayscale imaging, vector and raster patterning modes.
 - [ ] Implement Metadata for saved images
 
 ## FAQ
 - How many bits are the DACs and ADCs
     - 14 bits
 - What are the range of dwell times?
-    - Currently we run everthing at 250ns
+    - Currently we run everything at 250ns
     - Hardware supports 50ns dwells when controlling both DACs and the ADC
     - Without sampling the ADC (no video signal), the hardware supports 25ns dwells
     - The limitng factor in most modes is USB bandwidth
@@ -67,12 +67,14 @@ Microscopes the board has been specifically integrated into, this is far from an
 - JEOL 35C
 - JEOL 840
 - JEOL 63/6400
+- FEI xT Platform
 
 #### Partial Support
-- FEI XP Platform (support for single beam XY input, video output. Coming soon: support for blanking and internal/external beam control)
+- FEI xP Platform (support for single beam XY input, video output. In progress: support for blanking and internal/external beam control)
     - FIB 200
     - Expedia 830
     - Expedia 1230
+
 
 ## Sponsors
 We would like to thank our sponsors' generous sustaining contributions. Without them we would not be here today.
