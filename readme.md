@@ -33,6 +33,10 @@ Glasgow handles getting the bytes in and out of your computer. Our software take
 - [ ] Implement integrated UI for new 16 bit grayscale imaging, vector and raster patterning modes.
 - [ ] Integrate fine-grained dwell time control at the gateware level
 - [ ] Implement Metadata for saved images
+- [ ] Integrate repository into a single virtual environment and improve install instructions
+- [ ] Improve documentation
+    - [ ] Block diagram of gateware architechture
+    - [ ] Example scripts
 
 ## FAQ
 - How many bits are the DACs and ADCs
