@@ -3,7 +3,7 @@ name: Run Unit Tests
 on: 
   push:
     paths:
-      - Gateware
+      - 'Gateware/**'
   
 jobs:  
   build:  
