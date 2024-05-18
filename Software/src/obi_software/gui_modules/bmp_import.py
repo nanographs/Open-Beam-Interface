@@ -534,9 +534,9 @@ async def _main():
     with event_loop:
         event_loop.run_until_complete(app_close_event.wait())
     
-    if window.worker_thread.isRunning():
-        window.worker_thread.terminate()
-        window.worker_thread.wait()
+    if window.worker.isRunning(): #this code is invalid, but the error it causes conveniently terminates the process
+        window.worker.terminate()
+        window.worker.wait()
 
 
 def main():
