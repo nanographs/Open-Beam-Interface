@@ -534,9 +534,9 @@ async def _main():
     with event_loop:
         event_loop.run_until_complete(app_close_event.wait())
     
-    if window.worker.isRunning():
-        window.worker.terminate()
-        window.worker.wait()
+    if window.worker_thread.isRunning():
+        window.worker_thread.terminate()
+        window.worker_thread.wait()
 
 
 def main():
