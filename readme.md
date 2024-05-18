@@ -31,6 +31,7 @@ Glasgow handles getting the bytes in and out of your computer. Our software take
 - [x] Make minor design-for-manufacturing and thermal changes to V1.1 PCBs (V1.1 uploaded in progress state)
 - [x] Order and test blanking and external/internal scan sellect PCBs
 - [ ] Implement integrated UI for new 16 bit grayscale imaging, vector and raster patterning modes.
+- [ ] Integrate fine-grained dwell time control at the gateware level
 - [ ] Implement Metadata for saved images
 
 ## FAQ
