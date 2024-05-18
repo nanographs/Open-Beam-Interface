@@ -33,7 +33,7 @@ obi_gui = "obi_software.gui:run_gui"
 obi_shape = "obi_software.scripts.shapes:main"
 
 [project.entry-points."glasgow.applet"]
-open_beam_interface = "obi_applet.glasgowcontrib.applet.open_beam_interface:OBIApplet"
+open_beam_interface = "glasgowcontrib.applet.open_beam_interface:OBIApplet"
 
 
 [build-system]

@@ -12,7 +12,7 @@ import time
 from time import perf_counter
 
 from .support import dump_hex
-from base_commands import *
+from ..obi_applet.base_commands import *
 
 
 BIG_ENDIAN = (struct.pack('@H', 0x1234) == struct.pack('>H', 0x1234))
@@ -292,8 +292,9 @@ class StreamSynchronizeCommand(SynchronizeCommand, StreamCommand):
         cmd = self.message
 >>>>>>> 4bf6e40 (migrate software commands to use base_commands as source)
         res = await stream.xchg(cmd, recv_length=4)
-        sync, cookie = struct.unpack(">HH", res)
-        return cookie[:-1]
+        sync, cookie_1, cookie_2 = struct.unpack(">HBB", res)
+        cookie_reversed = struct.pack('>H', cookie_2*256 + cookie_1)
+        return cookie_reversed
 
 
 class StreamAbortCommand(AbortCommand, StreamCommand):
