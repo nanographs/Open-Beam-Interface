@@ -11,6 +11,7 @@ class CommandType(enum.IntEnum):
     Abort               = 0x01
     Flush               = 0x02
     Delay               = 0x03
+    InlineDelay         = 0xa3
     EnableExtCtrl       = 0x04
     DisableExtCtrl      = 0x05
     SelectEbeam         = 0x06
@@ -112,6 +113,18 @@ class DelayCommand(BaseCommand):
     @property
     def message(self):
         return struct.pack(">BH", CommandType.Delay, self._delay)
+
+class InlineDelayCommand(BaseCommand):
+    def __init__(self, delay):
+        assert delay <= 65535
+        self._delay = delay
+
+    def __repr__(self):
+        return f"InlineDelayCommand(delay={self._delay})"
+
+    @property
+    def message(self):
+        return struct.pack(">BH", CommandType.InlineDelay, self._delay)
     
 
 class BlankCommand(BaseCommand):

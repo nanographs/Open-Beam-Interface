@@ -1058,8 +1058,25 @@ class OBIAppletTestCase(unittest.TestCase):
                 # for n in range(1,10):
                 #     await iface.write(VectorPixelCommand(x_coord=2*n, y_coord=2*n, dwell=4).message)
 
-                
 
+            @applet_simulation_test("setup_x_loopback", args=["--out_only"])
+            async def test_vector_delay(self):
+                iface = await self.run_simulated_applet()
+                await iface.write(VectorPixelCommand(x_coord=1, y_coord=1, dwell=6).message)
+                await iface.write(InlineDelayCommand(delay=2).message)
+                await iface.write(VectorPixelCommand(x_coord=2, y_coord=2, dwell=6).message)
+                await iface.write(InlineDelayCommand(delay=3).message)
+                await iface.write(VectorPixelCommand(x_coord=3, y_coord=3, dwell=6).message)
+                await iface.write(InlineDelayCommand(delay=4).message)
+                await iface.write(VectorPixelCommand(x_coord=4, y_coord=4, dwell=6).message)
+                await iface.write(InlineDelayCommand(delay=5).message)
+                await iface.write(VectorPixelCommand(x_coord=5, y_coord=5, dwell=6).message)
+                await iface.write(InlineDelayCommand(delay=6).message)
+                await iface.write(VectorPixelCommand(x_coord=6, y_coord=6, dwell=6).message)
+                await iface.write(InlineDelayCommand(delay=7).message)
+                await iface.write(SynchronizeCommand(cookie=4, output=2, raster=0).message)
+                await iface.read(4)
+                
             
         test_case = OBIApplet_TestCase()
         test_case.setUp()
@@ -1068,6 +1085,7 @@ class OBIAppletTestCase(unittest.TestCase):
         test_case.test_raster()
         test_case.test_benchmark()
         test_case.test_vector_blank()
+        test_case.test_vector_delay()
         # test_case.test_loopback()
 
         

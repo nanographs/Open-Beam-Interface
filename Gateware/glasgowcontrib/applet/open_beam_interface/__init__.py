@@ -151,7 +151,8 @@ class BusController(wiring.Component):
         "dac_x_code": 14,
         "dac_y_code": 14,
         "last":       1,
-        "blank": BlankRequest
+        "blank": BlankRequest,
+        "delay": 3
     })))
 
     adc_stream: Out(StreamSignature(data.StructLayout({
@@ -269,6 +270,88 @@ class BusController(wiring.Component):
 
         return m
 
+class FastBusController(wiring.Component):
+    # FPGA-side interface
+    dac_stream: In(StreamSignature(data.StructLayout({
+        "dac_x_code": 14,
+        "dac_y_code": 14,
+        "last":       1,
+        "blank": BlankRequest,
+        "delay": 3
+    })))
+
+
+    # IO-side interface
+    bus: Out(BusSignature)
+    inline_blank: Out(BlankRequest)
+
+    # Ignored
+    adc_stream: Out(StreamSignature(data.StructLayout({
+        "adc_code": 14,
+        "adc_ovf":  1,
+        "last":     1,
+    })))
+
+    def __init__(self):
+        self.delay = 3
+        super().__init__()
+
+    def elaborate(self, platform):
+        m = Module()
+
+        delay_cycles = Signal(3)
+
+        dac_stream_data = Signal.like(self.dac_stream.payload)
+        m.d.comb += self.inline_blank.eq(dac_stream_data.blank)
+
+        with m.FSM():
+            with m.State("X_DAC_Write"):
+                m.d.comb += [
+                    self.bus.data_o.eq(dac_stream_data.dac_x_code),
+                    self.bus.data_oe.eq(1),
+                ]
+                m.d.sync += self.bus.dac_clk.eq(0)
+                m.next = "X_DAC_Write_2"
+
+            with m.State("X_DAC_Write_2"):
+                m.d.comb += [
+                    self.bus.data_o.eq(dac_stream_data.dac_x_code),
+                    self.bus.data_oe.eq(1),
+                    self.bus.dac_x_le_clk.eq(1),
+                ]
+                m.next = "Y_DAC_Write"
+
+            with m.State("Y_DAC_Write"):
+                m.d.comb += [
+                    self.bus.data_o.eq(dac_stream_data.dac_y_code),
+                    self.bus.data_oe.eq(1),
+                ]
+                m.next = "Y_DAC_Write_2"
+
+            with m.State("Y_DAC_Write_2"):
+                m.d.comb += [
+                    self.bus.data_o.eq(dac_stream_data.dac_y_code),
+                    self.bus.data_oe.eq(1),
+                    self.bus.dac_y_le_clk.eq(1),
+                ]  
+                m.next = "Latch_Delay"
+            
+            with m.State("Latch_Delay"):
+                with m.If(delay_cycles > 0):
+                    m.d.sync += delay_cycles.eq(delay_cycles - 1) 
+                with m.Else():
+                    m.d.sync += self.bus.dac_clk.eq(1)
+                    with m.If(self.dac_stream.valid):
+                        # Latch DAC codes from input stream.
+                        m.d.comb += self.dac_stream.ready.eq(1)
+                        m.d.sync += dac_stream_data.eq(self.dac_stream.payload)
+                        with m.If(dac_stream_data.last): #latch delay from the previous stream
+                            m.d.sync +=  delay_cycles.eq(dac_stream_data.delay)
+                    m.next = "X_DAC_Write"  
+                
+                    
+
+        return m
 
 #=========================================================================
 
@@ -277,7 +360,8 @@ class Supersampler(wiring.Component):
         "dac_x_code": 14,
         "dac_y_code": 14,
         "dwell_time": 16,
-        "blank": BlankRequest
+        "blank": BlankRequest,
+        "delay": 3
     })))
 
     adc_stream: Out(StreamSignature(data.StructLayout({
@@ -288,7 +372,8 @@ class Supersampler(wiring.Component):
         "dac_x_code": 14,
         "dac_y_code": 14,
         "last":       1,
-        "blank": BlankRequest
+        "blank": BlankRequest,
+        "delay": 3
     })))
 
     super_adc_stream: In(StreamSignature(data.StructLayout({
@@ -314,6 +399,7 @@ class Supersampler(wiring.Component):
             self.super_dac_stream.payload.dac_x_code.eq(self.dac_stream_data.dac_x_code),
             self.super_dac_stream.payload.dac_y_code.eq(self.dac_stream_data.dac_y_code),
             self.super_dac_stream.payload.blank.eq(self.dac_stream_data.blank),
+            self.super_dac_stream.payload.delay.eq(self.dac_stream_data.delay),
             self.super_dac_stream.payload.last.eq(dwell_counter == self.dac_stream_data.dwell_time),
         ]
         with m.If(self.stall_count_reset):
@@ -396,7 +482,8 @@ class RasterScanner(wiring.Component):
         "dac_x_code": 14,
         "dac_y_code": 14,
         "dwell_time": DwellTime,
-        "blank": BlankRequest
+        "blank": BlankRequest,
+        "delay": 3
     })))
 
     def elaborate(self, platform):
@@ -477,6 +564,7 @@ class Command(data.Struct):
         Abort               = 0x01
         Flush               = 0x02
         Delay               = 0x03
+        InlineDelay         = 0xa3
         EnableExtCtrl       = 0x04
         DisableExtCtrl      = 0x05
         SelectEbeam         = 0x06
@@ -563,7 +651,7 @@ class CommandParser(wiring.Component):
                         with m.Case(Command.Type.Flush):
                             m.next = "Submit"
 
-                        with m.Case(Command.Type.Delay):
+                        with m.Case(Command.Type.Delay, Command.Type.InlineDelay):
                             m.next = "Payload_Delay_High"
 
                         with m.Case(Command.Type.EnableExtCtrl):
@@ -754,24 +842,31 @@ class CommandExecutor(wiring.Component):
     output_mode: Out(2)
 
 
-    def __init__(self, *, adc_latency=6):
+    def __init__(self, *, out_only:bool=False, adc_latency=6):
         self.adc_latency = 6
         self.supersampler = Supersampler()
         self.flippenator = Flippenator()
+
+        self.out_only = out_only
         super().__init__()
 
     def elaborate(self, platform):
         m = Module()
 
         delay_counter = Signal(DwellTime)
+        inline_delay_counter = Signal(3)
 
-        m.submodules.bus_controller = bus_controller = BusController(adc_half_period=3, adc_latency=self.adc_latency)
+        if self.out_only:
+            m.submodules.bus_controller = bus_controller = FastBusController()
+        else:
+            m.submodules.bus_controller = bus_controller = BusController(adc_half_period=3, adc_latency=self.adc_latency)
         m.submodules.supersampler   = self.supersampler
         m.submodules.flippenator    = self.flippenator
         m.submodules.raster_scanner = self.raster_scanner = RasterScanner()
 
-        wiring.connect(m, self.supersampler.super_dac_stream, self.flippenator.in_stream)
-        wiring.connect(m, self.flippenator.out_stream, bus_controller.dac_stream)
+        # wiring.connect(m, self.supersampler.super_dac_stream, self.flippenator.in_stream)
+        # wiring.connect(m, self.flippenator.out_stream, bus_controller.dac_stream)
+        wiring.connect(m, self.supersampler.super_dac_stream, bus_controller.dac_stream)
         wiring.connect(m, bus_controller.adc_stream, self.supersampler.super_adc_stream)
         wiring.connect(m, flipped(self.bus), bus_controller.bus)
         m.d.comb += self.inline_blank.eq(bus_controller.inline_blank)
@@ -780,7 +875,8 @@ class CommandExecutor(wiring.Component):
             "dac_x_code": 14,
             "dac_y_code": 14,
             "dwell_time": DwellTime,
-            "blank": BlankRequest
+            "blank": BlankRequest,
+            "delay": 3
         })).create()
 
         command_transforms = Signal(Transforms)
@@ -818,8 +914,6 @@ class CommandExecutor(wiring.Component):
             with m.If(async_blank.request):
                 m.d.sync += next_blank_enable.eq(async_blank.enable)
                 m.d.sync += async_blank.request.eq(0)
-            
-
 
         run_length = Signal.like(command.payload.raster_pixel_run.length)
         raster_region = Signal.like(command.payload.raster_region)
@@ -865,6 +959,10 @@ class CommandExecutor(wiring.Component):
                             m.next = "Fetch"
                         with m.Else():
                             m.d.sync += delay_counter.eq(delay_counter + 1)
+                    
+                    with m.Case(Command.Type.InlineDelay):
+                        m.d.sync += inline_delay_counter.eq(command.payload.delay)
+                        m.next = "Fetch"
 
                     with m.Case(Command.Type.EnableExtCtrl, Command.Type.DisableExtCtrl):
                         #Don't change control in the middle of previously submitted pixels
@@ -956,7 +1054,9 @@ class CommandExecutor(wiring.Component):
                     with m.Case(Command.Type.VectorPixel, Command.Type.VectorPixelMinDwell):
                         m.d.comb += vector_stream.valid.eq(1)
                         m.d.comb += vector_stream.payload.blank.eq(sync_blank)
+                        m.d.comb += vector_stream.payload.delay.eq(inline_delay_counter)
                         with m.If(vector_stream.ready):
+                            m.d.sync += inline_delay_counter.eq(0)
                             m.d.comb += submit_pixel.eq(1)
                             m.next = "Fetch"
 
@@ -966,9 +1066,12 @@ class CommandExecutor(wiring.Component):
                     self.img_stream.payload.eq(self.supersampler.adc_stream.payload.adc_code),
                     self.img_stream.valid.eq(self.supersampler.adc_stream.valid),
                     self.supersampler.adc_stream.ready.eq(self.img_stream.ready),
-                    retire_pixel.eq(self.supersampler.adc_stream.valid & self.img_stream.ready),
                     self.output_mode.eq(output_mode) #input to Serializer
                 ]
+                if self.out_only:
+                    m.d.comb += retire_pixel.eq(submit_pixel)
+                else:
+                    m.d.comb += retire_pixel.eq(self.supersampler.adc_stream.valid & self.img_stream.ready)
                 with m.If((in_flight_pixels == 0) & sync_req):
                     m.next = "Write_FFFF"
 
@@ -1051,7 +1154,7 @@ obi_resources  = [
 class OBISubtarget(wiring.Component):
     def __init__(self, *, pads, out_fifo, in_fifo, led, control, data, 
                         benchmark_counters = None, sim=False, loopback=False,
-                        xflip = False, yflip = False, rotate90 = False):
+                        xflip = False, yflip = False, rotate90 = False, out_only=False):
         self.pads = pads
         self.out_fifo = out_fifo
         self.in_fifo  = in_fifo
@@ -1060,6 +1163,7 @@ class OBISubtarget(wiring.Component):
         self.xflip = xflip
         self.yflip = yflip
         self.rotate90 = rotate90
+        self.out_only = out_only
 
         if not benchmark_counters == None:
             self.benchmark = True
@@ -1078,7 +1182,7 @@ class OBISubtarget(wiring.Component):
         m = Module()
 
         m.submodules.parser     = parser     = CommandParser()
-        m.submodules.executor   = executor   = CommandExecutor()
+        m.submodules.executor   = executor   = CommandExecutor(out_only=self.out_only)
         m.submodules.serializer = serializer = ImageSerializer()
 
         if self.xflip:
@@ -1342,6 +1446,9 @@ class OBIApplet(GlasgowApplet):
         parser.add_argument("--rotate90",
             dest = "rotate90", action = 'store_true',
             help = "switch x and y axes")
+        parser.add_argument("--out_only",
+            dest = "out_only", action = 'store_true',
+            help = "use FastBusController instead of BusController; don't use ADC")
 
 
     def build(self, target, args):
@@ -1362,7 +1469,8 @@ class OBIApplet(GlasgowApplet):
             "loopback": args.loopback,
             "xflip": args.xflip,
             "yflip": args.yflip,
-            "rotate90": args.rotate90
+            "rotate90": args.rotate90,
+            "out_only": args.out_only
         }
 
         if args.benchmark:
