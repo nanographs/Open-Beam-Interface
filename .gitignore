@@ -10,3 +10,4 @@ Gateware/open_beam_interface.bin
 *.pyc
 *.tif
 *.kicad_prl
+*.gtkw
