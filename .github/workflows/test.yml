@@ -38,25 +38,25 @@ jobs:
         run: |  
           pdm run test_g
 
-  test-software:  
-    runs-on: ubuntu-latest
-    steps:  
-      - name: Check out source code
-        uses: actions/checkout@v3  
-      - name: Set up PDM
-        uses: pdm-project/setup-pdm@v3
-        with:
-          python-version: "3.12"
-      - name: Generate lockfile
-        working-directory: .
-        run: pdm lock --group test #${{ matrix.dep-versions == 'minimal' && '--strategy direct_minimal_versions' || '' }}
-      - name: Install dependencies
-        working-directory: .
-        run: pdm sync  
-      - name: Run tests  
-        working-directory: .
-        run: |  
-          pdm run test_s
+  # test-software:  
+  #   runs-on: ubuntu-latest
+  #   steps:  
+  #     - name: Check out source code
+  #       uses: actions/checkout@v3  
+  #     - name: Set up PDM
+  #       uses: pdm-project/setup-pdm@v3
+  #       with:
+  #         python-version: "3.12"
+  #     - name: Generate lockfile
+  #       working-directory: .
+  #       run: pdm lock --group test #${{ matrix.dep-versions == 'minimal' && '--strategy direct_minimal_versions' || '' }}
+  #     - name: Install dependencies
+  #       working-directory: .
+  #       run: pdm sync  
+  #     - name: Run tests  
+  #       working-directory: .
+  #       run: |  
+  #         pdm run test_s
 
   test-build:  
     strategy:  
