@@ -11,17 +11,18 @@ on:
       - Gateware
 =======
   push:
-    # paths:
-    #   - obi_applet
-    #   - '.github/test.yml' # Trigger on changes to the workflow file
+    paths:
+      - 'glasgowcontrib'
+      - 'obi_software'
+      - 'pyproject.toml'
+      - '.github/test.yml' # Trigger on changes to the workflow file
   
 jobs:  
-  build:  
-    runs-on: macos-latest
+  test-gateware:  
+    runs-on: ubuntu-latest
     strategy:  
       matrix:  
         python-version: ["3.12"]  
-  
     steps:  
       - name: Check out source code
         uses: actions/checkout@v3  
@@ -39,4 +40,23 @@ jobs:
         working-directory: .
         run: |  
           pdm run test_g
-        
+
+  test-build:  
+    strategy:  
+      matrix:  
+        os-version: ["ubuntu-latest", "macos-latest"]
+        python-version: ["3.12"]  
+    runs-on: ${{ matrix.os-version }}
+    steps:  
+      - name: Check out source code
+        uses: actions/checkout@v3  
+      - name: Set up PDM
+        uses: pdm-project/setup-pdm@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Generate lockfile
+        working-directory: .
+        run: pdm lock --group test #${{ matrix.dep-versions == 'minimal' && '--strategy direct_minimal_versions' || '' }}
+      - name: Install dependencies
+        working-directory: .
+        run: pdm sync  
