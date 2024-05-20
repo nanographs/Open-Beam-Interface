@@ -344,7 +344,7 @@ class VectorPixelFractionalDwellCommand(BaseCommand):
     def message(self):
         seq = CommandSequence(sync=False)
         seq.add(VectorPixelCommand(x_coord = self._x_coord, y_coord = self._y_coord, dwell = self._dwell))
-        seq.add(DelayCommand(delay = self._dwell_fracs))
+        seq.add(InlineDelayCommand(delay = self._dwell_fracs))
         return seq.message
 
 
