@@ -1,7 +1,7 @@
 [project]
-name = "obi_software"
+name = "open_beam_interface"
 version = "0"
-description = "Software for electron microscope image capture with Glasgow and Open Beam Interface hardware"
+description = "Electron microscope image capture with Glasgow and Open Beam Interface hardware"
 authors = [
     {name = "nanographs"},
     {name = "isabelburgos", email = "isabel@nanographs.io"},
@@ -28,7 +28,7 @@ gui = ["PyQt6",
         ]
 
 [project.scripts]
-obi_run = "obi_applet.run:run"
+obi_run = "glasgowcontrib.applet.open_beam_interface.run:run"
 obi_gui = "obi_software.gui:run_gui"
 obi_shape = "obi_software.scripts.shapes:main"
 
@@ -52,8 +52,8 @@ hilbert.cmd = "python -m obi_software.hilbert"
 run.cmd = "glasgow -v --statistics run open_beam_interface -V 5 --pin-ext-ibeam-scan-enable 0 --pin-ext-ibeam-scan-enable-2 1 --pin-ext-ibeam-blank-enable 2 --pin-ext-ibeam-blank-enable-2 3 --pin-ibeam-blank-low 4 --pin-ibeam-blank-high 5 --pin-ebeam-blank 6 --pin-ebeam-blank-2 7 tcp::2224 --xflip"
 run_script.cmd = "glasgow -vv script {args} open_beam_interface -V 5 --pin-ext-ibeam-scan-enable 0 --pin-ext-ibeam-scan-enable-2 1 --pin-ext-ibeam-blank-enable 2 --pin-ext-ibeam-blank-enable-2 3 --pin-ibeam-blank-low 4 --pin-ibeam-blank-high 5 --pin-ebeam-blank 6 --pin-ebeam-blank-2 7"
 test_g.cmd = "python -m unittest obi_applet.glasgowcontrib.applet.open_beam_interface.test"
-build.cmd = "AMARANTH_verbose=1 glasgow build open_beam_interface -V 5 --pin-ext-ibeam-scan-enable 0 --pin-ext-ibeam-scan-enable-2 1 --pin-ext-ibeam-blank-enable 2 --pin-ext-ibeam-blank-enable-2 3 --pin-ibeam-blank-low 4 --pin-ibeam-blank-high 5 --pin-ebeam-blank 6 --pin-ebeam-blank-2 7"
-
+build.cmd = "glasgow build --rev C3 open_beam_interface --pin-ext-ibeam-scan-enable 0 --pin-ext-ibeam-scan-enable-2 1 --pin-ext-ibeam-blank-enable 2 --pin-ext-ibeam-blank-enable-2 3 --pin-ibeam-blank-low 4 --pin-ibeam-blank-high 5 --pin-ebeam-blank 6 --pin-ebeam-blank-2 7"
+build.env = {AMARANTH_verbose = "1"}
 
 # [tool.pdm.dev-dependencies]
 # test = ["amaranth@ git+https://github.com/whitequark/amaranth@testbenchessssss",
