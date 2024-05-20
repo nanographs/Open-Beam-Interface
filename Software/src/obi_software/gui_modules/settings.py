@@ -162,11 +162,11 @@ class SettingBox(QHBoxLayout):
 
 
 class ImageSettings(QHBoxLayout):
-    def __init__(self, name:str):
+    def __init__(self, name:str, default_res=1024, res_options=["512", "1024"], default_dwell=2, dwell_options=["1","2", "4", "8", "16", "32"]):
         super().__init__()
-        self.res = ResolutionSetting(name, 1024, ["512","1024", "Custom"])
+        self.res = ResolutionSetting(name, default_res, res_options + ["Custom"])
         self.addLayout(self.res)
-        self.dwell = DwellSetting(name, 2, ["1","2", "4", "8", "16", "32", "Custom"])
+        self.dwell = DwellSetting(name, default_dwell,  dwell_options + ["Custom"])
         self.addLayout(self.dwell)
     def disable_input(self):
         self.res.disable_input()

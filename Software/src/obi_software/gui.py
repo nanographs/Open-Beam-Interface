@@ -32,7 +32,7 @@ print(f"loading config from {args.config_path}")
 
 class LiveSettings(ImageSettings):
     def __init__(self):
-        super().__init__("Live")
+        super().__init__("Live", 1024, ["512", "1024", "2048"])
         self.live_capture_btn = QPushButton("Start Live Scan")
         self.live_capture_btn.setCheckable(True)
         self.addWidget(self.live_capture_btn)
@@ -41,7 +41,7 @@ class LiveSettings(ImageSettings):
 
 class PhotoSettings(ImageSettings):
     def __init__(self):
-        super().__init__("Photo")
+        super().__init__("Photo",4096, ["1024", "2048", "4096", "8192", "16384"], 8)
         self.single_capture_btn = QPushButton("Acquire Photo")
         self.addWidget(self.single_capture_btn)
         self.addWidget(QLabel(' '))
