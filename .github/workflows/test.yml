@@ -38,5 +38,5 @@ jobs:
       - name: Run tests  
         working-directory: ./obi_applet
         run: |  
-          pdm run test
+          pdm run test_g
         
