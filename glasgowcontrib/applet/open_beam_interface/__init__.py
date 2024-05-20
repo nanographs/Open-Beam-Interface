@@ -110,6 +110,14 @@ class PipelinedLoopbackAdapter(wiring.Component):
         return m
 
 
+class DACStream(data.Struct):
+    dac_x_code: 14
+    dac_y_code: 14
+    dwell_time: 16
+    blank: BlankRequest
+    delay: 3
+
+
 class SuperDACStream(data.Struct):
     dac_x_code: 14
     padding_x: 2
@@ -117,6 +125,7 @@ class SuperDACStream(data.Struct):
     padding_y: 2
     blank: BlankRequest
     last:       1
+    delay: 3
 
 
 
@@ -241,13 +250,7 @@ class BusController(wiring.Component):
 
 class FastBusController(wiring.Component):
     # FPGA-side interface
-    dac_stream: In(StreamSignature(data.StructLayout({
-        "dac_x_code": 14,
-        "dac_y_code": 14,
-        "last":       1,
-        "blank": BlankRequest,
-        "delay": 3
-    })))
+    dac_stream: In(StreamSignature(DACStream))
 
 
     # IO-side interface
@@ -343,11 +346,7 @@ class Flippenator(wiring.Component):
         return m
 #=========================================================================
 
-class DACStream(data.Struct):
-    dac_x_code: 14
-    dac_y_code: 14
-    dwell_time: 16
-    blank: BlankRequest
+
 
 class Supersampler(wiring.Component):
     dac_stream: In(StreamSignature(DACStream))
@@ -793,10 +792,9 @@ class CommandExecutor(wiring.Component):
 
                     with m.Case(CmdType.RasterRegion):
                         m.d.sync += raster_region.eq(command.payload.raster_region.payload.roi)
-                        # m.d.sync += self.flippenator.transforms.eq(command.payload.raster_region.payload.transform ^ self.default_transforms)
-                        m.d.sync += self.flippenator.transforms.xflip.eq(command.payload.raster_region.payload.transform.xflip ^ self.default_transforms.xflip)
-                        m.d.sync += self.flippenator.transforms.yflip.eq(command.payload.raster_region.payload.transform.yflip ^ self.default_transforms.yflip)
-                        m.d.sync += self.flippenator.transforms.rotate90.eq(command.payload.raster_region.payload.transform.rotate90 ^ self.default_transforms.rotate90)
+                        m.d.sync += command_transforms.xflip.eq(command.payload.raster_region.payload.transform.xflip)
+                        m.d.sync += command_transforms.yflip.eq(command.payload.raster_region.payload.transform.yflip)
+                        m.d.sync += command_transforms.rotate90.eq(command.payload.raster_region.payload.transform.rotate90)
 
 
                         m.d.comb += [
@@ -854,13 +852,13 @@ class CommandExecutor(wiring.Component):
                         m.d.comb += vector_stream.payload.blank.eq(sync_blank)
                         m.d.comb += vector_stream.payload.delay.eq(inline_delay_counter)
                         with m.If(command.type==CmdType.VectorPixel):
-                            m.d.sync += self.flippenator.transforms.xflip.eq(command.payload.vector_pixel.payload.transform.xflip ^ self.default_transforms.xflip)
-                            m.d.sync += self.flippenator.transforms.yflip.eq(command.payload.vector_pixel.payload.transform.yflip ^ self.default_transforms.yflip)
-                            m.d.sync += self.flippenator.transforms.rotate90.eq(command.payload.vector_pixel.payload.transform.rotate90 ^ self.default_transforms.rotate90)
+                            m.d.sync += command_transforms.xflip.eq(command.payload.vector_pixel.payload.transform.xflip)
+                            m.d.sync += command_transforms.yflip.eq(command.payload.vector_pixel.payload.transform.yflip)
+                            m.d.sync += command_transforms.rotate90.eq(command.payload.vector_pixel.payload.transform.rotate90)
                         with m.If(command.type==CmdType.VectorPixelMinDwell):
-                            m.d.sync += self.flippenator.transforms.xflip.eq(command.payload.vector_pixel_min.payload.transform.xflip ^ self.default_transforms.xflip)
-                            m.d.sync += self.flippenator.transforms.yflip.eq(command.payload.vector_pixel_min.payload.transform.yflip ^ self.default_transforms.yflip)
-                            m.d.sync += self.flippenator.transforms.rotate90.eq(command.payload.vector_pixel_min.payload.transform.rotate90 ^ self.default_transforms.rotate90)
+                            m.d.sync += command_transforms.xflip.eq(command.payload.vector_pixel_min.payload.transform.xflip)
+                            m.d.sync += command_transforms.yflip.eq(command.payload.vector_pixel_min.payload.transform.yflip)
+                            m.d.sync += command_transforms.rotate90.eq(command.payload.vector_pixel_min.payload.transform.rotate90)
                         with m.If(vector_stream.ready):
                             m.d.sync += inline_delay_counter.eq(0)
                             m.d.comb += submit_pixel.eq(1)

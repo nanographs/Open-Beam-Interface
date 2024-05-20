@@ -506,7 +506,7 @@ class OBIAppletTestCase(unittest.TestCase):
                 yield from put_stream(dut.cmd_stream, {
                     "type": CmdType.RasterPixel,
                     "payload": {
-                        "raster_pixel": {"payload": {"length": 1, "dwell_time": 3}}
+                        "raster_pixel": {"payload": {"length": 1, "dwell_time": 1}}
                     }
                 })
             def get_testbench():
