@@ -7,8 +7,8 @@ import time
 from multiprocessing import Pool
 
 from PyQt6.QtWidgets import (QLabel, QGridLayout, QApplication, QWidget, QFileDialog, QCheckBox,
-                            QProgressBar,
-                             QSpinBox, QComboBox, QHBoxLayout, QVBoxLayout, QPushButton, QLineEdit)
+                            QProgressBar, QSpinBox, QComboBox, QHBoxLayout, QVBoxLayout, 
+                            QPushButton, QLineEdit)
 from PyQt6.QtCore import QThread, QObject, pyqtSignal as Signal, pyqtSlot as Slot
 import qasync
 from qasync import asyncSlot, asyncClose, QApplication, QEventLoop
@@ -24,10 +24,9 @@ setup_logging({"Command": logging.DEBUG, "Stream": logging.DEBUG})
 
 FRACTIONAL_DWELL = True
 # VectorPixel commands have a minimum dwell of 125 ns (6 48 MHz clock cycles)
-# By adding a Delay command, the dwell time can be extended in units of 20.83 ns (one 48 MHz clock cycles)
-# Delay commands are 3 bytes long and take 3 clock cycles to parse serially
-# Therefore the fractional strategy might not be reliable between 125ns - 250ns
-# Additional development in gateware is required to have more control over the smallest dwell times.
+# By adding an InlineDelay command, the dwell time can be extended in units of 20.83 ns (one 48 MHz clock cycles)
+# this requires gateware that latches the DAC at irregular cycles, and does not support using the ADC
+# this gateware can be built by adding the --out_only flag: `pdm run run --out_only`
 DEALWITHRGB = False
 # if you want to do something specific to convert RGB images to grayscale,
 # insert it in Worker.import_file, ~line 81
