@@ -13,9 +13,7 @@ dependencies = [
     "Pillow",
     "hilbertcurve",
     "matplotlib",
-    "glasgow[builtin-toolchain] @ git+https://github.com/isabelburgos/glasgow@main#subdirectory=software",
-    #     "amaranth @git+https://github.com/amaranth-lang/amaranth@main",
-    # "obi-commands @ file:///${PROJECT_ROOT}/obi_applet/glasgowcontrib/applet/open_beam_interface/base_commands",
+    "glasgow[builtin-toolchain] @ git+https://github.com/isabelburgos/glasgow@main#subdirectory=software"
 ]
 requires-python = "!=3.10.0,!=3.10.1,!=3.10.2,~=3.9"
 readme = "README.md"

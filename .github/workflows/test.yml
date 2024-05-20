@@ -20,9 +20,50 @@ on:
 jobs:  
   test-gateware:  
     runs-on: ubuntu-latest
+    steps:  
+      - name: Check out source code
+        uses: actions/checkout@v3  
+      - name: Set up PDM
+        uses: pdm-project/setup-pdm@v3
+        with:
+          python-version: "3.12"
+      - name: Generate lockfile
+        working-directory: .
+        run: pdm lock --group test #${{ matrix.dep-versions == 'minimal' && '--strategy direct_minimal_versions' || '' }}
+      - name: Install dependencies
+        working-directory: .
+        run: pdm sync  
+      - name: Run tests  
+        working-directory: .
+        run: |  
+          pdm run test_g
+
+  test-software:  
+    runs-on: ubuntu-latest
+    steps:  
+      - name: Check out source code
+        uses: actions/checkout@v3  
+      - name: Set up PDM
+        uses: pdm-project/setup-pdm@v3
+        with:
+          python-version: "3.12"
+      - name: Generate lockfile
+        working-directory: .
+        run: pdm lock --group test #${{ matrix.dep-versions == 'minimal' && '--strategy direct_minimal_versions' || '' }}
+      - name: Install dependencies
+        working-directory: .
+        run: pdm sync  
+      - name: Run tests  
+        working-directory: .
+        run: |  
+          pdm run test_s
+
+  test-build:  
     strategy:  
       matrix:  
-        python-version: ["3.9", "3.10", "3.11","3.12"]  
+        os-version: ["ubuntu-latest", "macos-latest"]
+        python-version: ["3.9", "3.10", "3.11","3.12"] 
+    runs-on: ${{ matrix.os-version }}
     steps:  
       - name: Check out source code
         uses: actions/checkout@v3  
@@ -36,16 +77,12 @@ jobs:
       - name: Install dependencies
         working-directory: .
         run: pdm sync  
-      - name: Run tests  
-        working-directory: .
-        run: |  
-          pdm run test_g
 
-  test-build:  
+  test-build-gui:  
     strategy:  
       matrix:  
         os-version: ["ubuntu-latest", "macos-latest"]
-        python-version: ["3.12"]  
+        python-version: ["3.9", "3.10", "3.11","3.12"] 
     runs-on: ${{ matrix.os-version }}
     steps:  
       - name: Check out source code
@@ -56,7 +93,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Generate lockfile
         working-directory: .
-        run: pdm lock --group test #${{ matrix.dep-versions == 'minimal' && '--strategy direct_minimal_versions' || '' }}
+        run: pdm lock -G:all
       - name: Install dependencies
         working-directory: .
         run: pdm sync  
