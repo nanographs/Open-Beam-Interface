@@ -12,10 +12,10 @@ on:
 =======
   push:
     paths:
-      - 'glasgowcontrib'
-      - 'obi_software'
+      - 'glasgowcontrib/*'
+      - 'obi_software/*'
       - 'pyproject.toml'
-      - '.github/test.yml' # Trigger on changes to the workflow file
+      - '.github/workflows/test.yml' # Trigger on changes to the workflow file
   
 jobs:  
   test-gateware:  
