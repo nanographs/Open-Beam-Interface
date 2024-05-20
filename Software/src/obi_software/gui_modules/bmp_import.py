@@ -22,7 +22,7 @@ from .image_display import ImageDisplay
 import logging
 setup_logging({"Command": logging.DEBUG, "Stream": logging.DEBUG})
 
-FRACTIONAL_DWELL = True
+FRACTIONAL_DWELL = False
 # VectorPixel commands have a minimum dwell of 125 ns (6 48 MHz clock cycles)
 # By adding an InlineDelay command, the dwell time can be extended in units of 20.83 ns (one 48 MHz clock cycles)
 # this requires gateware that latches the DAC at irregular cycles, and does not support using the ADC
