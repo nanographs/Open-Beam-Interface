@@ -48,7 +48,7 @@ debug_gui.cmd = "python -m obi_software.gui 2224 --debug --config_path ~/open-be
 test_s.cmd = "python -m unittest obi_software.test"
 hilbert.cmd = "python -m obi_software.hilbert"
 run.cmd = "glasgow --statistics run open_beam_interface -V 5 --pin-ext-ibeam-scan-enable 0 --pin-ext-ibeam-scan-enable-2 1 --pin-ext-ibeam-blank-enable 2 --pin-ext-ibeam-blank-enable-2 3 --pin-ibeam-blank-low 4 --pin-ibeam-blank-high 5 --pin-ebeam-blank 6 --pin-ebeam-blank-2 7 tcp::2224 --xflip"
-run_script.cmd = "glasgow -script {args} open_beam_interface -V 5 --pin-ext-ibeam-scan-enable 0 --pin-ext-ibeam-scan-enable-2 1 --pin-ext-ibeam-blank-enable 2 --pin-ext-ibeam-blank-enable-2 3 --pin-ibeam-blank-low 4 --pin-ibeam-blank-high 5 --pin-ebeam-blank 6 --pin-ebeam-blank-2 7"
+run_script.cmd = "glasgow script {args} open_beam_interface -V 5 --pin-ext-ibeam-scan-enable 0 --pin-ext-ibeam-scan-enable-2 1 --pin-ext-ibeam-blank-enable 2 --pin-ext-ibeam-blank-enable-2 3 --pin-ibeam-blank-low 4 --pin-ibeam-blank-high 5 --pin-ebeam-blank 6 --pin-ebeam-blank-2 7"
 test_g.cmd = "python -m unittest glasgowcontrib.applet.open_beam_interface.test"
 build.cmd = "glasgow build --rev C3 open_beam_interface --pin-ext-ibeam-scan-enable 0 --pin-ext-ibeam-scan-enable-2 1 --pin-ext-ibeam-blank-enable 2 --pin-ext-ibeam-blank-enable-2 3 --pin-ibeam-blank-low 4 --pin-ibeam-blank-high 5 --pin-ebeam-blank 6 --pin-ebeam-blank-2 7"
 build.env = {AMARANTH_verbose = "1"}
