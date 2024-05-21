@@ -12,7 +12,7 @@ import time
 from time import perf_counter
 
 from .support import dump_hex
-from ..obi_applet.base_commands import *
+from ..glasgowcontrib.applet.open_beam_interface.base_commands import *
 
 
 BIG_ENDIAN = (struct.pack('@H', 0x1234) == struct.pack('>H', 0x1234))
