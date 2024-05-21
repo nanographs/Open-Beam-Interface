@@ -606,6 +606,7 @@ class CommandParser(wiring.Component):
                 "Payload_Raster_Pixel_Array", "Payload_Raster_Pixel_Array_Submit")
 
             with m.State("Payload_Raster_Pixel_Array_Submit"):
+                m.d.sync += payload_parsed.eq(0)
                 m.d.comb += command.eq(command_reg)
                 m.d.comb += command_header.eq(command_header_reg)
                 m.d.comb += command.type.eq(command_header.type)
@@ -620,6 +621,7 @@ class CommandParser(wiring.Component):
 
 
             with m.State("Submit_with_payload"):
+                m.d.sync += payload_parsed.eq(0)
                 m.d.comb += command.eq(command_reg)
                 m.d.comb += command_header.eq(command_header_reg)
                 m.d.comb += command.type.eq(command_header.type)
@@ -651,8 +653,8 @@ class CommandExecutor(wiring.Component):
     output_mode: Out(2)
 
 
-    def __init__(self, *, out_only:bool=False, adc_latency=6):
-        self.adc_latency = 6
+    def __init__(self, *, out_only:bool=False, adc_latency=8): 
+        self.adc_latency = adc_latency # DAC latch + 6 pipelining stages + ADC latch = 8
         self.supersampler = Supersampler()
         self.flippenator = Flippenator()
 
