@@ -29,17 +29,23 @@ parser_server.set_defaults(script=False, server=True)
 args = parser.parse_args()
 
 pin_args = []
-if args.config_path:
+transform_args = []
+if hasattr(args, "config_path"):
     print(f"loading config from {args.config_path}")
     config = tomllib.load(open(args.config_path, "rb") )
-    if hasattr(config, "pinout"):
+    if "pinout" in config:
         pinout = config["pinout"]
         for pin_name in pinout:
             pin_num = pinout.get(pin_name)
             pin_args += ["--pin-"+pin_name, str(pin_num)]
+    if "transforms" in config:
+        transforms = config["transforms"]
+        transform_args += ["--" + x for x in transforms if transforms.get(x) == True]
+
+
 
 endpoint_arg = []
-if args.server:
+if hasattr(args, "server"):
     endpoint_arg += ["tcp::" + args.port]
 
 env = os.environ._data
@@ -47,13 +53,18 @@ env.update({"GLASGOW_OUT_OF_TREE_APPLETS":"I-am-okay-with-breaking-changes"})
 
 
 def run():
-    if args.script:
-        glasgow_cmd = ["glasgow", "script", args.script_path, "open_beam_interface", "-V", "5"] + pin_args + endpoint_arg
-    elif args.server:
-        glasgow_cmd = ["glasgow", "run", "open_beam_interface", "-V", "5"] + pin_args + endpoint_arg
+    if hasattr(args, "script"):
+        glasgow_cmd = ["glasgow", "script", args.script_path, "open_beam_interface", "-V", "5"] + pin_args + transform_args + endpoint_arg
+    elif hasattr(args, "server"):
+        glasgow_cmd = ["glasgow", "run", "open_beam_interface", "-V", "5"] + pin_args + transform_args + endpoint_arg
     else:
-        print("Choose mode: obi_run script or obi_run server")
+        print("""Choose mode: obi_run script or obi_run server\n
+                Examples:\n
+                Script mode: obi_run --config_path path/to/microscope.toml --script_path /path/to/script\n
+                Server mode: obi_run --config_path path/to/microscope.toml 2224""")
         quit()
     glasgow = subprocess.Popen(glasgow_cmd,env=env, stdin=sys.stdin)
     glasgow.communicate()
 
+if __name__ == "__main__":
+    run()
