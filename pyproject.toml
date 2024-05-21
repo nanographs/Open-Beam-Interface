@@ -26,8 +26,8 @@ gui = ["PyQt6",
 hilbert = ["hilbertcurve"]
 
 [project.scripts]
-obi_run = "glasgowcontrib.applet.open_beam_interface.run:run"
-obi_gui = "obi_software.gui:run_gui"
+obi_run = "glasgowcontrib.applet.open_beam_interface.run:run" ## wrapper around glasgow cli
+obi_gui = "obi_software.gui:run_gui" ## main imaging ui
 obi_shape = "obi_software.scripts.shapes:main"
 
 [project.entry-points."glasgow.applet"]
@@ -43,13 +43,16 @@ includes = ["glasgowcontrib"]
 
 [tool.pdm.scripts]
 _.env = {GLASGOW_OUT_OF_TREE_APPLETS = "I-am-okay-with-breaking-changes"}
-gui.cmd = "python -m obi_software.gui 2224 --config_path ~/open-beam-interface/microscope.toml"
-debug_gui.cmd = "python -m obi_software.gui 2224 --debug --config_path ~/open-beam-interface/microscope.toml"
-test_s.cmd = "python -m unittest obi_software.test"
-hilbert.cmd = "python -m obi_software.hilbert"
+## wrapper around glasgow cli
 run_server.cmd = "obi_run server --config_path ~/open-beam-interface/microscope.toml {args}"
 run_script.cmd = "obi_run script --config_path ~/open-beam-interface/microscope.toml --script_path {args"
+## used with server
+gui.cmd = "python -m obi_software.gui 2224 --config_path ~/open-beam-interface/microscope.toml"
+debug_gui.cmd = "python -m obi_software.gui 2224 --debug --config_path ~/open-beam-interface/microscope.toml"
+hilbert.cmd = "python -m obi_software.hilbert"
+## unit tests
 test_g.cmd = "python -m unittest glasgowcontrib.applet.open_beam_interface.test"
+test_s.cmd = "python -m unittest obi_software.test"
 build.cmd = "glasgow build --rev C3 open_beam_interface --pin-ext-ibeam-scan-enable 0 --pin-ext-ibeam-scan-enable-2 1 --pin-ext-ibeam-blank-enable 2 --pin-ext-ibeam-blank-enable-2 3 --pin-ibeam-blank-low 4 --pin-ibeam-blank-high 5 --pin-ebeam-blank 6 --pin-ebeam-blank-2 7"
 build.env = {AMARANTH_verbose = "1"}
 
