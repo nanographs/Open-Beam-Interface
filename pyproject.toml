@@ -9,7 +9,6 @@ authors = [
 dependencies = [
     "numpy",
     "tifffile",
-    "ome-types",
     "Pillow",
     "matplotlib",
     "glasgow[builtin-toolchain] @ git+https://github.com/isabelburgos/glasgow@main#subdirectory=software"
@@ -24,6 +23,7 @@ gui = ["PyQt6",
         "qasync",
         ]
 hilbert = ["hilbertcurve"]
+metadata = ["ome-types"]
 
 [project.scripts]
 obi_run = "glasgowcontrib.applet.open_beam_interface.run:run" ## wrapper around glasgow cli
