@@ -60,8 +60,8 @@ def run():
     else:
         print("""Choose mode: obi_run script or obi_run server\n
                 Examples:\n
-                Script mode: obi_run --config_path path/to/microscope.toml --script_path /path/to/script\n
-                Server mode: obi_run --config_path path/to/microscope.toml 2224""")
+                Script mode: obi_run script --config_path path/to/microscope.toml --script_path /path/to/script\n
+                Server mode: obi_run server --config_path path/to/microscope.toml 2224""")
         quit()
     glasgow = subprocess.Popen(glasgow_cmd,env=env, stdin=sys.stdin)
     glasgow.communicate()
