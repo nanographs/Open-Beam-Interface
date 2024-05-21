@@ -913,7 +913,7 @@ class OBIAppletTestCase(unittest.TestCase):
                 await iface.write(SynchronizeCommand(cookie=123*256 + 234, raster=False, output=OutputMode.SixteenBit).message)
                 self.assertEqual(await iface.read(4), bytes([0xFF, 0xFF, 123, 234])) # FF, FF, cookie
             
-            @applet_simulation_test("setup_x_loopback", args=["tcp::2222"], interact=True)
+            @applet_simulation_test("setup_x_loopback")
             async def test_raster(self):
                 iface = await self.run_simulated_applet()
                 await iface.write(SynchronizeCommand(cookie=123*256 + 234, raster=True, output=OutputMode.SixteenBit).message)
