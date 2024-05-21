@@ -946,14 +946,16 @@ class OBIAppletTestCase(unittest.TestCase):
             @applet_simulation_test("setup_x_loopback")
             async def test_loopback(self):
                 iface = await self.run_simulated_applet()
-                await iface.write(SynchronizeCommand(output=OutputMode.EightBit, raster=False, cookie=123*256+234).message)
+                await iface.write(SynchronizeCommand(output=OutputMode.SixteenBit, raster=False, cookie=123*256+234).message)
                 await iface.write(FlushCommand().message)
                 self.assertEqual(await iface.read(4), bytes([0xFF, 0xFF, 123, 234])) # FF, FF, cookie
                 # await iface.flush()
                 commands = bytearray()
                 for n in range(10):
                     await iface.write(VectorPixelCommand(x_coord=n, y_coord=n, dwell=1).message)
-                self.assertEqual(await iface.read(10), bytes([x for x in range(10)]))
+                res = array.array('H',[x for x in range(10)])
+                res.byteswap()
+                self.assertEqual(await iface.read(20), bytes(res))
 
 
             @applet_simulation_test("setup_test", args=["--pin-ext-ibeam-scan-enable", "0", "--pin-ext-ibeam-scan-enable-2", "1"])
@@ -1011,7 +1013,7 @@ class OBIAppletTestCase(unittest.TestCase):
         test_case.test_raster()
         test_case.test_benchmark()
         test_case.test_vector_blank()
-        # test_case.test_loopback()
+        test_case.test_loopback()
 
         
 
