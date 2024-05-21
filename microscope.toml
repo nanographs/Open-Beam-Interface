@@ -9,3 +9,11 @@ ext-ibeam-blank-enable = 2
 ext-ibeam-blank-enable-2 = 3
 ibeam-blank-low = 4
 ibeam-blank-high = 5
+ebeam-blank = 6
+ebeam-blank-2 = 7
+ext-ebeam-scan-enable = 8
+ext-ebeam-scan-enable-2 = 9
+
+[transforms]
+xflip = true
+rotate90 = true
