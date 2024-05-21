@@ -284,13 +284,7 @@ class StreamSynchronizeCommand(SynchronizeCommand, StreamCommand):
 
     @StreamCommand.log_transfer
     async def transfer(self, stream: Stream):
-<<<<<<< HEAD
-        cmd = struct.pack(">BHBB", CommandType.Synchronize, self._cookie, self._mode, CommandType.Flush)
-||||||| parent of 4bf6e40 (migrate software commands to use base_commands as source)
-        cmd = struct.pack(">BHB", CommandType.Synchronize, self._cookie, self._mode)
-=======
         cmd = self.message
->>>>>>> 4bf6e40 (migrate software commands to use base_commands as source)
         res = await stream.xchg(cmd, recv_length=4)
         sync, cookie_1, cookie_2 = struct.unpack(">HBB", res)
         cookie_reversed = struct.pack('>H', cookie_2*256 + cookie_1)
