@@ -916,14 +916,15 @@ class OBIAppletTestCase(unittest.TestCase):
             @applet_simulation_test("setup_x_loopback", args=["tcp::2222"], interact=True)
             async def test_raster(self):
                 iface = await self.run_simulated_applet()
-                await iface.write(SynchronizeCommand(cookie=123*256 + 234, raster=False, output=OutputMode.NoOutput).message)
+                await iface.write(SynchronizeCommand(cookie=123*256 + 234, raster=True, output=OutputMode.SixteenBit).message)
                 self.assertEqual(await iface.read(4), bytes([0xFF, 0xFF, 123, 234])) # FF, FF, cookie
-                x_range = DACCodeRange(start=5, count=2, step=0x2_00)
-                y_range = DACCodeRange(start=9, count=1, step=0x5_00)
+                x_range = DACCodeRange(start=0, count=5, step=256) #step = 1 DAC code
+                y_range = DACCodeRange(start=5, count=10, step=256)
                 await iface.write(RasterRegionCommand(x_range=x_range, y_range=y_range).message)
-                await iface.write(RasterPixelRunCommand(length=2, dwell=2).message)
-                # data = await iface.read(12)
-                #print(data)
+                await iface.write(RasterPixelRunCommand(length=25, dwell=2).message)
+                res = array.array('H',[x for x in range(5)]*5)
+                res.byteswap()
+                self.assertEqual(await iface.read(50), bytes(res))
             
             @applet_simulation_test("setup_x_loopback")
             async def test_benchmark(self):
@@ -944,7 +945,7 @@ class OBIAppletTestCase(unittest.TestCase):
                     await iface.write(VectorPixelCommand(x_coord=16380, y_coord=4, dwell=1).message)
             
             @applet_simulation_test("setup_x_loopback")
-            async def test_loopback(self):
+            async def test_loopback_vector(self):
                 iface = await self.run_simulated_applet()
                 await iface.write(SynchronizeCommand(output=OutputMode.SixteenBit, raster=False, cookie=123*256+234).message)
                 await iface.write(FlushCommand().message)
@@ -956,6 +957,7 @@ class OBIAppletTestCase(unittest.TestCase):
                 res = array.array('H',[x for x in range(10)])
                 res.byteswap()
                 self.assertEqual(await iface.read(20), bytes(res))
+            
 
 
             @applet_simulation_test("setup_test", args=["--pin-ext-ibeam-scan-enable", "0", "--pin-ext-ibeam-scan-enable-2", "1"])
@@ -1008,12 +1010,12 @@ class OBIAppletTestCase(unittest.TestCase):
             
         test_case = OBIApplet_TestCase()
         test_case.setUp()
-        test_case.test_build()
-        test_case.test_sync_cookie()
+        # test_case.test_build()
+        # test_case.test_sync_cookie()
         test_case.test_raster()
-        test_case.test_benchmark()
-        test_case.test_vector_blank()
-        test_case.test_loopback()
+        # test_case.test_benchmark()
+        # test_case.test_vector_blank()
+        # test_case.test_loopback_vector()
 
         
 
