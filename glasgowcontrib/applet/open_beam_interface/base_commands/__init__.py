@@ -452,7 +452,9 @@ class RasterPixelRunCommand(BaseCommand):
     
     @property
     def test_response(self):
-        return [0]*self._length
+        res = array.array('H', [self.dwell]*self._length)
+        res.byteswap()
+        return bytes(res)
 
 class RasterPixelFreeRunCommand(BaseCommand):
     def __init__(self, *, dwell: int):
@@ -528,7 +530,9 @@ class VectorPixelCommand(BaseCommand):
                     }})
     @property
     def test_response(self):
-        return [0]
+        res = array.array('H', [self.x_coord])
+        res.byteswap()
+        return bytes(res)
 
 
 
@@ -585,7 +589,9 @@ class RasterPixelsCommand(BaseCommand):
     
     @property
     def test_response(self):
-        return [0]*len(self._dwells)
+        res = array.array('H', self._dwells)
+        res.byteswap()
+        return res
 
 
 class CommandSequence(BaseCommand):
