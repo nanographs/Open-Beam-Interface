@@ -1,0 +1,15 @@
+[project]
+name = "Docs"
+version = "0"
+description = "Default template for PDM package"
+authors = [
+    {name = "isabelburgos", email = "isabel@nanographs.io"},
+]
+dependencies = []
+requires-python = "==3.12.*"
+readme = "README.md"
+license = {text = ""}
+
+
+[tool.pdm]
+distribution = false
