@@ -5,7 +5,7 @@
 groups = ["default"]
 strategy = ["cross_platform", "inherit_metadata"]
 lock_version = "4.4.1"
-content_hash = "sha256:9857407cf47e8b658816bc1a0eb45964384b88a0be9049b6ed7042239e7b8185"
+content_hash = "sha256:82fa71f35c4f9ef9b41445d85f8a59b9b2b3b0286897646ccbfc1c6a2d24a60f"
 
 [[package]]
 name = "alabaster"
@@ -199,6 +199,19 @@ files = [
 ]
 
 [[package]]
+name = "quickjs"
+version = "1.19.4"
+summary = "Wrapping the quickjs C library."
+groups = ["default"]
+files = [
+    {file = "quickjs-1.19.4-cp312-cp312-macosx_10_9_universal2.whl", hash = "sha256:1bc38a840144a54e90668fb1f99441148429ab1d1b1355ecafbbe656eaeff788"},
+    {file = "quickjs-1.19.4-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:45d0e68570425d8322c48fb8989865df9b8c3e3ad3a01726151e0451d3c637eb"},
+    {file = "quickjs-1.19.4-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:ac4b6d40b90553e9b135b35b3eaca264d10cdf92bfafce36ed9fb9acfdc5b420"},
+    {file = "quickjs-1.19.4-cp312-cp312-win_amd64.whl", hash = "sha256:3ebe018eaef1957a21264b98877c6217d7bfc4e28cbc5d87e75f879e1f45fc85"},
+    {file = "quickjs-1.19.4.tar.gz", hash = "sha256:1205953abc24ff757f4a795304d5d61e4bf1e555c9ef6ec96a132d4b95535484"},
+]
+
+[[package]]
 name = "requests"
 version = "2.32.2"
 requires_python = ">=3.8"
@@ -324,6 +337,17 @@ files = [
 ]
 
 [[package]]
+name = "sphinxcontrib-mermaid"
+version = "0.9.2"
+requires_python = ">=3.7"
+summary = "Mermaid diagrams in yours Sphinx powered docs"
+groups = ["default"]
+files = [
+    {file = "sphinxcontrib-mermaid-0.9.2.tar.gz", hash = "sha256:252ef13dd23164b28f16d8b0205cf184b9d8e2b714a302274d9f59eb708e77af"},
+    {file = "sphinxcontrib_mermaid-0.9.2-py3-none-any.whl", hash = "sha256:6795a72037ca55e65663d2a2c1a043d636dc3d30d418e56dd6087d1459d98a5d"},
+]
+
+[[package]]
 name = "sphinxcontrib-qthelp"
 version = "1.0.7"
 requires_python = ">=3.9"
@@ -346,6 +370,20 @@ files = [
 ]
 
 [[package]]
+name = "sphinxcontrib-yowasp-wavedrom"
+version = "1.4"
+requires_python = "~=3.8"
+summary = "A Sphinx extension for embedding WaveDrom diagrams"
+groups = ["default"]
+dependencies = [
+    "Sphinx~=7.1",
+    "yowasp-wavedrom>=3.5.0.8",
+]
+files = [
+    {file = "sphinxcontrib_yowasp_wavedrom-1.4-py3-none-any.whl", hash = "sha256:f87a83fb2f2c14ab4024c48231ac321b0992c63439a2ee24b5582d2dae3be54c"},
+]
+
+[[package]]
 name = "urllib3"
 version = "2.2.1"
 requires_python = ">=3.8"
@@ -354,4 +392,17 @@ groups = ["default"]
 files = [
     {file = "urllib3-2.2.1-py3-none-any.whl", hash = "sha256:450b20ec296a467077128bff42b73080516e71b56ff59a60a02bef2232c4fa9d"},
     {file = "urllib3-2.2.1.tar.gz", hash = "sha256:d0570876c61ab9e520d776c38acbbb5b05a776d3f9ff98a5c8fd5162a444cf19"},
+]
+
+[[package]]
+name = "yowasp-wavedrom"
+version = "3.5.0.8"
+requires_python = "~=3.8"
+summary = "WaveDrom generates diagrams for digital waveforms, bit fields, and simple combinational circuits"
+groups = ["default"]
+dependencies = [
+    "quickjs~=1.19",
+]
+files = [
+    {file = "yowasp_wavedrom-3.5.0.8-py3-none-any.whl", hash = "sha256:f5e6250e42dc7a93648b196e121ddeb72965f70620a18579ade2e9723cc5a65e"},
 ]

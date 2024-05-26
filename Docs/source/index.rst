@@ -6,10 +6,9 @@
 Welcome to Open Beam Interface's documentation!
 ===============================================
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Contents:
 
+.. toctree::
+   gateware
 
 
 Indices and tables
