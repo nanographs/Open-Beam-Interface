@@ -14,3 +14,4 @@ Gateware/open_beam_interface.bin
 
 *.pdm-python
 *.bin
+Docs/build/*
