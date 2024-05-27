@@ -1,3 +1,7 @@
+import os, sys
+sys.path.insert(0, os.path.dirname(os.path.abspath("..")))
+print(sys.path)
+
 # Configuration file for the Sphinx documentation builder.
 #
 # For the full list of built-in configuration values, see the documentation:
@@ -19,13 +23,15 @@ extensions = [
     'sphinx.ext.autosummary',
     'sphinx.ext.napoleon',
     "sphinxcontrib.yowasp_wavedrom",
-    'sphinxcontrib.mermaid'
+    'sphinxcontrib.mermaid',
+    "sphinx_copybutton",
+    "sphinx_inline_tabs",
 ]
 
 templates_path = ['_templates']
 exclude_patterns = []
 
-
+copybutton_copy_empty_lines = False
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
