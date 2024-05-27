@@ -7,8 +7,10 @@ Welcome to Open Beam Interface's documentation!
 ===============================================
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+   Install
+   Configuration
+   Accessory Boards
+   Commands
 
 
 
