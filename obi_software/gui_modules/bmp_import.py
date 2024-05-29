@@ -9,13 +9,13 @@ from multiprocessing import Pool
 from PyQt6.QtWidgets import (QLabel, QGridLayout, QApplication, QWidget, QFileDialog, QCheckBox,
                             QProgressBar, QSpinBox, QComboBox, QHBoxLayout, QVBoxLayout, 
                             QPushButton, QLineEdit)
-from PyQt6.QtCore import QThread, QObject, pyqtSignal as Signal, pyqtSlot as Slot
+from PyQt6.QtCore import QThread, QObject, pyqtSignal, pyqtSlot as Slot
 import qasync
 from qasync import asyncSlot, asyncClose, QApplication, QEventLoop
 import pyqtgraph as pg
 
 from ..stream_interface import Connection, setup_logging
-from ..base_commands import *
+from base_commands import *
 from .image_display import ImageDisplay
 
 
@@ -61,11 +61,11 @@ def line(xarray):
 
 
 class Worker(QObject):
-    progress = Signal(int)
-    process_img_output = Signal(str)
-    file_import_completed = Signal(int)
-    image_process_completed = Signal(int)
-    vector_process_completed = Signal(int)
+    progress = pyqtSignal(int)
+    process_img_output = pyqtSignal(str)
+    file_import_completed = pyqtSignal(int)
+    image_process_completed = pyqtSignal(int)
+    vector_process_completed = pyqtSignal(int)
 
     @Slot(str)
     def import_file(self, img_path):
@@ -338,9 +338,9 @@ class VectorProcessState(QHBoxLayout):
 
 
 class MainWindow(QVBoxLayout):
-    file_import_requested = Signal(str)
-    image_process_requested = Signal(list)
-    vector_process_requested = Signal(BeamType)
+    file_import_requested = pyqtSignal(str)
+    image_process_requested = pyqtSignal(list)
+    vector_process_requested = pyqtSignal(BeamType)
     def __init__(self, conn, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.conn = conn
