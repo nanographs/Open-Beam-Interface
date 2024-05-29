@@ -2,10 +2,10 @@
 # It is not intended for manual editing.
 
 [metadata]
-groups = ["default", "docs_2"]
+groups = ["default", "test"]
 strategy = ["cross_platform", "inherit_metadata"]
 lock_version = "4.4.1"
-content_hash = "sha256:606da114cda2486ac5ed98d41fcf6045351555db6b0b001e134b1b712cf40952"
+content_hash = "sha256:c22a8993c3b93a8d07614db945ac8f4d4e600b548f8a9f5cc1adb2313dc8d073"
 
 [[package]]
 name = "alabaster"
@@ -20,29 +20,17 @@ files = [
 
 [[package]]
 name = "amaranth"
-version = "0.5.0.dev199"
+version = "0.5.0.dev305"
 requires_python = "~=3.8"
-git = "https://github.com/whitequark/amaranth"
-ref = "testbenchessssss"
-revision = "3e5565c7b4bd0308934b27a92138a0c62c682575"
+git = "https://github.com/amaranth-lang/amaranth"
+ref = "main"
+revision = "028d5d80736151dbe6f9d35d35544cbfff6bef87"
 summary = "Amaranth hardware definition language"
-groups = ["default"]
+groups = ["default", "test"]
 dependencies = [
     "Jinja2~=3.0",
+    "jschon~=0.11.1",
     "pyvcd<0.5,>=0.2.2",
-]
-
-[[package]]
-name = "amaranth-yosys"
-version = "0.40.0.0.post95"
-requires_python = "~=3.8"
-summary = "Specialized WebAssembly build of Yosys used by Amaranth HDL"
-groups = ["default"]
-dependencies = [
-    "wasmtime<22,>=1",
-]
-files = [
-    {file = "amaranth_yosys-0.40.0.0.post95-py3-none-any.whl", hash = "sha256:b9b31e84e8889b60285c8f1b9b51e80dfa0f2df4ccc724dfc28ff8edb9e7a4b3"},
 ]
 
 [[package]]
@@ -139,25 +127,12 @@ files = [
 ]
 
 [[package]]
-name = "click"
-version = "8.1.7"
-requires_python = ">=3.7"
-summary = "Composable command line interface toolkit"
-groups = ["default", "docs_2"]
-dependencies = [
-    "colorama; platform_system == \"Windows\"",
-]
-files = [
-    {file = "click-8.1.7-py3-none-any.whl", hash = "sha256:ae74fb96c20a0277a1d615f1e4d73c8414f5a98db8b799a7931d1582f3390c28"},
-    {file = "click-8.1.7.tar.gz", hash = "sha256:ca9853ad459e787e2192211578cc907e7594e294c7ccc834310722b41b9ca6de"},
-]
-
-[[package]]
 name = "colorama"
 version = "0.4.6"
 requires_python = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,!=3.6.*,>=2.7"
 summary = "Cross-platform colored terminal text."
-groups = ["default", "docs_2"]
+groups = ["default"]
+marker = "sys_platform == \"win32\""
 files = [
     {file = "colorama-0.4.6-py2.py3-none-any.whl", hash = "sha256:4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6"},
     {file = "colorama-0.4.6.tar.gz", hash = "sha256:08695f5cb7ed6e0531a20572697297273c47b8cae5a63ffc6d6ed5c201be6e44"},
@@ -297,69 +272,20 @@ files = [
 ]
 
 [[package]]
-name = "ghp-import"
-version = "2.1.0"
-summary = "Copy your docs directly to the gh-pages branch."
-groups = ["docs_2"]
-dependencies = [
-    "python-dateutil>=2.8.1",
-]
-files = [
-    {file = "ghp-import-2.1.0.tar.gz", hash = "sha256:9c535c4c61193c2df8871222567d7fd7e5014d835f97dc7b7439069e2413d343"},
-    {file = "ghp_import-2.1.0-py3-none-any.whl", hash = "sha256:8337dd7b50877f163d4c0289bc1f1c7f127550241988d568c1db512c4324a619"},
-]
-
-[[package]]
 name = "glasgow"
-version = "0.1.dev2026+g9ec31fb"
+version = "0.1.dev2026"
 requires_python = "!=3.10.0,!=3.10.1,!=3.10.2,~=3.9"
-subdirectory = "software"
-git = "https://github.com/isabelburgos/glasgow"
-ref = "main"
-revision = "9ec31fbf34c0653b31eadaaa837c3ab4658af4da"
+path = "/Users/isabelburgos/glasgow/software"
 summary = "Software for the Glasgow Interface Explorer, a digital interface multitool"
 groups = ["default"]
 dependencies = [
-    "amaranth @ git+https://github.com/whitequark/amaranth@testbenchessssss",
+    "amaranth @ git+https://github.com/amaranth-lang/amaranth@main",
     "fx2<1,>=0.11",
     "libusb1>=3.1.0",
     "packaging>=23.0",
     "platformdirs<4,>=3.0.0",
     "pyvcd<0.5,>=0.2",
     "typing-extensions<5,>=4.8",
-]
-
-[[package]]
-name = "glasgow"
-version = "0.1.dev2026"
-extras = ["builtin-toolchain"]
-requires_python = "!=3.10.0,!=3.10.1,!=3.10.2,~=3.9"
-subdirectory = "software"
-git = "https://github.com/isabelburgos/glasgow"
-ref = "main"
-revision = "9ec31fbf34c0653b31eadaaa837c3ab4658af4da"
-summary = "Software for the Glasgow Interface Explorer, a digital interface multitool"
-groups = ["default"]
-dependencies = [
-    "amaranth-yosys",
-    "glasgow @ git+https://github.com/isabelburgos/glasgow@main#subdirectory=software",
-    "yowasp-nextpnr-ice40>=0.1",
-    "yowasp-runtime>=1.42",
-    "yowasp-yosys>=0.31.0.13",
-]
-
-[[package]]
-name = "griffe"
-version = "0.45.2"
-requires_python = ">=3.8"
-summary = "Signatures for entire Python programs. Extract the structure, the frame, the skeleton of your project, to generate API documentation or find breaking changes in your API."
-groups = ["docs_2"]
-dependencies = [
-    "colorama>=0.4",
-]
-files = [
-    {file = "griffe-0.45.2-py3-none-any.whl", hash = "sha256:297ec8530d0c68e5b98ff86fb588ebc3aa3559bb5dc21f3caea8d9542a350133"},
-    {file = "griffe-0.45.2.tar.gz", hash = "sha256:83ce7dcaafd8cb7f43cbf1a455155015a1eb624b1ffd93249e5e1c4a22b2fdb2"},
 ]
 
 [[package]]
@@ -389,7 +315,7 @@ name = "importlib-metadata"
 version = "7.1.0"
 requires_python = ">=3.8"
 summary = "Read metadata from Python packages"
-groups = ["default", "docs_2"]
+groups = ["default"]
 marker = "python_version < \"3.10\""
 dependencies = [
     "zipp>=0.5",
@@ -405,6 +331,7 @@ version = "6.4.0"
 requires_python = ">=3.8"
 summary = "Read resources from Python packages"
 groups = ["default"]
+marker = "python_version < \"3.10\""
 dependencies = [
     "zipp>=3.1.0; python_version < \"3.10\"",
 ]
@@ -418,13 +345,27 @@ name = "jinja2"
 version = "3.1.4"
 requires_python = ">=3.7"
 summary = "A very fast and expressive template engine."
-groups = ["default", "docs_2"]
+groups = ["default", "test"]
 dependencies = [
     "MarkupSafe>=2.0",
 ]
 files = [
     {file = "jinja2-3.1.4-py3-none-any.whl", hash = "sha256:bc5dd2abb727a5319567b7a813e6a2e7318c39f4f487cfe6c89c6f9c7d25197d"},
     {file = "jinja2-3.1.4.tar.gz", hash = "sha256:4a3aee7acbbe7303aede8e9648d13b8bf88a429282aa6122a993f0ac800cb369"},
+]
+
+[[package]]
+name = "jschon"
+version = "0.11.1"
+requires_python = "~=3.8"
+summary = "A JSON toolkit for Python developers."
+groups = ["default", "test"]
+dependencies = [
+    "rfc3986",
+]
+files = [
+    {file = "jschon-0.11.1-py3-none-any.whl", hash = "sha256:2350e8b6747b17358022960f91208bea70de448b914827af3184d30e20500f0f"},
+    {file = "jschon-0.11.1.tar.gz", hash = "sha256:c0ca0beab1f1694a03d726b91ed75ec604a7787af3ae91ead765f78215bf149f"},
 ]
 
 [[package]]
@@ -525,25 +466,11 @@ files = [
 ]
 
 [[package]]
-name = "markdown"
-version = "3.6"
-requires_python = ">=3.8"
-summary = "Python implementation of John Gruber's Markdown."
-groups = ["docs_2"]
-dependencies = [
-    "importlib-metadata>=4.4; python_version < \"3.10\"",
-]
-files = [
-    {file = "Markdown-3.6-py3-none-any.whl", hash = "sha256:48f276f4d8cfb8ce6527c8f79e2ee29708508bf4d40aa410fbc3b4ee832c850f"},
-    {file = "Markdown-3.6.tar.gz", hash = "sha256:ed4f41f6daecbeeb96e576ce414c41d2d876daa9a16cb35fa8ed8c2ddfad0224"},
-]
-
-[[package]]
 name = "markupsafe"
 version = "2.1.5"
 requires_python = ">=3.7"
 summary = "Safely add untrusted strings to HTML/XML markup."
-groups = ["default", "docs_2"]
+groups = ["default", "test"]
 files = [
     {file = "MarkupSafe-2.1.5-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:a17a92de5231666cfbe003f0e4b9b3a7ae3afb1ec2845aadc2bacc93ff85febc"},
     {file = "MarkupSafe-2.1.5-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:72b6be590cc35924b02c78ef34b467da4ba07e4e0f0454a2c5907f473fc50ce5"},
@@ -639,131 +566,6 @@ files = [
 ]
 
 [[package]]
-name = "mergedeep"
-version = "1.3.4"
-requires_python = ">=3.6"
-summary = "A deep merge function for 🐍."
-groups = ["docs_2"]
-files = [
-    {file = "mergedeep-1.3.4-py3-none-any.whl", hash = "sha256:70775750742b25c0d8f36c55aed03d24c3384d17c951b3175d898bd778ef0307"},
-    {file = "mergedeep-1.3.4.tar.gz", hash = "sha256:0096d52e9dad9939c3d975a774666af186eda617e6ca84df4c94dec30004f2a8"},
-]
-
-[[package]]
-name = "mkdocs"
-version = "1.6.0"
-requires_python = ">=3.8"
-summary = "Project documentation with Markdown."
-groups = ["docs_2"]
-dependencies = [
-    "click>=7.0",
-    "colorama>=0.4; platform_system == \"Windows\"",
-    "ghp-import>=1.0",
-    "importlib-metadata>=4.4; python_version < \"3.10\"",
-    "jinja2>=2.11.1",
-    "markdown>=3.3.6",
-    "markupsafe>=2.0.1",
-    "mergedeep>=1.3.4",
-    "mkdocs-get-deps>=0.2.0",
-    "packaging>=20.5",
-    "pathspec>=0.11.1",
-    "pyyaml-env-tag>=0.1",
-    "pyyaml>=5.1",
-    "watchdog>=2.0",
-]
-files = [
-    {file = "mkdocs-1.6.0-py3-none-any.whl", hash = "sha256:1eb5cb7676b7d89323e62b56235010216319217d4af5ddc543a91beb8d125ea7"},
-    {file = "mkdocs-1.6.0.tar.gz", hash = "sha256:a73f735824ef83a4f3bcb7a231dcab23f5a838f88b7efc54a0eef5fbdbc3c512"},
-]
-
-[[package]]
-name = "mkdocs-autorefs"
-version = "1.0.1"
-requires_python = ">=3.8"
-summary = "Automatically link across pages in MkDocs."
-groups = ["docs_2"]
-dependencies = [
-    "Markdown>=3.3",
-    "markupsafe>=2.0.1",
-    "mkdocs>=1.1",
-]
-files = [
-    {file = "mkdocs_autorefs-1.0.1-py3-none-any.whl", hash = "sha256:aacdfae1ab197780fb7a2dac92ad8a3d8f7ca8049a9cbe56a4218cd52e8da570"},
-    {file = "mkdocs_autorefs-1.0.1.tar.gz", hash = "sha256:f684edf847eced40b570b57846b15f0bf57fb93ac2c510450775dcf16accb971"},
-]
-
-[[package]]
-name = "mkdocs-get-deps"
-version = "0.2.0"
-requires_python = ">=3.8"
-summary = "MkDocs extension that lists all dependencies according to a mkdocs.yml file"
-groups = ["docs_2"]
-dependencies = [
-    "importlib-metadata>=4.3; python_version < \"3.10\"",
-    "mergedeep>=1.3.4",
-    "platformdirs>=2.2.0",
-    "pyyaml>=5.1",
-]
-files = [
-    {file = "mkdocs_get_deps-0.2.0-py3-none-any.whl", hash = "sha256:2bf11d0b133e77a0dd036abeeb06dec8775e46efa526dc70667d8863eefc6134"},
-    {file = "mkdocs_get_deps-0.2.0.tar.gz", hash = "sha256:162b3d129c7fad9b19abfdcb9c1458a651628e4b1dea628ac68790fb3061c60c"},
-]
-
-[[package]]
-name = "mkdocstrings"
-version = "0.25.1"
-requires_python = ">=3.8"
-summary = "Automatic documentation from sources, for MkDocs."
-groups = ["docs_2"]
-dependencies = [
-    "Jinja2>=2.11.1",
-    "Markdown>=3.3",
-    "MarkupSafe>=1.1",
-    "click>=7.0",
-    "importlib-metadata>=4.6; python_version < \"3.10\"",
-    "mkdocs-autorefs>=0.3.1",
-    "mkdocs>=1.4",
-    "platformdirs>=2.2.0",
-    "pymdown-extensions>=6.3",
-    "typing-extensions>=4.1; python_version < \"3.10\"",
-]
-files = [
-    {file = "mkdocstrings-0.25.1-py3-none-any.whl", hash = "sha256:da01fcc2670ad61888e8fe5b60afe9fee5781017d67431996832d63e887c2e51"},
-    {file = "mkdocstrings-0.25.1.tar.gz", hash = "sha256:c3a2515f31577f311a9ee58d089e4c51fc6046dbd9e9b4c3de4c3194667fe9bf"},
-]
-
-[[package]]
-name = "mkdocstrings-python"
-version = "1.10.3"
-requires_python = ">=3.8"
-summary = "A Python handler for mkdocstrings."
-groups = ["docs_2"]
-dependencies = [
-    "griffe>=0.44",
-    "mkdocstrings>=0.25",
-]
-files = [
-    {file = "mkdocstrings_python-1.10.3-py3-none-any.whl", hash = "sha256:11ff6d21d3818fb03af82c3ea6225b1534837e17f790aa5f09626524171f949b"},
-    {file = "mkdocstrings_python-1.10.3.tar.gz", hash = "sha256:321cf9c732907ab2b1fedaafa28765eaa089d89320f35f7206d00ea266889d03"},
-]
-
-[[package]]
-name = "mkdocstrings"
-version = "0.25.1"
-extras = ["python"]
-requires_python = ">=3.8"
-summary = "Automatic documentation from sources, for MkDocs."
-groups = ["docs_2"]
-dependencies = [
-    "mkdocstrings-python>=0.5.2",
-    "mkdocstrings==0.25.1",
-]
-files = [
-    {file = "mkdocstrings-0.25.1-py3-none-any.whl", hash = "sha256:da01fcc2670ad61888e8fe5b60afe9fee5781017d67431996832d63e887c2e51"},
-    {file = "mkdocstrings-0.25.1.tar.gz", hash = "sha256:c3a2515f31577f311a9ee58d089e4c51fc6046dbd9e9b4c3de4c3194667fe9bf"},
-]
-
-[[package]]
 name = "numpy"
 version = "1.26.4"
 requires_python = ">=3.9"
@@ -813,21 +615,10 @@ name = "packaging"
 version = "24.0"
 requires_python = ">=3.7"
 summary = "Core utilities for Python packages"
-groups = ["default", "docs_2"]
+groups = ["default"]
 files = [
     {file = "packaging-24.0-py3-none-any.whl", hash = "sha256:2ddfb553fdf02fb784c234c7ba6ccc288296ceabec964ad2eae3777778130bc5"},
     {file = "packaging-24.0.tar.gz", hash = "sha256:eb82c5e3e56209074766e6885bb04b8c38a0c015d0a30036ebe7ece34c9989e9"},
-]
-
-[[package]]
-name = "pathspec"
-version = "0.12.1"
-requires_python = ">=3.8"
-summary = "Utility library for gitignore style pattern matching of file paths."
-groups = ["docs_2"]
-files = [
-    {file = "pathspec-0.12.1-py3-none-any.whl", hash = "sha256:a0d503e138a4c123b27490a4f7beda6a01c6f288df0e4a8b79c7eb0dc7b4cc08"},
-    {file = "pathspec-0.12.1.tar.gz", hash = "sha256:a482d51503a1ab33b1c67a6c3813a26953dbdc71c31dacaef9a838c4e29f5712"},
 ]
 
 [[package]]
@@ -903,7 +694,7 @@ name = "platformdirs"
 version = "3.11.0"
 requires_python = ">=3.7"
 summary = "A small Python package for determining appropriate platform-specific dirs, e.g. a \"user data dir\"."
-groups = ["default", "docs_2"]
+groups = ["default"]
 files = [
     {file = "platformdirs-3.11.0-py3-none-any.whl", hash = "sha256:e9d171d00af68be50e9202731309c4e658fd8bc76f55c11c7dd760d023bda68e"},
     {file = "platformdirs-3.11.0.tar.gz", hash = "sha256:cf8ee52a3afdb965072dcc652433e0c7e3e40cf5ea1477cd4b3b1d2eb75495b3"},
@@ -918,21 +709,6 @@ groups = ["default"]
 files = [
     {file = "pygments-2.18.0-py3-none-any.whl", hash = "sha256:b8e6aca0523f3ab76fee51799c488e38782ac06eafcf95e7ba832985c8e7b13a"},
     {file = "pygments-2.18.0.tar.gz", hash = "sha256:786ff802f32e91311bff3889f6e9a86e81505fe99f2735bb6d60ae0c5004f199"},
-]
-
-[[package]]
-name = "pymdown-extensions"
-version = "10.8.1"
-requires_python = ">=3.8"
-summary = "Extension pack for Python Markdown."
-groups = ["docs_2"]
-dependencies = [
-    "markdown>=3.6",
-    "pyyaml",
-]
-files = [
-    {file = "pymdown_extensions-10.8.1-py3-none-any.whl", hash = "sha256:f938326115884f48c6059c67377c46cf631c733ef3629b6eed1349989d1b30cb"},
-    {file = "pymdown_extensions-10.8.1.tar.gz", hash = "sha256:3ab1db5c9e21728dabf75192d71471f8e50f216627e9a1fa9535ecb0231b9940"},
 ]
 
 [[package]]
@@ -951,7 +727,7 @@ name = "python-dateutil"
 version = "2.9.0.post0"
 requires_python = "!=3.0.*,!=3.1.*,!=3.2.*,>=2.7"
 summary = "Extensions to the standard Python datetime module"
-groups = ["default", "docs_2"]
+groups = ["default"]
 dependencies = [
     "six>=1.5",
 ]
@@ -965,65 +741,10 @@ name = "pyvcd"
 version = "0.4.0"
 requires_python = ">=3.7"
 summary = "Python VCD file support"
-groups = ["default"]
+groups = ["default", "test"]
 files = [
     {file = "pyvcd-0.4.0-py2.py3-none-any.whl", hash = "sha256:a21b10e5018b7940c8f2c20ef83d97496e86f15e215afed134ee115166035e17"},
     {file = "pyvcd-0.4.0.tar.gz", hash = "sha256:31be3f501441a9b8c5dc72660ff7b9cfef9b43b2121a23d96f586d2863270290"},
-]
-
-[[package]]
-name = "pyyaml"
-version = "6.0.1"
-requires_python = ">=3.6"
-summary = "YAML parser and emitter for Python"
-groups = ["docs_2"]
-files = [
-    {file = "PyYAML-6.0.1-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:d858aa552c999bc8a8d57426ed01e40bef403cd8ccdd0fc5f6f04a00414cac2a"},
-    {file = "PyYAML-6.0.1-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:fd66fc5d0da6d9815ba2cebeb4205f95818ff4b79c3ebe268e75d961704af52f"},
-    {file = "PyYAML-6.0.1-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:69b023b2b4daa7548bcfbd4aa3da05b3a74b772db9e23b982788168117739938"},
-    {file = "PyYAML-6.0.1-cp310-cp310-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:81e0b275a9ecc9c0c0c07b4b90ba548307583c125f54d5b6946cfee6360c733d"},
-    {file = "PyYAML-6.0.1-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:ba336e390cd8e4d1739f42dfe9bb83a3cc2e80f567d8805e11b46f4a943f5515"},
-    {file = "PyYAML-6.0.1-cp310-cp310-musllinux_1_1_x86_64.whl", hash = "sha256:326c013efe8048858a6d312ddd31d56e468118ad4cdeda36c719bf5bb6192290"},
-    {file = "PyYAML-6.0.1-cp310-cp310-win32.whl", hash = "sha256:bd4af7373a854424dabd882decdc5579653d7868b8fb26dc7d0e99f823aa5924"},
-    {file = "PyYAML-6.0.1-cp310-cp310-win_amd64.whl", hash = "sha256:fd1592b3fdf65fff2ad0004b5e363300ef59ced41c2e6b3a99d4089fa8c5435d"},
-    {file = "PyYAML-6.0.1-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:6965a7bc3cf88e5a1c3bd2e0b5c22f8d677dc88a455344035f03399034eb3007"},
-    {file = "PyYAML-6.0.1-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:f003ed9ad21d6a4713f0a9b5a7a0a79e08dd0f221aff4525a2be4c346ee60aab"},
-    {file = "PyYAML-6.0.1-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:42f8152b8dbc4fe7d96729ec2b99c7097d656dc1213a3229ca5383f973a5ed6d"},
-    {file = "PyYAML-6.0.1-cp311-cp311-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:062582fca9fabdd2c8b54a3ef1c978d786e0f6b3a1510e0ac93ef59e0ddae2bc"},
-    {file = "PyYAML-6.0.1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:d2b04aac4d386b172d5b9692e2d2da8de7bfb6c387fa4f801fbf6fb2e6ba4673"},
-    {file = "PyYAML-6.0.1-cp311-cp311-musllinux_1_1_x86_64.whl", hash = "sha256:e7d73685e87afe9f3b36c799222440d6cf362062f78be1013661b00c5c6f678b"},
-    {file = "PyYAML-6.0.1-cp311-cp311-win32.whl", hash = "sha256:1635fd110e8d85d55237ab316b5b011de701ea0f29d07611174a1b42f1444741"},
-    {file = "PyYAML-6.0.1-cp311-cp311-win_amd64.whl", hash = "sha256:bf07ee2fef7014951eeb99f56f39c9bb4af143d8aa3c21b1677805985307da34"},
-    {file = "PyYAML-6.0.1-cp312-cp312-macosx_10_9_x86_64.whl", hash = "sha256:855fb52b0dc35af121542a76b9a84f8d1cd886ea97c84703eaa6d88e37a2ad28"},
-    {file = "PyYAML-6.0.1-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:40df9b996c2b73138957fe23a16a4f0ba614f4c0efce1e9406a184b6d07fa3a9"},
-    {file = "PyYAML-6.0.1-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:a08c6f0fe150303c1c6b71ebcd7213c2858041a7e01975da3a99aed1e7a378ef"},
-    {file = "PyYAML-6.0.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:6c22bec3fbe2524cde73d7ada88f6566758a8f7227bfbf93a408a9d86bcc12a0"},
-    {file = "PyYAML-6.0.1-cp312-cp312-musllinux_1_1_x86_64.whl", hash = "sha256:8d4e9c88387b0f5c7d5f281e55304de64cf7f9c0021a3525bd3b1c542da3b0e4"},
-    {file = "PyYAML-6.0.1-cp312-cp312-win32.whl", hash = "sha256:d483d2cdf104e7c9fa60c544d92981f12ad66a457afae824d146093b8c294c54"},
-    {file = "PyYAML-6.0.1-cp312-cp312-win_amd64.whl", hash = "sha256:0d3304d8c0adc42be59c5f8a4d9e3d7379e6955ad754aa9d6ab7a398b59dd1df"},
-    {file = "PyYAML-6.0.1-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:9eb6caa9a297fc2c2fb8862bc5370d0303ddba53ba97e71f08023b6cd73d16a8"},
-    {file = "PyYAML-6.0.1-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:c8098ddcc2a85b61647b2590f825f3db38891662cfc2fc776415143f599bb859"},
-    {file = "PyYAML-6.0.1-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:5773183b6446b2c99bb77e77595dd486303b4faab2b086e7b17bc6bef28865f6"},
-    {file = "PyYAML-6.0.1-cp39-cp39-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:b786eecbdf8499b9ca1d697215862083bd6d2a99965554781d0d8d1ad31e13a0"},
-    {file = "PyYAML-6.0.1-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:bc1bf2925a1ecd43da378f4db9e4f799775d6367bdb94671027b73b393a7c42c"},
-    {file = "PyYAML-6.0.1-cp39-cp39-musllinux_1_1_x86_64.whl", hash = "sha256:04ac92ad1925b2cff1db0cfebffb6ffc43457495c9b3c39d3fcae417d7125dc5"},
-    {file = "PyYAML-6.0.1-cp39-cp39-win32.whl", hash = "sha256:faca3bdcf85b2fc05d06ff3fbc1f83e1391b3e724afa3feba7d13eeab355484c"},
-    {file = "PyYAML-6.0.1-cp39-cp39-win_amd64.whl", hash = "sha256:510c9deebc5c0225e8c96813043e62b680ba2f9c50a08d3724c7f28a747d1486"},
-    {file = "PyYAML-6.0.1.tar.gz", hash = "sha256:bfdf460b1736c775f2ba9f6a92bca30bc2095067b8a9d77876d1fad6cc3b4a43"},
-]
-
-[[package]]
-name = "pyyaml-env-tag"
-version = "0.1"
-requires_python = ">=3.6"
-summary = "A custom YAML tag for referencing environment variables in YAML files. "
-groups = ["docs_2"]
-dependencies = [
-    "pyyaml",
-]
-files = [
-    {file = "pyyaml_env_tag-0.1-py3-none-any.whl", hash = "sha256:af31106dec8a4d68c60207c1886031cbf839b68aa7abccdb19868200532c2069"},
-    {file = "pyyaml_env_tag-0.1.tar.gz", hash = "sha256:70092675bda14fdec33b31ba77e7543de9ddc88f2e5b99160396572d11525bdb"},
 ]
 
 [[package]]
@@ -1044,11 +765,22 @@ files = [
 ]
 
 [[package]]
+name = "rfc3986"
+version = "2.0.0"
+requires_python = ">=3.7"
+summary = "Validating URI References per RFC 3986"
+groups = ["default", "test"]
+files = [
+    {file = "rfc3986-2.0.0-py2.py3-none-any.whl", hash = "sha256:50b1502b60e289cb37883f3dfd34532b8873c7de9f49bb546641ce9cbd256ebd"},
+    {file = "rfc3986-2.0.0.tar.gz", hash = "sha256:97aacf9dbd4bfd829baad6e6309fa6573aaf1be3f6fa735c8ab05e46cecb261c"},
+]
+
+[[package]]
 name = "six"
 version = "1.16.0"
 requires_python = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*"
 summary = "Python 2 and 3 compatibility utilities"
-groups = ["default", "docs_2"]
+groups = ["default"]
 files = [
     {file = "six-1.16.0-py2.py3-none-any.whl", hash = "sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254"},
     {file = "six-1.16.0.tar.gz", hash = "sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926"},
@@ -1220,7 +952,7 @@ name = "typing-extensions"
 version = "4.12.0"
 requires_python = ">=3.8"
 summary = "Backported and Experimental Type Hints for Python 3.8+"
-groups = ["default", "docs_2"]
+groups = ["default"]
 files = [
     {file = "typing_extensions-4.12.0-py3-none-any.whl", hash = "sha256:b349c66bea9016ac22978d800cfff206d5f9816951f12a7d0ec5578b0a819594"},
     {file = "typing_extensions-4.12.0.tar.gz", hash = "sha256:8cbcdc8606ebcb0d95453ad7dc5065e6237b6aa230a31e81d0f440c30fed5fd8"},
@@ -1238,106 +970,11 @@ files = [
 ]
 
 [[package]]
-name = "wasmtime"
-version = "21.0.0"
-requires_python = ">=3.8"
-summary = "A WebAssembly runtime powered by Wasmtime"
-groups = ["default"]
-dependencies = [
-    "importlib-resources>=5.10",
-]
-files = [
-    {file = "wasmtime-21.0.0-py3-none-any.whl", hash = "sha256:9b7ee9bb6c14586974d34c92bb7f0723161067769233c5dd8ea99c233759b48d"},
-    {file = "wasmtime-21.0.0-py3-none-macosx_10_13_x86_64.whl", hash = "sha256:b10b6ec13fa04fc1d81a4f9b2d244938c67710e9279011e53397bfa071b85b3f"},
-    {file = "wasmtime-21.0.0-py3-none-macosx_11_0_arm64.whl", hash = "sha256:3e245a5c03c1de46cdafcd98da6daa381cadd7bd41aae70d8bef4c8c0ea51798"},
-    {file = "wasmtime-21.0.0-py3-none-manylinux1_x86_64.whl", hash = "sha256:6587515be9603f8bb0732f3b508d2034f21d407fd55879c4402032e40e1ddae6"},
-    {file = "wasmtime-21.0.0-py3-none-manylinux2014_aarch64.whl", hash = "sha256:4b242b065922f65cd40d8cedb3f19269423f28d7955567fe2daca03a44c03446"},
-    {file = "wasmtime-21.0.0-py3-none-win_amd64.whl", hash = "sha256:00f929d0caf58a69890df00888f9da12c2aa3ed5af4c8b7b2dca96a4996da731"},
-]
-
-[[package]]
-name = "watchdog"
-version = "4.0.1"
-requires_python = ">=3.8"
-summary = "Filesystem events monitoring"
-groups = ["docs_2"]
-files = [
-    {file = "watchdog-4.0.1-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:da2dfdaa8006eb6a71051795856bedd97e5b03e57da96f98e375682c48850645"},
-    {file = "watchdog-4.0.1-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:e93f451f2dfa433d97765ca2634628b789b49ba8b504fdde5837cdcf25fdb53b"},
-    {file = "watchdog-4.0.1-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:ef0107bbb6a55f5be727cfc2ef945d5676b97bffb8425650dadbb184be9f9a2b"},
-    {file = "watchdog-4.0.1-cp311-cp311-macosx_10_9_universal2.whl", hash = "sha256:17e32f147d8bf9657e0922c0940bcde863b894cd871dbb694beb6704cfbd2fb5"},
-    {file = "watchdog-4.0.1-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:03e70d2df2258fb6cb0e95bbdbe06c16e608af94a3ffbd2b90c3f1e83eb10767"},
-    {file = "watchdog-4.0.1-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:123587af84260c991dc5f62a6e7ef3d1c57dfddc99faacee508c71d287248459"},
-    {file = "watchdog-4.0.1-cp312-cp312-macosx_10_9_universal2.whl", hash = "sha256:093b23e6906a8b97051191a4a0c73a77ecc958121d42346274c6af6520dec175"},
-    {file = "watchdog-4.0.1-cp312-cp312-macosx_10_9_x86_64.whl", hash = "sha256:611be3904f9843f0529c35a3ff3fd617449463cb4b73b1633950b3d97fa4bfb7"},
-    {file = "watchdog-4.0.1-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:62c613ad689ddcb11707f030e722fa929f322ef7e4f18f5335d2b73c61a85c28"},
-    {file = "watchdog-4.0.1-cp39-cp39-macosx_10_9_universal2.whl", hash = "sha256:c9904904b6564d4ee8a1ed820db76185a3c96e05560c776c79a6ce5ab71888ba"},
-    {file = "watchdog-4.0.1-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:667f3c579e813fcbad1b784db7a1aaa96524bed53437e119f6a2f5de4db04235"},
-    {file = "watchdog-4.0.1-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:d10a681c9a1d5a77e75c48a3b8e1a9f2ae2928eda463e8d33660437705659682"},
-    {file = "watchdog-4.0.1-pp310-pypy310_pp73-macosx_10_9_x86_64.whl", hash = "sha256:0144c0ea9997b92615af1d94afc0c217e07ce2c14912c7b1a5731776329fcfc7"},
-    {file = "watchdog-4.0.1-pp310-pypy310_pp73-macosx_11_0_arm64.whl", hash = "sha256:998d2be6976a0ee3a81fb8e2777900c28641fb5bfbd0c84717d89bca0addcdc5"},
-    {file = "watchdog-4.0.1-pp38-pypy38_pp73-macosx_10_9_x86_64.whl", hash = "sha256:e7921319fe4430b11278d924ef66d4daa469fafb1da679a2e48c935fa27af193"},
-    {file = "watchdog-4.0.1-pp38-pypy38_pp73-macosx_11_0_arm64.whl", hash = "sha256:f0de0f284248ab40188f23380b03b59126d1479cd59940f2a34f8852db710625"},
-    {file = "watchdog-4.0.1-pp39-pypy39_pp73-macosx_10_9_x86_64.whl", hash = "sha256:bca36be5707e81b9e6ce3208d92d95540d4ca244c006b61511753583c81c70dd"},
-    {file = "watchdog-4.0.1-pp39-pypy39_pp73-macosx_11_0_arm64.whl", hash = "sha256:ab998f567ebdf6b1da7dc1e5accfaa7c6992244629c0fdaef062f43249bd8dee"},
-    {file = "watchdog-4.0.1-py3-none-manylinux2014_aarch64.whl", hash = "sha256:dddba7ca1c807045323b6af4ff80f5ddc4d654c8bce8317dde1bd96b128ed253"},
-    {file = "watchdog-4.0.1-py3-none-manylinux2014_armv7l.whl", hash = "sha256:4513ec234c68b14d4161440e07f995f231be21a09329051e67a2118a7a612d2d"},
-    {file = "watchdog-4.0.1-py3-none-manylinux2014_i686.whl", hash = "sha256:4107ac5ab936a63952dea2a46a734a23230aa2f6f9db1291bf171dac3ebd53c6"},
-    {file = "watchdog-4.0.1-py3-none-manylinux2014_ppc64.whl", hash = "sha256:6e8c70d2cd745daec2a08734d9f63092b793ad97612470a0ee4cbb8f5f705c57"},
-    {file = "watchdog-4.0.1-py3-none-manylinux2014_ppc64le.whl", hash = "sha256:f27279d060e2ab24c0aa98363ff906d2386aa6c4dc2f1a374655d4e02a6c5e5e"},
-    {file = "watchdog-4.0.1-py3-none-manylinux2014_s390x.whl", hash = "sha256:f8affdf3c0f0466e69f5b3917cdd042f89c8c63aebdb9f7c078996f607cdb0f5"},
-    {file = "watchdog-4.0.1-py3-none-manylinux2014_x86_64.whl", hash = "sha256:ac7041b385f04c047fcc2951dc001671dee1b7e0615cde772e84b01fbf68ee84"},
-    {file = "watchdog-4.0.1-py3-none-win32.whl", hash = "sha256:206afc3d964f9a233e6ad34618ec60b9837d0582b500b63687e34011e15bb429"},
-    {file = "watchdog-4.0.1-py3-none-win_amd64.whl", hash = "sha256:7577b3c43e5909623149f76b099ac49a1a01ca4e167d1785c76eb52fa585745a"},
-    {file = "watchdog-4.0.1-py3-none-win_ia64.whl", hash = "sha256:d7b9f5f3299e8dd230880b6c55504a1f69cf1e4316275d1b215ebdd8187ec88d"},
-    {file = "watchdog-4.0.1.tar.gz", hash = "sha256:eebaacf674fa25511e8867028d281e602ee6500045b57f43b08778082f7f8b44"},
-]
-
-[[package]]
-name = "yowasp-nextpnr-ice40"
-version = "0.7.0.0.post519"
-summary = "nextpnr-ice40 FPGA place and route tool"
-groups = ["default"]
-dependencies = [
-    "yowasp-runtime~=1.1",
-]
-files = [
-    {file = "yowasp_nextpnr_ice40-0.7.0.0.post519-py3-none-any.whl", hash = "sha256:abd245a20de0517526be670f78e645a7d0aff56165a674a501c39e69a2f102b3"},
-]
-
-[[package]]
-name = "yowasp-runtime"
-version = "1.59"
-requires_python = "~=3.8"
-summary = "Common runtime for YoWASP packages"
-groups = ["default"]
-dependencies = [
-    "platformdirs<5,>=3.0",
-    "wasmtime<22,>=1.0",
-]
-files = [
-    {file = "yowasp_runtime-1.59-py3-none-any.whl", hash = "sha256:62fcaca4ba6310801049034739cb9550bd862c57eb2c2c4515cea8ff96efe084"},
-]
-
-[[package]]
-name = "yowasp-yosys"
-version = "0.41.0.0.post722"
-summary = "Yosys Open SYnthesis Suite"
-groups = ["default"]
-dependencies = [
-    "click",
-    "yowasp-runtime~=1.12",
-]
-files = [
-    {file = "yowasp_yosys-0.41.0.0.post722-py3-none-any.whl", hash = "sha256:ada4d72e4f264e19a8fd167a6f78b89cbfc8f7473a4cc729dc179aecaa37bea0"},
-]
-
-[[package]]
 name = "zipp"
 version = "3.19.0"
 requires_python = ">=3.8"
 summary = "Backport of pathlib-compatible object wrapper for zip files"
-groups = ["default", "docs_2"]
+groups = ["default"]
 marker = "python_version < \"3.10\""
 files = [
     {file = "zipp-3.19.0-py3-none-any.whl", hash = "sha256:96dc6ad62f1441bcaccef23b274ec471518daf4fbbc580341204936a5a3dddec"},
