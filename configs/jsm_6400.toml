@@ -7,3 +7,4 @@ ext-ebeam-scan-enable = 0
 
 [transforms]
 xflip = true
+yflip = true
