@@ -49,8 +49,8 @@ _.env = {GLASGOW_OUT_OF_TREE_APPLETS = "I-am-okay-with-breaking-changes"}
 obi_server.cmd = "obi_run --config_path ~/open-beam-interface/configs/jsm_6400.toml server 2224"
 obi_script.cmd = "obi_run script --config_path ~/open-beam-interface/configs/jsm_6400.toml script --script_path {args}"
 ## used with server
-gui.cmd = "python -m obi_software.gui 2224 --config_path ~/open-beam-interface/microscope.toml"
-debug_gui.cmd = "python -m obi_software.gui 2224 --debug --config_path ~/open-beam-interface/microscope.toml"
+gui.cmd = "python -m obi_software.gui 2224 --config_path ~/open-beam-interface/configs/jsm_6400.toml"
+debug_gui.cmd = "python -m obi_software.gui 2224 --debug --config_path ~/open-beam-interface/configs/jsm_6400.toml"
 hilbert.cmd = "python -m obi_software.hilbert"
 ## unit tests
 test_g.cmd = "python -m unittest glasgowcontrib.applet.open_beam_interface.test"
@@ -59,6 +59,7 @@ build.cmd = "glasgow build --rev C3 open_beam_interface --pin-ext-ibeam-scan-ena
 build.env = {AMARANTH_verbose = "1"}
 ## docs
 build_docs.cmd = "sphinx-build -M html Docs/source/ Docs/build/"
+build_docs_2.cmd = "mkdocs build"
 
 [tool.pdm.dev-dependencies]
 test = ["amaranth@ git+https://github.com/whitequark/amaranth@testbenchessssss"]
