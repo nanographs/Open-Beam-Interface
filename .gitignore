@@ -16,3 +16,4 @@ Gateware/open_beam_interface.bin
 *.bin
 Docs/build/*
 site/*
+Docs_sphinx/build/*
