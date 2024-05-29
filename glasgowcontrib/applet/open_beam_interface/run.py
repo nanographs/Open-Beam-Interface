@@ -53,9 +53,9 @@ env.update({"GLASGOW_OUT_OF_TREE_APPLETS":"I-am-okay-with-breaking-changes"})
 
 
 def run():
-    if hasattr(args, "script"):
+    if args.script:
         glasgow_cmd = ["glasgow", "script", args.script_path, "open_beam_interface", "-V", "5"] + pin_args + transform_args + endpoint_arg
-    elif hasattr(args, "server"):
+    elif args.server:
         glasgow_cmd = ["glasgow", "run", "open_beam_interface", "-V", "5"] + pin_args + transform_args + endpoint_arg
     else:
         print("""Choose mode: obi_run script or obi_run server\n

@@ -46,8 +46,8 @@ includes = ["glasgowcontrib"]
 [tool.pdm.scripts]
 _.env = {GLASGOW_OUT_OF_TREE_APPLETS = "I-am-okay-with-breaking-changes"}
 ## wrapper around glasgow cli
-run_server.cmd = "obi_run server --config_path ~/open-beam-interface/microscope.toml {args}"
-run_script.cmd = "obi_run script --config_path ~/open-beam-interface/microscope.toml --script_path {args"
+obi_server.cmd = "obi_run --config_path ~/open-beam-interface/microscope.toml server {args}"
+obi_script.cmd = "obi_run script --config_path ~/open-beam-interface/microscope.toml script --script_path {args}"
 ## used with server
 gui.cmd = "python -m obi_software.gui 2224 --config_path ~/open-beam-interface/microscope.toml"
 debug_gui.cmd = "python -m obi_software.gui 2224 --debug --config_path ~/open-beam-interface/microscope.toml"
