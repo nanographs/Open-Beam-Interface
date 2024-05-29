@@ -236,6 +236,9 @@ class BaseCommand(metaclass=ABCMeta):
         return []
 
 class SynchronizeCommand(BaseCommand):
+    """
+    A command to synchronize streams
+    """
     def __init__(self, *, cookie: int, raster: bool, output: OutputMode=OutputMode.SixteenBit):
         self._cookie = cookie
         self._raster = raster

@@ -2,4 +2,4 @@
 
 ### Synchronize
 
-::: base_commands.SynchronizeCommand
+::: glasgowcontrib.applet.open_beam_interface.base_commands.SynchronizeCommand
