@@ -1,0 +1,9 @@
+[instrument_info]
+manufacturer='JEOL'
+model='6400'
+
+[pinout]
+ext-ebeam-scan-enable = 0
+
+[transforms]
+xflip = true
