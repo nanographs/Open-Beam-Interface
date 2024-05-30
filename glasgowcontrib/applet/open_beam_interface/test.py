@@ -90,11 +90,11 @@ class OBIAppletTestCase(unittest.TestCase):
         dut = Supersampler()
 
         async def put_testbench(ctx):
-            await put_stream(dut.super_adc_stream,
+            await put_stream(ctx, dut.super_adc_stream,
                 {"adc_code": 123, "adc_ovf": 0, "last": 1})
 
         async def get_testbench(ctx):
-            await get_stream(dut.adc_stream,
+            await get_stream(ctx, dut.adc_stream,
                 {"adc_code": 123})
             assert ctx.get(dut.adc_stream.valid) == 0
 
@@ -232,6 +232,7 @@ class OBIAppletTestCase(unittest.TestCase):
                     await put_stream(ctx, dut.usb_stream, byte)
             async def get_testbench(ctx):
                 await get_stream(ctx, dut.cmd_stream, response, timeout_steps=len(command.message)*2)
+                await ctx.tick()
                 assert ctx.get(dut.cmd_stream.valid) == 0
             self.simulate(dut, [get_testbench,put_testbench], name="parse_" + name)  
         
@@ -350,11 +351,11 @@ class OBIAppletTestCase(unittest.TestCase):
                 }}}}, "cmd_vectorpixelmin")
     
         def test_raster_pixels_cmd(command:BaseCommand):
-            def put_testbench():
+            async def put_testbench(ctx):
                 print(f"{command.message}")
                 for byte in command.message:
-                    yield from put_stream(dut.usb_stream, byte)
-            def get_testbench():
+                    await put_stream(ctx, dut.usb_stream, byte)
+            async def get_testbench(ctx):
                 for dwell in command._dwells:
                     response = {"type": CmdType.RasterPixel, 
                         "payload": {
@@ -363,8 +364,8 @@ class OBIAppletTestCase(unittest.TestCase):
                                     "length": len(command._dwells)-1,
                                     "dwell_time": dwell
                     }}}}
-                    yield from get_stream(dut.cmd_stream, response, timeout_steps=len(command.message)*2)
-                    assert (yield dut.cmd_stream.valid) == 0
+                    await get_stream(ctx, dut.cmd_stream, response, timeout_steps=len(command.message)*2)
+                    assert ctx.get(dut.cmd_stream.valid) == 0
             self.simulate(dut, [get_testbench,put_testbench], name="parse_cmd_rasterpixel")  
         
         test_raster_pixels_cmd(RasterPixelsCommand(dwells = [1,2,3,4,5]))
