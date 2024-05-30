@@ -20,11 +20,11 @@ files = [
 
 [[package]]
 name = "amaranth"
-version = "0.5.0.dev305"
+version = "0.5.0.dev309"
 requires_python = "~=3.8"
 git = "https://github.com/amaranth-lang/amaranth"
 ref = "main"
-revision = "028d5d80736151dbe6f9d35d35544cbfff6bef87"
+revision = "f49074f439f8a017a2e119cda4bc1d2d141ddda8"
 summary = "Amaranth hardware definition language"
 groups = ["default", "test"]
 dependencies = [
