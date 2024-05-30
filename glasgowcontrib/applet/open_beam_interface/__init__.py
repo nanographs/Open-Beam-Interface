@@ -647,7 +647,7 @@ class CommandExecutor(wiring.Component):
     ext_ctrl_enable: Out(1)
     beam_type: Out(BeamType)
     # Input to Blanking control board
-    blank_enable: Out(1, reset=1)
+    blank_enable: Out(1, init=1)
 
     #Input to Serializer
     output_mode: Out(2)
@@ -701,7 +701,7 @@ class CommandExecutor(wiring.Component):
         retire_pixel = Signal()
         m.d.sync += in_flight_pixels.eq(in_flight_pixels + submit_pixel - retire_pixel)
 
-        next_blank_enable = Signal()
+        next_blank_enable = Signal(init = 1)
         m.domains.dac_clk = dac_clk =  ClockDomain(local=True)
         m.d.comb += dac_clk.clk.eq(self.bus.dac_clk)
         m.d.dac_clk += self.blank_enable.eq(next_blank_enable)
