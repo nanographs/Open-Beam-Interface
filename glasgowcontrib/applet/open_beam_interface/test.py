@@ -12,111 +12,36 @@ from . import BusController, Flippenator
 from glasgowcontrib.applet.open_beam_interface.base_commands import *
 
 
-def put_dict(stream, signal):
-    for sig_field, sig_value in signal.items():
-        new_stream = getattr(stream, sig_field)
-        if isinstance(sig_value, dict):
-            yield from put_dict(new_stream, sig_value)
-        else:
-            yield new_stream.eq(sig_value)
 
-
-def put_stream(stream, payload, timeout_steps=10):
-    # if isinstance(payload, dict):
-    #     for field, value in payload.items():
-    #         yield getattr(stream.payload, field).eq(value)
-    # else:
-    #     yield stream.payload.eq(payload)
-
-    if isinstance(payload, dict):
-        yield from put_dict(stream.payload, payload)
-    else:
-        yield stream.payload.eq(payload)
-    
-
-    yield stream.valid.eq(1)
+async def put_stream(ctx, stream, payload, timeout_steps=10):
+    ctx.set(stream.payload, payload)
+    ctx.set(stream.valid, 1)
     ready = False
     timeout = 0
     while not ready:
-        ready = (yield stream.ready)
-        yield Tick()
+        ready = ctx.get(stream.ready)
+        print(f"put_stream: {ready=}")
+        await ctx.tick()
         timeout += 1; assert timeout < timeout_steps
-    yield stream.valid.eq(0)
+    ctx.set(stream.valid, 0)
 
 
-def get_stream_nosample(stream, payload):
-    yield stream.ready.eq(1)
+
+
+async def get_stream(ctx, stream, payload, timeout_steps=10):
+    ctx.set(stream.ready, 1)
     valid = False
     timeout = 0
     while not valid:
-        valid = (yield stream.valid)
-        if isinstance(payload, dict):
-            value = {}
-            for field in payload:
-                value[field] = (yield getattr(stream.payload, field))
-        else:
-            value = (yield stream.payload)
-        print(f"get_stream {valid=} {value=}")
-        yield Tick()
-        timeout += 1; assert timeout < 15
-    yield stream.ready.eq(0)
-
-    if isinstance(payload, dict):
-        for field in payload:
-            assert value[field] == payload[field], \
-                f"payload.{field}: {value[field]} != {payload[field]} (expected)"
-    else:
-        assert value == payload, \
-            f"payload: {value!r} != {payload!r} (expected)"
-
-def unpack_const(data):
-    newmembers = {}
-    members = data.shape().members
-    for member in members:
-        field = data.__getattr__(member)
-        newmembers[member] = field
-    return newmembers
-
-def unpack_dict(data):
-    all_data = {}
-    for member in data:
-        try:
-            unpacked_data = unpack_const(data.get(member))
-            all_data[member] = unpack_dict(unpacked_data)
-        except Exception as e:
-            all_data[member] = data.get(member)
-    return all_data
-
-def prettier_print(data):
-    try:
-        data = unpack_const(data)
-        if isinstance(data, dict):
-            all_data = unpack_dict(data)
-        else:
-            all_data = data
-    except: all_data = data
-    return all_data
-    
-
-def get_stream(stream, payload, timeout_steps=10):
-    yield stream.ready.eq(1)
-    valid = False
-    timeout = 0
-    while not valid:
-        valid, data = (yield Tick(sample=[stream.valid, stream.payload]))
-        if isinstance(stream.payload.shape(), ShapeCastable):
-            data = stream.payload.shape().from_bits(data)
-        # print(f"get_stream {valid=} {data=}\n")
-        print(f'get_stream {valid=} {prettier_print(data)}')
+        _, _, valid, data = await ctx.tick().sample(stream.valid, stream.payload)
+        print(f"get_stream: {valid=}, {data=}")
         timeout += 1; assert timeout < timeout_steps
-    yield stream.ready.eq(0)
     if isinstance(payload, dict):
         wrapped_payload = stream.payload.shape().const(payload)
     else:
         wrapped_payload = payload
-    assert data == wrapped_payload,\
-        f"payload: {prettier_print(data)} != {prettier_print(wrapped_payload)} (expected)"
-        
+    assert data == wrapped_payload, f"{data} != {wrapped_payload}"
+    ctx.set(stream.ready, 0)
 
 
 
@@ -131,11 +56,11 @@ class OBIAppletTestCase(unittest.TestCase):
 
     def test_bus_controller(self):
         dut = BusController(adc_half_period=3, adc_latency=6)
-        def put_testbench():
-            yield from put_stream(dut.dac_stream, {"dac_x_code": 123, "dac_y_code": 456, "last": 1})
+        async def put_testbench(ctx):
+            await put_stream(ctx, dut.dac_stream, {"dac_x_code": 123, "dac_y_code": 456, "last": 1})
 
-        def get_testbench():
-            yield from get_stream(dut.adc_stream, {"adc_code": 0, "last": 1}, timeout_steps=100)
+        async def get_testbench(ctx):
+            await get_stream(ctx, dut.adc_stream, {"adc_code": 0, "last": 1}, timeout_steps=100)
 
         self.simulate(dut, [put_testbench, get_testbench], name="bus_controller")
 
@@ -144,15 +69,15 @@ class OBIAppletTestCase(unittest.TestCase):
             print(f"dwell {dwell}")
             dut = Supersampler()
 
-            def put_testbench():
-                yield from put_stream(dut.dac_stream,
+            async def put_testbench(ctx):
+                await put_stream(ctx, dut.dac_stream,
                     {"dac_x_code": 123, "dac_y_code": 456, "dwell_time": dwell})
 
-            def get_testbench():
+            async def get_testbench(ctx):
                 for index in range(dwell + 1):
-                    yield from get_stream(dut.super_dac_stream,
+                    await get_stream(ctx, dut.super_dac_stream,
                         {"dac_x_code": 123, "dac_y_code": 456, "last": int(index == dwell)})
-                assert (yield dut.super_dac_stream.valid) == 0
+                assert ctx.get(dut.super_dac_stream.valid) == 0
 
             self.simulate(dut, [put_testbench, get_testbench], name="ss_expand")
 
@@ -163,32 +88,32 @@ class OBIAppletTestCase(unittest.TestCase):
     def test_supersampler_average1(self):
         dut = Supersampler()
 
-        def put_testbench():
-            yield from put_stream(dut.super_adc_stream,
+        async def put_testbench(ctx):
+            await put_stream(dut.super_adc_stream,
                 {"adc_code": 123, "adc_ovf": 0, "last": 1})
 
-        def get_testbench():
-            yield from get_stream(dut.adc_stream,
+        async def get_testbench(ctx):
+            await get_stream(dut.adc_stream,
                 {"adc_code": 123})
-            assert (yield dut.adc_stream.valid) == 0
+            assert ctx.get(dut.adc_stream.valid) == 0
 
         self.simulate(dut, [put_testbench, get_testbench], name = "ss_avg1")
 
     def test_supersampler_average2(self):
         dut = Supersampler()
 
-        def put_testbench():
-            yield from put_stream(dut.super_adc_stream,
+        async def put_testbench(ctx):
+            await put_stream(ctx, dut.super_adc_stream,
                 {"adc_code": 456, "adc_ovf": 0, "last": 0})
-            yield from put_stream(dut.super_adc_stream,
+            await put_stream(ctx, dut.super_adc_stream,
                 {"adc_code": 123, "adc_ovf": 0, "last": 1})
-            yield from put_stream(dut.super_adc_stream,
+            await put_stream(ctx, dut.super_adc_stream,
                 {"adc_code": 999, "adc_ovf": 0, "last": 0})
 
-        def get_testbench():
-            yield from get_stream(dut.adc_stream,
+        async def get_testbench(ctx):
+            await get_stream(ctx, dut.adc_stream,
                 {"adc_code": (456+123)//2})
-            assert (yield dut.adc_stream.valid) == 0
+            assert ctx.get(dut.adc_stream.valid) == 0
 
         self.simulate(dut, [put_testbench, get_testbench], name = "ss_avg2")
 
@@ -196,9 +121,9 @@ class OBIAppletTestCase(unittest.TestCase):
         dut = Flippenator()
 
         def test_xflip():
-            def put_testbench():
-                yield dut.transforms.xflip.eq(1)
-                yield from put_stream(dut.in_stream, {
+            async def put_testbench(ctx):
+                ctx.set(dut.transforms.xflip, 1)
+                await put_stream(ctx, dut.in_stream, {
                     "dac_x_code": 1,
                     "dac_y_code": 16383,
                     "last": 1,
@@ -207,8 +132,8 @@ class OBIAppletTestCase(unittest.TestCase):
                         "request": 1
                     }
                 })
-            def get_testbench():
-                yield from get_stream(dut.out_stream, {
+            async def get_testbench(ctx):
+                await get_stream(ctx, dut.out_stream, {
                     "dac_x_code": 16383,
                     "dac_y_code": 16383,
                     "last": 1,
@@ -220,9 +145,9 @@ class OBIAppletTestCase(unittest.TestCase):
             self.simulate(dut, [get_testbench,put_testbench], name="flippenator_xflip")  
         
         def test_yflip():
-            def put_testbench():
-                yield dut.transforms.yflip.eq(1)
-                yield from put_stream(dut.in_stream, {
+            async def put_testbench(ctx):
+                ctx.set(dut.transforms.yflip, 1)
+                await put_stream(ctx, dut.in_stream, {
                     "dac_x_code": 1,
                     "dac_y_code": 16383,
                     "last": 1,
@@ -231,8 +156,8 @@ class OBIAppletTestCase(unittest.TestCase):
                         "request": 1
                     }
                 })
-            def get_testbench():
-                yield from get_stream(dut.out_stream, {
+            async def get_testbench(ctx):
+                await get_stream(ctx, dut.out_stream, {
                     "dac_x_code": 1,
                     "dac_y_code": 1,
                     "last": 1,
@@ -243,9 +168,9 @@ class OBIAppletTestCase(unittest.TestCase):
                 })
             self.simulate(dut, [get_testbench,put_testbench], name="flippenator_yflip") 
         def test_rot90():
-            def put_testbench():
-                yield dut.transforms.rotate90.eq(1)
-                yield from put_stream(dut.in_stream, {
+            async def put_testbench(ctx):
+                ctx.set(dut.transforms.rotate90, 1)
+                await put_stream(ctx, dut.in_stream, {
                     "dac_x_code": 1,
                     "dac_y_code": 16383,
                     "last": 1,
@@ -254,8 +179,8 @@ class OBIAppletTestCase(unittest.TestCase):
                         "request": 1
                     }
                 })
-            def get_testbench():
-                yield from get_stream(dut.out_stream, {
+            async def get_testbench(ctx):
+                await get_stream(ctx, dut.out_stream, {
                     "dac_x_code": 16383,
                     "dac_y_code": 1,
                     "last": 1,
@@ -272,27 +197,27 @@ class OBIAppletTestCase(unittest.TestCase):
     def test_raster_scanner(self):
         dut = RasterScanner()
 
-        def put_testbench():
-            yield from put_stream(dut.roi_stream, {
+        async def put_testbench(ctx):
+            await put_stream(ctx, dut.roi_stream, {
                 "x_start": 5, "x_count": 3, "x_step": 0x2_00,
                 "y_start": 9, "y_count": 2, "y_step": 0x5_00,
             })
-            yield from put_stream(dut.dwell_stream, 1)
-            yield from put_stream(dut.dwell_stream, 2)
-            yield from put_stream(dut.dwell_stream, 3)
-            yield from put_stream(dut.dwell_stream, 7)
-            yield from put_stream(dut.dwell_stream, 8)
-            yield from put_stream(dut.dwell_stream, 9)
+            await put_stream(ctx, dut.dwell_stream, {"dwell_time": 1})
+            await put_stream(ctx, dut.dwell_stream, {"dwell_time": 2})
+            await put_stream(ctx, dut.dwell_stream, {"dwell_time": 3})
+            await put_stream(ctx, dut.dwell_stream, {"dwell_time": 7})
+            await put_stream(ctx, dut.dwell_stream, {"dwell_time": 8})
+            await put_stream(ctx, dut.dwell_stream, {"dwell_time": 9})
 
-        def get_testbench():
-            yield from get_stream(dut.dac_stream, {"dac_x_code": 5, "dac_y_code": 9,  "dwell_time": 1})
-            yield from get_stream(dut.dac_stream, {"dac_x_code": 7, "dac_y_code": 9,  "dwell_time": 2})
-            yield from get_stream(dut.dac_stream, {"dac_x_code": 9, "dac_y_code": 9,  "dwell_time": 3})
-            yield from get_stream(dut.dac_stream, {"dac_x_code": 5, "dac_y_code": 14, "dwell_time": 7})
-            yield from get_stream(dut.dac_stream, {"dac_x_code": 7, "dac_y_code": 14, "dwell_time": 8})
-            yield from get_stream(dut.dac_stream, {"dac_x_code": 9, "dac_y_code": 14, "dwell_time": 9})
-            assert (yield dut.dac_stream.valid) == 0
-            assert (yield dut.roi_stream.ready) == 1
+        async def get_testbench(ctx):
+            await get_stream(ctx, dut.dac_stream, {"dac_x_code": 5, "dac_y_code": 9,  "dwell_time": 1})
+            await get_stream(ctx, dut.dac_stream, {"dac_x_code": 7, "dac_y_code": 9,  "dwell_time": 2})
+            await get_stream(ctx, dut.dac_stream, {"dac_x_code": 9, "dac_y_code": 9,  "dwell_time": 3})
+            await get_stream(ctx, dut.dac_stream, {"dac_x_code": 5, "dac_y_code": 14, "dwell_time": 7})
+            await get_stream(ctx, dut.dac_stream, {"dac_x_code": 7, "dac_y_code": 14, "dwell_time": 8})
+            await get_stream(ctx, dut.dac_stream, {"dac_x_code": 9, "dac_y_code": 14, "dwell_time": 9})
+            assert ctx.get(dut.dac_stream.valid) == 0
+            assert ctx.get(dut.roi_stream.ready) == 1
 
         self.simulate(dut, [get_testbench,put_testbench], name = "raster_scanner")  
     
@@ -300,13 +225,13 @@ class OBIAppletTestCase(unittest.TestCase):
         dut = CommandParser()
 
         def test_cmd(command:BaseCommand, response: dict, name:str="cmd"):
-            def put_testbench():
+            async def put_testbench(ctx):
                 print(f"{command.message}")
                 for byte in command.message:
-                    yield from put_stream(dut.usb_stream, byte)
-            def get_testbench():
-                yield from get_stream(dut.cmd_stream, response, timeout_steps=len(command.message)*2)
-                assert (yield dut.cmd_stream.valid) == 0
+                    await put_stream(ctx, dut.usb_stream, byte)
+            async def get_testbench(ctx):
+                await get_stream(ctx, dut.cmd_stream, response, timeout_steps=len(command.message)*2)
+                assert ctx.get(dut.cmd_stream.valid) == 0
             self.simulate(dut, [get_testbench,put_testbench], name="parse_" + name)  
         
         test_cmd(SynchronizeCommand(cookie=1234, raster=True, output=OutputMode.NoOutput),
@@ -449,8 +374,8 @@ class OBIAppletTestCase(unittest.TestCase):
         def test_sync_exec():
             cookie = 123*256 + 234
 
-            def put_testbench():
-                yield from put_stream(dut.cmd_stream, {
+            async def put_testbench(ctx):
+                await put_stream(ctx, dut.cmd_stream, {
                     "type": CmdType.Synchronize,
                     "payload": {
                         "synchronize": {
@@ -462,16 +387,16 @@ class OBIAppletTestCase(unittest.TestCase):
                                     }
                                 }}}})
             
-            def get_testbench():
-                yield from get_stream(dut.img_stream, 65535) # FFFF
-                yield from get_stream(dut.img_stream, cookie)
+            async def get_testbench(ctx):
+                await get_stream(ctx, dut.img_stream, 65535) # FFFF
+                await get_stream(ctx, dut.img_stream, cookie)
         
             self.simulate(dut, [put_testbench, get_testbench], name = "exec_sync")  
 
         def test_rasterregion_exec():
 
-            def put_testbench():
-                yield from put_stream(dut.cmd_stream, {
+            async def put_testbench(ctx):
+                await put_stream(ctx, dut.cmd_stream, {
                     "type": CmdType.RasterRegion,
                     "payload": {
                         "raster_region": { "payload": {
@@ -489,8 +414,8 @@ class OBIAppletTestCase(unittest.TestCase):
                                 "y_step": 0x5_00,
                             }}}}})
 
-            def get_testbench():
-                yield from get_stream(dut.raster_scanner.roi_stream, 
+            async def get_testbench(ctx):
+                await get_stream(ctx, dut.raster_scanner.roi_stream, 
                         {   "x_start": 5,
                             "x_count": 2,
                             "x_step": 0x2_00,
@@ -502,15 +427,15 @@ class OBIAppletTestCase(unittest.TestCase):
 
         def test_rasterpixel_exec():
 
-            def put_testbench():
-                yield from put_stream(dut.cmd_stream, {
+            async def put_testbench(ctx):
+                await put_stream(ctx, dut.cmd_stream, {
                     "type": CmdType.RasterPixel,
                     "payload": {
                         "raster_pixel": {"payload": {"length": 1, "dwell_time": 1}}
                     }
                 })
-            def get_testbench():
-                yield from get_stream(dut.raster_scanner.dwell_stream, {
+            async def get_testbench(ctx):
+                await get_stream(ctx, dut.raster_scanner.dwell_stream, {
                     "dwell_time": 1,
                     "blank": {
                         "enable": 0,
@@ -521,8 +446,8 @@ class OBIAppletTestCase(unittest.TestCase):
         
         def test_rasterpixelrun_exec():
 
-            def put_testbench():
-                yield from put_stream(dut.cmd_stream, {
+            async def put_testbench(ctx):
+                await put_stream(ctx, dut.cmd_stream, {
                     "type": CmdType.RasterPixelRun,
                     "payload": {
                         "raster_pixel_run": { "payload": {
@@ -530,14 +455,14 @@ class OBIAppletTestCase(unittest.TestCase):
                             "dwell_time": 1,
                         }}}})
 
-            def get_testbench():
-                yield from get_stream(dut.raster_scanner.dwell_stream,  {
+            async def get_testbench(ctx):
+                await get_stream(ctx, dut.raster_scanner.dwell_stream,  {
                     "dwell_time": 1,
                     "blank": {
                         "enable": 0,
                         "request": 0
                     }})
-                yield from get_stream(dut.raster_scanner.dwell_stream,  {
+                await get_stream(ctx, dut.raster_scanner.dwell_stream,  {
                     "dwell_time": 1,
                     "blank": {
                         "enable": 0,
