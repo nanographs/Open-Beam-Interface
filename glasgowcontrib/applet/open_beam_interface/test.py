@@ -30,10 +30,7 @@ async def put_stream(ctx, stream, payload, timeout_steps=10):
 
 
 async def get_stream(ctx, stream, payload, timeout_steps=10):
-    try:
-        ctx.set(stream.ready, 1)
-    except DriverConflict:
-        print("get_stream: ready is already driven")
+    ctx.set(stream.ready, 1)
     valid = False
     timeout = 0
     while not valid:
@@ -45,10 +42,7 @@ async def get_stream(ctx, stream, payload, timeout_steps=10):
     else:
         wrapped_payload = payload
     assert data == wrapped_payload, f"{data} != {wrapped_payload}"
-    try:
-        ctx.set(stream.ready, 0)
-    except DriverConflict:
-        print("get_stream: ready is already driven")
+    ctx.set(stream.ready, 0)
 
 
 
@@ -422,13 +416,15 @@ class OBIAppletTestCase(unittest.TestCase):
                             }}}}})
 
             async def get_testbench(ctx):
-                await get_stream(ctx, dut.raster_scanner.roi_stream, 
+                res = await ctx.tick().sample(dut.raster_scanner.roi_stream.payload).until(dut.raster_scanner.roi_stream.valid == 1)
+                wrapped_payload = dut.raster_scanner.roi_stream.payload.shape().const(
                         {   "x_start": 5,
                             "x_count": 2,
                             "x_step": 0x2_00,
                             "y_start": 9,
                             "y_count": 1,
-                            "y_step": 0x5_00}, timeout_steps=30)
+                            "y_step": 0x5_00})
+                assert res[0] == wrapped_payload,  f"{res[0]} != {wrapped_payload}"
 
             self.simulate(dut, [get_testbench,put_testbench], name = "exec_rasterregion")  
 
@@ -442,13 +438,16 @@ class OBIAppletTestCase(unittest.TestCase):
                     }
                 })
             async def get_testbench(ctx):
-                await get_stream(ctx, dut.raster_scanner.dwell_stream, {
-                    "dwell_time": 1,
-                    "blank": {
-                        "enable": 0,
-                        "request": 0
-                    }})
-
+                res = await ctx.tick().sample(dut.raster_scanner.dwell_stream.payload).until(dut.raster_scanner.dwell_stream.valid == 1)
+                wrapped_payload = dut.raster_scanner.dwell_stream.payload.shape().const(
+                            {
+                        "dwell_time": 1,
+                        "blank": {
+                            "enable": 0,
+                            "request": 0
+                        }})
+                assert res[0] == wrapped_payload,  f"{res[0]} != {wrapped_payload}"
+                
             self.simulate(dut, [get_testbench,put_testbench], name = "exec_rasterpixel")  
         
         def test_rasterpixelrun_exec():
@@ -463,6 +462,11 @@ class OBIAppletTestCase(unittest.TestCase):
                         }}}})
 
             async def get_testbench(ctx):
+                async def get_stream(ctx, stream, payload):
+                    res = await ctx.tick().sample(stream.payload).until(dut.raster_scanner.dwell_stream.valid == 1)
+                    wrapped_payload = stream.payload.shape().const(payload)
+                    assert res[0] == wrapped_payload,  f"{res[0]} != {wrapped_payload}"
+
                 await get_stream(ctx, dut.raster_scanner.dwell_stream,  {
                     "dwell_time": 1,
                     "blank": {
@@ -512,9 +516,10 @@ class OBIAppletTestCase(unittest.TestCase):
                 print(f"got all {len(self._response)} responses")
 
         class TestCommandSequence:
-            dut =  CommandExecutor()
-            _put_testbenches = []
-            _get_testbenches = []
+            def __init__(self):
+                self.dut =  CommandExecutor()
+                self._put_testbenches = []
+                self._get_testbenches = []
         
             def add(self, command: TestCommand, timeout_steps=100):
                 async def put_bench(ctx):
