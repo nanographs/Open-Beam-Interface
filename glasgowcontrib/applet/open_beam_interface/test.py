@@ -497,16 +497,16 @@ class OBIAppletTestCase(unittest.TestCase):
             def _response(self):
                 pass
 
-            def _put_testbench(self, dut, timeout_steps=100):
+            async def _put_testbench(self, ctx, dut, timeout_steps=100):
                 print(f"put_testbench: {self._command}")
-                yield from put_stream(dut.cmd_stream, self._command, timeout_steps=2*timeout_steps)
+                await put_stream(ctx, dut.cmd_stream, self._command, timeout_steps=2*timeout_steps)
             
-            def _get_testbench(self, dut, timeout_steps=100):
+            async def _get_testbench(self, ctx, dut, timeout_steps=100):
                 print(f"get_testbench: response to {self._command}")
                 n = 0
                 print(f"getting {len(self._response)} responses")
                 for res in self._response:
-                    yield from get_stream(dut.img_stream, res, timeout_steps=timeout_steps)
+                    await get_stream(ctx, dut.img_stream, res, timeout_steps=timeout_steps)
                     n += 1
                     print(f"got {n} responses")
                 print(f"got all {len(self._response)} responses")
@@ -517,17 +517,20 @@ class OBIAppletTestCase(unittest.TestCase):
             _get_testbenches = []
         
             def add(self, command: TestCommand, timeout_steps=100):
-                self._put_testbenches.append(command._put_testbench(self.dut, timeout_steps))
-                self._get_testbenches.append(command._get_testbench(self.dut, timeout_steps))
+                async def put_bench(ctx):
+                    await command._put_testbench(ctx, self.dut, timeout_steps)
+                self._put_testbenches.append(put_bench)
+                async def get_bench(ctx):
+                    await command._get_testbench(ctx, self.dut, timeout_steps)
+                self._get_testbenches.append(get_bench)
             
-            def _put_testbench(self):
+            async def _put_testbench(self, ctx):
                 for testbench in self._put_testbenches:
-                    yield from testbench
+                    await testbench(ctx)
             
-            def _get_testbench(self):
+            async def _get_testbench(self, ctx):
                 for testbench in self._get_testbenches:
-                    yield from testbench
-
+                    await testbench(ctx)
         class TestSyncCommand(TestCommand):
             def __init__(self, cookie, raster_mode, output_mode=0):
                 self._cookie = cookie
@@ -684,20 +687,20 @@ class OBIAppletTestCase(unittest.TestCase):
             def _response(self):
                 return [0]*(self._test_samples)
             
-            def _put_testbench(self, dut, timeout_steps):
+            async def _put_testbench(self, ctx, dut, timeout_steps):
                 print("put_testbench: {self._command}")
-                yield from put_stream(dut.cmd_stream, self._command, timeout_steps=timeout_steps)
+                await put_stream(ctx, dut.cmd_stream, self._command, timeout_steps=timeout_steps)
                 n = 0
                 print(f"extending put_testbench for {self._test_samples=}")
                 while True:
                     if n == self._test_samples:
                         break
-                    if not (yield dut.supersampler.dac_stream.ready):
-                        yield Tick()
+                    if not ctx.get(dut.supersampler.dac_stream.ready) == 1:
+                        await ctx.tick()
                     else:
                         n += 1
                         print(f"{n} valid samples")
-                        yield Tick()
+                        await ctx.tick()
 
         class TestVectorPixelCommand(TestCommand):
             def __init__(self, x_coord, y_coord, dwell_time):
