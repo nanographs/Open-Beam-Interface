@@ -3,6 +3,7 @@ import struct
 import array
 from amaranth.sim import Simulator, Tick
 from amaranth import Signal, ShapeCastable, Const
+from amaranth import DriverConflict
 from abc import ABCMeta, abstractmethod
 
 from . import StreamSignature
@@ -29,7 +30,10 @@ async def put_stream(ctx, stream, payload, timeout_steps=10):
 
 
 async def get_stream(ctx, stream, payload, timeout_steps=10):
-    ctx.set(stream.ready, 1)
+    try:
+        ctx.set(stream.ready, 1)
+    except DriverConflict:
+        print("get_stream: ready is already driven")
     valid = False
     timeout = 0
     while not valid:
@@ -41,7 +45,10 @@ async def get_stream(ctx, stream, payload, timeout_steps=10):
     else:
         wrapped_payload = payload
     assert data == wrapped_payload, f"{data} != {wrapped_payload}"
-    ctx.set(stream.ready, 0)
+    try:
+        ctx.set(stream.ready, 0)
+    except DriverConflict:
+        print("get_stream: ready is already driven")
 
 
 
