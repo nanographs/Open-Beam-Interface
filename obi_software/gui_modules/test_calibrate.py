@@ -4,7 +4,7 @@ from PyQt6.QtWidgets import (QLabel, QGridLayout, QApplication, QWidget,
                              QSpinBox, QComboBox, QHBoxLayout, QVBoxLayout, QPushButton)
 import qasync
 from qasync import asyncSlot, asyncClose, QApplication, QEventLoop
-from ..stream_interface import Connection, StreamVectorPixelCommand
+from ..stream_interface import Connection, StreamVectorPixelCommand, OutputMode
 
 
 class DACSettings(QHBoxLayout):
@@ -56,7 +56,7 @@ class XYDACSettings(QVBoxLayout):
         x_coord, y_coord = self.getvals()
         print(f"{x_coord=}, {y_coord=}")
         await self.conn.transfer(StreamVectorPixelCommand(
-            x_coord = x_coord, y_coord = y_coord, dwell=1))
+            x_coord = x_coord, y_coord = y_coord, dwell=1), output_mode=OutputMode.NoOutput)
 
 
 
