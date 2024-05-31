@@ -10,7 +10,7 @@ from . import StreamSignature
 from . import Supersampler, RasterScanner, RasterRegion
 from . import CommandParser, CommandExecutor, Command, BeamType, OutputMode, CmdType
 from . import BusController, Flippenator
-from glasgowcontrib.applet.open_beam_interface.base_commands import *
+from applet.open_beam_interface.base_commands import *
 
 
 
