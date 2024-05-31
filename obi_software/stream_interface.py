@@ -206,17 +206,16 @@ class Connection:
         seq = CommandSequence(cookie=cookie, output=OutputMode.SixteenBit, raster=False)
         seq.add(FlushCommand())
         res = SynchronizeCommand(cookie=cookie, output=OutputMode.SixteenBit, raster=False).byte_response
-        print(f"{res=}")
         self._stream.send(seq.message)
         while True:
-            print("trying to synchronize...")
+            self._logger.debug("trying to synchronize...")
             try:
                 flushed = await self._stream._reader.readuntil(res)
                 self._logger.debug(f"synchronized after {len(flushed)} bytes")
                 self._synchronized = True
                 break
             except asyncio.LimitOverrunError:
-                print("LimitOverrunError")
+                self._logger.debug("LimitOverrunError")
                 # If we're here, it means the read buffer has exactly `self.read_buffer_size` bytes
                 # in it (set by the `open_connection(limit=)` argument). A partial response could
                 # still be at the very end of the buffer, so read less than that.

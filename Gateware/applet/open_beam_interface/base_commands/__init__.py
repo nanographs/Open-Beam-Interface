@@ -269,8 +269,6 @@ class SynchronizeCommand(BaseCommand):
     @property
     def byte_response(self):
         cookie = struct.pack('>H', self._cookie)
-        print(f"{cookie=}")
-        print(f"{len(cookie)=}")
         return struct.pack('>HBB', 0xffff, cookie[0], cookie[1])
 
 
