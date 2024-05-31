@@ -53,7 +53,7 @@ gui.cmd = "python -m obi_software.gui 2224 --config_path ~/open-beam-interface/c
 debug_gui.cmd = "python -m obi_software.gui 2224 --debug --config_path ~/open-beam-interface/configs/jsm_6400.toml"
 hilbert.cmd = "python -m obi_software.hilbert"
 ## unit tests
-test_g.cmd = "python -m unittest glasgowcontrib.applet.open_beam_interface.test"
+test_g.cmd = "python -m unittest Gateware.applet.open_beam_interface.test"
 test_s.cmd = "python -m unittest obi_software.test"
 build.cmd = "glasgow build --rev C3 open_beam_interface --pin-ext-ibeam-scan-enable 0 --pin-ext-ibeam-scan-enable-2 1 --pin-ext-ibeam-blank-enable 2 --pin-ext-ibeam-blank-enable-2 3 --pin-ibeam-blank-low 4 --pin-ibeam-blank-high 5 --pin-ebeam-blank 6 --pin-ebeam-blank-2 7"
 build.env = {AMARANTH_verbose = "1"}
