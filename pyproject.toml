@@ -29,8 +29,8 @@ metadata = ["ome-types"]
 
 [project.scripts]
 obi_run = "Gateware.applet.open_beam_interface.run:run" ## wrapper around glasgow cli
-obi_gui = "obi_software.gui:run_gui" ## main imaging ui
-obi_shape = "obi_software.scripts.shapes:main"
+obi_gui = "Software.gui:run_gui" ## main imaging ui
+obi_shape = "Software.scripts.shapes:main"
 
 [project.entry-points."glasgow.applet"]
 open_beam_interface = "Gateware.applet.open_beam_interface:OBIApplet"
@@ -49,12 +49,12 @@ _.env = {GLASGOW_OUT_OF_TREE_APPLETS = "I-am-okay-with-breaking-changes"}
 obi_server.cmd = "obi_run --config_path ~/open-beam-interface/configs/jsm_6400.toml server 2224"
 obi_script.cmd = "obi_run script --config_path ~/open-beam-interface/configs/jsm_6400.toml script --script_path {args}"
 ## used with server
-gui.cmd = "python -m obi_software.gui 2224 --config_path ~/open-beam-interface/configs/jsm_6400.toml"
-debug_gui.cmd = "python -m obi_software.gui 2224 --debug --config_path ~/open-beam-interface/configs/jsm_6400.toml"
-hilbert.cmd = "python -m obi_software.hilbert"
+gui.cmd = "python -m Software.gui 2224 --config_path ~/open-beam-interface/configs/jsm_6400.toml"
+debug_gui.cmd = "python -m Software.gui 2224 --debug --config_path ~/open-beam-interface/configs/jsm_6400.toml"
+hilbert.cmd = "python -m Software.hilbert"
 ## unit tests
 test_g.cmd = "python -m unittest Gateware.applet.open_beam_interface.test"
-test_s.cmd = "python -m unittest obi_software.test"
+test_s.cmd = "python -m unittest Software.test"
 build.cmd = "glasgow build --rev C3 open_beam_interface --pin-ext-ibeam-scan-enable 0 --pin-ext-ibeam-scan-enable-2 1 --pin-ext-ibeam-blank-enable 2 --pin-ext-ibeam-blank-enable-2 3 --pin-ibeam-blank-low 4 --pin-ibeam-blank-high 5 --pin-ebeam-blank 6 --pin-ebeam-blank-2 7"
 build.env = {AMARANTH_verbose = "1"}
 ## docs
