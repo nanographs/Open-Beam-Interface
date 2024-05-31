@@ -488,6 +488,89 @@ class OBIAppletTestCase(unittest.TestCase):
         test_rasterpixel_exec()
         test_rasterpixelrun_exec()
 
+    def test_blanking(self):
+        dut = CommandExecutor()
+
+        async def async_unblank(ctx): #assumes starting from default or blanked state
+            ctx.set(dut.cmd_stream.payload, {
+                "type": CmdType.Blank,
+                "payload": {"blank": {"payload": {"enable": 0, "inline": 0}}}
+            })
+            ctx.set(dut.cmd_stream.valid, 1)
+            await ctx.tick()
+            ctx.set(dut.cmd_stream.valid, 0)
+            await ctx.tick("dac_clk")
+            assert ctx.get(dut.blank_enable) == 0
+
+        async def async_blank(ctx): #assumes starting from an unblanked state
+            ctx.set(dut.cmd_stream.payload, {
+                "type": CmdType.Blank,
+                "payload": {"blank": {"payload": {"enable": 1, "inline": 0}}}
+            })
+            ctx.set(dut.cmd_stream.valid, 1)
+            await ctx.tick()
+            ctx.set(dut.cmd_stream.valid, 0)
+            await ctx.tick("dac_clk")
+            assert ctx.get(dut.blank_enable) == 1
+        
+        async def sync_unblank(ctx): #assumes starting from default or blanked state
+            ctx.set(dut.cmd_stream.payload, {
+                "type": CmdType.Blank,
+                "payload": {"blank": {"payload": {"enable": 0, "inline": 1}}}
+            })
+            ctx.set(dut.cmd_stream.valid, 1)
+            await ctx.tick().until(dut.cmd_stream.ready == 0)
+            assert ctx.get(dut.blank_enable) == 1 #shouldn't be unblanked yet
+            ctx.set(dut.cmd_stream.payload, {
+                "type": CmdType.VectorPixel,
+                "payload": {"vector_pixel_min": {"payload": {
+                    "transform": {"xflip": 0, "yflip": 0, "rotate90": 0},
+                    "dac_stream": {"x_coord": 1, "padding_x": 0, "y_coord": 1, "padding_y": 0},
+                    }}}})
+            ctx.set(dut.cmd_stream.valid, 1)
+            await ctx.tick().until(dut.cmd_stream.ready == 0)
+            ctx.set(dut.cmd_stream.valid, 0)
+            await ctx.tick().until(dut.flippenator.out_stream.valid == 1) # bus controller recieves dac codes
+            await ctx.tick("dac_clk").repeat(2) # dac codes are latched
+            assert ctx.get(dut.blank_enable) == 0
+
+        async def sync_blank(ctx): #assumes starting from an unblanked state
+            ctx.set(dut.cmd_stream.payload, {
+                "type": CmdType.Blank,
+                "payload": {"blank": {"payload": {"enable": 1, "inline": 1}}}
+            })
+            ctx.set(dut.cmd_stream.valid, 1)
+            await ctx.tick().until(dut.cmd_stream.ready == 0)
+            assert ctx.get(dut.blank_enable) == 0 #shouldn't be blanked yet
+            ctx.set(dut.cmd_stream.payload, {
+                "type": CmdType.VectorPixel,
+                "payload": {"vector_pixel": {"payload": {
+                    "transform": {"xflip": 0, "yflip": 0, "rotate90": 0},
+                    "dac_stream": {"x_coord": 2, "padding_x": 0, "y_coord": 2, "padding_y": 0, "dwell_time": 1},
+                    }}}})
+            ctx.set(dut.cmd_stream.valid, 1)
+            await ctx.tick().until(dut.cmd_stream.ready == 0)
+            ctx.set(dut.cmd_stream.valid, 0)
+            await ctx.tick().until(dut.flippenator.out_stream.valid == 1) # bus controller recieves dac codes
+            await ctx.tick("dac_clk").repeat(2) # dac codes are latched
+            assert ctx.get(dut.blank_enable) == 1
+        
+        async def test_seq_1(ctx):
+            await async_unblank(ctx)
+            await async_blank(ctx)
+            await async_unblank(ctx)
+            await sync_blank(ctx)
+            await sync_unblank(ctx)
+            await async_blank(ctx)
+            #await sync_unblank(ctx)
+        
+        self.simulate(dut, [async_unblank], name="async_unblank")
+        self.simulate(dut, [sync_unblank], name="sync_unblank")
+        self.simulate(dut, [test_seq_1], name="blank_seq_1")
+    
+
+
+
     def test_command_executor_sequences(self):
         BUS_CYCLES = 6 ## length of one cycle of DAC/ADC clock
         class TestCommand:
