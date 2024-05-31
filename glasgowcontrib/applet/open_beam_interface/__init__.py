@@ -182,7 +182,6 @@ class BusController(wiring.Component):
         ]
 
         dac_stream_data = Signal.like(self.dac_stream.payload)
-        m.d.comb += self.inline_blank.eq(dac_stream_data.blank)
 
         m.d.comb += adc_stream_data.adc_code.eq(self.bus.data_i)
 
@@ -204,6 +203,8 @@ class BusController(wiring.Component):
                     # Latch DAC codes from input stream.
                     m.d.comb += self.dac_stream.ready.eq(1)
                     m.d.sync += dac_stream_data.eq(self.dac_stream.payload)
+                    # Transmit blanking state from input stream
+                    m.d.comb += self.inline_blank.eq(self.dac_stream.payload.blank)
                     # Schedule ADC sample for these DAC codes to be output.
                     m.d.sync += accept_sample.eq(Cat(1, accept_sample))
                     # Carry over the flag for last sample [of averaging window] to the output.
