@@ -25,6 +25,7 @@ parser_script.set_defaults(script=True, server=False)
 parser_server = subparsers.add_parser('server')
 parser_server.add_argument("port")
 parser_server.set_defaults(script=False, server=True)
+parser.set_defaults(script=False, server=False)
 
 args = parser.parse_args()
 
@@ -45,7 +46,7 @@ if hasattr(args, "config_path"):
 
 
 endpoint_arg = []
-if hasattr(args, "server"):
+if args.server:
     endpoint_arg += ["tcp::" + args.port]
 
 env = os.environ._data
@@ -58,9 +59,9 @@ def run():
     elif args.server:
         glasgow_cmd = ["glasgow", "run", "open_beam_interface", "-V", "5"] + pin_args + transform_args + endpoint_arg
     else:
-        print("""Choose mode: obi_run script or obi_run server\n
-                Examples:\n
-                Script mode: obi_run script --config_path path/to/microscope.toml --script_path /path/to/script\n
+        print("""\nError: script or server mode must be selected
+                Examples:
+                Script mode: obi_run script --config_path path/to/microscope.toml --script_path /path/to/script
                 Server mode: obi_run server --config_path path/to/microscope.toml 2224""")
         quit()
     glasgow = subprocess.Popen(glasgow_cmd,env=env, stdin=sys.stdin)
