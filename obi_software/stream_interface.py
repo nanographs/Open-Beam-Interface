@@ -194,18 +194,14 @@ class Connection:
 
 
     async def _synchronize(self):
-        print("synchronizing")
         if not self.connected:
             await self._connect()
         if self.synchronized:
-            print("already synced")
+            self._logger.debug("already synced")
             return
-
-        print("not synced")
 
         cookie, self._next_cookie = self._next_cookie, (self._next_cookie + 2) & 0xffff # even cookie
         self._logger.debug(f'synchronizing with cookie {cookie:#06x}')
-        print("synchronizing with cookie")
 
         seq = CommandSequence(cookie=cookie, output=OutputMode.SixteenBit, raster=False)
         seq.add(FlushCommand())
@@ -444,7 +440,7 @@ class StreamVectorPixelCommand(VectorPixelCommand, StreamCommand):
     @StreamCommand.log_transfer
     async def transfer(self, stream: Stream, output_mode:OutputMode=OutputMode.SixteenBit):
         stream.send(self.message)
-        stream.send(struct.pack(">B", CommandType.Flush))
+        #stream.send(struct.pack(">B", CmdType.Flush))
         return await self.recv_res(1, stream, output_mode)
 
 
