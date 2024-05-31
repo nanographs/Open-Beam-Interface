@@ -28,12 +28,12 @@ hilbert = ["hilbertcurve"]
 metadata = ["ome-types"]
 
 [project.scripts]
-obi_run = "glasgowcontrib.applet.open_beam_interface.run:run" ## wrapper around glasgow cli
+obi_run = "Gateware.applet.open_beam_interface.run:run" ## wrapper around glasgow cli
 obi_gui = "obi_software.gui:run_gui" ## main imaging ui
 obi_shape = "obi_software.scripts.shapes:main"
 
 [project.entry-points."glasgow.applet"]
-open_beam_interface = "glasgowcontrib.applet.open_beam_interface:OBIApplet"
+open_beam_interface = "Gateware.applet.open_beam_interface:OBIApplet"
 
 
 [build-system]
@@ -41,7 +41,7 @@ requires = ["pdm-backend"]
 build-backend = "pdm.backend"
 
 [tool.pdm.build]
-includes = ["glasgowcontrib"]
+includes = ["Gateware"]
 
 [tool.pdm.scripts]
 _.env = {GLASGOW_OUT_OF_TREE_APPLETS = "I-am-okay-with-breaking-changes"}
