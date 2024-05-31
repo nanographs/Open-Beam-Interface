@@ -1,13 +1,8 @@
 name: Run Unit Tests
 on: 
-    push:
-        paths:
-        - 'Gateware/*'
-        - '.github/workflows/test.yml' # Trigger on changes to the workflow file
-
   push:
     paths:
-      - 'glasgowcontrib/*'
+      - 'Gateware/*'
       - 'obi_software/*'
       - 'pyproject.toml'
       - '.github/workflows/test.yml' # Trigger on changes to the workflow file
