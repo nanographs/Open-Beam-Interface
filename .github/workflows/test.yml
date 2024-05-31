@@ -1,15 +1,10 @@
 name: Run Unit Tests
 on: 
-<<<<<<< HEAD
     push:
         paths:
         - 'Gateware/*'
         - '.github/workflows/test.yml' # Trigger on changes to the workflow file
-||||||| parent of 8c9e963 (experiment with a different python packaging structure)
-  push:
-    paths:
-      - Gateware
-=======
+
   push:
     paths:
       - 'glasgowcontrib/*'
