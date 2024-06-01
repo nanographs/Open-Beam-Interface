@@ -8,8 +8,9 @@ from ..stream_interface import Connection, StreamVectorPixelCommand, OutputMode
 
 
 class DACSettings(QHBoxLayout):
-    def __init__(self):
+    def __init__(self, name):
         super().__init__()
+        self.addWidget(QLabel(name))
         self.max_btn = QPushButton("Max")
         self.max_btn.clicked.connect(self.maxClicked)
         self.addWidget(self.max_btn)
@@ -20,27 +21,27 @@ class DACSettings(QHBoxLayout):
         self.min_btn.clicked.connect(self.minClicked)
         self.addWidget(self.min_btn)
         self.field = QSpinBox()
-        self.field.setRange(0, 16383)
+        self.field.setRange(1, 16384)
         self.field.setSingleStep(1)
-        self.field.setValue(0)
+        self.field.setValue(1)
         self.addWidget(self.field)
 
     def maxClicked(self):
-        self.field.setValue(16383)
+        self.field.setValue(16384)
     
     def midClicked(self):
-        self.field.setValue(8191)
+        self.field.setValue(8192)
     
     def minClicked(self):
-        self.field.setValue(0)
+        self.field.setValue(1)
 
 
 class XYDACSettings(QVBoxLayout):
     def __init__(self, conn):
         self.conn = conn
         super().__init__()
-        self.x_settings = DACSettings()
-        self.y_settings = DACSettings()
+        self.x_settings = DACSettings("X")
+        self.y_settings = DACSettings("Y")
         self.addLayout(self.x_settings)
         self.addLayout(self.y_settings)
         self.x_settings.field.valueChanged.connect(self.setvals)
