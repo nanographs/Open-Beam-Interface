@@ -9550,7 +9550,7 @@
 		(uuid "1b60065b-95c9-43e4-8559-5c8b1533869d")
 	)
 	(junction
-		(at 500.38 105.41)
+		(at 500.38 97.79)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "1b8b2798-fec3-45e6-8a35-2b743837893e")
@@ -10120,7 +10120,7 @@
 		(uuid "5f92d840-d237-4dd4-98e5-d66942058e5d")
 	)
 	(junction
-		(at 500.38 97.79)
+		(at 500.38 105.41)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "5fe53a9e-47d0-4ae3-acbf-d32772c7ae36")
@@ -10894,7 +10894,7 @@
 		(uuid "cae08d0d-b585-4c99-bf1d-505da6b814d7")
 	)
 	(junction
-		(at 500.38 227.33)
+		(at 500.38 234.95)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "caf425d3-f624-44fa-bfa9-5e9dddbde61d")
@@ -11254,7 +11254,7 @@
 		(uuid "f5a6cd8c-ad90-4b20-9a9f-b309734fd344")
 	)
 	(junction
-		(at 500.38 234.95)
+		(at 500.38 227.33)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "f618dfbb-f4f6-4a28-8bc5-90fffe95c7d1")
@@ -13483,7 +13483,7 @@
 	)
 	(wire
 		(pts
-			(xy 504.19 248.92) (xy 504.19 247.65)
+			(xy 516.89 213.36) (xy 516.89 212.09)
 		)
 		(stroke
 			(width 0)
@@ -13894,7 +13894,7 @@
 	)
 	(wire
 		(pts
-			(xy 500.38 99.06) (xy 500.38 97.79)
+			(xy 500.38 104.14) (xy 500.38 105.41)
 		)
 		(stroke
 			(width 0)
@@ -14408,7 +14408,7 @@
 	)
 	(wire
 		(pts
-			(xy 500.38 233.68) (xy 500.38 234.95)
+			(xy 500.38 228.6) (xy 500.38 227.33)
 		)
 		(stroke
 			(width 0)
@@ -15060,7 +15060,7 @@
 	)
 	(wire
 		(pts
-			(xy 495.3 93.98) (xy 500.38 88.9)
+			(xy 495.3 109.22) (xy 500.38 114.3)
 		)
 		(stroke
 			(width 0)
@@ -15250,7 +15250,7 @@
 	)
 	(wire
 		(pts
-			(xy 500.38 224.79) (xy 500.38 227.33)
+			(xy 500.38 237.49) (xy 500.38 234.95)
 		)
 		(stroke
 			(width 0)
@@ -16042,7 +16042,7 @@
 	)
 	(wire
 		(pts
-			(xy 500.38 105.41) (xy 500.38 107.95)
+			(xy 500.38 97.79) (xy 500.38 95.25)
 		)
 		(stroke
 			(width 0)
@@ -16182,7 +16182,7 @@
 	)
 	(wire
 		(pts
-			(xy 500.38 234.95) (xy 500.38 237.49)
+			(xy 500.38 227.33) (xy 500.38 224.79)
 		)
 		(stroke
 			(width 0)
@@ -16624,7 +16624,7 @@
 	)
 	(wire
 		(pts
-			(xy 514.35 119.38) (xy 516.89 119.38)
+			(xy 506.73 83.82) (xy 504.19 83.82)
 		)
 		(stroke
 			(width 0)
@@ -16815,7 +16815,7 @@
 	)
 	(wire
 		(pts
-			(xy 510.54 114.3) (xy 510.54 115.57)
+			(xy 510.54 88.9) (xy 510.54 87.63)
 		)
 		(stroke
 			(width 0)
@@ -16886,7 +16886,7 @@
 	)
 	(wire
 		(pts
-			(xy 500.38 97.79) (xy 506.73 97.79)
+			(xy 500.38 107.95) (xy 506.73 107.95)
 		)
 		(stroke
 			(width 0)
@@ -17407,7 +17407,7 @@
 	)
 	(wire
 		(pts
-			(xy 500.38 227.33) (xy 506.73 227.33)
+			(xy 500.38 237.49) (xy 506.73 237.49)
 		)
 		(stroke
 			(width 0)
@@ -18980,7 +18980,7 @@
 	)
 	(wire
 		(pts
-			(xy 495.3 238.76) (xy 500.38 243.84)
+			(xy 495.3 223.52) (xy 500.38 218.44)
 		)
 		(stroke
 			(width 0)
@@ -19272,7 +19272,7 @@
 	)
 	(wire
 		(pts
-			(xy 495.3 233.68) (xy 500.38 233.68)
+			(xy 495.3 228.6) (xy 500.38 228.6)
 		)
 		(stroke
 			(width 0)
@@ -19362,7 +19362,7 @@
 	)
 	(wire
 		(pts
-			(xy 500.38 218.44) (xy 501.65 218.44)
+			(xy 500.38 243.84) (xy 501.65 243.84)
 		)
 		(stroke
 			(width 0)
@@ -19612,7 +19612,7 @@
 	)
 	(wire
 		(pts
-			(xy 495.3 99.06) (xy 500.38 99.06)
+			(xy 495.3 104.14) (xy 500.38 104.14)
 		)
 		(stroke
 			(width 0)
@@ -19702,7 +19702,7 @@
 	)
 	(wire
 		(pts
-			(xy 504.19 119.38) (xy 506.73 119.38)
+			(xy 516.89 83.82) (xy 514.35 83.82)
 		)
 		(stroke
 			(width 0)
@@ -20732,7 +20732,7 @@
 	)
 	(wire
 		(pts
-			(xy 500.38 88.9) (xy 501.65 88.9)
+			(xy 500.38 114.3) (xy 501.65 114.3)
 		)
 		(stroke
 			(width 0)
@@ -20802,7 +20802,7 @@
 	)
 	(wire
 		(pts
-			(xy 500.38 114.3) (xy 510.54 114.3)
+			(xy 500.38 88.9) (xy 510.54 88.9)
 		)
 		(stroke
 			(width 0)
@@ -20922,7 +20922,7 @@
 	)
 	(wire
 		(pts
-			(xy 495.3 228.6) (xy 500.38 228.6)
+			(xy 495.3 233.68) (xy 500.38 233.68)
 		)
 		(stroke
 			(width 0)
@@ -22696,7 +22696,7 @@
 	)
 	(wire
 		(pts
-			(xy 495.3 104.14) (xy 500.38 104.14)
+			(xy 495.3 99.06) (xy 500.38 99.06)
 		)
 		(stroke
 			(width 0)
@@ -23118,7 +23118,7 @@
 	)
 	(wire
 		(pts
-			(xy 514.35 248.92) (xy 516.89 248.92)
+			(xy 506.73 213.36) (xy 504.19 213.36)
 		)
 		(stroke
 			(width 0)
@@ -23178,7 +23178,7 @@
 	)
 	(wire
 		(pts
-			(xy 500.38 107.95) (xy 506.73 107.95)
+			(xy 500.38 97.79) (xy 506.73 97.79)
 		)
 		(stroke
 			(width 0)
@@ -23738,7 +23738,7 @@
 	)
 	(wire
 		(pts
-			(xy 500.38 228.6) (xy 500.38 227.33)
+			(xy 500.38 233.68) (xy 500.38 234.95)
 		)
 		(stroke
 			(width 0)
@@ -23888,7 +23888,7 @@
 	)
 	(wire
 		(pts
-			(xy 510.54 243.84) (xy 510.54 245.11)
+			(xy 510.54 218.44) (xy 510.54 217.17)
 		)
 		(stroke
 			(width 0)
@@ -24058,7 +24058,7 @@
 	)
 	(wire
 		(pts
-			(xy 500.38 95.25) (xy 500.38 97.79)
+			(xy 500.38 107.95) (xy 500.38 105.41)
 		)
 		(stroke
 			(width 0)
@@ -24400,7 +24400,7 @@
 	)
 	(wire
 		(pts
-			(xy 500.38 104.14) (xy 500.38 105.41)
+			(xy 500.38 99.06) (xy 500.38 97.79)
 		)
 		(stroke
 			(width 0)
@@ -24640,7 +24640,7 @@
 	)
 	(wire
 		(pts
-			(xy 500.38 243.84) (xy 510.54 243.84)
+			(xy 500.38 218.44) (xy 510.54 218.44)
 		)
 		(stroke
 			(width 0)
@@ -24920,7 +24920,7 @@
 	)
 	(wire
 		(pts
-			(xy 495.3 223.52) (xy 500.38 218.44)
+			(xy 495.3 238.76) (xy 500.38 243.84)
 		)
 		(stroke
 			(width 0)
@@ -25010,7 +25010,7 @@
 	)
 	(wire
 		(pts
-			(xy 504.19 119.38) (xy 504.19 118.11)
+			(xy 516.89 83.82) (xy 516.89 82.55)
 		)
 		(stroke
 			(width 0)
@@ -25230,7 +25230,7 @@
 	)
 	(wire
 		(pts
-			(xy 500.38 237.49) (xy 506.73 237.49)
+			(xy 500.38 227.33) (xy 506.73 227.33)
 		)
 		(stroke
 			(width 0)
@@ -25671,7 +25671,7 @@
 	)
 	(wire
 		(pts
-			(xy 495.3 109.22) (xy 500.38 114.3)
+			(xy 495.3 93.98) (xy 500.38 88.9)
 		)
 		(stroke
 			(width 0)
@@ -26351,7 +26351,7 @@
 	)
 	(wire
 		(pts
-			(xy 504.19 248.92) (xy 506.73 248.92)
+			(xy 516.89 213.36) (xy 514.35 213.36)
 		)
 		(stroke
 			(width 0)
@@ -27108,12 +27108,12 @@
 	)
 	(text "Offset voltage"
 		(exclude_from_sim no)
-		(at 552.45 229.87 0)
+		(at 552.958 230.886 0)
 		(effects
 			(font
 				(size 2.54 2.54)
 			)
-			(justify right bottom)
+			(justify right)
 		)
 		(uuid "2b7d8390-d234-4d5c-945f-fa4bf1529936")
 	)
@@ -27231,7 +27231,7 @@
 	)
 	(text "Adjustable"
 		(exclude_from_sim no)
-		(at 486.41 118.11 0)
+		(at 486.41 85.09 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -27389,9 +27389,19 @@
 		)
 		(uuid "70a7f03b-ba70-4849-9922-2b584189ab83")
 	)
+	(text "+5"
+		(exclude_from_sim no)
+		(at 525.526 226.314 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "74a271db-a8e7-4268-8226-a8f555987d9d")
+	)
 	(text "Presets"
 		(exclude_from_sim no)
-		(at 487.68 218.44 0)
+		(at 487.68 243.84 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -27426,7 +27436,7 @@
 	)
 	(text "Presets"
 		(exclude_from_sim no)
-		(at 487.68 88.9 0)
+		(at 487.68 114.3 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -27535,6 +27545,16 @@
 			(justify left bottom)
 		)
 		(uuid "ac05ce4d-f07e-433d-b4f2-af941dd6aade")
+	)
+	(text "-5"
+		(exclude_from_sim no)
+		(at 525.78 106.934 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "ac8b47b8-39b5-4a8a-9ef9-1fd31b6f2638")
 	)
 	(text "5V Filtering"
 		(exclude_from_sim no)
@@ -27753,7 +27773,7 @@
 	)
 	(text "Adjustable"
 		(exclude_from_sim no)
-		(at 486.41 247.65 0)
+		(at 486.41 214.63 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -27761,6 +27781,26 @@
 			(justify left bottom)
 		)
 		(uuid "dd65896b-879e-469e-8fff-03532d9b0798")
+	)
+	(text "-5"
+		(exclude_from_sim no)
+		(at 525.526 236.474 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "dda0a0d9-16a5-490c-995c-2e17bd7c3acb")
+	)
+	(text "+5"
+		(exclude_from_sim no)
+		(at 525.78 96.774 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "dde8a1f5-a6e0-45d2-bb21-fa99d52645d1")
 	)
 	(text "Independant singled ended\noutput scale adjust.\n"
 		(exclude_from_sim no)
@@ -30157,6 +30197,7 @@
 	(symbol
 		(lib_id "Scan Generator Symbols:SP4T")
 		(at 490.22 101.6 0)
+		(mirror x)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -30164,7 +30205,7 @@
 		(dnp no)
 		(uuid "01ead037-24c6-4208-81e4-1ff15e9ecbae")
 		(property "Reference" "SW2"
-			(at 487.68 96.52 0)
+			(at 488.188 96.012 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -30392,7 +30433,8 @@
 	)
 	(symbol
 		(lib_id "Scan Generator Symbols:-14V0")
-		(at 516.89 248.92 180)
+		(at 504.19 213.36 0)
+		(mirror x)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom no)
@@ -30400,7 +30442,7 @@
 		(dnp no)
 		(uuid "02a2b200-9318-47c0-b844-a610d4940e51")
 		(property "Reference" "#PWR0182"
-			(at 517.144 245.11 0)
+			(at 503.936 209.55 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -30409,7 +30451,7 @@
 			)
 		)
 		(property "Value" "-14V0"
-			(at 520.7 248.92 0)
+			(at 500.38 213.36 0)
 			(do_not_autoplace yes)
 			(effects
 				(font
@@ -30418,7 +30460,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 516.89 248.92 0)
+			(at 504.19 213.36 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -30427,7 +30469,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 516.89 248.92 0)
+			(at 504.19 213.36 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -30436,7 +30478,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 516.89 248.92 0)
+			(at 504.19 213.36 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -32845,7 +32887,7 @@
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 510.54 97.79 270)
+		(at 510.54 107.95 270)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -32853,15 +32895,15 @@
 		(dnp no)
 		(uuid "12fe0b21-ff3f-445d-8658-3725b987fc78")
 		(property "Reference" "R78"
-			(at 510.54 100.33 90)
+			(at 510.54 110.49 90)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Value" "R"
-			(at 510.54 97.79 90)
+		(property "Value" "13k"
+			(at 510.54 107.95 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -32869,7 +32911,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
-			(at 510.54 96.012 90)
+			(at 510.54 106.172 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -32878,7 +32920,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 510.54 97.79 0)
+			(at 510.54 107.95 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -32887,7 +32929,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 510.54 97.79 0)
+			(at 510.54 107.95 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -32896,7 +32938,7 @@
 			)
 		)
 		(property "Order Link" "Assortment"
-			(at 510.54 97.79 0)
+			(at 510.54 107.95 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -32904,8 +32946,8 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" ""
-			(at 510.54 97.79 0)
+		(property "DK Part Number" "541-3167-1-ND"
+			(at 510.54 107.95 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -32914,7 +32956,7 @@
 			)
 		)
 		(property "Is Good" "y"
-			(at 510.54 97.79 0)
+			(at 510.54 107.95 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -34662,7 +34704,7 @@
 	)
 	(symbol
 		(lib_id "Scan Generator Symbols:-14V0")
-		(at 514.35 107.95 270)
+		(at 514.35 97.79 270)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom no)
@@ -34670,7 +34712,7 @@
 		(dnp no)
 		(uuid "1e71b889-9ada-4f42-a333-7e0fdc586af0")
 		(property "Reference" "#PWR0177"
-			(at 510.54 107.696 0)
+			(at 510.54 97.536 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -34679,7 +34721,7 @@
 			)
 		)
 		(property "Value" "-14V0"
-			(at 520.7 107.95 90)
+			(at 520.7 97.79 90)
 			(do_not_autoplace yes)
 			(effects
 				(font
@@ -34688,7 +34730,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 514.35 107.95 0)
+			(at 514.35 97.79 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -34697,7 +34739,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 514.35 107.95 0)
+			(at 514.35 97.79 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -34706,7 +34748,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 514.35 107.95 0)
+			(at 514.35 97.79 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -35800,7 +35842,7 @@
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 510.54 237.49 270)
+		(at 510.54 227.33 270)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -35808,15 +35850,15 @@
 		(dnp no)
 		(uuid "2142cd17-7926-4cee-8ab3-dbc385e2ca45")
 		(property "Reference" "R71"
-			(at 510.54 240.03 90)
+			(at 510.54 229.87 90)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Value" "R"
-			(at 510.54 237.49 90)
+		(property "Value" "20k"
+			(at 510.54 227.33 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -35824,7 +35866,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
-			(at 510.54 235.712 90)
+			(at 510.54 225.552 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -35833,7 +35875,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 510.54 237.49 0)
+			(at 510.54 227.33 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -35842,7 +35884,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 510.54 237.49 0)
+			(at 510.54 227.33 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -35851,7 +35893,7 @@
 			)
 		)
 		(property "Order Link" "Assortment"
-			(at 510.54 237.49 0)
+			(at 510.54 227.33 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -35859,8 +35901,8 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" ""
-			(at 510.54 237.49 0)
+		(property "DK Part Number" "TNP20.0KAACT-ND"
+			(at 510.54 227.33 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -35869,7 +35911,7 @@
 			)
 		)
 		(property "Is Good" "y"
-			(at 510.54 237.49 0)
+			(at 510.54 227.33 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -36518,7 +36560,7 @@
 				)
 			)
 		)
-		(property "Value" "FerriteBead"
+		(property "Value" "LI0603G221R-10"
 			(at 48.2092 133.4295 90)
 			(effects
 				(font
@@ -36563,7 +36605,7 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" ""
+		(property "DK Part Number" "240-2368-1-ND"
 			(at 48.26 137.16 0)
 			(effects
 				(font
@@ -36613,7 +36655,7 @@
 				)
 			)
 		)
-		(property "Value" "FerriteBead"
+		(property "Value" "LI0603G221R-10"
 			(at 48.2092 148.6695 90)
 			(effects
 				(font
@@ -36658,7 +36700,7 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" ""
+		(property "DK Part Number" "240-2368-1-ND"
 			(at 48.26 152.4 0)
 			(effects
 				(font
@@ -37128,7 +37170,7 @@
 				)
 			)
 		)
-		(property "Value" "2.49K"
+		(property "Value" "2.32k"
 			(at 391.16 223.52 90)
 			(effects
 				(font
@@ -37172,7 +37214,7 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" ""
+		(property "DK Part Number" "TNP2.32KAACT-ND"
 			(at 391.16 223.52 0)
 			(effects
 				(font
@@ -38661,7 +38703,7 @@
 	)
 	(symbol
 		(lib_id "Scan Generator Symbols:+14V0")
-		(at 508 234.95 270)
+		(at 508 224.79 270)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom no)
@@ -38669,7 +38711,7 @@
 		(dnp no)
 		(uuid "32cbaa8d-e91a-41d0-ae0a-ba3b7e0675c0")
 		(property "Reference" "#PWR0179"
-			(at 504.19 234.696 0)
+			(at 504.19 224.536 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -38678,7 +38720,7 @@
 			)
 		)
 		(property "Value" "+14V0"
-			(at 514.35 234.95 90)
+			(at 514.35 224.79 90)
 			(do_not_autoplace yes)
 			(effects
 				(font
@@ -38687,7 +38729,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 508 234.95 0)
+			(at 508 224.79 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -38696,7 +38738,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 508 234.95 0)
+			(at 508 224.79 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -38705,7 +38747,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 508 234.95 0)
+			(at 508 224.79 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -41409,7 +41451,8 @@
 	)
 	(symbol
 		(lib_id "power:GNDA")
-		(at 501.65 218.44 90)
+		(at 501.65 243.84 90)
+		(mirror x)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -41418,7 +41461,7 @@
 		(fields_autoplaced yes)
 		(uuid "3ff6ab9c-960c-46de-bb5d-904a291f82b3")
 		(property "Reference" "#PWR0132"
-			(at 508 218.44 0)
+			(at 508 243.84 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -41427,7 +41470,7 @@
 			)
 		)
 		(property "Value" "GNDA"
-			(at 505.46 219.075 90)
+			(at 505.46 243.205 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -41436,7 +41479,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 501.65 218.44 0)
+			(at 501.65 243.84 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -41445,7 +41488,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 501.65 218.44 0)
+			(at 501.65 243.84 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -41454,7 +41497,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 501.65 218.44 0)
+			(at 501.65 243.84 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -42186,7 +42229,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "~"
+		(property "Datasheet" "CL10C471JB8NNNC"
 			(at 378.46 337.82 0)
 			(effects
 				(font
@@ -42213,7 +42256,7 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" ""
+		(property "DK Part Number" "1276-1168-1-ND"
 			(at 378.46 337.82 0)
 			(effects
 				(font
@@ -44504,7 +44547,7 @@
 				)
 			)
 		)
-		(property "Value" "FerriteBead"
+		(property "Value" "LI0603G221R-10"
 			(at 41.8592 67.3895 90)
 			(effects
 				(font
@@ -44539,7 +44582,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" ""
 			(at 41.91 71.12 0)
 			(effects
 				(font
@@ -44548,7 +44591,7 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" ""
+		(property "DK Part Number" "240-2368-1-ND"
 			(at 41.91 71.12 0)
 			(effects
 				(font
@@ -45128,7 +45171,8 @@
 	)
 	(symbol
 		(lib_id "Scan Generator Symbols:+14V0")
-		(at 504.19 247.65 0)
+		(at 516.89 212.09 0)
+		(mirror y)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom no)
@@ -45136,7 +45180,7 @@
 		(dnp no)
 		(uuid "4e93b435-d6ff-496e-81e8-8224531d962d")
 		(property "Reference" "#PWR0142"
-			(at 503.936 251.46 0)
+			(at 517.144 215.9 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -45145,7 +45189,7 @@
 			)
 		)
 		(property "Value" "+14V0"
-			(at 500.38 247.65 0)
+			(at 520.7 212.09 0)
 			(do_not_autoplace yes)
 			(effects
 				(font
@@ -45154,7 +45198,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 504.19 247.65 0)
+			(at 516.89 212.09 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -45163,7 +45207,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 504.19 247.65 0)
+			(at 516.89 212.09 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -45172,7 +45216,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 504.19 247.65 0)
+			(at 516.89 212.09 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -46494,7 +46538,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_Potentiometer_Trim_US")
-		(at 510.54 248.92 90)
+		(at 510.54 213.36 270)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -46502,7 +46546,7 @@
 		(dnp no)
 		(uuid "53775dc9-86c8-4c2a-9a39-b00e66175097")
 		(property "Reference" "RV5"
-			(at 510.54 251.46 90)
+			(at 510.54 210.82 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -46510,7 +46554,7 @@
 			)
 		)
 		(property "Value" "20K"
-			(at 510.54 251.46 90)
+			(at 510.54 210.82 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -46519,7 +46563,7 @@
 			)
 		)
 		(property "Footprint" "Potentiometer_SMD:Potentiometer_Bourns_3224W_Vertical"
-			(at 510.54 248.92 0)
+			(at 510.54 213.36 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -46528,7 +46572,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.bourns.com/docs/Product-Datasheets/3224.pdf"
-			(at 510.54 248.92 0)
+			(at 510.54 213.36 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -46537,7 +46581,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 510.54 248.92 0)
+			(at 510.54 213.36 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -46546,7 +46590,7 @@
 			)
 		)
 		(property "DK Part Number" "118-3224W-1-203ECT-ND"
-			(at 510.54 248.92 0)
+			(at 510.54 213.36 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -46555,7 +46599,7 @@
 			)
 		)
 		(property "Order Link" "https://www.digikey.com/en/products/detail/bourns-inc/3224W-1-203E/225661"
-			(at 510.54 248.92 0)
+			(at 510.54 213.36 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -46564,7 +46608,7 @@
 			)
 		)
 		(property "Is Good" "Y"
-			(at 510.54 248.92 0)
+			(at 510.54 213.36 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -49303,7 +49347,8 @@
 	)
 	(symbol
 		(lib_id "power:GNDA")
-		(at 501.65 88.9 90)
+		(at 501.65 114.3 90)
+		(mirror x)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -49312,7 +49357,7 @@
 		(fields_autoplaced yes)
 		(uuid "638452d1-9e5b-4db1-beed-6de91a71c8d7")
 		(property "Reference" "#PWR0133"
-			(at 508 88.9 0)
+			(at 508 114.3 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -49321,7 +49366,7 @@
 			)
 		)
 		(property "Value" "GNDA"
-			(at 505.46 89.535 90)
+			(at 505.46 113.665 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -49330,7 +49375,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 501.65 88.9 0)
+			(at 501.65 114.3 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -49339,7 +49384,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 501.65 88.9 0)
+			(at 501.65 114.3 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -49348,7 +49393,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 501.65 88.9 0)
+			(at 501.65 114.3 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -52133,7 +52178,7 @@
 				)
 			)
 		)
-		(property "Value" "FerriteBead"
+		(property "Value" "LI0603G221R-10"
 			(at 41.8592 90.2495 90)
 			(effects
 				(font
@@ -52177,7 +52222,7 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" ""
+		(property "DK Part Number" "240-2368-1-ND"
 			(at 41.91 93.98 0)
 			(effects
 				(font
@@ -52755,7 +52800,7 @@
 	)
 	(symbol
 		(lib_id "Scan Generator Symbols:-14V0")
-		(at 514.35 237.49 270)
+		(at 514.35 227.33 270)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom no)
@@ -52763,7 +52808,7 @@
 		(dnp no)
 		(uuid "7b120756-8f52-4ad8-bae1-f02d38373f9e")
 		(property "Reference" "#PWR0181"
-			(at 510.54 237.236 0)
+			(at 510.54 227.076 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -52772,7 +52817,7 @@
 			)
 		)
 		(property "Value" "-14V0"
-			(at 520.7 237.49 90)
+			(at 520.7 227.33 90)
 			(do_not_autoplace yes)
 			(effects
 				(font
@@ -52781,7 +52826,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 514.35 237.49 0)
+			(at 514.35 227.33 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -52790,7 +52835,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 514.35 237.49 0)
+			(at 514.35 227.33 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -52799,7 +52844,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 514.35 237.49 0)
+			(at 514.35 227.33 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -53706,7 +53751,8 @@
 	)
 	(symbol
 		(lib_id "Scan Generator Symbols:-14V0")
-		(at 516.89 119.38 180)
+		(at 504.19 83.82 0)
+		(mirror x)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom no)
@@ -53714,7 +53760,7 @@
 		(dnp no)
 		(uuid "7e29330e-962c-4221-aa37-d4de9194bf2b")
 		(property "Reference" "#PWR058"
-			(at 517.144 115.57 0)
+			(at 503.936 80.01 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -53723,7 +53769,7 @@
 			)
 		)
 		(property "Value" "-14V0"
-			(at 520.7 119.38 0)
+			(at 500.38 83.82 0)
 			(do_not_autoplace yes)
 			(effects
 				(font
@@ -53732,7 +53778,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 516.89 119.38 0)
+			(at 504.19 83.82 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -53741,7 +53787,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 516.89 119.38 0)
+			(at 504.19 83.82 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -53750,7 +53796,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 516.89 119.38 0)
+			(at 504.19 83.82 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -56516,7 +56562,8 @@
 	)
 	(symbol
 		(lib_id "Scan Generator Symbols:+14V0")
-		(at 504.19 118.11 0)
+		(at 516.89 82.55 0)
+		(mirror y)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom no)
@@ -56524,7 +56571,7 @@
 		(dnp no)
 		(uuid "8fcf24fb-cc55-48bd-aec1-6aef85040389")
 		(property "Reference" "#PWR067"
-			(at 503.936 121.92 0)
+			(at 517.144 86.36 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -56533,7 +56580,7 @@
 			)
 		)
 		(property "Value" "+14V0"
-			(at 500.38 118.11 0)
+			(at 520.7 82.55 0)
 			(do_not_autoplace yes)
 			(effects
 				(font
@@ -56542,7 +56589,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 504.19 118.11 0)
+			(at 516.89 82.55 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -56551,7 +56598,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 504.19 118.11 0)
+			(at 516.89 82.55 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -56560,7 +56607,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 504.19 118.11 0)
+			(at 516.89 82.55 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -56582,7 +56629,7 @@
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 504.19 95.25 270)
+		(at 504.19 105.41 270)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -56590,15 +56637,15 @@
 		(dnp no)
 		(uuid "90ac4162-39c2-40f9-9da7-983a7edf2950")
 		(property "Reference" "R77"
-			(at 504.19 92.71 90)
+			(at 504.19 102.87 90)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Value" "R"
-			(at 504.19 95.25 90)
+		(property "Value" "22k"
+			(at 504.19 105.41 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -56606,7 +56653,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
-			(at 504.19 93.472 90)
+			(at 504.19 103.632 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -56615,7 +56662,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 504.19 95.25 0)
+			(at 504.19 105.41 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -56624,7 +56671,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 504.19 95.25 0)
+			(at 504.19 105.41 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -56633,7 +56680,7 @@
 			)
 		)
 		(property "Order Link" "Assortment"
-			(at 504.19 95.25 0)
+			(at 504.19 105.41 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -56641,8 +56688,8 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" ""
-			(at 504.19 95.25 0)
+		(property "DK Part Number" "541-2006-1-ND"
+			(at 504.19 105.41 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -56651,7 +56698,7 @@
 			)
 		)
 		(property "Is Good" "y"
-			(at 504.19 95.25 0)
+			(at 504.19 105.41 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -56910,7 +56957,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_Potentiometer_Trim_US")
-		(at 510.54 119.38 90)
+		(at 510.54 83.82 270)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -56918,7 +56965,7 @@
 		(dnp no)
 		(uuid "913344bb-edbb-42e4-bc4e-f1fbb7628f63")
 		(property "Reference" "RV2"
-			(at 510.54 121.92 90)
+			(at 510.54 81.28 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -56926,7 +56973,7 @@
 			)
 		)
 		(property "Value" "20K"
-			(at 510.54 121.92 90)
+			(at 510.54 81.28 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -56935,7 +56982,7 @@
 			)
 		)
 		(property "Footprint" "Potentiometer_SMD:Potentiometer_Bourns_3224W_Vertical"
-			(at 510.54 119.38 0)
+			(at 510.54 83.82 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -56944,7 +56991,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.bourns.com/docs/Product-Datasheets/3224.pdf"
-			(at 510.54 119.38 0)
+			(at 510.54 83.82 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -56953,7 +57000,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 510.54 119.38 0)
+			(at 510.54 83.82 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -56962,7 +57009,7 @@
 			)
 		)
 		(property "DK Part Number" "118-3224W-1-203ECT-ND"
-			(at 510.54 119.38 0)
+			(at 510.54 83.82 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -56971,7 +57018,7 @@
 			)
 		)
 		(property "Order Link" "https://www.digikey.com/en/products/detail/bourns-inc/3224W-1-203E/225661"
-			(at 510.54 119.38 0)
+			(at 510.54 83.82 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -56980,7 +57027,7 @@
 			)
 		)
 		(property "Is Good" "Y"
-			(at 510.54 119.38 0)
+			(at 510.54 83.82 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -57142,7 +57189,7 @@
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 510.54 107.95 270)
+		(at 510.54 97.79 270)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -57150,15 +57197,15 @@
 		(dnp no)
 		(uuid "933cc109-50b4-44a9-9d1c-0615bea00fd5")
 		(property "Reference" "R82"
-			(at 510.54 110.49 90)
+			(at 510.54 100.33 90)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Value" "R"
-			(at 510.54 107.95 90)
+		(property "Value" "20k"
+			(at 510.54 97.79 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -57166,7 +57213,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
-			(at 510.54 106.172 90)
+			(at 510.54 96.012 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -57175,7 +57222,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 510.54 107.95 0)
+			(at 510.54 97.79 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -57184,7 +57231,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 510.54 107.95 0)
+			(at 510.54 97.79 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -57193,7 +57240,7 @@
 			)
 		)
 		(property "Order Link" "Assortment"
-			(at 510.54 107.95 0)
+			(at 510.54 97.79 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -57201,8 +57248,8 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" ""
-			(at 510.54 107.95 0)
+		(property "DK Part Number" "TNP20.0KAACT-ND"
+			(at 510.54 97.79 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -57211,7 +57258,7 @@
 			)
 		)
 		(property "Is Good" "y"
-			(at 510.54 107.95 0)
+			(at 510.54 97.79 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -57858,6 +57905,7 @@
 	(symbol
 		(lib_id "Scan Generator Symbols:SP4T")
 		(at 490.22 231.14 0)
+		(mirror x)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -57865,7 +57913,7 @@
 		(dnp no)
 		(uuid "95c6d41a-0fe3-42f8-8550-1260c901f288")
 		(property "Reference" "SW3"
-			(at 487.68 226.06 0)
+			(at 488.696 226.314 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -60968,7 +61016,7 @@
 	)
 	(symbol
 		(lib_id "Scan Generator Symbols:+14V0")
-		(at 508 95.25 270)
+		(at 508 105.41 270)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom no)
@@ -60976,7 +61024,7 @@
 		(dnp no)
 		(uuid "a6dcde10-229c-4a44-82d9-040307ce27cb")
 		(property "Reference" "#PWR0120"
-			(at 504.19 94.996 0)
+			(at 504.19 105.156 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -60985,7 +61033,7 @@
 			)
 		)
 		(property "Value" "+14V0"
-			(at 514.35 95.25 90)
+			(at 514.35 105.41 90)
 			(do_not_autoplace yes)
 			(effects
 				(font
@@ -60994,7 +61042,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 508 95.25 0)
+			(at 508 105.41 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -61003,7 +61051,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 508 95.25 0)
+			(at 508 105.41 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -61012,7 +61060,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 508 95.25 0)
+			(at 508 105.41 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -61470,7 +61518,7 @@
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 504.19 234.95 270)
+		(at 504.19 224.79 270)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -61478,15 +61526,15 @@
 		(dnp no)
 		(uuid "a930a9f8-f586-46a6-9332-fdfd56fcf98a")
 		(property "Reference" "R68"
-			(at 504.19 232.41 90)
+			(at 504.19 222.25 90)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Value" "R"
-			(at 504.19 234.95 90)
+		(property "Value" "12k"
+			(at 504.19 224.79 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -61494,7 +61542,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
-			(at 504.19 233.172 90)
+			(at 504.19 223.012 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -61503,7 +61551,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 504.19 234.95 0)
+			(at 504.19 224.79 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -61512,7 +61560,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 504.19 234.95 0)
+			(at 504.19 224.79 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -61521,7 +61569,7 @@
 			)
 		)
 		(property "Order Link" "Assortment"
-			(at 504.19 234.95 0)
+			(at 504.19 224.79 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -61529,8 +61577,8 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" ""
-			(at 504.19 234.95 0)
+		(property "DK Part Number" "TNP12.0KAACT-ND"
+			(at 504.19 224.79 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -61539,7 +61587,7 @@
 			)
 		)
 		(property "Is Good" "y"
-			(at 504.19 234.95 0)
+			(at 504.19 224.79 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -63057,7 +63105,7 @@
 	)
 	(symbol
 		(lib_id "Scan Generator Symbols:+14V0")
-		(at 508 224.79 270)
+		(at 508 234.95 270)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom no)
@@ -63065,7 +63113,7 @@
 		(dnp no)
 		(uuid "b107af8d-1655-4d0e-bffd-6bfe50e03c87")
 		(property "Reference" "#PWR0178"
-			(at 504.19 224.536 0)
+			(at 504.19 234.696 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -63074,7 +63122,7 @@
 			)
 		)
 		(property "Value" "+14V0"
-			(at 514.35 224.79 90)
+			(at 514.35 234.95 90)
 			(do_not_autoplace yes)
 			(effects
 				(font
@@ -63083,7 +63131,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 508 224.79 0)
+			(at 508 234.95 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -63092,7 +63140,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 508 224.79 0)
+			(at 508 234.95 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -63101,7 +63149,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 508 224.79 0)
+			(at 508 234.95 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -63214,7 +63262,7 @@
 	)
 	(symbol
 		(lib_id "Scan Generator Symbols:-14V0")
-		(at 514.35 97.79 270)
+		(at 514.35 107.95 270)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom no)
@@ -63222,7 +63270,7 @@
 		(dnp no)
 		(uuid "b1f2f64b-8e8f-4b8e-a02b-5ba019821a9a")
 		(property "Reference" "#PWR0174"
-			(at 510.54 97.536 0)
+			(at 510.54 107.696 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -63231,7 +63279,7 @@
 			)
 		)
 		(property "Value" "-14V0"
-			(at 520.7 97.79 90)
+			(at 520.7 107.95 90)
 			(do_not_autoplace yes)
 			(effects
 				(font
@@ -63240,7 +63288,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 514.35 97.79 0)
+			(at 514.35 107.95 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -63249,7 +63297,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 514.35 97.79 0)
+			(at 514.35 107.95 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -63258,7 +63306,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 514.35 97.79 0)
+			(at 514.35 107.95 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -63280,7 +63328,7 @@
 	)
 	(symbol
 		(lib_id "Scan Generator Symbols:+14V0")
-		(at 508 105.41 270)
+		(at 508 95.25 270)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom no)
@@ -63288,7 +63336,7 @@
 		(dnp no)
 		(uuid "b31b2071-b8da-4d72-b23b-bb0f1b173151")
 		(property "Reference" "#PWR0175"
-			(at 504.19 105.156 0)
+			(at 504.19 94.996 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -63297,7 +63345,7 @@
 			)
 		)
 		(property "Value" "+14V0"
-			(at 514.35 105.41 90)
+			(at 514.35 95.25 90)
 			(do_not_autoplace yes)
 			(effects
 				(font
@@ -63306,7 +63354,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 508 105.41 0)
+			(at 508 95.25 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -63315,7 +63363,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 508 105.41 0)
+			(at 508 95.25 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -63324,7 +63372,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 508 105.41 0)
+			(at 508 95.25 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -63575,7 +63623,7 @@
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 504.19 105.41 270)
+		(at 504.19 95.25 270)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -63583,15 +63631,15 @@
 		(dnp no)
 		(uuid "b5af9e29-cee4-45fc-a59a-aa7c85e98056")
 		(property "Reference" "R79"
-			(at 504.19 102.87 90)
+			(at 504.19 92.71 90)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Value" "R"
-			(at 504.19 105.41 90)
+		(property "Value" "12k"
+			(at 504.19 95.25 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -63599,7 +63647,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
-			(at 504.19 103.632 90)
+			(at 504.19 93.472 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -63608,7 +63656,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 504.19 105.41 0)
+			(at 504.19 95.25 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -63617,7 +63665,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 504.19 105.41 0)
+			(at 504.19 95.25 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -63626,7 +63674,7 @@
 			)
 		)
 		(property "Order Link" "Assortment"
-			(at 504.19 105.41 0)
+			(at 504.19 95.25 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -63634,8 +63682,8 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" ""
-			(at 504.19 105.41 0)
+		(property "DK Part Number" "TNP12.0KAACT-ND"
+			(at 504.19 95.25 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -63644,7 +63692,7 @@
 			)
 		)
 		(property "Is Good" "y"
-			(at 504.19 105.41 0)
+			(at 504.19 95.25 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -68102,7 +68150,7 @@
 				)
 			)
 		)
-		(property "Value" "2.49K"
+		(property "Value" "2.32k"
 			(at 393.7 93.98 90)
 			(effects
 				(font
@@ -68146,7 +68194,7 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" ""
+		(property "DK Part Number" "TNP2.32KAACT-ND"
 			(at 393.7 93.98 0)
 			(effects
 				(font
@@ -69722,7 +69770,7 @@
 				)
 			)
 		)
-		(property "Value" "13K"
+		(property "Value" "13.1k"
 			(at 172.72 334.01 90)
 			(effects
 				(font
@@ -71104,7 +71152,7 @@
 				)
 			)
 		)
-		(property "Value" "13K"
+		(property "Value" "13.1k"
 			(at 71.12 332.74 90)
 			(effects
 				(font
@@ -71381,7 +71429,7 @@
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 504.19 224.79 270)
+		(at 504.19 234.95 270)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -71389,15 +71437,15 @@
 		(dnp no)
 		(uuid "e353436c-0e7e-49d5-9684-d2bb2dcd50a7")
 		(property "Reference" "R65"
-			(at 504.19 222.25 90)
+			(at 504.19 232.41 90)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Value" "R"
-			(at 504.19 224.79 90)
+		(property "Value" "22k"
+			(at 504.19 234.95 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -71405,7 +71453,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
-			(at 504.19 223.012 90)
+			(at 504.19 233.172 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -71414,7 +71462,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 504.19 224.79 0)
+			(at 504.19 234.95 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -71423,7 +71471,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 504.19 224.79 0)
+			(at 504.19 234.95 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -71432,7 +71480,7 @@
 			)
 		)
 		(property "Order Link" "Assortment"
-			(at 504.19 224.79 0)
+			(at 504.19 234.95 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -71440,8 +71488,8 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" ""
-			(at 504.19 224.79 0)
+		(property "DK Part Number" "541-2006-1-ND"
+			(at 504.19 234.95 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -71450,7 +71498,7 @@
 			)
 		)
 		(property "Is Good" "y"
-			(at 504.19 224.79 0)
+			(at 504.19 234.95 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -71844,7 +71892,7 @@
 				)
 			)
 		)
-		(property "Value" "R"
+		(property "Value" "4.75k"
 			(at 393.7 99.06 90)
 			(effects
 				(font
@@ -71888,7 +71936,7 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" ""
+		(property "DK Part Number" "TNP4.75KAACT-ND"
 			(at 393.7 99.06 0)
 			(effects
 				(font
@@ -74316,7 +74364,7 @@
 				)
 			)
 		)
-		(property "Value" "13K"
+		(property "Value" "13.1k"
 			(at 73.66 158.75 90)
 			(effects
 				(font
@@ -74395,7 +74443,7 @@
 	)
 	(symbol
 		(lib_id "Scan Generator Symbols:-14V0")
-		(at 514.35 227.33 270)
+		(at 514.35 237.49 270)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom no)
@@ -74403,7 +74451,7 @@
 		(dnp no)
 		(uuid "f0d49591-97e2-47f9-9c8b-a71e216bc0f7")
 		(property "Reference" "#PWR0180"
-			(at 510.54 227.076 0)
+			(at 510.54 237.236 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -74412,7 +74460,7 @@
 			)
 		)
 		(property "Value" "-14V0"
-			(at 520.7 227.33 90)
+			(at 520.7 237.49 90)
 			(do_not_autoplace yes)
 			(effects
 				(font
@@ -74421,7 +74469,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 514.35 227.33 0)
+			(at 514.35 237.49 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -74430,7 +74478,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 514.35 227.33 0)
+			(at 514.35 237.49 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -74439,7 +74487,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 514.35 227.33 0)
+			(at 514.35 237.49 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -75686,7 +75734,7 @@
 				)
 			)
 		)
-		(property "Value" "13K"
+		(property "Value" "13.1k"
 			(at 73.66 130.81 90)
 			(effects
 				(font
@@ -76700,7 +76748,7 @@
 				)
 			)
 		)
-		(property "Value" "R"
+		(property "Value" "4.75k"
 			(at 391.16 228.6 90)
 			(effects
 				(font
@@ -76744,7 +76792,7 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" ""
+		(property "DK Part Number" "TNP4.75KAACT-ND"
 			(at 391.16 228.6 0)
 			(effects
 				(font
@@ -77035,7 +77083,7 @@
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 510.54 227.33 270)
+		(at 510.54 237.49 270)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -77043,15 +77091,15 @@
 		(dnp no)
 		(uuid "fea5b8ac-8eda-4724-b295-23b22b9135e8")
 		(property "Reference" "R69"
-			(at 510.54 229.87 90)
+			(at 510.54 240.03 90)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Value" "R"
-			(at 510.54 227.33 90)
+		(property "Value" "13k"
+			(at 510.54 237.49 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -77059,7 +77107,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
-			(at 510.54 225.552 90)
+			(at 510.54 235.712 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -77068,7 +77116,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 510.54 227.33 0)
+			(at 510.54 237.49 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -77077,7 +77125,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 510.54 227.33 0)
+			(at 510.54 237.49 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -77086,7 +77134,7 @@
 			)
 		)
 		(property "Order Link" "Assortment"
-			(at 510.54 227.33 0)
+			(at 510.54 237.49 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -77094,8 +77142,8 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" ""
-			(at 510.54 227.33 0)
+		(property "DK Part Number" "541-3167-1-ND"
+			(at 510.54 237.49 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -77104,7 +77152,7 @@
 			)
 		)
 		(property "Is Good" "y"
-			(at 510.54 227.33 0)
+			(at 510.54 237.49 0)
 			(effects
 				(font
 					(size 1.27 1.27)
