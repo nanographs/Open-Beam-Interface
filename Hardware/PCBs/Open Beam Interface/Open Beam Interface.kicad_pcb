@@ -1380,7 +1380,7 @@
 				)
 			)
 		)
-		(property "Value" "R"
+		(property "Value" "20k"
 			(at 0 1.43 0)
 			(layer "F.Fab")
 			(uuid "e8312b06-6a0d-461d-831b-3ec1d6fed341")
@@ -1427,7 +1427,7 @@
 				)
 			)
 		)
-		(property "DK Part Number" ""
+		(property "DK Part Number" "TNP20.0KAACT-ND"
 			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
@@ -7721,7 +7721,7 @@
 				)
 			)
 		)
-		(property "Value" "2.49K"
+		(property "Value" "2.32k"
 			(at 0 1.43 0)
 			(layer "F.Fab")
 			(uuid "a3af070d-a9b2-4516-aec2-d044e2e928a3")
@@ -7768,7 +7768,7 @@
 				)
 			)
 		)
-		(property "DK Part Number" ""
+		(property "DK Part Number" "TNP2.32KAACT-ND"
 			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
@@ -7968,7 +7968,7 @@
 				)
 			)
 		)
-		(property "Value" "R"
+		(property "Value" "12k"
 			(at 0 1.43 0)
 			(layer "F.Fab")
 			(uuid "f95f4293-b691-4f6e-ba30-6d9b0e70d599")
@@ -8015,7 +8015,7 @@
 				)
 			)
 		)
-		(property "DK Part Number" ""
+		(property "DK Part Number" "TNP12.0KAACT-ND"
 			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
@@ -8748,7 +8748,7 @@
 				)
 			)
 		)
-		(property "Value" "R"
+		(property "Value" "22k"
 			(at 0 1.43 0)
 			(layer "F.Fab")
 			(uuid "a732068a-da67-4dcc-a786-6374695f9dc1")
@@ -8795,7 +8795,7 @@
 				)
 			)
 		)
-		(property "DK Part Number" ""
+		(property "DK Part Number" "541-2006-1-ND"
 			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
@@ -18979,7 +18979,7 @@
 				)
 			)
 		)
-		(property "Value" "R"
+		(property "Value" "4.75k"
 			(at 0 1.43 0)
 			(layer "F.Fab")
 			(uuid "7f4f2b68-967d-457f-b407-f6517723d272")
@@ -19026,7 +19026,7 @@
 				)
 			)
 		)
-		(property "DK Part Number" ""
+		(property "DK Part Number" "TNP4.75KAACT-ND"
 			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
@@ -23898,7 +23898,7 @@
 				)
 			)
 		)
-		(property "Value" "FerriteBead"
+		(property "Value" "LI0603G221R-10"
 			(at 0 1.43 0)
 			(layer "F.Fab")
 			(uuid "629affac-267a-41fd-a11b-f05e7907a9a2")
@@ -23945,7 +23945,7 @@
 				)
 			)
 		)
-		(property "DK Part Number" ""
+		(property "DK Part Number" "240-2368-1-ND"
 			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
@@ -31986,7 +31986,7 @@
 				)
 			)
 		)
-		(property "Value" "FerriteBead"
+		(property "Value" "LI0603G221R-10"
 			(at 0 1.43 0)
 			(layer "F.Fab")
 			(uuid "7c633fc8-2f54-4465-88a2-3695f7af2bed")
@@ -32033,7 +32033,7 @@
 				)
 			)
 		)
-		(property "DK Part Number" ""
+		(property "DK Part Number" "240-2368-1-ND"
 			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
@@ -34350,7 +34350,7 @@
 				)
 			)
 		)
-		(property "Value" "R"
+		(property "Value" "22k"
 			(at 0 1.43 0)
 			(layer "F.Fab")
 			(uuid "e975a20d-aee4-41ca-bec1-ac4410377299")
@@ -34397,7 +34397,7 @@
 				)
 			)
 		)
-		(property "DK Part Number" ""
+		(property "DK Part Number" "541-2006-1-ND"
 			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
@@ -35882,7 +35882,7 @@
 				)
 			)
 		)
-		(property "Value" "13K"
+		(property "Value" "13.1k"
 			(at 0 1.43 90)
 			(layer "F.Fab")
 			(uuid "6276c898-3504-4188-aac3-99f5305c7302")
@@ -40203,7 +40203,7 @@
 				)
 			)
 		)
-		(property "Value" "R"
+		(property "Value" "4.75k"
 			(at 0 1.43 0)
 			(layer "F.Fab")
 			(uuid "1823790f-08d1-470b-9ac0-1d19615bd257")
@@ -40250,7 +40250,7 @@
 				)
 			)
 		)
-		(property "DK Part Number" ""
+		(property "DK Part Number" "TNP4.75KAACT-ND"
 			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
@@ -42565,7 +42565,7 @@
 				)
 			)
 		)
-		(property "Value" "13K"
+		(property "Value" "13.1k"
 			(at 0 1.43 90)
 			(layer "F.Fab")
 			(uuid "a68cd5be-27d8-4a38-82c8-4a5f8e1b48ee")
@@ -50980,7 +50980,7 @@
 				)
 			)
 		)
-		(property "Value" "R"
+		(property "Value" "13k"
 			(at 0 1.43 0)
 			(layer "F.Fab")
 			(uuid "40669827-87fa-43e6-98e3-0e3fa2a61517")
@@ -51027,7 +51027,7 @@
 				)
 			)
 		)
-		(property "DK Part Number" ""
+		(property "DK Part Number" "541-3167-1-ND"
 			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
@@ -56841,7 +56841,7 @@
 				)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "CL10C471JB8NNNC"
 			(at 0 0 90)
 			(unlocked yes)
 			(layer "F.Fab")
@@ -56865,7 +56865,7 @@
 				)
 			)
 		)
-		(property "DK Part Number" ""
+		(property "DK Part Number" "1276-1168-1-ND"
 			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
@@ -60805,7 +60805,7 @@
 				)
 			)
 		)
-		(property "Value" "FerriteBead"
+		(property "Value" "LI0603G221R-10"
 			(at 0 1.43 0)
 			(layer "F.Fab")
 			(uuid "7bc0ce70-2b46-4920-8f8d-ad9b64ae309d")
@@ -60852,7 +60852,7 @@
 				)
 			)
 		)
-		(property "DK Part Number" ""
+		(property "DK Part Number" "240-2368-1-ND"
 			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
@@ -66110,7 +66110,7 @@
 				)
 			)
 		)
-		(property "Value" "R"
+		(property "Value" "12k"
 			(at 0 1.43 0)
 			(layer "F.Fab")
 			(uuid "a86f5b5a-c82a-44d4-b5fe-bc7831edd2c2")
@@ -66157,7 +66157,7 @@
 				)
 			)
 		)
-		(property "DK Part Number" ""
+		(property "DK Part Number" "TNP12.0KAACT-ND"
 			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
@@ -70514,7 +70514,7 @@
 				)
 			)
 		)
-		(property "Value" "FerriteBead"
+		(property "Value" "LI0603G221R-10"
 			(at 0 1.43 0)
 			(layer "F.Fab")
 			(uuid "3d23ea2a-c518-4641-8597-2dd6d21a50a0")
@@ -70561,7 +70561,7 @@
 				)
 			)
 		)
-		(property "DK Part Number" ""
+		(property "DK Part Number" "240-2368-1-ND"
 			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
@@ -70585,7 +70585,7 @@
 				)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" ""
 			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
@@ -77303,7 +77303,7 @@
 				)
 			)
 		)
-		(property "Value" "R"
+		(property "Value" "20k"
 			(at 0 1.43 0)
 			(layer "F.Fab")
 			(uuid "3932c9bb-6296-4aa3-b844-6997cc37c977")
@@ -77350,7 +77350,7 @@
 				)
 			)
 		)
-		(property "DK Part Number" ""
+		(property "DK Part Number" "TNP20.0KAACT-ND"
 			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
@@ -80122,7 +80122,7 @@
 				)
 			)
 		)
-		(property "Value" "13K"
+		(property "Value" "13.1k"
 			(at 0 1.43 90)
 			(layer "F.Fab")
 			(uuid "3ece048b-35be-484f-abc0-b8534832d7d4")
@@ -82692,7 +82692,7 @@
 				)
 			)
 		)
-		(property "Value" "2.49K"
+		(property "Value" "2.32k"
 			(at 0 1.43 0)
 			(layer "F.Fab")
 			(uuid "83e3fc2a-6957-4f0e-b764-236432181bb7")
@@ -82739,7 +82739,7 @@
 				)
 			)
 		)
-		(property "DK Part Number" ""
+		(property "DK Part Number" "TNP2.32KAACT-ND"
 			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
@@ -84858,7 +84858,7 @@
 				)
 			)
 		)
-		(property "Value" "13K"
+		(property "Value" "13.1k"
 			(at 0 1.43 90)
 			(layer "F.Fab")
 			(uuid "0c8ee9dc-b3ff-492f-b2c4-01261b640fe5")
@@ -85802,7 +85802,7 @@
 				)
 			)
 		)
-		(property "Value" "R"
+		(property "Value" "13k"
 			(at 0 1.43 0)
 			(layer "F.Fab")
 			(uuid "293dd742-6194-467b-89db-60969b6298ab")
@@ -85849,7 +85849,7 @@
 				)
 			)
 		)
-		(property "DK Part Number" ""
+		(property "DK Part Number" "541-3167-1-ND"
 			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
