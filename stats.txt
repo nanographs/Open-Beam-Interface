@@ -1,0 +1,63 @@
+         9415083 function calls (7181011 primitive calls) in 1.634 seconds
+
+   Ordered by: internal time
+
+   ncalls       tottime  percall  cumtime  percall filename:lineno(function)
+695000/104000    0.298    0.000    1.394    0.000 _ast.py:108(cast)
+668000/127000    0.248    0.000    1.382    0.000 data.py:54(width)
+  2856000        0.174    0.000    0.187    0.000 {built-in method builtins.isinstance}
+822000/268000    0.146    0.000    1.215    0.000 data.py:352(<genexpr>)
+238000/26000     0.144    0.000    1.434    0.000 {built-in method builtins.max}
+   636000        0.109    0.000    0.139    0.000 _ast.py:68(__init__)
+232000/86000     0.089    0.000    1.304    0.000 data.py:342(size)
+   222000        0.070    0.000    0.118    0.000 _ast.py:197(unsigned)
+222000/59000     0.058    0.000    1.324    0.000 data.py:160(as_shape)
+   700000    0.042    0.000    0.042    0.000 data.py:46(shape)
+   713000    0.039    0.000    0.039    0.000 _ast.py:79(width)
+   616000    0.032    0.000    0.032    0.000 data.py:50(offset)
+6000/1000    0.030    0.000    1.632    0.002 data.py:198(const)
+   238000    0.022    0.000    0.022    0.000 {method 'values' of 'dict' objects}
+24000/3000    0.020    0.000    1.043    0.000 _ast.py:1542(__call__)
+    18000    0.017    0.000    0.026    0.000 _ast.py:1599(__init__)
+     6000    0.013    0.000    0.469    0.000 data.py:935(__init__)
+    84000    0.012    0.000    1.118    0.000 data.py:436(<genexpr>)
+    47000    0.007    0.000    0.013    0.000 <frozen abc>:117(__instancecheck__)
+    47000    0.006    0.000    0.006    0.000 {built-in method _abc._abc_instancecheck}
+    83000    0.006    0.000    0.006    0.000 {built-in method builtins.hasattr}
+    38000    0.006    0.000    0.009    0.000 data.py:1157(as_shape)
+    14000    0.006    0.000    0.546    0.000 _ast.py:546(cast)
+    10000    0.005    0.000    0.527    0.000 data.py:976(as_value)
+     7000    0.004    0.000    0.006    0.000 _ast.py:170(__eq__)
+    12000    0.004    0.000    0.549    0.000 _ast.py:1573(cast)
+    17000    0.003    0.000    0.004    0.000 enum.py:112(as_shape)
+     6000    0.002    0.000    1.132    0.000 data.py:426(size)
+2000/1000    0.002    0.000    1.634    0.002 data.py:1167(const)
+    32000    0.002    0.000    0.002    0.000 _ast.py:83(signed)
+    24000    0.002    0.000    0.002    0.000 {built-in method _operator.index}
+     5000    0.002    0.000    0.003    0.000 data.py:336(__iter__)
+     2000    0.002    0.000    0.007    0.000 enum.py:135(__call__)
+    12000    0.001    0.000    0.001    0.000 {method 'items' of 'dict' objects}
+     6000    0.001    0.000    0.005    0.000 data.py:97(cast)
+     1000    0.001    0.000    0.012    0.000 enum.py:164(const)
+    12000    0.001    0.000    0.001    0.000 data.py:339(__getitem__)
+     1000    0.001    0.000    0.003    0.000 enum.py:224(__init__)
+    13000    0.001    0.000    0.001    0.000 _ast.py:1624(value)
+     1000    0.001    0.000    0.639    0.001 data.py:438(const)
+     7000    0.001    0.000    0.001    0.000 _ast.py:1621(shape)
+     6000    0.001    0.000    0.001    0.000 {built-in method builtins.iter}
+     1000    0.001    0.000    0.001    0.000 _ast.py:358(__call__)
+     2000    0.000    0.000    0.000    0.000 {method 'update' of 'dict' objects}
+     1000    0.000    0.000    0.001    0.000 enum.py:726(__call__)
+     1000    0.000    0.000    0.001    0.000 data.py:420(__iter__)
+     2000    0.000    0.000    0.000    0.000 {method 'copy' of 'dict' objects}
+     1000    0.000    0.000    0.000    0.000 enum.py:202(__get__)
+     2000    0.000    0.000    0.000    0.000 enum.py:244(as_value)
+     1000    0.000    0.000    0.000    0.000 enum.py:1129(__new__)
+     1000    0.000    0.000    0.000    0.000 data.py:423(__getitem__)
+     1000    0.000    0.000    0.000    0.000 {built-in method builtins.len}
+     1000    0.000    0.000    0.000    0.000 enum.py:1292(value)
+     41/5    0.000    0.000    0.000    0.000 {built-in method _abc._abc_subclasscheck}
+        1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
+     41/5    0.000    0.000    0.000    0.000 <frozen abc>:121(__subclasscheck__)
+
+
