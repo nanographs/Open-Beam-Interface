@@ -2,7 +2,6 @@ from abc import ABCMeta, abstractmethod
 from dataclasses import dataclass
 import enum
 import struct
-import time
 import asyncio
 from amaranth import *
 from amaranth import ShapeCastable
@@ -1299,6 +1298,40 @@ class OBIApplet(GlasgowApplet):
         iface = await device.demultiplexer.claim_interface(self, self.mux_interface, args,
             # read_buffer_size=131072*16, write_buffer_size=131072*16)
             read_buffer_size=16384*16384, write_buffer_size=16384*16384)
+        
+        if args.benchmark:
+            import time
+            from .base_commands import CommandSequence, VectorPixelCommand, FlushCommand
+            seq1 = CommandSequence(output=OutputMode.NoOutput, raster=False, cookie=123)
+            seq1.add(FlushCommand())
+            print("synchronizing")
+            await iface.write(seq1.message)
+            await iface.flush()
+            await iface.read(4)
+            print("synchronized!")
+            #commands = bytearray()
+            # high = VectorPixelCommand(x_coord=0, y_coord=16383, dwell=1).message
+            # low = VectorPixelCommand(x_coord=16383, y_coord=0, dwell=1).message
+            commands = CommandSequence(sync=False)
+            high = VectorPixelCommand(x_coord=0, y_coord=16383, dwell=1)
+            low = VectorPixelCommand(x_coord=16383, y_coord=0, dwell=1)
+            print("generating block of commands...")
+            for _ in range(131072*16):
+                commands.add(high)
+                commands.add(low)
+            length = len(commands)
+            print("writing commands...")
+            while True:
+                begin = time.time()
+                await iface.write(commands)
+                await iface.flush()
+                end = time.time()
+                #out_stall_events = await device.read_register(self.__addr_out_stall_events)
+                #out_stall_cycles = await device.read_register(self.__addr_out_stall_cycles, width=2)
+                self.logger.info("benchmark: %.2f MiB/s (%.2f Mb/s)",
+                                (length / (end - begin)) / (1 << 20),
+                                (length / (end - begin)) / (1 << 17))
+                #self.logger.info(f"out stalls: {out_stall_events}, stalled cycles: {out_stall_cycles}")
         return iface
 
     @classmethod
