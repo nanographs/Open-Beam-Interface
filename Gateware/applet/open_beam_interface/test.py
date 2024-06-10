@@ -10,7 +10,7 @@ from . import StreamSignature
 from . import Supersampler, RasterScanner, RasterRegion
 from . import CommandParser, CommandExecutor, Command, BeamType, OutputMode, CmdType
 from . import BusController, Flippenator
-from applet.open_beam_interface.base_commands import *
+from .base_commands import *
 
 
 
@@ -27,6 +27,61 @@ async def put_stream(ctx, stream, payload, timeout_steps=10):
     ctx.set(stream.valid, 0)
 
 
+def unpack_const(data):
+    newmembers = {}
+    members = data.shape().members
+    for member in members:
+        field = data.__getattr__(member)
+        newmembers[member] = field
+    return newmembers
+
+def unpack_dict(data):
+    all_data = {}
+    for member in data:
+        try:
+            unpacked_data = unpack_const(data.get(member))
+            all_data[member] = unpack_dict(unpacked_data)
+        except Exception as e:
+            all_data[member] = data.get(member)
+    return all_data
+
+def prettier_dict(data):
+    try:
+        data = unpack_const(data)
+        if isinstance(data, dict):
+            all_data = unpack_dict(data)
+        else:
+            all_data = data
+    except: all_data = data
+    return all_data
+
+def filtered_dict(data, payload):
+    data = prettier_dict(data)
+    filtered_data = {}
+    def unpack(data, payload, filtered_data):
+        for signal, payload_value in payload.items():
+            data_value = data[signal]
+            if isinstance(data_value, dict):
+                filtered_data[signal] = {}
+                unpack(data_value, payload_value, filtered_data[signal])
+            else:
+                filtered_data[signal] = data_value
+    unpack(data, payload, filtered_data)
+    return filtered_data
+    
+def prettier_diff(data, payload):
+    data = filtered_dict(data, payload)
+    summary = "\nSignal \t Expected \t Actual"
+    def unpack_diff(data, payload):
+        nonlocal summary
+        for signal, payload_value in payload.items():
+            data_value = data[signal]
+            if isinstance(data_value, dict):
+                unpack_diff(data_value, payload_value)
+            else:
+                summary += f"\n{signal}\t {payload_value}\t {data_value}"
+    unpack_diff(data, payload)
+    return summary
 
 
 async def get_stream(ctx, stream, payload, timeout_steps=10):
@@ -35,13 +90,13 @@ async def get_stream(ctx, stream, payload, timeout_steps=10):
     timeout = 0
     while not valid:
         _, _, valid, data = await ctx.tick().sample(stream.valid, stream.payload)
-        print(f"get_stream: {valid=}, {data=}")
+        print(f"get_stream: {valid=}, data={filtered_dict(data, payload)}")
         timeout += 1; assert timeout < timeout_steps
     if isinstance(payload, dict):
         wrapped_payload = stream.payload.shape().const(payload)
     else:
         wrapped_payload = payload
-    assert data == wrapped_payload, f"{data} != {wrapped_payload}"
+    assert data == wrapped_payload, f"{prettier_diff(data, payload)}"
     ctx.set(stream.ready, 0)
 
 
