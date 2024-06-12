@@ -13,8 +13,8 @@ from . import StreamSignature
 
 
 CMD_SHAPE = 4
-class CmdType(enum.Enum, shape=CMD_SHAPE):
-    Synchronize         = 0xa
+class CmdType(enum.IntEnum, shape=CMD_SHAPE):
+    Synchronize         = 0x0
     Abort               = 0x1
     Flush               = 0x2
     ExternalCtrl        = 0x3
@@ -22,15 +22,26 @@ class CmdType(enum.Enum, shape=CMD_SHAPE):
     Blank               = 0x5
     Delay               = 0x6
 
-    #RasterRegion        = 0xa
+    RasterRegion        = 0xa
     RasterPixel         = 0xb
     RasterPixelRun      = 0xc
     RasterPixelFreeRun  = 0xd
     VectorPixel         = 0xe
     VectorPixelMinDwell = 0xf 
 
+class OutputMode(enum.IntEnum, shape = 2):
+    SixteenBit          = 0
+    EightBit            = 1
+    NoOutput            = 2
 
 class CommandLayout(UserDict):
+    def convert_shape(self, value):
+        if isinstance(value, int):
+            value = value
+        if isinstance(value, Shape):
+            assert value._width%self.field_length == 0, f"{value!r} is not a multiple of {self.field_length}"
+            value = value._width//self.field_length
+        return value
     def flatten(self):
         new_dict = {}
         def unpack(field_dict):
@@ -38,7 +49,7 @@ class CommandLayout(UserDict):
                 if isinstance(value, dict):
                     unpack(value)
                 else:
-                    new_dict[field] = value
+                    new_dict[field] = self.convert_shape(value)
         unpack(self.data)
         return new_dict
     def field_names(self):
@@ -61,11 +72,21 @@ class CommandLayout(UserDict):
                 if isinstance(value, dict):
                     struct_dict[field] = data.StructLayout(unpack(value, {}))
                 else:
-                    struct_dict[field] = value*self.field_length
+                    struct_dict[field] = self.convert_shape(value)*self.field_length
             return struct_dict
         unpack(self.data, struct_dict)
         return struct_dict
-
+    def pack_dict(self, value_dict):
+        packed_dict = {}
+        def unpack(field_dict, packed_dict):
+            for field, value in field_dict.items():
+                if isinstance(value, dict):
+                    packed_dict[field] = {}
+                    unpack(value, packed_dict[field])
+                else:
+                    packed_dict[field] = value_dict[field]
+        unpack(self.data, packed_dict)
+        return packed_dict
 
 class BitLayout(CommandLayout):
     field_length = 1
@@ -88,7 +109,7 @@ class BitLayout(CommandLayout):
 
 STRUCT_FORMATS = {
     1: "B",
-    2: "H"
+    2: "H",
 }
 class ByteLayout(CommandLayout):
     field_length = 8
@@ -107,9 +128,11 @@ class ByteLayout(CommandLayout):
         field_values = []
         field_offset = 0
         field_dict = self.flatten()
+        print(f"{field_dict=}")
         structformat = ">B"
         structargs = ""
         for field_name, field_width in field_dict.items():
+            print(f"{field_name=}, {field_width=}, {type(field_width)=}")
             structformat += STRUCT_FORMATS.get(field_width)
             structargs += f"value_dict['{field_name}'], "
         func = f'lambda value_dict: struct.pack("{structformat}", {header_funcstr}, {structargs})'
@@ -123,13 +146,19 @@ class BaseCommand:
     bytelayout = ByteLayout({})
     def __init_subclass__(cls):
         assert (not field in cls.bitlayout.keys() for field in cls.bytelayout.keys()), "Name collision!"
-        cls.cmdtype = CmdType[cls.__name__.strip("Command")].value
-        cls.fieldstr = cls.__name__.strip("Command").lower()
+        cls.cmdtype = CmdType[cls.__name__.strip("Command")] #SynchronizeCommand -> CmdType["Synchronize"]
+        print(f"{cls.cmdtype=}, {type(cls.cmdtype)=}")
+        cls.fieldstr = cls.__name__.strip("Command").lower() #SynchronizeCommand -> "synchronize"
         header_funcstr = cls.bitlayout.pack_fn(cls.cmdtype) ## bitwise operations code
         cls.pack_fn = staticmethod(cls.bytelayout.pack_fn(header_funcstr)) ## struct.pack code
     @classmethod
     def as_struct_layout(cls):
         return data.StructLayout({**cls.bitlayout.as_struct_layout(), **cls.bytelayout.as_struct_layout()})
+    @classmethod
+    def pack_dict(cls, **kwargs):
+        return {"type": cls.cmdtype, 
+                "payload": {cls.fieldstr: 
+                    {**cls.bitlayout.pack_dict(kwargs), **cls.bytelayout.pack_dict(kwargs)}}}
     @classmethod
     def pack(cls, **kwargs):
         return cls.pack_fn(kwargs)
@@ -145,14 +174,23 @@ class SynchronizeCommand(BaseCommand):
 class AbortCommand(BaseCommand):
     pass
 
+class FlushCommand(BaseCommand):
+    pass
 
-all_commands = [SynchronizeCommand, AbortCommand]
+DwellTime = unsigned(16)
+
+class VectorPixelCommand(BaseCommand):
+    bytelayout = ByteLayout({"dac_stream": {"x_coord": 2, "y_coord": 2, "dwell_time": DwellTime}})
+
+
+all_commands = [SynchronizeCommand, AbortCommand, VectorPixelCommand]
 
 class Command(data.Struct):
     type: CmdType
     payload: data.UnionLayout({cmd.fieldstr: cmd.as_struct_layout() for cmd in all_commands})
 
     deserialized_states = {cmd.cmdtype : cmd.bytelayout.as_deserialized_states() for cmd in all_commands}
+
 
 class CommandParser(wiring.Component):
     usb_stream: In(StreamSignature(8))
@@ -161,6 +199,7 @@ class CommandParser(wiring.Component):
     def elaborate(self, platform):
         m = Module()
         self.command = Signal(Command)
+        m.d.comb += self.cmd_stream.payload.eq(self.command)
         self.command_reg = Signal(Command)
         
         with m.FSM():
@@ -168,7 +207,7 @@ class CommandParser(wiring.Component):
                 m.d.comb += self.usb_stream.ready.eq(1)
                 with m.If(self.usb_stream.valid):
                     m.d.comb += self.command.type.eq(self.usb_stream.payload[(8-CMD_SHAPE):8])
-                    m.d.comb += self.command.payload.as_value()[0:4].eq(self.usb_stream.payload[0:(8-CMD_SHAPE)])
+                    m.d.comb += self.command.payload.as_value()[0:(8-CMD_SHAPE)].eq(self.usb_stream.payload[0:(8-CMD_SHAPE)])
                     m.d.sync += self.command_reg.eq(self.command)
                     with m.Switch(self.command.type):
                         for cmdtype, state_sequence in Command.deserialized_states.items():
@@ -200,6 +239,7 @@ class CommandParser(wiring.Component):
                 m.d.comb += self.cmd_stream.valid.eq(1)
                 with m.If(self.cmd_stream.ready):
                     m.next = "Type"
+                    
 
         return m
 
@@ -216,26 +256,37 @@ def test_speed():
     print(f"{s}")
 
 
+
 def test_sim():
     dut = CommandParser()
 
     from .test import put_stream, get_stream
     from amaranth.sim import Simulator
+    
+    def test_command_parse(command:BaseCommand, **kwargs):
+        s = command.pack(**kwargs)
+        print(f"{s=}, {len(s)=}")
 
-    def simulate(dut, testbenches, name):
+        async def put_testbench(ctx):
+            for byte in s:
+                print(f"{byte=}, {hex(byte)=}")
+                await put_stream(ctx, dut.usb_stream, byte)
+        
+        async def get_testbench(ctx):
+            d = command.pack_dict(**kwargs)
+            print(f"{d=}")
+            await get_stream(ctx, dut.cmd_stream, d)
+        
         sim = Simulator(dut)
         sim.add_clock(20.83e-9)
-        for testbench in testbenches:
+        for testbench in [put_testbench, get_testbench]:
             sim.add_testbench(testbench)
-        with sim.write_vcd(f"{name}.vcd"):
+        with sim.write_vcd(f"bc3.vcd"):
             sim.run()
-
-    async def bench(ctx):
-        s = SynchronizeCommand.pack(raster = 0, output = 3, cookiea = 1111, cookieb = 123, another = 234)
-        print(f"{s=}, {len(s)=}, {type(s)}")
-        for byte in s:
-            print(f"{byte=}, {hex(byte)=}")
-            await put_stream(ctx, dut.usb_stream, byte)
+    
+    test_command_parse(SynchronizeCommand, raster = 0, output = OutputMode.NoOutput, cookiea = 1111, cookieb = 123, another = 234)
+    test_command_parse(AbortCommand)
+    test_command_parse(VectorPixelCommand, x_coord = 1000, y_coord = 2000, dwell_time = 1500)
 
 
-    simulate(dut, [bench], name="bc3")  
+test_sim()
