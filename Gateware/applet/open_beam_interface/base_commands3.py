@@ -35,58 +35,92 @@ class OutputMode(enum.IntEnum, shape = 2):
     NoOutput            = 2
 
 class CommandLayout(UserDict):
+    def unpack_apply(self, end_func=eval("lambda x: x"), unpack_func=eval("lambda x: x")):
+        new_dict = {}
+        def unpack(a_dict, new_dict):
+            for key, value in a_dict.items():
+                if isinstance(value, dict):
+                    new_dict[key] = unpack_func(unpack(value, {}))
+                else:
+                    new_dict[key] = end_func(key, value)
+            return new_dict
+        return unpack(self.data, new_dict)
     def convert_shape(self, value):
-        if isinstance(value, int):
-            value = value
         if isinstance(value, Shape):
             assert value._width%self.field_length == 0, f"{value!r} is not a multiple of {self.field_length}"
             value = value._width//self.field_length
         return value
+    # def flatten(self):
+    #     new_dict = {}
+    #     def unpack(field_dict):
+    #         for field, value in field_dict.items():
+    #             if isinstance(value, dict):
+    #                 unpack(value)
+    #             else:
+    #                 new_dict[field] = self.convert_shape(value)
+    #     unpack(self.data)
+    #     return new_dict
     def flatten(self):
         new_dict = {}
-        def unpack(field_dict):
-            for field, value in field_dict.items():
-                if isinstance(value, dict):
-                    unpack(value)
-                else:
-                    new_dict[field] = self.convert_shape(value)
-        unpack(self.data)
+        def transform(key, value):
+            new_dict[key] = self.convert_shape(value)
+        self.unpack_apply(transform)
+        print(f"{new_dict=}")
         return new_dict
     def field_names(self):
         return list(self.flatten().keys())
+    # def total_fields(self):
+    #     total = 0
+    #     def unpacksum(field_dict):
+    #         nonlocal total
+    #         for field, value in field_dict.items():
+    #             if isinstance(value, dict):
+    #                 unpacksum(value)
+    #             else:
+    #                 total += value
+    #     unpacksum(self.data)
+    #     return total
     def total_fields(self):
         total = 0
-        def unpacksum(field_dict):
+        def transform(key, value):
             nonlocal total
-            for field, value in field_dict.items():
-                if isinstance(value, dict):
-                    unpacksum(value)
-                else:
-                    total += value
-        unpacksum(self.data)
+            total += value
+        self.unpack_apply(transform)
         return total
+    # def as_struct_layout(self):
+    #     struct_dict = {}
+    #     def unpack(field_dict, struct_dict):
+    #         for field, value in field_dict.items():
+    #             if isinstance(value, dict):
+    #                 struct_dict[field] = data.StructLayout(unpack(value, {}))
+    #             else:
+    #                 struct_dict[field] = self.convert_shape(value)*self.field_length
+    #         return struct_dict
+    #     unpack(self.data, struct_dict)
+    #     return struct_dict
     def as_struct_layout(self):
-        struct_dict = {}
-        def unpack(field_dict, struct_dict):
-            for field, value in field_dict.items():
-                if isinstance(value, dict):
-                    struct_dict[field] = data.StructLayout(unpack(value, {}))
-                else:
-                    struct_dict[field] = self.convert_shape(value)*self.field_length
-            return struct_dict
-        unpack(self.data, struct_dict)
-        return struct_dict
+        def end_transform(key, value):
+            return self.convert_shape(value)*self.field_length
+        def unpack_transform(x):
+            return data.StructLayout(x)
+        return self.unpack_apply(end_transform, unpack_transform)
+        
+    # def pack_dict(self, value_dict):
+    #     packed_dict = {}
+    #     def unpack(field_dict, packed_dict):
+    #         for field, value in field_dict.items():
+    #             if isinstance(value, dict):
+    #                 packed_dict[field] = {}
+    #                 unpack(value, packed_dict[field])
+    #             else:
+    #                 packed_dict[field] = value_dict[field]
+    #     unpack(self.data, packed_dict)
+    #     return packed_dict
     def pack_dict(self, value_dict):
-        packed_dict = {}
-        def unpack(field_dict, packed_dict):
-            for field, value in field_dict.items():
-                if isinstance(value, dict):
-                    packed_dict[field] = {}
-                    unpack(value, packed_dict[field])
-                else:
-                    packed_dict[field] = value_dict[field]
-        unpack(self.data, packed_dict)
-        return packed_dict
+        def transform(key, value):
+            return value_dict[key]
+        return self.unpack_apply(transform)
+    
 
 class BitLayout(CommandLayout):
     field_length = 1
@@ -125,11 +159,8 @@ class ByteLayout(CommandLayout):
             deserialized_states.update(dict(reversed(deserialized_words.items())))
         return deserialized_states
     def pack_fn(self, header_funcstr):
-        field_values = []
-        field_offset = 0
         field_dict = self.flatten()
-        print(f"{field_dict=}")
-        structformat = ">B"
+        structformat = ">B" #first byte = header
         structargs = ""
         for field_name, field_width in field_dict.items():
             print(f"{field_name=}, {field_width=}, {type(field_width)=}")
@@ -169,7 +200,7 @@ class SynchronizeCommand(BaseCommand):
             "raster": 1,
             "output": 2
         }})
-    bytelayout = ByteLayout({"cookies": {"cookiea": 2, "cookieb": 1}, "another": 1})
+    bytelayout = ByteLayout({"cookie": 2})
 
 class AbortCommand(BaseCommand):
     pass
@@ -284,7 +315,7 @@ def test_sim():
         with sim.write_vcd(f"bc3.vcd"):
             sim.run()
     
-    test_command_parse(SynchronizeCommand, raster = 0, output = OutputMode.NoOutput, cookiea = 1111, cookieb = 123, another = 234)
+    test_command_parse(SynchronizeCommand, raster = 0, output = OutputMode.NoOutput, cookie = 1111)
     test_command_parse(AbortCommand)
     test_command_parse(VectorPixelCommand, x_coord = 1000, y_coord = 2000, dwell_time = 1500)
 
