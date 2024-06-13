@@ -1,6 +1,7 @@
 import struct
 import enum
 from collections import UserDict
+from dataclasses import dataclass
 
 from amaranth import *
 from amaranth import ShapeCastable, Shape
@@ -29,106 +30,47 @@ class CmdType(enum.IntEnum, shape=CMD_SHAPE):
     VectorPixel         = 0xe
     VectorPixelMinDwell = 0xf 
 
-class OutputMode(enum.IntEnum, shape = 2):
-    SixteenBit          = 0
-    EightBit            = 1
-    NoOutput            = 2
-
 class CommandLayout(UserDict):
-    def unpack_apply(self, end_func=eval("lambda x: x"), unpack_func=eval("lambda x: x")):
-        new_dict = {}
-        def unpack(a_dict, new_dict):
-            for key, value in a_dict.items():
+    def unpack_apply(self, leaf_func=eval("lambda key, value: value"), 
+                        wrap_func=eval("lambda dict: dict")):
+        def unpack(from_dict, to_dict):
+            for key, value in from_dict.items():
                 if isinstance(value, dict):
-                    new_dict[key] = unpack_func(unpack(value, {}))
+                    to_dict[key] = wrap_func(unpack(value, {}))
                 else:
-                    new_dict[key] = end_func(key, value)
-            return new_dict
-        return unpack(self.data, new_dict)
-    def convert_shape(self, value):
-        if isinstance(value, Shape):
-            assert value._width%self.field_length == 0, f"{value!r} is not a multiple of {self.field_length}"
-            value = value._width//self.field_length
-        return value
-    # def flatten(self):
-    #     new_dict = {}
-    #     def unpack(field_dict):
-    #         for field, value in field_dict.items():
-    #             if isinstance(value, dict):
-    #                 unpack(value)
-    #             else:
-    #                 new_dict[field] = self.convert_shape(value)
-    #     unpack(self.data)
-    #     return new_dict
+                    to_dict[key] = leaf_func(key, value)
+            return to_dict
+        return unpack(self.data, {})
     def flatten(self):
         new_dict = {}
         def transform(key, value):
-            new_dict[key] = self.convert_shape(value)
+            new_dict[key] = value
         self.unpack_apply(transform)
-        print(f"{new_dict=}")
         return new_dict
     def field_names(self):
         return list(self.flatten().keys())
-    # def total_fields(self):
-    #     total = 0
-    #     def unpacksum(field_dict):
-    #         nonlocal total
-    #         for field, value in field_dict.items():
-    #             if isinstance(value, dict):
-    #                 unpacksum(value)
-    #             else:
-    #                 total += value
-    #     unpacksum(self.data)
-    #     return total
     def total_fields(self):
         total = 0
-        def transform(key, value):
+        def add_to_total(key, value):
             nonlocal total
             total += value
-        self.unpack_apply(transform)
+        self.unpack_apply(add_to_total)
         return total
-    # def as_struct_layout(self):
-    #     struct_dict = {}
-    #     def unpack(field_dict, struct_dict):
-    #         for field, value in field_dict.items():
-    #             if isinstance(value, dict):
-    #                 struct_dict[field] = data.StructLayout(unpack(value, {}))
-    #             else:
-    #                 struct_dict[field] = self.convert_shape(value)*self.field_length
-    #         return struct_dict
-    #     unpack(self.data, struct_dict)
-    #     return struct_dict
     def as_struct_layout(self):
-        def end_transform(key, value):
-            return self.convert_shape(value)*self.field_length
-        def unpack_transform(x):
-            return data.StructLayout(x)
-        return self.unpack_apply(end_transform, unpack_transform)
-        
-    # def pack_dict(self, value_dict):
-    #     packed_dict = {}
-    #     def unpack(field_dict, packed_dict):
-    #         for field, value in field_dict.items():
-    #             if isinstance(value, dict):
-    #                 packed_dict[field] = {}
-    #                 unpack(value, packed_dict[field])
-    #             else:
-    #                 packed_dict[field] = value_dict[field]
-    #     unpack(self.data, packed_dict)
-    #     return packed_dict
+        return self.unpack_apply(
+            lambda field, field_width: field_width*self.bits_per_field,
+            lambda field_dict: data.StructLayout(field_dict))
     def pack_dict(self, value_dict):
-        def transform(key, value):
-            return value_dict[key]
-        return self.unpack_apply(transform)
+        return self.unpack_apply(lambda key, value : value_dict[key])
     
 
 class BitLayout(CommandLayout):
-    field_length = 1
+    bits_per_field = 1
     def as_struct_layout(self):
         struct_dict = super().as_struct_layout()
         total_bits = self.total_fields()
         assert total_bits <= CMD_SHAPE, f"{total_bits} bits can't fit in {CMD_SHAPE} bits"
-        struct_dict["reserved"] = (8-CMD_SHAPE) - total_bits
+        struct_dict["reserved"] = (8-CMD_SHAPE) - total_bits # add padding to header
         return struct_dict
     def pack_fn(self, cmdtype):
         field_values = []
@@ -146,7 +88,7 @@ STRUCT_FORMATS = {
     2: "H",
 }
 class ByteLayout(CommandLayout):
-    field_length = 8
+    bits_per_field = 8
     def as_deserialized_states(self):
         deserialized_states = {}
         offset = 8 #first byte at [0:7] is reserved for header
@@ -163,7 +105,6 @@ class ByteLayout(CommandLayout):
         structformat = ">B" #first byte = header
         structargs = ""
         for field_name, field_width in field_dict.items():
-            print(f"{field_name=}, {field_width=}, {type(field_width)=}")
             structformat += STRUCT_FORMATS.get(field_width)
             structargs += f"value_dict['{field_name}'], "
         func = f'lambda value_dict: struct.pack("{structformat}", {header_funcstr}, {structargs})'
@@ -176,10 +117,9 @@ class BaseCommand:
     bitlayout = BitLayout({})
     bytelayout = ByteLayout({})
     def __init_subclass__(cls):
-        assert (not field in cls.bitlayout.keys() for field in cls.bytelayout.keys()), "Name collision!"
-        cls.cmdtype = CmdType[cls.__name__.strip("Command")] #SynchronizeCommand -> CmdType["Synchronize"]
-        print(f"{cls.cmdtype=}, {type(cls.cmdtype)=}")
-        cls.fieldstr = cls.__name__.strip("Command").lower() #SynchronizeCommand -> "synchronize"
+        assert (not field in cls.bitlayout.keys() for field in cls.bytelayout.keys()), f"Name collision: {field}"
+        cls.cmdtype = CmdType[cls.__name__.removesuffix("Command")] #SynchronizeCommand -> CmdType["Synchronize"]
+        cls.fieldstr = cls.__name__.removesuffix("Command").lower() #SynchronizeCommand -> "synchronize"
         header_funcstr = cls.bitlayout.pack_fn(cls.cmdtype) ## bitwise operations code
         cls.pack_fn = staticmethod(cls.bytelayout.pack_fn(header_funcstr)) ## struct.pack code
     @classmethod
@@ -194,6 +134,10 @@ class BaseCommand:
     def pack(cls, **kwargs):
         return cls.pack_fn(kwargs)
 
+class OutputMode(enum.IntEnum, shape = 2):
+    SixteenBit          = 0
+    EightBit            = 1
+    NoOutput            = 2
 
 class SynchronizeCommand(BaseCommand):
     bitlayout = BitLayout({"mode": {
@@ -208,10 +152,49 @@ class AbortCommand(BaseCommand):
 class FlushCommand(BaseCommand):
     pass
 
-DwellTime = unsigned(16)
+class ExternalCtrlCommand(BaseCommand):
+    bitlayout = BitLayout({"enable": 1})
+
+class BeamType(enum.IntEnum, shape = 2):
+    NoBeam              = 0
+    Electron            = 1
+    Ion                 = 2
+
+class BeamSelectCommand(BaseCommand):
+    bitlayout = BitLayout({"beam_type": 2})
+
+class BlankCommand(BaseCommand):
+    bitlayout = BitLayout({"blank": {"enable": 1, "inline": 1}})
+
+
+class DelayCommand(BaseCommand):
+    bytelayout = ByteLayout({"delay": 2})
+
+@dataclass
+class DACCodeRange:
+    start: int # UQ(14,0)
+    count: int # UQ(14,0)
+    step:  int # UQ(8,8)
+
+class RasterRegionCommand(BaseCommand):
+    bytelayout = ByteLayout({"roi": {
+        "x_start": 2,
+        "x_step": 2,
+        "x_count": 2,
+        "y_start": 2,
+        "y_step": 2,
+        "y_count": 2,
+    }})
+    def pack(self, *, x_range: DACCodeRange, y_range:DACCodeRange):
+        return super().pack(x_start = x_range.start, x_count = x_range.count, x_step = x_range.step,
+                            y_start = y_range.start, y_count = y_range.count, y_step = y_range.step)
+
+
+class RasterPixelCommand(BaseCommand):
+    bytelayout = ByteLayout({"length": 2})
 
 class VectorPixelCommand(BaseCommand):
-    bytelayout = ByteLayout({"dac_stream": {"x_coord": 2, "y_coord": 2, "dwell_time": DwellTime}})
+    bytelayout = ByteLayout({"dac_stream": {"x_coord": 2, "y_coord": 2, "dwell_time": 2}})
 
 
 all_commands = [SynchronizeCommand, AbortCommand, VectorPixelCommand]
@@ -320,4 +303,4 @@ def test_sim():
     test_command_parse(VectorPixelCommand, x_coord = 1000, y_coord = 2000, dwell_time = 1500)
 
 
-test_sim()
+#test_sim()
