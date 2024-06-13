@@ -436,7 +436,19 @@ class Supersampler(wiring.Component):
         return m
 
 #=========================================================================
+class RasterRegion(data.Struct):
+    x_start: 14 # UQ(14,0)
+    padding_x_start: 2
+    x_count: 14 # UQ(14,0)
+    padding_x_count: 2
+    x_step:  16 # UQ(8,8)
+    y_start: 14 # UQ(14,0)
+    padding_y_start: 2
+    y_count: 14 # UQ(14,0)
+    padding_y_count: 2
+    y_step:  16 # UQ(8,8)
 
+DwellTime = unsigned(16)
 
 
 class RasterScanner(wiring.Component):
