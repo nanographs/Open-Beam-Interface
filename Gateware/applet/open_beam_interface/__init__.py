@@ -779,6 +779,7 @@ class CommandExecutor(wiring.Component):
 
                     with m.Case(CmdType.RasterPixelRun):
                         m.d.comb += [
+                            self.raster_scanner.roi_stream.valid.eq(1),
                             self.raster_scanner.dwell_stream.valid.eq(1),
                             self.raster_scanner.dwell_stream.payload.dwell_time.eq(command.payload.raster_pixel_run.dwell_time),
                             self.raster_scanner.dwell_stream.payload.blank.eq(sync_blank)
