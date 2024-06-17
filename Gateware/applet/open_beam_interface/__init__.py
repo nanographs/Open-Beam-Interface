@@ -11,7 +11,9 @@ from amaranth.lib.wiring import In, Out, flipped
 
 from glasgow.support.logging import dump_hex
 from glasgow.support.endpoint import ServerEndpoint
-from .base_commands import Command, CmdType, BeamType, RasterRegion, OutputMode, Transforms, DwellTime
+#from .base_commands import Command, CmdType, BeamType, RasterRegion, OutputMode, Transforms, DwellTime
+from .base_commands3 import Command, CmdType, BeamType, OutputMode
+from .base_commands import Transforms
 
 # Overview of (linear) processing pipeline:
 # 1. PC software (in: user input, out: bytes)
@@ -526,121 +528,71 @@ class RasterScanner(wiring.Component):
 Cookie = unsigned(16)
 #: Arbitrary value for synchronization. When received, returned as-is in an USB IN frame.
 
-
-# ===============================================================================================
-
-
 class CommandParser(wiring.Component):
     usb_stream: In(StreamSignature(8))
     cmd_stream: Out(StreamSignature(Command))
 
     def elaborate(self, platform):
         m = Module()
+        self.command = Signal(Command)
+        m.d.comb += self.cmd_stream.payload.eq(self.command)
+        self.command_reg = Signal(Command)
+        array_length = Signal(16)
 
-        command = Signal(Command)
-        m.d.comb += self.cmd_stream.payload.eq(command)
-
-        command_header = Signal(Command.Header)
-        command_header_reg = Signal(Command.Header)
-        m.d.comb += command.type.eq(command_header.type)
-        m.d.comb += command.payload.as_value()[:len(command_header.payload)].eq(command_header.payload)
-
-        payload_parsed = Signal(range(max(Command.PAYLOAD_SIZE_ARRAY)))
-        payload_size = Signal.like(payload_parsed)
-        payload_size_reg = Signal.like(payload_parsed)
-        with m.Switch(command_header.type):
-            for commandtype in range(len(Command.PAYLOAD_SIZE_ARRAY)):
-                size = Command.PAYLOAD_SIZE_ARRAY[commandtype]
-                with m.Case(commandtype):
-                    m.d.comb += payload_size.eq(size)
-        with m.Switch(command_header_reg.type):
-            for commandtype in range(len(Command.PAYLOAD_SIZE_ARRAY)):
-                size = Command.PAYLOAD_SIZE_ARRAY[commandtype]
-                with m.Case(commandtype):
-                    m.d.comb += payload_size_reg.eq(size)
-
-        command_reg = Signal(Command)
-        raster_pixel_count = Signal(16)
-
+        
+        
         with m.FSM():
+            def goto_first_deserialized_state(from_type=self.command.type):
+                with m.Switch(from_type):
+                    for cmdtype, state_sequence in Command.deserialized_states.items():
+                        with m.Case(cmdtype):
+                            if len(state_sequence.keys()) > 0:
+                                m.next = list(state_sequence.keys())[0]
+                            else:
+                                m.next = "Submit"
+
             with m.State("Type"):
                 m.d.comb += self.usb_stream.ready.eq(1)
-                m.d.comb += command_header.eq(self.usb_stream.payload)
-                m.d.comb += command.type.eq(command_header.type)
-                m.d.comb += command.payload.as_value()[:len(command_header.payload)].eq(command_header.payload)
-
                 with m.If(self.usb_stream.valid):
-                    with m.If(payload_size == 0):
-                        m.d.comb += self.cmd_stream.valid.eq(1)
-                        m.d.comb += self.usb_stream.ready.eq(self.cmd_stream.ready)
-                    with m.Else():
-                        m.d.sync += command_header_reg.eq(self.usb_stream.payload)
-                        m.next = "Payload"
-
-            with m.State("Payload"):
-                m.d.comb += self.usb_stream.ready.eq(1)
-                m.d.comb += command_header.eq(command_header_reg)
-                m.d.comb += command.type.eq(command_header.type)
-                m.d.comb += command.payload.as_value()[:len(command_header.payload)].eq(command_header.payload)
-
-                with m.If(self.usb_stream.valid):
-                    m.d.sync += (command_reg.payload.as_value()[len(command_header.payload):]
-                        .word_select(payload_parsed, 8)).eq(self.usb_stream.payload)
-                    m.d.sync += payload_parsed.eq(payload_parsed + 1)
-                    with m.If(payload_parsed + 1 == payload_size_reg):
-                        with m.If(command.type == CmdType.RasterPixel):
-                            m.d.sync += raster_pixel_count.eq(command.payload.raster_pixel.payload.length)
-                            m.next = "Payload_Raster_Pixel_Array_High"
-                        with m.Else():
-                            with m.If(command.type == CmdType.VectorPixelMinDwell):
-                                m.d.sync += command_reg.payload.vector_pixel_min.payload.dac_stream.dwell_time.eq(0)
-                            m.next = "Submit_with_payload"
+                    m.d.comb += self.command.type.eq(self.usb_stream.payload[4:8])
+                    m.d.comb += self.command.payload.as_value()[0:4].eq(self.usb_stream.payload[0:4])
+                    m.d.sync += self.command_reg.eq(self.command)
+                    goto_first_deserialized_state()
+                    
 
             def Deserialize(target, state, next_state):
+                m.d.comb += self.command.eq(self.command_reg)
                 #print(f'state: {state} -> next state: {next_state}')
                 with m.State(state):
                     m.d.comb += self.usb_stream.ready.eq(1)
-                    m.d.comb += command_header.eq(command_header_reg)
-                    m.d.comb += command.type.eq(command_header.type)
-                    m.d.comb += command.payload.as_value()[:len(command_header.payload)].eq(command_header.payload)
                     with m.If(self.usb_stream.valid):
                         m.d.sync += target.eq(self.usb_stream.payload)
                         m.next = next_state
-
-            def DeserializeWord(target, state_prefix, next_state):
-                # print(f'\tdeserializing: {state_prefix} to {next_state}')
-                Deserialize(target[8:16],
-                    f"{state_prefix}_High", f"{state_prefix}_Low")
-                Deserialize(target[0:8],
-                    f"{state_prefix}_Low",  next_state)
-                    
-            DeserializeWord(command_reg.payload.raster_pixel.payload.dwell_time,
-                "Payload_Raster_Pixel_Array", "Payload_Raster_Pixel_Array_Submit")
-
-            with m.State("Payload_Raster_Pixel_Array_Submit"):
-                m.d.sync += payload_parsed.eq(0)
-                m.d.comb += command.eq(command_reg)
-                m.d.comb += command_header.eq(command_header_reg)
-                m.d.comb += command.type.eq(command_header.type)
-                m.d.comb += command.payload.as_value()[:len(command_header.payload)].eq(command_header.payload)
-                m.d.comb += self.cmd_stream.valid.eq(1)
-                with m.If(self.cmd_stream.ready):
-                    with m.If(raster_pixel_count == 0):
-                        m.next = "Type"
-                    with m.Else():
-                        m.d.sync += raster_pixel_count.eq(raster_pixel_count - 1)
-                        m.next = "Payload_Raster_Pixel_Array_High"
+            
+            for state_sequence in Command.deserialized_states.values():
+                for n, (state, offset) in enumerate(state_sequence.items()):
+                    if n < len(state_sequence) - 1:
+                        next_state = list(state_sequence.keys())[n+1]
+                    elif n == len(state_sequence) - 1:
+                        next_state = "Submit"
+                    Deserialize(self.command_reg.as_value()[offset:offset+8], state, next_state)
 
 
-            with m.State("Submit_with_payload"):
-                m.d.sync += payload_parsed.eq(0)
-                m.d.comb += command.eq(command_reg)
-                m.d.comb += command_header.eq(command_header_reg)
-                m.d.comb += command.type.eq(command_header.type)
-                m.d.comb += command.payload.as_value()[:len(command_header.payload)].eq(command_header.payload)
-                m.d.comb += self.cmd_stream.valid.eq(1)
-                with m.If(self.cmd_stream.ready):
-                    m.next = "Type"
+            with m.State("Submit"):
+                m.d.comb += self.command.eq(self.command_reg)
+                with m.If(self.command.type == CmdType.Array):
+                        m.d.sync += self.command_reg.type.eq(self.command.payload.array.cmdtype)
+                        m.d.sync += self.command_reg.as_value()[4:].eq(0)
+                        m.d.sync += array_length.eq(self.command.payload.array.length)
+                        goto_first_deserialized_state(from_type=self.command.payload.array.cmdtype)
+                with m.Else():
+                    with m.If(self.cmd_stream.ready):
+                        m.d.comb += self.cmd_stream.valid.eq(1)
+                        with m.If(array_length != 0):
+                            m.d.sync += array_length.eq(array_length - 1)
+                            goto_first_deserialized_state()
+                        with m.Else():
+                            m.next = "Type"
         return m
 
 #=========================================================================
@@ -731,14 +683,14 @@ class CommandExecutor(wiring.Component):
                 m.d.sync += next_blank_enable.eq(async_blank.enable)
                 m.d.sync += async_blank.request.eq(0)
 
-        run_length = Signal.like(command.payload.raster_pixel_run.payload.length)
-        raster_region = Signal.like(command.payload.raster_region.payload.roi)
+        run_length = Signal.like(command.payload.raster_pixel_run.length)
+        raster_region = Signal.like(command.payload.raster_region.roi)
         m.d.comb += [
             self.raster_scanner.roi_stream.payload.eq(raster_region),
             #vector_stream.payload.eq(command.payload.vector_pixel.payload.dac_stream)
-            vector_stream.payload.dac_x_code.eq(command.payload.vector_pixel.payload.dac_stream.x_coord),
-            vector_stream.payload.dac_y_code.eq(command.payload.vector_pixel.payload.dac_stream.y_coord),
-            vector_stream.payload.dwell_time.eq(command.payload.vector_pixel.payload.dac_stream.dwell_time)
+            vector_stream.payload.dac_x_code.eq(command.payload.vector_pixel.dac_stream.x_coord),
+            vector_stream.payload.dac_y_code.eq(command.payload.vector_pixel.dac_stream.y_coord),
+            vector_stream.payload.dwell_time.eq(command.payload.vector_pixel.dac_stream.dwell_time)
         ]
 
         sync_req = Signal()
@@ -759,8 +711,8 @@ class CommandExecutor(wiring.Component):
                         m.d.sync += self.flush.eq(1)
                         m.d.comb += sync_req.eq(1)
                         with m.If(sync_ack):
-                            m.d.sync += raster_mode.eq(command.payload.synchronize.payload.mode.raster)
-                            m.d.sync += output_mode.eq(command.payload.synchronize.payload.mode.output)
+                            m.d.sync += raster_mode.eq(command.payload.synchronize.mode.raster)
+                            m.d.sync += output_mode.eq(command.payload.synchronize.mode.output)
                             m.next = "Fetch"
 
                     with m.Case(CmdType.Abort):
@@ -773,7 +725,7 @@ class CommandExecutor(wiring.Component):
                         m.next = "Fetch"
 
                     with m.Case(CmdType.Delay):
-                        with m.If(delay_counter == command.payload.delay.payload.delay):
+                        with m.If(delay_counter == command.payload.delay.delay):
                             m.d.sync += delay_counter.eq(0)
                             m.next = "Fetch"
                         with m.Else():
@@ -782,37 +734,35 @@ class CommandExecutor(wiring.Component):
                     with m.Case(CmdType.ExternalCtrl):
                         #Don't change control in the middle of previously submitted pixels
                         with m.If(self.supersampler.dac_stream.ready):
-                            m.d.sync += self.ext_ctrl_enable.eq(command.payload.external_ctrl.payload.enable)
+                            m.d.sync += self.ext_ctrl_enable.eq(command.payload.external_ctrl.enable)
                             m.next = "Fetch"
                     
                     with m.Case(CmdType.BeamSelect):
                         #Don't change control in the middle of previously submitted pixels
                         with m.If(self.supersampler.dac_stream.ready):
-                            m.d.sync += self.beam_type.eq(command.payload.beam_select.payload.beam_type)
+                            m.d.sync += self.beam_type.eq(command.payload.beam_select.beam_type)
                             m.next = "Fetch"
 
                     with m.Case(CmdType.Blank):
-                        with m.If(command.payload.blank.payload.inline):
-                            m.d.sync += sync_blank.enable.eq(command.payload.blank.payload.enable)
+                        with m.If(command.payload.blank.inline):
+                            m.d.sync += sync_blank.enable.eq(command.payload.blank.enable)
                             m.d.sync += sync_blank.request.eq(1)
                             m.next = "Fetch"
                         with m.Else():
                             #Don't blank in the middle of previously submitted pixels
                             with m.If(self.supersampler.dac_stream.ready):
-                                m.d.sync += async_blank.enable.eq(command.payload.blank.payload.enable)
+                                m.d.sync += async_blank.enable.eq(command.payload.blank.enable)
                                 m.d.sync += async_blank.request.eq(1)
                                 m.next = "Fetch"
 
                     with m.Case(CmdType.RasterRegion):
-                        m.d.sync += raster_region.eq(command.payload.raster_region.payload.roi)
-                        m.d.sync += command_transforms.xflip.eq(command.payload.raster_region.payload.transform.xflip)
-                        m.d.sync += command_transforms.yflip.eq(command.payload.raster_region.payload.transform.yflip)
-                        m.d.sync += command_transforms.rotate90.eq(command.payload.raster_region.payload.transform.rotate90)
-
+                        # m.d.sync += command_transforms.xflip.eq(command.payload.raster_region.transform.xflip)
+                        # m.d.sync += command_transforms.yflip.eq(command.payload.raster_region.transform.yflip)
+                        # m.d.sync += command_transforms.rotate90.eq(command.payload.raster_region.transform.rotate90)
 
                         m.d.comb += [
                             self.raster_scanner.roi_stream.valid.eq(1),
-                            self.raster_scanner.roi_stream.payload.eq(command.payload.raster_region.payload.roi),
+                            raster_region.eq(command.payload.raster_region.roi)
                         ]
                         with m.If(self.raster_scanner.roi_stream.ready):
                             m.next = "Fetch"
@@ -820,7 +770,7 @@ class CommandExecutor(wiring.Component):
                     with m.Case(CmdType.RasterPixel):
                         m.d.comb += [
                             self.raster_scanner.dwell_stream.valid.eq(1),
-                            self.raster_scanner.dwell_stream.payload.dwell_time.eq(command.payload.raster_pixel.payload.dwell_time),
+                            self.raster_scanner.dwell_stream.payload.dwell_time.eq(command.payload.raster_pixel.dwell_time),
                             self.raster_scanner.dwell_stream.payload.blank.eq(sync_blank)
                         ]
                         with m.If(self.raster_scanner.dwell_stream.ready):
@@ -830,12 +780,12 @@ class CommandExecutor(wiring.Component):
                     with m.Case(CmdType.RasterPixelRun):
                         m.d.comb += [
                             self.raster_scanner.dwell_stream.valid.eq(1),
-                            self.raster_scanner.dwell_stream.payload.dwell_time.eq(command.payload.raster_pixel_run.payload.dwell_time),
+                            self.raster_scanner.dwell_stream.payload.dwell_time.eq(command.payload.raster_pixel_run.dwell_time),
                             self.raster_scanner.dwell_stream.payload.blank.eq(sync_blank)
                         ]
                         with m.If(self.raster_scanner.dwell_stream.ready):
                             m.d.comb += submit_pixel.eq(1)
-                            with m.If(run_length == command.payload.raster_pixel_run.payload.length):
+                            with m.If(run_length + 1 == command.payload.raster_pixel_run.length):
                                 m.d.sync += run_length.eq(0)
                                 m.next = "Fetch"
                             with m.Else():
@@ -844,7 +794,7 @@ class CommandExecutor(wiring.Component):
                     with m.Case(CmdType.RasterPixelFreeRun):
                         m.d.comb += [
                             self.raster_scanner.roi_stream.payload.eq(raster_region),
-                            self.raster_scanner.dwell_stream.payload.dwell_time.eq(command.payload.raster_pixel_free_run.payload.dwell_time),
+                            self.raster_scanner.dwell_stream.payload.dwell_time.eq(command.payload.raster_pixel_free_run.dwell_time),
                             self.raster_scanner.dwell_stream.payload.blank.eq(sync_blank)
                         ]
                         with m.If(self.cmd_stream.valid):
@@ -864,14 +814,14 @@ class CommandExecutor(wiring.Component):
                         m.d.comb += vector_stream.valid.eq(1)
                         m.d.comb += vector_stream.payload.blank.eq(sync_blank)
                         m.d.comb += vector_stream.payload.delay.eq(inline_delay_counter)
-                        with m.If(command.type==CmdType.VectorPixel):
-                            m.d.sync += command_transforms.xflip.eq(command.payload.vector_pixel.payload.transform.xflip)
-                            m.d.sync += command_transforms.yflip.eq(command.payload.vector_pixel.payload.transform.yflip)
-                            m.d.sync += command_transforms.rotate90.eq(command.payload.vector_pixel.payload.transform.rotate90)
-                        with m.If(command.type==CmdType.VectorPixelMinDwell):
-                            m.d.sync += command_transforms.xflip.eq(command.payload.vector_pixel_min.payload.transform.xflip)
-                            m.d.sync += command_transforms.yflip.eq(command.payload.vector_pixel_min.payload.transform.yflip)
-                            m.d.sync += command_transforms.rotate90.eq(command.payload.vector_pixel_min.payload.transform.rotate90)
+                        # with m.If(command.type==CmdType.VectorPixel):
+                        #     m.d.sync += command_transforms.xflip.eq(command.payload.vector_pixel.payload.transform.xflip)
+                        #     m.d.sync += command_transforms.yflip.eq(command.payload.vector_pixel.payload.transform.yflip)
+                        #     m.d.sync += command_transforms.rotate90.eq(command.payload.vector_pixel.payload.transform.rotate90)
+                        # with m.If(command.type==CmdType.VectorPixelMinDwell):
+                        #     m.d.sync += command_transforms.xflip.eq(command.payload.vector_pixel_min.payload.transform.xflip)
+                        #     m.d.sync += command_transforms.yflip.eq(command.payload.vector_pixel_min.payload.transform.yflip)
+                        #     m.d.sync += command_transforms.rotate90.eq(command.payload.vector_pixel_min.payload.transform.rotate90)
                         with m.If(vector_stream.ready):
                             m.d.sync += inline_delay_counter.eq(0)
                             m.d.comb += submit_pixel.eq(1)
@@ -902,7 +852,7 @@ class CommandExecutor(wiring.Component):
 
             with m.State("Write_cookie"):
                 m.d.comb += [
-                    self.img_stream.payload.eq(command.payload.synchronize.payload.cookie),
+                    self.img_stream.payload.eq(command.payload.synchronize.cookie),
                     self.img_stream.valid.eq(1),
                 ]
                 with m.If(self.img_stream.ready):
