@@ -1,5 +1,6 @@
 import struct
 import enum
+
 from collections import UserDict
 from dataclasses import dataclass
 
@@ -7,9 +8,6 @@ from amaranth import *
 from amaranth import ShapeCastable, Shape
 from amaranth.lib import enum, data, wiring
 from amaranth.lib.wiring import In, Out, flipped
-
-from . import StreamSignature
-
 
 
 
@@ -22,6 +20,8 @@ class CmdType(enum.IntEnum, shape=CMD_SHAPE):
     BeamSelect          = 0x4
     Blank               = 0x5
     Delay               = 0x6
+
+    Array = 0x8
 
     RasterRegion        = 0xa
     RasterPixel         = 0xb
@@ -41,10 +41,15 @@ class CommandLayout(UserDict):
                     to_dict[key] = leaf_func(key, value)
             return to_dict
         return unpack(self.data, {})
+    @staticmethod
+    def convert_shape(value):
+        if isinstance(value, data.ShapeCastable):
+            value = value.as_shape()._width
+        return value
     def flatten(self):
         new_dict = {}
         def transform(key, value):
-            new_dict[key] = value
+            new_dict[key] = self.convert_shape(value)
         self.unpack_apply(transform)
         return new_dict
     def field_names(self):
@@ -53,12 +58,12 @@ class CommandLayout(UserDict):
         total = 0
         def add_to_total(key, value):
             nonlocal total
-            total += value
+            total += self.convert_shape(value)
         self.unpack_apply(add_to_total)
         return total
     def as_struct_layout(self):
         return self.unpack_apply(
-            lambda field, field_width: field_width*self.bits_per_field,
+            lambda field, field_width: field_width,
             lambda field_dict: data.StructLayout(field_dict))
     def pack_dict(self, value_dict):
         return self.unpack_apply(lambda key, value : value_dict[key])
@@ -89,6 +94,10 @@ STRUCT_FORMATS = {
 }
 class ByteLayout(CommandLayout):
     bits_per_field = 8
+    def as_struct_layout(self):
+        return self.unpack_apply(
+            lambda field, field_width: field_width*self.bits_per_field,
+            lambda field_dict: data.StructLayout(field_dict))
     def as_deserialized_states(self):
         deserialized_states = {}
         offset = 8 #first byte at [0:7] is reserved for header
@@ -111,6 +120,9 @@ class ByteLayout(CommandLayout):
         return eval(func)
 
 
+
+
+
 ##### start commands
 
 class BaseCommand:
@@ -118,21 +130,27 @@ class BaseCommand:
     bytelayout = ByteLayout({})
     def __init_subclass__(cls):
         assert (not field in cls.bitlayout.keys() for field in cls.bytelayout.keys()), f"Name collision: {field}"
-        cls.cmdtype = CmdType[cls.__name__.removesuffix("Command")] #SynchronizeCommand -> CmdType["Synchronize"]
-        cls.fieldstr = cls.__name__.removesuffix("Command").lower() #SynchronizeCommand -> "synchronize"
+        name_str = cls.__name__.removesuffix("Command")
+        cls.cmdtype = CmdType[name_str] #SynchronizeCommand -> CmdType["Synchronize"]
+        cls.fieldstr = "".join([name_str[0].lower()] + ['_'+i.lower() if i.isupper() else i for i in name_str[1:]])  #SynchronizeCommand -> "synchronize"
         header_funcstr = cls.bitlayout.pack_fn(cls.cmdtype) ## bitwise operations code
         cls.pack_fn = staticmethod(cls.bytelayout.pack_fn(header_funcstr)) ## struct.pack code
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+    def __bytes__(self):
+        return self.pack_fn(vars(self))
+    def __len__(self):
+        return len(bytes(self))
+    def __repr__(self):
+        return f"{type(self).__name__}: {vars(self)}"
     @classmethod
     def as_struct_layout(cls):
         return data.StructLayout({**cls.bitlayout.as_struct_layout(), **cls.bytelayout.as_struct_layout()})
-    @classmethod
-    def pack_dict(cls, **kwargs):
-        return {"type": cls.cmdtype, 
-                "payload": {cls.fieldstr: 
-                    {**cls.bitlayout.pack_dict(kwargs), **cls.bytelayout.pack_dict(kwargs)}}}
-    @classmethod
-    def pack(cls, **kwargs):
-        return cls.pack_fn(kwargs)
+
+    def pack_dict(self):
+        return {"type": self.cmdtype, 
+                "payload": {self.fieldstr: 
+                    {**self.bitlayout.pack_dict(vars(self)), **self.bytelayout.pack_dict(vars(self))}}}
 
 class OutputMode(enum.IntEnum, shape = 2):
     SixteenBit          = 0
@@ -142,7 +160,7 @@ class OutputMode(enum.IntEnum, shape = 2):
 class SynchronizeCommand(BaseCommand):
     bitlayout = BitLayout({"mode": {
             "raster": 1,
-            "output": 2
+            "output": OutputMode
         }})
     bytelayout = ByteLayout({"cookie": 2})
 
@@ -161,11 +179,10 @@ class BeamType(enum.IntEnum, shape = 2):
     Ion                 = 2
 
 class BeamSelectCommand(BaseCommand):
-    bitlayout = BitLayout({"beam_type": 2})
+    bitlayout = BitLayout({"beam_type": BeamType})
 
 class BlankCommand(BaseCommand):
-    bitlayout = BitLayout({"blank": {"enable": 1, "inline": 1}})
-
+    bitlayout = BitLayout({"enable": 1, "inline": 1})
 
 class DelayCommand(BaseCommand):
     bytelayout = ByteLayout({"delay": 2})
@@ -179,83 +196,132 @@ class DACCodeRange:
 class RasterRegionCommand(BaseCommand):
     bytelayout = ByteLayout({"roi": {
         "x_start": 2,
-        "x_step": 2,
         "x_count": 2,
+        "x_step": 2,
         "y_start": 2,
-        "y_step": 2,
         "y_count": 2,
+        "y_step": 2,
+        
     }})
-    def pack(self, *, x_range: DACCodeRange, y_range:DACCodeRange):
-        return super().pack(x_start = x_range.start, x_count = x_range.count, x_step = x_range.step,
+    def __init__(self, x_range: DACCodeRange, y_range:DACCodeRange):
+        return super().__init__(x_start = x_range.start, x_count = x_range.count, x_step = x_range.step,
                             y_start = y_range.start, y_count = y_range.count, y_step = y_range.step)
 
-
 class RasterPixelCommand(BaseCommand):
+    bytelayout = ByteLayout({"dwell_time" : 2})
+
+class ArrayCommand(BaseCommand):
+    bitlayout = BitLayout({"cmdtype": CmdType})
     bytelayout = ByteLayout({"length": 2})
+
+class RasterPixelRunCommand(BaseCommand):
+    bytelayout = ByteLayout({"length": 2, "dwell_time" : 2})
+
+class RasterPixelFreeRunCommand(BaseCommand):
+    bytelayout = ByteLayout({"dwell_time": 2})
 
 class VectorPixelCommand(BaseCommand):
     bytelayout = ByteLayout({"dac_stream": {"x_coord": 2, "y_coord": 2, "dwell_time": 2}})
+    def pack(self, **kwargs):
+        if kwargs["dwell_time"] == 0:
+            return VectorPixelMinDwellCommand.pack(**kwargs)
+        else:
+            return super().pack(**kwargs)
 
 
-all_commands = [SynchronizeCommand, AbortCommand, VectorPixelCommand]
+class VectorPixelMinDwellCommand(BaseCommand):
+    bytelayout = ByteLayout({"dac_stream": {"x_coord": 2, "y_coord": 2}})
+
+all_commands = [SynchronizeCommand, 
+                AbortCommand, 
+                FlushCommand,
+                ExternalCtrlCommand,
+                BeamSelectCommand,
+                BlankCommand,
+                DelayCommand,
+                ArrayCommand,
+                RasterRegionCommand,
+                RasterPixelCommand, 
+                RasterPixelRunCommand,
+                RasterPixelFreeRunCommand,
+                VectorPixelCommand,
+                VectorPixelMinDwellCommand]
 
 class Command(data.Struct):
     type: CmdType
     payload: data.UnionLayout({cmd.fieldstr: cmd.as_struct_layout() for cmd in all_commands})
 
-    deserialized_states = {cmd.cmdtype : cmd.bytelayout.as_deserialized_states() for cmd in all_commands}
+    deserialized_states = {cmd.cmdtype : 
+            {f"{cmd.fieldstr}_{state}":offset for state, offset in cmd.bytelayout.as_deserialized_states().items()} 
+            for cmd in all_commands}
+    # length_names = {cmd.cmdtype : cmd.fieldstr for cmd in all_commands if "length" in cmd.bytelayout}
 
+# class CommandParser(wiring.Component):
+#     usb_stream: In(StreamSignature(8))
+#     cmd_stream: Out(StreamSignature(Command))
 
-class CommandParser(wiring.Component):
-    usb_stream: In(StreamSignature(8))
-    cmd_stream: Out(StreamSignature(Command))
+#     def elaborate(self, platform):
+#         m = Module()
+#         self.command = Signal(Command)
+#         m.d.comb += self.cmd_stream.payload.eq(self.command)
+#         self.command_reg = Signal(Command)
+#         array_length = Signal(16)
 
-    def elaborate(self, platform):
-        m = Module()
-        self.command = Signal(Command)
-        m.d.comb += self.cmd_stream.payload.eq(self.command)
-        self.command_reg = Signal(Command)
         
-        with m.FSM():
-            with m.State("Type"):
-                m.d.comb += self.usb_stream.ready.eq(1)
-                with m.If(self.usb_stream.valid):
-                    m.d.comb += self.command.type.eq(self.usb_stream.payload[(8-CMD_SHAPE):8])
-                    m.d.comb += self.command.payload.as_value()[0:(8-CMD_SHAPE)].eq(self.usb_stream.payload[0:(8-CMD_SHAPE)])
-                    m.d.sync += self.command_reg.eq(self.command)
-                    with m.Switch(self.command.type):
-                        for cmdtype, state_sequence in Command.deserialized_states.items():
-                            with m.Case(cmdtype):
-                                if len(state_sequence.keys()) > 0:
-                                    m.next = list(state_sequence.keys())[0]
-                                else:
-                                    m.next = "Submit"
+        
+#         with m.FSM():
+#             def goto_first_deserialized_state(from_type=self.command.type):
+#                 with m.Switch(from_type):
+#                     for cmdtype, state_sequence in Command.deserialized_states.items():
+#                         with m.Case(cmdtype):
+#                             if len(state_sequence.keys()) > 0:
+#                                 m.next = list(state_sequence.keys())[0]
+#                             else:
+#                                 m.next = "Submit"
 
-            def Deserialize(target, state, next_state):
-                m.d.comb += self.command.eq(self.command_reg)
-                print(f'state: {state} -> next state: {next_state}')
-                with m.State(state):
-                    m.d.comb += self.usb_stream.ready.eq(1)
-                    with m.If(self.usb_stream.valid):
-                        m.d.sync += target.eq(self.usb_stream.payload)
-                        m.next = next_state
-            
-            for state_sequence in Command.deserialized_states.values():
-                for n, (state, offset) in enumerate(state_sequence.items()):
-                    if n < len(state_sequence) - 1:
-                        next_state = list(state_sequence.keys())[n+1]
-                    elif n == len(state_sequence) - 1:
-                        next_state = "Submit"
-                    Deserialize(self.command_reg.as_value()[offset:offset+8], state, next_state)
-
-            with m.State("Submit"):
-                m.d.comb += self.command.eq(self.command_reg)
-                m.d.comb += self.cmd_stream.valid.eq(1)
-                with m.If(self.cmd_stream.ready):
-                    m.next = "Type"
+#             with m.State("Type"):
+#                 m.d.comb += self.usb_stream.ready.eq(1)
+#                 with m.If(self.usb_stream.valid):
+#                     m.d.comb += self.command.type.eq(self.usb_stream.payload[(8-CMD_SHAPE):8])
+#                     m.d.comb += self.command.payload.as_value()[0:(8-CMD_SHAPE)].eq(self.usb_stream.payload[0:(8-CMD_SHAPE)])
+#                     m.d.sync += self.command_reg.eq(self.command)
+#                     goto_first_deserialized_state()
                     
 
-        return m
+#             def Deserialize(target, state, next_state):
+#                 m.d.comb += self.command.eq(self.command_reg)
+#                 print(f'state: {state} -> next state: {next_state}')
+#                 with m.State(state):
+#                     m.d.comb += self.usb_stream.ready.eq(1)
+#                     with m.If(self.usb_stream.valid):
+#                         m.d.sync += target.eq(self.usb_stream.payload)
+#                         m.next = next_state
+            
+#             for state_sequence in Command.deserialized_states.values():
+#                 for n, (state, offset) in enumerate(state_sequence.items()):
+#                     if n < len(state_sequence) - 1:
+#                         next_state = list(state_sequence.keys())[n+1]
+#                     elif n == len(state_sequence) - 1:
+#                         next_state = "Submit"
+#                     Deserialize(self.command_reg.as_value()[offset:offset+8], state, next_state)
+
+
+#             with m.State("Submit"):
+#                 m.d.comb += self.command.eq(self.command_reg)
+#                 with m.If(self.command.type == CmdType.Array):
+#                         m.d.sync += self.command_reg.type.eq(self.command.payload.array.cmdtype)
+#                         m.d.sync += self.command_reg.as_value()[4:].eq(0)
+#                         m.d.sync += array_length.eq(self.command.payload.array.length)
+#                         goto_first_deserialized_state(from_type=self.command.payload.array.cmdtype)
+#                 with m.Else():
+#                     with m.If(self.cmd_stream.ready):
+#                         m.d.comb += self.cmd_stream.valid.eq(1)
+#                         with m.If(array_length != 0):
+#                             m.d.sync += array_length.eq(array_length - 1)
+#                             goto_first_deserialized_state()
+#                         with m.Else():
+#                             m.next = "Type"
+#         return m
 
 
 ##### test / simulation
@@ -264,7 +330,7 @@ def test_speed():
     import time
     start = time.time()
     for _ in range(1000):
-        s = SynchronizeCommand.pack(raster = 1, output = 2, cookiea = 1024, cookieb = 50, another = 200)
+        s = SynchronizeCommand.pack(raster = 1, output = 2, cookie = 1024)
     end = time.time()
     print(f"{end-start:.4f}")
     print(f"{s}")
@@ -277,8 +343,8 @@ def test_sim():
     from .test import put_stream, get_stream
     from amaranth.sim import Simulator
     
-    def test_command_parse(command:BaseCommand, **kwargs):
-        s = command.pack(**kwargs)
+    def test_command_parse(command:BaseCommand):
+        s = bytes(command)
         print(f"{s=}, {len(s)=}")
 
         async def put_testbench(ctx):
@@ -287,9 +353,10 @@ def test_sim():
                 await put_stream(ctx, dut.usb_stream, byte)
         
         async def get_testbench(ctx):
-            d = command.pack_dict(**kwargs)
+            d = command.pack_dict()
             print(f"{d=}")
-            await get_stream(ctx, dut.cmd_stream, d)
+            print(f"{2*len(command)=}")
+            await get_stream(ctx, dut.cmd_stream, d, timeout_steps=2*len(d)+11)
         
         sim = Simulator(dut)
         sim.add_clock(20.83e-9)
@@ -298,9 +365,37 @@ def test_sim():
         with sim.write_vcd(f"bc3.vcd"):
             sim.run()
     
-    test_command_parse(SynchronizeCommand, raster = 0, output = OutputMode.NoOutput, cookie = 1111)
-    test_command_parse(AbortCommand)
-    test_command_parse(VectorPixelCommand, x_coord = 1000, y_coord = 2000, dwell_time = 1500)
+    test_command_parse(SynchronizeCommand(raster = 0, output = OutputMode.NoOutput, cookie = 1111))
+    test_command_parse(AbortCommand())
+    arange = DACCodeRange(start=1, count = 2, step = 3)
+    test_command_parse(RasterRegionCommand(x_range=arange, y_range=arange))
+    test_command_parse(VectorPixelCommand(x_coord = 1000, y_coord = 2000, dwell_time = 1500))
 
+    print(SynchronizeCommand(raster=0, output=OutputMode.NoOutput, cookie=1111))
 
-#test_sim()
+    def test_command_run():
+        s = ArrayCommand.pack(cmdtype=CmdType.RasterPixel, length=3)
+
+        async def put_testbench(ctx):
+            for byte in s:
+                print(f"{byte=}, {hex(byte)=}")
+                await put_stream(ctx, dut.usb_stream, byte)
+            for byte in struct.pack(">HHH", 100, 1000, 10000):
+                print(f"{byte=}, {hex(byte)=}")
+                await put_stream(ctx, dut.usb_stream, byte)
+        
+        async def get_testbench(ctx):
+            for dwell in [100, 1000, 10000]:
+                d = RasterPixelCommand.pack_dict(dwell_time = dwell)
+                await get_stream(ctx, dut.cmd_stream, d)
+        
+        sim = Simulator(dut)
+        sim.add_clock(20.83e-9)
+        for testbench in [put_testbench, get_testbench]:
+            sim.add_testbench(testbench)
+        with sim.write_vcd(f"bc3run.vcd"):
+            sim.run()
+    
+    #test_command_run()
+
+# test_sim()
