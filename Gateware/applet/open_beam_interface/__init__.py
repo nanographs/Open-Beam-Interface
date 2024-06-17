@@ -696,7 +696,9 @@ class CommandExecutor(wiring.Component):
         sync_req = Signal()
         sync_ack = Signal()
 
-        with m.FSM():
+        is_executing = Signal()
+        with m.FSM() as fsm:
+            m.d.comb += is_executing.eq(fsm.ongoing("Execute"))
             with m.State("Fetch"):
                 m.d.comb += self.cmd_stream.ready.eq(1)
                 with m.If(self.cmd_stream.valid):

@@ -5,12 +5,14 @@ from amaranth.sim import Simulator, Tick
 from amaranth import Signal, ShapeCastable, Const
 from amaranth import DriverConflict
 from abc import ABCMeta, abstractmethod
+import asyncio
 
 from . import StreamSignature
 from . import Supersampler, RasterScanner, RasterRegion
 from . import CommandParser, CommandExecutor, Command, BeamType, OutputMode, CmdType
 from . import BusController, Flippenator
-from .base_commands import *
+# from .base_commands import *
+from .base_commands3 import *
 
 
 
@@ -21,9 +23,10 @@ async def put_stream(ctx, stream, payload, timeout_steps=10):
     timeout = 0
     while not ready:
         ready = ctx.get(stream.ready)
-        print(f"put_stream: {ready=}")
+        #print(f"put_stream: {ready=}, {timeout=}/{timeout_steps}")
         await ctx.tick()
         timeout += 1; assert timeout < timeout_steps
+    print(f"put_stream: {ready=}, {timeout=}/{timeout_steps}")
     ctx.set(stream.valid, 0)
 
 
@@ -59,6 +62,7 @@ def filtered_dict(data, payload):
     data = prettier_dict(data)
     filtered_data = {}
     def unpack(data, payload, filtered_data):
+        print(f"{filtered_data=}")
         for signal, payload_value in payload.items():
             data_value = data[signal]
             if isinstance(data_value, dict):
@@ -66,12 +70,15 @@ def filtered_dict(data, payload):
                 unpack(data_value, payload_value, filtered_data[signal])
             else:
                 filtered_data[signal] = data_value
-    unpack(data, payload, filtered_data)
+    if isinstance(data, dict):
+        unpack(data, payload, filtered_data)
+    else:
+        filtered_data = data
     return filtered_data
     
-def prettier_diff(data, payload):
-    data = filtered_dict(data, payload)
+def prettier_diff(data, payload:dict):
     summary = "\nSignal \t Expected \t Actual"
+    data = filtered_dict(data, payload)
     def unpack_diff(data, payload):
         nonlocal summary
         for signal, payload_value in payload.items():
@@ -80,7 +87,12 @@ def prettier_diff(data, payload):
                 unpack_diff(data_value, payload_value)
             else:
                 summary += f"\n{signal}\t {payload_value}\t {data_value}"
-    unpack_diff(data, payload)
+                if payload_value != data_value:
+                    summary += "\t<---"
+    if isinstance(data, dict):
+        unpack_diff(data, payload)
+    else:
+        summary += f"\n \t {payload} \t {data}"
     return summary
 
 
@@ -90,8 +102,9 @@ async def get_stream(ctx, stream, payload, timeout_steps=10):
     timeout = 0
     while not valid:
         _, _, valid, data = await ctx.tick().sample(stream.valid, stream.payload)
-        print(f"get_stream: {valid=}, data={filtered_dict(data, payload)}")
+        #print(f"get_stream: {valid=}, data={filtered_dict(data, payload)}")
         timeout += 1; assert timeout < timeout_steps
+    print(f"get_stream: {valid=}, data={filtered_dict(data, payload)}")
     if isinstance(payload, dict):
         wrapped_payload = stream.payload.shape().const(payload)
     else:
@@ -280,169 +293,75 @@ class OBIAppletTestCase(unittest.TestCase):
     def test_command_parser(self):
         dut = CommandParser()
 
-        def test_cmd(command:BaseCommand, response: dict, name:str="cmd"):
+        def test_cmd(command:BaseCommand, name:str="cmd"):
+            print(f"testing {command.fieldstr}")
             async def put_testbench(ctx):
-                print(f"{command.message}")
-                for byte in command.message:
+                for byte in bytes(command):
                     await put_stream(ctx, dut.usb_stream, byte)
             async def get_testbench(ctx):
-                await get_stream(ctx, dut.cmd_stream, response, timeout_steps=len(command.message)*2)
+                d = command.pack_dict()
+                print(f"{d=}")
+                await get_stream(ctx, dut.cmd_stream, d, 
+                    timeout_steps=len(command)*2 + 2)
                 await ctx.tick()
                 assert ctx.get(dut.cmd_stream.valid) == 0
             self.simulate(dut, [get_testbench,put_testbench], name="parse_" + name)  
         
-        test_cmd(SynchronizeCommand(cookie=1234, raster=True, output=OutputMode.NoOutput),
-                {"type": CmdType.Synchronize, 
-                    "payload": {
-                        "synchronize": {
-                            "payload": {
-                                "mode": {
-                                    "raster": 1,
-                                    "output": 2,
-                                },
-                                "cookie": 1234,
-                }}}}, "cmd_sync")
+        test_cmd(SynchronizeCommand(cookie=1234, raster=True, output=OutputMode.NoOutput),"cmd_sync")
         
-        test_cmd(AbortCommand(),
-                {"type": CmdType.Abort}, "cmd_abort")
+        test_cmd(AbortCommand(), "cmd_abort")
         
-        test_cmd(FlushCommand(),
-                {"type": CmdType.Flush}, "cmd_flush")
+        test_cmd(FlushCommand(),"cmd_flush")
         
-        test_cmd(ExternalCtrlCommand(enable=True),
-                {"type": CmdType.ExternalCtrl, 
-                        "payload": {"external_ctrl": {"payload": {"enable": 1}}}
-                }, "cmd_extctrlenable")
+        test_cmd(ExternalCtrlCommand(enable=True), "cmd_extctrlenable")
         
-        test_cmd(BeamSelectCommand(beam_type=BeamType.Electron),
-                {"type": CmdType.BeamSelect, 
-                            "payload": {"beam_select": {"payload": {"beam_type": BeamType.Electron}}}
-                }, "cmd_selectebeam")
+        test_cmd(BeamSelectCommand(beam_type=BeamType.Electron),"cmd_selectebeam")
 
-        test_cmd(BlankCommand(),
-                {"type": CmdType.Blank, 
-                            "payload": {"blank": {"payload": {"enable": 1, "inline": 0}}}
-                }, "cmd_blank")
+        test_cmd(BlankCommand(enable=True, inline=False),"cmd_blank")
 
-        test_cmd(DelayCommand(delay=960),
-                {"type": CmdType.Delay, 
-                            "payload": {
-                                "delay": {"payload":{ "delay": 960}}}
-                }, "cmd_delay")
+        test_cmd(DelayCommand(delay=960),"cmd_delay")
 
         x_range = DACCodeRange(start=5, count=2, step=0x2_00)
         y_range = DACCodeRange(start=9, count=1, step=0x5_00)
 
-        test_cmd(RasterRegionCommand(x_range=x_range, y_range=y_range),
-                {"type": CmdType.RasterRegion, 
-                    "payload": {
-                        "raster_region": {
-                            "payload": {
-                                "transform": {
-                                    "xflip": 0,
-                                    "yflip": 0,
-                                    "rotate90": 0
-                                },
-                                "roi": {
-                                    "x_start": 5,
-                                    "x_count": 2,
-                                    "x_step": 0x2_00,
-                                    "y_start": 9,
-                                    "y_count": 1,
-                                    "y_step": 0x5_00
-                                }
-                }}}}, "cmd_rasterregion")
+        test_cmd(RasterRegionCommand(x_range=x_range, y_range=y_range), "cmd_rasterregion")
 
-        test_cmd(RasterPixelRunCommand(length=5, dwell= 6),
-                {"type": CmdType.RasterPixelRun, 
-                    "payload": {
-                        "raster_pixel_run": {
-                            "payload": {
-                                "length": 4, #length = length-1 because of 0-indexing
-                                "dwell_time": 6
-                }}}}, "cmd_rasterpixelrun")
+        test_cmd(RasterPixelRunCommand(length=5, dwell_time= 6),"cmd_rasterpixelrun")
         
 
-        test_cmd(RasterPixelFreeRunCommand(dwell = 10),
-                {"type": CmdType.RasterPixelFreeRun, 
-                    "payload": {
-                        "raster_pixel_free_run": {
-                            "payload": {
-                                "dwell_time": 10, #dwell = dwell-1 because of 0-indexing
-                }}}}, "cmd_rasterpixelfreerun")
+        test_cmd(RasterPixelFreeRunCommand(dwell_time = 10), "cmd_rasterpixelfreerun")
 
 
-        test_cmd(VectorPixelCommand(x_coord=4, y_coord=5, dwell= 6),
-                {"type": CmdType.VectorPixel, 
-                    "payload": {
-                        "vector_pixel": {
-                            "payload": {
-                                "transform": {
-                                    "xflip": 0,
-                                    "yflip": 0,
-                                    "rotate90": 0
-                                },
-                                "dac_stream": {
-                                "x_coord": 4,
-                                "y_coord": 5,
-                                "dwell_time": 6
-                                }
-                }}}}, "cmd_vectorpixel")
+        test_cmd(VectorPixelCommand(x_coord=4, y_coord=5, dwell_time= 6),"cmd_vectorpixel")
 
-        test_cmd(VectorPixelCommand(x_coord=4, y_coord=5, dwell= 0),
-                {"type": CmdType.VectorPixelMinDwell, 
-                    "payload": {
-                        "vector_pixel_min": {
-                            "payload": {
-                                "transform": {
-                                    "xflip": 0,
-                                    "yflip": 0,
-                                    "rotate90": 0
-                                },
-                                "dac_stream":{
-                                "x_coord": 4,
-                                "y_coord": 5,
-                                }
-                }}}}, "cmd_vectorpixelmin")
+        test_cmd(VectorPixelCommand(x_coord=4, y_coord=5, dwell_time= 0),"cmd_vectorpixelmin")
     
-        def test_raster_pixels_cmd(command:BaseCommand):
+        def test_raster_pixels_cmd():
+            command = ArrayCommand(cmdtype = CmdType.RasterPixel, length = 5)
+            dwells = [1,2,3,4,5]
             async def put_testbench(ctx):
-                print(f"{command.message}")
-                for byte in command.message:
+                for byte in bytes(command):
                     await put_stream(ctx, dut.usb_stream, byte)
+                for dwell in dwells:
+                    for byte in struct.pack(">H", dwell):
+                        await put_stream(ctx, dut.usb_stream, byte)
             async def get_testbench(ctx):
-                for dwell in command._dwells:
-                    response = {"type": CmdType.RasterPixel, 
-                        "payload": {
-                            "raster_pixel": {
-                                "payload": {
-                                    "length": len(command._dwells)-1,
-                                    "dwell_time": dwell
-                    }}}}
-                    await get_stream(ctx, dut.cmd_stream, response, timeout_steps=len(command.message)*2)
+                for dwell in dwells:
+                    await get_stream(ctx, dut.cmd_stream, RasterPixelCommand(dwell_time=dwell).pack_dict(), timeout_steps=len(command)*2 + len(dwells)*2 + 2)
                     assert ctx.get(dut.cmd_stream.valid) == 0
             self.simulate(dut, [get_testbench,put_testbench], name="parse_cmd_rasterpixel")  
         
-        test_raster_pixels_cmd(RasterPixelsCommand(dwells = [1,2,3,4,5]))
+        test_raster_pixels_cmd()
 
     def test_command_executor_individual(self):
         dut = CommandExecutor()
 
         def test_sync_exec():
-            cookie = 123*256 + 234
+            cookie = 1234
 
             async def put_testbench(ctx):
-                await put_stream(ctx, dut.cmd_stream, {
-                    "type": CmdType.Synchronize,
-                    "payload": {
-                        "synchronize": {
-                            "payload":{
-                                "cookie": cookie,
-                                "mode" : {
-                                    "raster": 1,
-                                    "output": 0,
-                                    }
-                                }}}})
+                await put_stream(ctx, dut.cmd_stream, 
+                        SynchronizeCommand(raster=True, output=OutputMode.NoOutput, cookie=cookie).pack_dict())
             
             async def get_testbench(ctx):
                 await get_stream(ctx, dut.img_stream, 65535) # FFFF
@@ -453,24 +372,9 @@ class OBIAppletTestCase(unittest.TestCase):
         def test_rasterregion_exec():
 
             async def put_testbench(ctx):
-                await put_stream(ctx, dut.cmd_stream, {
-                    "type": CmdType.RasterRegion,
-                    "payload": {
-                        "raster_region": { "payload": {
-                            "transform": {
-                                "xflip": 1,
-                                "yflip": 0,
-                                "rotate90": 0,
-                            },
-                            "roi": {
-                                "x_start": 5,
-                                "x_count": 2,
-                                "x_step": 0x2_00,
-                                "y_start": 9,
-                                "y_count": 1,
-                                "y_step": 0x5_00,
-                            }}}}})
-
+                await put_stream(ctx, dut.cmd_stream, 
+                    RasterRegionCommand(x_range=DACCodeRange(start=5, count=2, step=0x2_00),
+                    y_range=DACCodeRange(start=9, count=1, step=0x5_00)).pack_dict())
             async def get_testbench(ctx):
                 res = await ctx.tick().sample(dut.raster_scanner.roi_stream.payload).until(dut.raster_scanner.roi_stream.valid == 1)
                 wrapped_payload = dut.raster_scanner.roi_stream.payload.shape().const(
@@ -487,17 +391,13 @@ class OBIAppletTestCase(unittest.TestCase):
         def test_rasterpixel_exec():
 
             async def put_testbench(ctx):
-                await put_stream(ctx, dut.cmd_stream, {
-                    "type": CmdType.RasterPixel,
-                    "payload": {
-                        "raster_pixel": {"payload": {"length": 1, "dwell_time": 1}}
-                    }
-                })
+                await put_stream(ctx, dut.cmd_stream, 
+                    RasterPixelCommand(dwell_time=5).pack_dict())
             async def get_testbench(ctx):
                 res = await ctx.tick().sample(dut.raster_scanner.dwell_stream.payload).until(dut.raster_scanner.dwell_stream.valid == 1)
                 wrapped_payload = dut.raster_scanner.dwell_stream.payload.shape().const(
                             {
-                        "dwell_time": 1,
+                        "dwell_time": 5,
                         "blank": {
                             "enable": 0,
                             "request": 0
@@ -509,13 +409,8 @@ class OBIAppletTestCase(unittest.TestCase):
         def test_rasterpixelrun_exec():
 
             async def put_testbench(ctx):
-                await put_stream(ctx, dut.cmd_stream, {
-                    "type": CmdType.RasterPixelRun,
-                    "payload": {
-                        "raster_pixel_run": { "payload": {
-                            "length": 2,
-                            "dwell_time": 1,
-                        }}}})
+                await put_stream(ctx, dut.cmd_stream, 
+                RasterPixelRunCommand(length=2, dwell_time=1).pack_dict())
 
             async def get_testbench(ctx):
                 async def get_stream(ctx, stream, payload):
@@ -547,10 +442,7 @@ class OBIAppletTestCase(unittest.TestCase):
         dut = CommandExecutor()
 
         async def async_unblank(ctx): #assumes starting from default or blanked state
-            ctx.set(dut.cmd_stream.payload, {
-                "type": CmdType.Blank,
-                "payload": {"blank": {"payload": {"enable": 0, "inline": 0}}}
-            })
+            ctx.set(dut.cmd_stream.payload, BlankCommand(enable=False, inline=False).pack_dict())
             ctx.set(dut.cmd_stream.valid, 1)
             await ctx.tick()
             ctx.set(dut.cmd_stream.valid, 0)
@@ -558,10 +450,7 @@ class OBIAppletTestCase(unittest.TestCase):
             assert ctx.get(dut.blank_enable) == 0
 
         async def async_blank(ctx): #assumes starting from an unblanked state
-            ctx.set(dut.cmd_stream.payload, {
-                "type": CmdType.Blank,
-                "payload": {"blank": {"payload": {"enable": 1, "inline": 0}}}
-            })
+            ctx.set(dut.cmd_stream.payload, BlankCommand(enable=True, inline=False).pack_dict())
             ctx.set(dut.cmd_stream.valid, 1)
             await ctx.tick()
             ctx.set(dut.cmd_stream.valid, 0)
@@ -569,19 +458,12 @@ class OBIAppletTestCase(unittest.TestCase):
             assert ctx.get(dut.blank_enable) == 1
         
         async def sync_unblank(ctx): #assumes starting from default or blanked state
-            ctx.set(dut.cmd_stream.payload, {
-                "type": CmdType.Blank,
-                "payload": {"blank": {"payload": {"enable": 0, "inline": 1}}}
-            })
+            ctx.set(dut.cmd_stream.payload, BlankCommand(enable=False, inline=True).pack_dict())
             ctx.set(dut.cmd_stream.valid, 1)
             await ctx.tick().until(dut.cmd_stream.ready == 0)
             assert ctx.get(dut.blank_enable) == 1 #shouldn't be unblanked yet
-            ctx.set(dut.cmd_stream.payload, {
-                "type": CmdType.VectorPixel,
-                "payload": {"vector_pixel_min": {"payload": {
-                    "transform": {"xflip": 0, "yflip": 0, "rotate90": 0},
-                    "dac_stream": {"x_coord": 1, "padding_x": 0, "y_coord": 1, "padding_y": 0},
-                    }}}})
+            ctx.set(dut.cmd_stream.payload, 
+                VectorPixelCommand(x_coord=1, y_coord=1, dwell_time=0).pack_dict())
             ctx.set(dut.cmd_stream.valid, 1)
             await ctx.tick().until(dut.cmd_stream.ready == 0)
             ctx.set(dut.cmd_stream.valid, 0)
@@ -590,19 +472,11 @@ class OBIAppletTestCase(unittest.TestCase):
             assert ctx.get(dut.blank_enable) == 0
 
         async def sync_blank(ctx): #assumes starting from an unblanked state
-            ctx.set(dut.cmd_stream.payload, {
-                "type": CmdType.Blank,
-                "payload": {"blank": {"payload": {"enable": 1, "inline": 1}}}
-            })
+            ctx.set(dut.cmd_stream.payload, BlankCommand(enable=True, inline=True).pack_dict())
             ctx.set(dut.cmd_stream.valid, 1)
             await ctx.tick().until(dut.cmd_stream.ready == 0)
             assert ctx.get(dut.blank_enable) == 0 #shouldn't be blanked yet
-            ctx.set(dut.cmd_stream.payload, {
-                "type": CmdType.VectorPixel,
-                "payload": {"vector_pixel": {"payload": {
-                    "transform": {"xflip": 0, "yflip": 0, "rotate90": 0},
-                    "dac_stream": {"x_coord": 2, "padding_x": 0, "y_coord": 2, "padding_y": 0, "dwell_time": 1},
-                    }}}})
+            ctx.set(dut.cmd_stream.payload, VectorPixelCommand(x_coord=2, y_coord=2, dwell_time=0).pack_dict())
             ctx.set(dut.cmd_stream.valid, 1)
             await ctx.tick().until(dut.cmd_stream.ready == 0)
             ctx.set(dut.cmd_stream.valid, 0)
@@ -624,324 +498,230 @@ class OBIAppletTestCase(unittest.TestCase):
         self.simulate(dut, [test_seq_1], name="blank_seq_1")
     
 
-
-
     def test_command_executor_sequences(self):
-        BUS_CYCLES = 6 ## length of one cycle of DAC/ADC clock
+        BUS_CYCLES = 6 #combined ADC and DAC latching cycles
         class TestCommand:
-
+            response = []
+            def __init_subclass__(cls, command:BaseCommand):
+                cls.command_cls = command
+            def __init__(self, **kwargs):
+                self.command = self.command_cls(**kwargs)
+            def __repr__(self):
+                return self.command.__repr__()
             @property
-            @abstractmethod
-            def _command(self):
-                pass
-
-            @property
-            @abstractmethod
-            def _response(self):
-                pass
-
-            async def _put_testbench(self, ctx, dut, timeout_steps=100):
-                print(f"put_testbench: {self._command}")
-                await put_stream(ctx, dut.cmd_stream, self._command, timeout_steps=2*timeout_steps)
-            
-            async def _get_testbench(self, ctx, dut, timeout_steps=100):
-                print(f"get_testbench: response to {self._command}")
-                n = 0
-                print(f"getting {len(self._response)} responses")
-                for res in self._response:
-                    await get_stream(ctx, dut.img_stream, res, timeout_steps=timeout_steps)
-                    n += 1
-                    print(f"got {n} responses")
-                print(f"got all {len(self._response)} responses")
-
+            def exec_cycles(self):
+                return len(self.response)*BUS_CYCLES
+            async def put_testbench(self, ctx, dut):
+                print(f"put_testbench: {self}")
+                await put_stream(ctx, dut.cmd_stream, self.command.pack_dict(), timeout_steps=self.exec_cycles+100)
+            async def get_testbench(self, ctx, dut):
+                print(f"get_testbench: {self}")
+                if len(self.response) > 0:
+                    n = 0
+                    print(f"getting {len(self.response)} responses")
+                    for n in range(len(self.response)):
+                        await get_stream(ctx, dut.img_stream, self.response[n], timeout_steps=self.exec_cycles+100)
+                        n += 1
+                        print(f"got {n} responses")
+                    print(f"got all {len(self.response)} responses")
+                else:
+                    print("get_testbench: no response expected")
+                    pass
+        
         class TestCommandSequence:
             def __init__(self):
                 self.dut =  CommandExecutor()
-                self._put_testbenches = []
-                self._get_testbenches = []
+                self.put_testbenches = []
+                self.get_testbenches = []
         
-            def add(self, command: TestCommand, timeout_steps=100):
+            def add(self, command: TestCommand):
                 async def put_bench(ctx):
-                    await command._put_testbench(ctx, self.dut, timeout_steps)
-                self._put_testbenches.append(put_bench)
+                    await command.put_testbench(ctx, self.dut)
+                self.put_testbenches.append(put_bench)
+
                 async def get_bench(ctx):
-                    await command._get_testbench(ctx, self.dut, timeout_steps)
-                self._get_testbenches.append(get_bench)
+                    await command.get_testbench(ctx, self.dut)
+                self.get_testbenches.append(get_bench)
             
-            async def _put_testbench(self, ctx):
-                for testbench in self._put_testbenches:
+            async def put_testbench(self, ctx):
+                for testbench in self.put_testbenches:
                     await testbench(ctx)
             
-            async def _get_testbench(self, ctx):
-                for testbench in self._get_testbenches:
+            async def get_testbench(self, ctx):
+                for testbench in self.get_testbenches:
                     await testbench(ctx)
-        class TestSyncCommand(TestCommand):
-            def __init__(self, cookie, raster_mode, output_mode=0):
-                self._cookie = cookie
-                self._raster_mode = raster_mode
-                self._output_mode = output_mode
-            
+    
+        class TestSyncCommand(TestCommand, command=SynchronizeCommand):
             @property
-            def _command(self):
-                return {"type": CmdType.Synchronize,
-                        "payload": {"synchronize": {"payload": {
-                                "cookie": self._cookie,
-                                "mode": {
-                                    "raster": self._raster_mode,
-                                    "output": self._output_mode, 
-                                    }}}}}
-                    
-            @property
-            def _response(self):
-                return [65535, self._cookie]
+            def response(self):
+                return [65535, self.command.cookie] # FFFF, cookie
         
-        class TestDelayCommand(TestCommand):
-            def __init__(self, delay):
-                self._delay = delay
+        class TestFlushCommand(TestCommand, command=FlushCommand):
+            pass
+
+        class TestExternalCtrlCommand(TestCommand, command = ExternalCtrlCommand):
+            async def put_testbench(self, ctx, dut):
+                await super().put_testbench(ctx, dut)
+                if not ctx.get(dut.is_executing) == 0:
+                    await ctx.tick()
+                assert ctx.get(dut.ext_ctrl_enable) == self.command.enable
+            
+        class TestBeamSelectCommand(TestCommand, command = BeamSelectCommand):
+            async def put_testbench(self, ctx, dut):
+                await super().put_testbench(ctx, dut)
+                if not ctx.get(dut.is_executing) == 0:
+                    await ctx.tick()
+                assert ctx.get(dut.beam_type) == self.command.beam_type
+
+        class TestDelayCommand(TestCommand, command = DelayCommand):
+            @property
+            def exec_cycles(self):
+                return self.command.delay
+
+            async def put_testbench(self, ctx, dut):
+                await super().put_testbench(ctx, dut)
+                for _ in range(self.command.delay):
+                    await ctx.tick()
+            
+            async def get_testbench(self, ctx, dut):
+                for _ in range(self.command.delay):
+                    await ctx.tick()
+                await super().get_testbench(ctx, dut)
+        
+        class TestRasterRegionCommand(TestCommand, command=RasterRegionCommand):
+            async def put_testbench(self, ctx, dut):
+                await super().put_testbench(ctx, dut)
+                region = ctx.get(dut.raster_scanner.roi_stream.payload)
+                expected_region = {
+                    "x_start": self.command.x_start,
+                    "x_count": self.command.x_count,
+                    "x_step": self.command.x_step,
+                    "y_start": self.command.y_start,
+                    "y_count": self.command.y_count,
+                    "y_step": self.command.y_step}
+                wrapped = dut.raster_scanner.roi_stream.payload.shape().const(expected_region)
+                assert wrapped == region, f"{prettier_diff(region, expected_region)}"
+        
+        class TestRasterPixelRunCommand(TestCommand, command=RasterPixelRunCommand):
+            @property
+            def response(self):
+                return [0]*self.command.length
+            @property
+            def exec_cycles(self):
+                return self.command.dwell_time*self.command.length*BUS_CYCLES
+
+            async def put_testbench(self, ctx, dut):
+                await super().put_testbench(ctx, dut)
+                dwell = ctx.get(dut.raster_scanner.dwell_stream.payload.dwell_time)
+                assert dwell == self.command.dwell_time, f"{dwell} != {self.command.dwell_time}"
+        
+        class TestRasterPixelFreeRunCommand(TestCommand, command=RasterPixelFreeRunCommand):
+            def __init__(self, *, dwell_time, test_samples):
+                super().__init__(dwell_time = dwell_time)
+                self.test_samples = test_samples
 
             @property
-            def _command(self):
-                return {"type": CmdType.Delay,
-                        "payload": { "delay": { "payload": {
-                            "delay": self._delay
-                            }}}}
-                    
+            def response(self):
+                return [0]*self.test_samples
             @property
-            def _response(self):
-                return []
-
-        class TestFlushCommand(TestCommand):
-            @property
-            def _command(self):
-                return {"type": CmdType.Flush}
-                    
-            @property
-            def _response(self):
-                return []
-
+            def exec_cycles(self):
+                return self.command.dwell_time*self.test_samples*BUS_CYCLES
         
-        class TestExtCtrlCommand(TestCommand):
-            def __init__(self, enable: bool):
-                self._enable = enable
-            
-            @property
-            def _command(self):
-                return {"type": CmdType.ExternalCtrl,
-                        "payload": {
-                            "external_ctrl": {"payload": {
-                                "enable": self._enable,
-                                }}}}
-            @property
-            def _response(self):
-                return []
-        
-        class TestBeamSelectCommand(TestCommand):
-            def __init__(self, beam_type: BeamType):
-                self._beam_type = beam_type
-            
-            @property
-            def _command(self):
-                    return {"type": CmdType.BeamSelect,
-                            "payload": { "beam_select": { "payload": {
-                                "beam_type": self._beam_type
-                                }}}}
- 
-            @property
-            def _response(self):
-                return []
-        
-        class TestBlankCommand(TestCommand):
-            def __init__(self, enable:bool, inline:bool):
-                self._enable = enable
-                self._inline = inline
-            
-            @property
-            def _command(self):
-                    return {"type": CmdTypeBlank,
-                            "payload": { "blank": { "payload": {
-                                    "enable": self._enable,
-                                    "inline": self._inline
-                                    }}}}
-                    
-            @property
-            def _response(self):
-                return []
-        
-        class TestRasterRegionCommand(TestCommand):
-            def __init__(self, x_start, x_count, x_step, y_start, y_count, y_step):
-                self._x_start = x_start
-                self._x_count = x_count
-                self._x_step = x_step
-                self._y_start = y_start
-                self._y_count = y_count
-                self._y_step = y_step
-            
-            @property
-            def _command(self):
-                return {"type": CmdType.RasterRegion,
-                            "payload": { "raster_region": { "payload": {
-                                "transform": {
-                                    "xflip": 0,
-                                    "yflip": 0,
-                                    "rotate90": 0
-                                },
-                                "roi": {
-                                    "x_start": self._x_start,
-                                    "x_count": self._x_count,
-                                    "x_step": self._x_step,
-                                    "y_start": self._y_start,
-                                    "y_count": self._y_count,
-                                    "y_step": self._y_step}
-                            }}}}
-                    
-            @property
-            def _response(self):
-                return []
-        
-        class TestRasterPixelRunCommand(TestCommand):
-            def __init__(self, length, dwell_time):
-                self._length = length
-                self._dwell_time = dwell_time
-
-            @property
-            def _command(self):
-                return {"type": CmdType.RasterPixelRun,
-                        "payload": { "raster_pixel_run": { "payload": {
-                                "length": self._length - 1,
-                                "dwell_time": self._dwell_time
-                            }}}}
-                    
-            @property
-            def _response(self):
-                return [0]*self._length
-
-        class TestRasterPixelFreeRunCommand(TestCommand):
-            def __init__(self, dwell_time: int, *, test_samples=6):
-                self._dwell_time = dwell_time
-                self._test_samples = test_samples
-            
-            @property
-            def _command(self):
-                return {"type": CmdType.RasterPixelFreeRun,
-                        "payload": { "raster_pixel_free_run": {"payload": {
-                            "dwell_time":self._dwell_time
-                        }}}}
-                    
-            @property
-            def _response(self):
-                return [0]*(self._test_samples)
-            
-            async def _put_testbench(self, ctx, dut, timeout_steps):
-                print("put_testbench: {self._command}")
-                await put_stream(ctx, dut.cmd_stream, self._command, timeout_steps=timeout_steps)
+            async def put_testbench(self, ctx, dut):
+                print(f"put_testbench: {self}")
+                await super().put_testbench(ctx, dut)
                 n = 0
-                print(f"extending put_testbench for {self._test_samples=}")
+                print(f"extending put_testbench for 6 samples")
                 while True:
-                    if n == self._test_samples:
+                    if n == self.test_samples:
                         break
-                    if not ctx.get(dut.supersampler.dac_stream.ready) == 1:
-                        await ctx.tick()
-                    else:
-                        n += 1
-                        print(f"{n} valid samples")
-                        await ctx.tick()
-
-        class TestVectorPixelCommand(TestCommand):
-            def __init__(self, x_coord, y_coord, dwell_time):
-                self._x_coord = x_coord
-                self._y_coord = y_coord
-                self._dwell_time = dwell_time
-
+                    await ctx.tick().until(dut.supersampler.dac_stream.ready == 1)
+                    n += 1
+                    print(f"{n} valid samples")
+        class TestVectorPixelCommand(TestCommand, command=VectorPixelCommand):
             @property
-            def _command(self):
-                return {"type": CmdType.VectorPixel,
-                        "payload": { "vector_pixel": { "payload": {
-                                "transform": {
-                                    "xflip": 0,
-                                    "yflip": 0,
-                                    "rotate90": 0
-                                },
-                                "dac_stream":{
-                                    "x_coord": self._x_coord,
-                                    "y_coord": self._y_coord,
-                                    "dwell_time": self._dwell_time
-                                }
-                            }}}}
-                    
-            @property
-            def _response(self):
+            def response(self):
                 return [0]
+            @property
+            def exec_cycles(self):
+                return self.command.dwell_time*BUS_CYCLES
         
+
+
         def test_exec_1():
             test_seq = TestCommandSequence()
-            test_seq.add(TestSyncCommand(502, 1))
-            test_seq.add(TestSyncCommand(505, 1))
-            test_seq.add(TestRasterRegionCommand(5, 3, 0x2_00, 9, 2, 0x5_00))
-            test_seq.add(TestRasterPixelRunCommand(5, 1))
-            test_seq.add(TestSyncCommand(502, 1))
-            test_seq.add(TestRasterPixelFreeRunCommand(1, test_samples=6))
-            test_seq.add(TestSyncCommand(502, 1))
-            test_seq.add(TestSyncCommand(102, 1))
+            test_seq.add(TestSyncCommand(cookie=502, raster=True, output=OutputMode.SixteenBit))
+            test_seq.add(TestSyncCommand(cookie=505, raster=True, output=OutputMode.SixteenBit))
+            test_seq.add(TestRasterRegionCommand(x_range=DACCodeRange(start=5, count=2, step=0x2_00),
+                                                y_range=DACCodeRange(start=9, count=2, step=0x5_00)))
+            test_seq.add(TestRasterPixelRunCommand(length=6, dwell_time=1))
+            test_seq.add(TestSyncCommand(cookie=502, raster=True, output=OutputMode.SixteenBit))
+            test_seq.add(TestRasterPixelFreeRunCommand(dwell_time=1, test_samples = 6))
+            test_seq.add(TestSyncCommand(cookie=502, raster=True, output=OutputMode.SixteenBit))
+            test_seq.add(TestSyncCommand(cookie=102, raster=True, output=OutputMode.SixteenBit))
 
-            self.simulate(test_seq.dut, [test_seq._put_testbench, test_seq._get_testbench], name="exec_1")
-        
+            self.simulate(test_seq.dut, [test_seq.put_testbench, test_seq.get_testbench], name="exec_1")
+
         def test_exec_2():
             test_seq = TestCommandSequence()
-            test_seq.add(TestExtCtrlCommand(enable=True))
+            test_seq.add(TestExternalCtrlCommand(enable=True))
             test_seq.add(TestBeamSelectCommand(beam_type=BeamType.Electron))
-            test_seq.add(TestDelayCommand(960))
-            test_seq.add(TestSyncCommand(505, 1), timeout_steps = 1000*BUS_CYCLES)
-            test_seq.add(TestRasterRegionCommand(5, 3, 0x2_00, 9, 2, 0x5_00))
-            test_seq.add(TestRasterPixelRunCommand(5, 1))
+            test_seq.add(TestDelayCommand(delay=960))
+            test_seq.add(TestSyncCommand(cookie=505, raster=True, output=OutputMode.SixteenBit))
+            test_seq.add(TestRasterRegionCommand(x_range=DACCodeRange(start=5, count=2, step=0x2_00),
+                                                y_range=DACCodeRange(start=9, count=2, step=0x5_00)))
+            test_seq.add(TestRasterPixelRunCommand(length=5, dwell_time=1))
 
-            self.simulate(test_seq.dut, [test_seq._put_testbench, test_seq._get_testbench], name="exec_2")
+            self.simulate(test_seq.dut, [test_seq.put_testbench, test_seq.get_testbench], name="exec_2")
         
         def test_exec_3():
             test_seq = TestCommandSequence()
-            test_seq.add(TestSyncCommand(502, 1))
-            test_seq.add(TestSyncCommand(505, 1))
-            test_seq.add(TestExtCtrlCommand(enable=True))
+            test_seq.add(TestSyncCommand(cookie=502, raster=True, output=OutputMode.SixteenBit))
+            test_seq.add(TestSyncCommand(cookie=505, raster=True, output=OutputMode.SixteenBit))
+            test_seq.add(TestExternalCtrlCommand(enable=True))
             test_seq.add(TestBeamSelectCommand(beam_type=BeamType.Electron))
-            test_seq.add(TestDelayCommand(960))
-            test_seq.add(TestRasterRegionCommand(5, 3, 0x2_00, 9, 2, 0x5_00), timeout_steps=960*BUS_CYCLES)
-            test_seq.add(TestRasterPixelFreeRunCommand(1, test_samples=20), timeout_steps = 960*BUS_CYCLES)
-            test_seq.add(TestSyncCommand(502, 1))
-            test_seq.add(TestRasterRegionCommand(5, 3, 0x2_00, 9, 2, 0x5_00), timeout_steps=960*BUS_CYCLES)
-            test_seq.add(TestRasterPixelFreeRunCommand(1, test_samples=20), timeout_steps = 960*BUS_CYCLES)
-            test_seq.add(TestExtCtrlCommand(enable=True))
+            test_seq.add(TestDelayCommand(delay=960))
+            test_seq.add(TestRasterRegionCommand(x_range=DACCodeRange(start=5, count=2, step=0x2_00),
+                                                y_range=DACCodeRange(start=9, count=2, step=0x5_00)))
+            test_seq.add(TestRasterPixelFreeRunCommand(dwell_time=1, test_samples=20))
+            test_seq.add(TestSyncCommand(cookie=502, raster=True, output=OutputMode.SixteenBit))
+            test_seq.add(TestRasterRegionCommand(x_range=DACCodeRange(start=5, count=2, step=0x2_00),
+                                                y_range=DACCodeRange(start=9, count=2, step=0x5_00)))
+            test_seq.add(TestRasterPixelFreeRunCommand(dwell_time=1, test_samples=20))
+            test_seq.add(TestExternalCtrlCommand(enable=True))
             test_seq.add(TestBeamSelectCommand(beam_type=BeamType.Electron))
-            test_seq.add(TestDelayCommand(960))
-            test_seq.add(TestSyncCommand(502, 1), timeout_steps = 960*BUS_CYCLES)
+            test_seq.add(TestDelayCommand(delay=960))
+            test_seq.add(TestSyncCommand(cookie=502, raster=True, output=OutputMode.SixteenBit))
 
-            self.simulate(test_seq.dut, [test_seq._put_testbench, test_seq._get_testbench], name="exec_3")
+            self.simulate(test_seq.dut, [test_seq.put_testbench, test_seq.get_testbench], name="exec_3")
         
         def test_exec_4():
             test_seq = TestCommandSequence()
-            test_seq.add(TestSyncCommand(502, 0))
-            test_seq.add(TestVectorPixelCommand(100, 244, 3))
-            test_seq.add(TestVectorPixelCommand(90, 144, 2))
-            test_seq.add(TestVectorPixelCommand(110, 2004, 5))
-            test_seq.add(TestSyncCommand(502, 0))
+            test_seq.add(TestSyncCommand(cookie=502, raster=False, output=OutputMode.SixteenBit))
+            test_seq.add(TestVectorPixelCommand(x_coord=100, y_coord=244, dwell_time=3))
+            test_seq.add(TestVectorPixelCommand(x_coord=90, y_coord=144, dwell_time=2))
+            test_seq.add(TestVectorPixelCommand(x_coord=110, y_coord=2004, dwell_time=5))
+            test_seq.add(TestSyncCommand(cookie=502, raster=False, output=OutputMode.SixteenBit))
 
-            self.simulate(test_seq.dut, [test_seq._put_testbench, test_seq._get_testbench], name="exec_4")
+            self.simulate(test_seq.dut, [test_seq.put_testbench, test_seq.get_testbench], name="exec_4")
         
         def test_exec_5():
             test_seq = TestCommandSequence()
-            test_seq.add(TestSyncCommand(502, 0, output_mode = 2)) #no output
+            test_seq.add(TestSyncCommand(cookie=502, raster=False, output=OutputMode.NoOutput))
             test_seq.add(TestFlushCommand())
             for n in range(100):
-                test_seq.add(TestVectorPixelCommand(1, 1, 1))
-                test_seq.add(TestVectorPixelCommand(16384, 16384, 1))
-            test_seq.add(TestSyncCommand(502, 0))
+                test_seq.add(TestVectorPixelCommand(x_coord=1, y_coord=1, dwell_time=1))
+                test_seq.add(TestVectorPixelCommand(x_coord=16384, y_coord=16384, dwell_time=1))
+            test_seq.add(TestSyncCommand(cookie=502, raster=False, output=OutputMode.NoOutput))
 
-            self.simulate(test_seq.dut, [test_seq._put_testbench, test_seq._get_testbench], name="exec_5")
+            self.simulate(test_seq.dut, [test_seq.put_testbench, test_seq.get_testbench], name="exec_5")
         
         def test_exec_6():
             test_seq = TestCommandSequence()
-            test_seq.add(TestExtCtrlCommand(enable=True))
+            test_seq.add(TestExternalCtrlCommand(enable=True))
             test_seq.add(TestBeamSelectCommand(beam_type=BeamType.Ion))
-            test_seq.add(TestVectorPixelCommand(1, 1, 1))
-            self.simulate(test_seq.dut, [test_seq._put_testbench, test_seq._get_testbench], name="exec_6")
+            test_seq.add(TestVectorPixelCommand(x_coord=1, y_coord=1, dwell_time=1))
+            self.simulate(test_seq.dut, [test_seq.put_testbench, test_seq.get_testbench], name="exec_6")
 
 
         test_exec_1()
@@ -991,18 +771,18 @@ class OBIAppletTestCase(unittest.TestCase):
             async def test_sync_cookie(self):
                 iface = await self.run_simulated_applet()
                 #await iface.write(bytes([0, 123, 234])) # sync, cookie, raster_mode
-                await iface.write(SynchronizeCommand(cookie=123*256 + 234, raster=False, output=OutputMode.SixteenBit).message)
+                await iface.write(SynchronizeCommand(cookie=123*256 + 234, raster=False, output=OutputMode.SixteenBit))
                 self.assertEqual(await iface.read(4), bytes([0xFF, 0xFF, 123, 234])) # FF, FF, cookie
             
             @applet_simulation_test("setup_x_loopback")
             async def test_loopback_raster(self):
                 iface = await self.run_simulated_applet()
-                await iface.write(SynchronizeCommand(cookie=123*256 + 234, raster=True, output=OutputMode.SixteenBit).message)
+                await iface.write(SynchronizeCommand(cookie=123*256 + 234, raster=True, output=OutputMode.SixteenBit))
                 self.assertEqual(await iface.read(4), bytes([0xFF, 0xFF, 123, 234])) # FF, FF, cookie
                 x_range = DACCodeRange(start=0, count=5, step=256) #step = 1 DAC code
                 y_range = DACCodeRange(start=5, count=10, step=256)
-                await iface.write(RasterRegionCommand(x_range=x_range, y_range=y_range).message)
-                await iface.write(RasterPixelRunCommand(length=25, dwell=2).message)
+                await iface.write(RasterRegionCommand(x_range=x_range, y_range=y_range))
+                await iface.write(RasterPixelRunCommand(length=25, dwell_time=2))
                 res = array.array('H',[x for x in range(5)]*5)
                 res.byteswap()
                 self.assertEqual(await iface.read(50), bytes(res))
@@ -1020,21 +800,21 @@ class OBIAppletTestCase(unittest.TestCase):
                 # await iface.flush()
                 commands = bytearray()
                 for _ in range(10):
-                    await iface.write(VectorPixelCommand(x_coord=4, y_coord=4, dwell=1).message)
-                    await iface.write(VectorPixelCommand(x_coord=16380, y_coord=16380, dwell=1).message)
-                    await iface.write(VectorPixelCommand(x_coord=4, y_coord=16380, dwell=1).message)
-                    await iface.write(VectorPixelCommand(x_coord=16380, y_coord=4, dwell=1).message)
+                    await iface.write(VectorPixelCommand(x_coord=4, y_coord=4, dwell_time=1))
+                    await iface.write(VectorPixelCommand(x_coord=16380, y_coord=16380, dwell_time=1))
+                    await iface.write(VectorPixelCommand(x_coord=4, y_coord=16380, dwell_time=1))
+                    await iface.write(VectorPixelCommand(x_coord=16380, y_coord=4, dwell_time=1))
             
             @applet_simulation_test("setup_x_loopback")
             async def test_loopback_vector(self):
                 iface = await self.run_simulated_applet()
-                await iface.write(SynchronizeCommand(output=OutputMode.SixteenBit, raster=False, cookie=123*256+234).message)
-                await iface.write(FlushCommand().message)
+                await iface.write(SynchronizeCommand(output=OutputMode.SixteenBit, raster=False, cookie=123*256+234))
+                await iface.write(FlushCommand())
                 self.assertEqual(await iface.read(4), bytes([0xFF, 0xFF, 123, 234])) # FF, FF, cookie
                 # await iface.flush()
                 commands = bytearray()
                 for n in range(10):
-                    await iface.write(VectorPixelCommand(x_coord=n, y_coord=n, dwell=1).message)
+                    await iface.write(VectorPixelCommand(x_coord=n, y_coord=n, dwell_time=1))
                 res = array.array('H',[x for x in range(10)])
                 res.byteswap()
                 self.assertEqual(await iface.read(20), bytes(res))
@@ -1043,40 +823,40 @@ class OBIAppletTestCase(unittest.TestCase):
             @applet_simulation_test("setup_test", args=["--pin-ext-ibeam-scan-enable", "0", "--pin-ext-ibeam-scan-enable-2", "1"])
             async def test_vector_blank(self):
                 iface = await self.run_simulated_applet()
-                await iface.write(SynchronizeCommand(cookie=4, output=2, raster=0).message)
-                await iface.write(BlankCommand().message)
-                await iface.write(ExternalCtrlCommand(enable=True).message)
-                await iface.write(BeamSelectCommand(beam_type=BeamType.Ion).message)
-                await iface.write(DelayCommand(delay=10).message)
-                await iface.write(BlankCommand(enable=False).message)
+                await iface.write(SynchronizeCommand(cookie=4, output=2, raster=0))
+                await iface.write(BlankCommand(enable=True, inline=False))
+                await iface.write(ExternalCtrlCommand(enable=True))
+                await iface.write(BeamSelectCommand(beam_type=BeamType.Ion))
+                await iface.write(DelayCommand(delay=10))
+                await iface.write(BlankCommand(enable=False, inline=False))
                 for n in range(1,3):
-                    await iface.write(VectorPixelCommand(x_coord=n, y_coord=n, dwell=1).message)
-                await iface.write(VectorPixelCommand(x_coord=7, y_coord=7, dwell=3).message)
-                await iface.write(BlankCommand(enable=True).message)
-                await iface.write(DelayCommand(delay=3).message)
-                await iface.write(BlankCommand(enable=False).message)
-                await iface.write(VectorPixelCommand(x_coord=1, y_coord=1, dwell=1).message)
-                await iface.write(BlankCommand(enable=True).message)
-                await iface.write(SynchronizeCommand(cookie=4, output=2, raster=0).message)
+                    await iface.write(VectorPixelCommand(x_coord=n, y_coord=n, dwell_time=1))
+                await iface.write(VectorPixelCommand(x_coord=7, y_coord=7, dwell_time=3))
+                await iface.write(BlankCommand(enable=True, inline=False))
+                await iface.write(DelayCommand(delay=3))
+                await iface.write(BlankCommand(enable=False, inline=False))
+                await iface.write(VectorPixelCommand(x_coord=1, y_coord=1, dwell_time=1))
+                await iface.write(BlankCommand(enable=True, inline=False))
+                await iface.write(SynchronizeCommand(cookie=4, output=2, raster=0))
                 await iface.read(6)
 
 
             @applet_simulation_test("setup_x_loopback", args=["--out_only"])
             async def test_vector_delay(self):
                 iface = await self.run_simulated_applet()
-                await iface.write(VectorPixelCommand(x_coord=1, y_coord=1, dwell=6).message)
-                await iface.write(InlineDelayCommand(delay=2).message)
-                await iface.write(VectorPixelCommand(x_coord=2, y_coord=2, dwell=6).message)
-                await iface.write(InlineDelayCommand(delay=3).message)
-                await iface.write(VectorPixelCommand(x_coord=3, y_coord=3, dwell=6).message)
-                await iface.write(InlineDelayCommand(delay=4).message)
-                await iface.write(VectorPixelCommand(x_coord=4, y_coord=4, dwell=6).message)
-                await iface.write(InlineDelayCommand(delay=5).message)
-                await iface.write(VectorPixelCommand(x_coord=5, y_coord=5, dwell=6).message)
-                await iface.write(InlineDelayCommand(delay=6).message)
-                await iface.write(VectorPixelCommand(x_coord=6, y_coord=6, dwell=6).message)
-                await iface.write(InlineDelayCommand(delay=7).message)
-                await iface.write(SynchronizeCommand(cookie=4, output=2, raster=0).message)
+                await iface.write(VectorPixelCommand(x_coord=1, y_coord=1, dwell_time=6))
+                await iface.write(InlineDelayCommand(delay=2))
+                await iface.write(VectorPixelCommand(x_coord=2, y_coord=2, dwell_time=6))
+                await iface.write(InlineDelayCommand(delay=3))
+                await iface.write(VectorPixelCommand(x_coord=3, y_coord=3, dwell_time=6))
+                await iface.write(InlineDelayCommand(delay=4))
+                await iface.write(VectorPixelCommand(x_coord=4, y_coord=4, dwell_time=6))
+                await iface.write(InlineDelayCommand(delay=5))
+                await iface.write(VectorPixelCommand(x_coord=5, y_coord=5, dwell_time=6))
+                await iface.write(InlineDelayCommand(delay=6))
+                await iface.write(VectorPixelCommand(x_coord=6, y_coord=6, dwell_time=6))
+                await iface.write(InlineDelayCommand(delay=7))
+                await iface.write(SynchronizeCommand(cookie=4, output=2, raster=0))
                 await iface.read(4)
                 
             
