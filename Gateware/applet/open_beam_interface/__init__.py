@@ -11,9 +11,7 @@ from amaranth.lib.wiring import In, Out, flipped
 
 from glasgow.support.logging import dump_hex
 from glasgow.support.endpoint import ServerEndpoint
-#from .base_commands import Command, CmdType, BeamType, RasterRegion, OutputMode, Transforms, DwellTime
-from .base_commands3 import Command, CmdType, BeamType, OutputMode
-from .base_commands import Transforms
+from .base_commands import Command, CmdType, BeamType, OutputMode
 
 # Overview of (linear) processing pipeline:
 # 1. PC software (in: user input, out: bytes)
@@ -327,7 +325,10 @@ class FastBusController(wiring.Component):
 
         return m
 #=========================================================================
-
+class Transforms(data.Struct):
+    xflip: 1
+    yflip: 1
+    rotate90: 1
 class Flippenator(wiring.Component):
     transforms: In(Transforms)
     in_stream: In(StreamSignature(SuperDACStream))
@@ -583,7 +584,7 @@ class CommandParser(wiring.Component):
                 with m.If(self.command.type == CmdType.Array):
                         m.d.sync += self.command_reg.type.eq(self.command.payload.array.cmdtype)
                         m.d.sync += self.command_reg.as_value()[4:].eq(0)
-                        m.d.sync += array_length.eq(self.command.payload.array.length)
+                        m.d.sync += array_length.eq(self.command.payload.array.array_length)
                         goto_first_deserialized_state(from_type=self.command.payload.array.cmdtype)
                 with m.Else():
                     with m.If(self.cmd_stream.ready):
@@ -683,8 +684,8 @@ class CommandExecutor(wiring.Component):
                 m.d.sync += next_blank_enable.eq(async_blank.enable)
                 m.d.sync += async_blank.request.eq(0)
 
-        run_length = Signal.like(command.payload.raster_pixel_run.length)
         raster_region = Signal.like(command.payload.raster_region.roi)
+        run_length = Signal.like(command.payload.raster_pixel_run.length)
         m.d.comb += [
             self.raster_scanner.roi_stream.payload.eq(raster_region),
             #vector_stream.payload.eq(command.payload.vector_pixel.payload.dac_stream)
@@ -793,6 +794,17 @@ class CommandExecutor(wiring.Component):
                                 m.next = "Fetch"
                             with m.Else():
                                 m.d.sync += run_length.eq(run_length + 1)
+                    
+                    with m.Case(CmdType.RasterPixelFill):
+                        m.d.comb += [
+                            self.raster_scanner.dwell_stream.valid.eq(1),
+                            self.raster_scanner.dwell_stream.payload.dwell_time.eq(command.payload.raster_pixel_run.dwell_time),
+                            self.raster_scanner.dwell_stream.payload.blank.eq(sync_blank)
+                        ]
+                        with m.If(self.raster_scanner.dwell_stream.ready):
+                            m.d.comb += submit_pixel.eq(1)
+                            with m.If(self.raster_scanner.roi_stream.ready):
+                                m.next = "Fetch"
 
                     with m.Case(CmdType.RasterPixelFreeRun):
                         m.d.comb += [
