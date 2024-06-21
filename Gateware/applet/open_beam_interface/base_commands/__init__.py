@@ -257,7 +257,7 @@ class RasterPixelRunCommand(BaseCommand):
             append_command(pixel_count)
             yield(commands, pixel_count)
 
-print(bytes(RasterPixelRunCommand(dwell_time=1, length=131072)))
+#print(bytes(RasterPixelRunCommand(dwell_time=1, length=131072)))
 
 class RasterPixelsCommand:
     def __init__(self, dwells: list):
@@ -297,6 +297,54 @@ class RasterPixelsCommand:
             append_command(chunk)
             yield (commands, pixel_count)
 
+from abc import ABCMeta, abstractmethod
+
+# class Pixel(array.array, metaclass = ABCMeta):
+#     def __init__(self):
+#         self.data = data
+#     @abstractmethod
+#     def dwell(self):
+#         ...
+
+# class RasterPixel(Pixel):
+#     def dwell(self):
+#         return self.data
+
+# class VectorPixel(Pixel):
+#     def dwell(self):
+
+class IterPixels:
+    def __init__(self, *, dwells, latency=65536):
+        self.dwells = dwells
+        self.latency = latency
+        self._pixel_count = 0
+        self._total_dwell = 0
+        self._commands = bytearray()
+        self._chunk = array.array('H')
+    def __iter__(self):
+        return self
+    def append_command(self):
+        cmd = ArrayCommand(cmdtype = CmdType.RasterPixel, array_length=len(self._chunk))
+        self._commands.extend(bytes(cmd))
+        if not BIG_ENDIAN: # there is no `array.array('>H')`
+            self._chunk.byteswap()
+        self._commands.extend(self._chunk.tobytes())
+    def __next__(self):
+        for pixel in self.dwells:
+            self._chunk.append(pixel)
+            self._pixel_count += 1
+            self._total_dwell += pixel
+            if len(self._chunk) == 0xffff or self._total_dwell >= self.latency:
+                self.append_command()
+                del self._chunk[:] # clear
+            if self._total_dwell >= self.latency:
+                return(self._commands, self._pixel_count)
+                self._commands = bytearray()
+                self._pixel_count = 0
+                self._total_dwell = 0
+
+n = IterPixels(dwells = [1,2,3,4,5]*100000, latency=10)
+print(next(n))
 
 #print(bytes(RasterPixelsCommand(dwells = [1,2,3,4,5]*100000)))
 
@@ -310,6 +358,45 @@ class VectorPixelCommand(BaseCommand):
             return VectorPixelMinDwellCommand.pack(**kwargs)
         else:
             return super().pack(**kwargs)
+
+import itertools
+class IterVectorPixels(IterPixels):
+    def __init__(self, *, points, latency=65536):
+        self.dwells = itertools.batched(points, 3)
+        self.latency = latency
+        self._pixel_count = 0
+        self._total_dwell = 0
+        self._commands = bytearray()
+        self._chunk = array.array('H')
+    def __iter__(self):
+        return self
+    def append_command(self):
+        if len(self._chunk)==3:
+            x_coord, y_coord, dwell_time = self._chunk
+            cmd = VectorPixelCommand(x_coord = x_coord, y_coord=y_coord, dwell_time=dwell_time)
+            self._commands.extend(bytes(cmd))
+        else:
+            cmd = ArrayCommand(cmdtype = CmdType.VectorPixel, array_length=len(self._chunk)//3)
+            self._commands.extend(bytes(cmd))
+            if not BIG_ENDIAN: # there is no `array.array('>H')`
+                self._chunk.byteswap()
+            self._commands.extend(self._chunk.tobytes())
+    # def __next__(self):
+    #     for x, y, dwell in self.points:
+    #         self._chunk.extend(array.array("H", [x, y, dwell]))
+    #         self._pixel_count += 1
+    #         self._total_dwell += dwell
+    #         if len(self._chunk) == 0xffff or self._total_dwell >= self.latency:
+    #             self.append_command()
+    #             del self._chunk[:] # clear
+    #         if self._total_dwell >= self.latency:
+    #             return(self._commands, self._pixel_count)
+    #             self._commands = bytearray()
+    #             self._pixel_count = 0
+    #             self._total_dwell = 0
+
+m = IterVectorPixels(points=[1, 2, 3]*(16384*16384), latency=100)
+print(next(m))
 
 
 class VectorPixelMinDwellCommand(BaseCommand):

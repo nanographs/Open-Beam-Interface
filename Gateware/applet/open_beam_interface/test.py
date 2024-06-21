@@ -353,6 +353,7 @@ class OBIAppletTestCase(unittest.TestCase):
         
         test_raster_pixels_cmd()
 
+
     def test_command_executor_individual(self):
         dut = CommandExecutor()
 
