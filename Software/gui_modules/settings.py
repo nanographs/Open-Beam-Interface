@@ -41,7 +41,7 @@ class SettingBoxWithDefaults(QGridLayout):
         else:
             self.spinbox.hide()
 
-class ResolutionSetting(QHBoxLayout):
+class ResolutionSetting(QVBoxLayout):
     def __init__(self, name, initial_val, defaults=["Custom"]):
         super().__init__()
         self.name = name
@@ -95,7 +95,7 @@ class ResolutionSetting(QHBoxLayout):
         self.dropdown.setEnabled(True)
 
 
-class DwellSetting(QHBoxLayout):
+class DwellSetting(QVBoxLayout):
     def __init__(self, name, initial_val, defaults=["Custom"]):
         super().__init__()
         self.name = name
@@ -161,7 +161,7 @@ class SettingBox(QHBoxLayout):
         self.spinbox.setValue(val)
 
 
-class ImageSettings(QHBoxLayout):
+class ImageSettings(QVBoxLayout):
     def __init__(self, name:str, default_res=1024, res_options=["512", "1024"], default_dwell=2, dwell_options=["1","2", "4", "8", "16", "32"]):
         super().__init__()
         self.res = ResolutionSetting(name, default_res, res_options + ["Custom"])
@@ -179,7 +179,7 @@ class ImageSettings(QHBoxLayout):
         d = self.dwell.getval()
         return x, y, d
 
-class BeamSettings(QHBoxLayout):
+class BeamSettings(QVBoxLayout):
     def __init__(self, conn):
         super().__init__()
         self.conn = conn

@@ -62,7 +62,7 @@ def si_prefix(distance:float):
     else:
         return f"{distance:.5f} m"
 
-class ImageData(QHBoxLayout):
+class ImageData(QVBoxLayout):
     def __init__(self):
         super().__init__()
         self.mag = SettingBox("Magnification",1, 1000000, 1)
@@ -73,7 +73,7 @@ class ImageData(QHBoxLayout):
         self.measure_length = QLabel("      ")
         self.addWidget(self.measure_length)
 
-class SaveSettings(QHBoxLayout):
+class SaveSettings(QVBoxLayout):
     def __init__(self):
         super().__init__()
         cwd = os.getcwd()
@@ -102,7 +102,7 @@ class DebugSettings(QHBoxLayout):
         self.addWidget(self.interrupt_btn)
 
 
-class Window(QVBoxLayout):
+class Window(QHBoxLayout):
     def __init__(self,debug=False):
         super().__init__()
         self.debug = debug
@@ -129,14 +129,18 @@ class Window(QVBoxLayout):
         
         self.live_settings.save_btn.clicked.connect(self.save_image)
         self.image_display = ImageDisplay(512,512)
-        self.addWidget(self.image_display)
         self.dir_path = os.getcwd()
         self.image_data = ImageData()
-        self.addLayout(self.image_data)
+        #self.addLayout(self.image_data)
+        combined_settings.addLayout(self.image_data)
         self.image_data.measure_btn.clicked.connect(self.toggle_measure)
         self.save_settings = SaveSettings()
         self.save_settings.file_btn.clicked.connect(self.file_dialog)
-        self.addLayout(self.save_settings)
+        #self.addLayout(self.save_settings)
+        combined_settings.addLayout(self.save_settings)
+
+        self.addWidget(self.image_display)
+
         if self.debug:
             self.debug_settings = DebugSettings()
             self.addLayout(self.debug_settings)
