@@ -372,6 +372,38 @@ class Command(data.Struct):
             {f"{cmd.fieldstr}_{state}":offset for state, offset in cmd.bytelayout.as_deserialized_states().items()} 
             for cmd in all_commands}
 
+
+# class DwellTimeVal(int):
+#     '''Dwell time is measured in units of ADC cycles.
+#         One DwellTime = 125 ns'''
+#     def __init__(self, value):
+#         assert value <= 65536, f"Pixel dwell time {value} is higher than 65536. Dwell times are limited to 16 bit values"
+#         self.value = value - 1 #Dwell time counter is 0-indexed
+
+
+class CommandSequence:
+    def __init__(self, sync:bool=True, cookie: int=123, output: OutputMode=OutputMode.SixteenBit, raster:bool=False,
+                verbose:bool=False):
+        self._bytes = bytearray()
+        self._output = output
+        self._raster = raster
+        self.verbose = verbose
+        if sync:
+            self.extend(SynchronizeCommand(cookie=cookie, output=output, raster=raster))
+    def extend(self, other: BaseCommand, verbose:bool=False):
+        if self.verbose:
+            print(f"adding {other!r}")
+        try:
+            self._bytes.extend(bytes(other))
+        except TypeError:
+            raise TypeError("Command syntax error. Did you use 'command' instead of 'command()'?")
+        #self._response.extend(other.response)
+    def __bytes__(self):
+        return bytes(self._bytes)
+    def __len__(self):
+        return len(bytes(self))
+
+
 ##### test / simulation
 
 def test_speed():
