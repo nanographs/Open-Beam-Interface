@@ -2,7 +2,7 @@ from PyQt6.QtWidgets import (QLabel, QGridLayout, QApplication, QWidget,
                              QSpinBox, QComboBox, QHBoxLayout, QVBoxLayout, QPushButton)
 import qasync
 from qasync import asyncSlot, asyncClose, QApplication, QEventLoop
-from ..stream_interface import BeamType, StreamBeamSelectCommand, StreamExternalCtrlCommand, StreamBlankCommand
+from ..stream_interface2 import BeamType, StreamBeamSelectCommand, StreamExternalCtrlCommand, StreamBlankCommand
 
 
 class SettingBoxWithDefaults(QGridLayout):

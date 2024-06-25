@@ -502,6 +502,7 @@ class BenchmarkTransfer(StreamCommand):
             commands.extend(VectorPixelCommand(x_coord=16383, y_coord=0, dwell=1).message)
             print(f"{len(commands)=}")
         length = len(commands)
+        
         pixel_count = int(length/7)
         while True:
             begin = time.time()
