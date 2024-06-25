@@ -129,18 +129,30 @@ class ByteLayout(CommandLayout):
 ##### start commands
 
 class BaseCommand:
+    """
+    A command
+
+    Attributes
+    ----------
+    cmdtype
+    fieldstr
+    pack_fn
+    """
     bitlayout = BitLayout({})
     bytelayout = ByteLayout({})
     def __init_subclass__(cls):
         assert (not field in cls.bitlayout.keys() for field in cls.bytelayout.keys()), f"Name collision: {field}"
         name_str = cls.__name__.removesuffix("Command")
         cls.cmdtype = CmdType[name_str] #SynchronizeCommand -> CmdType["Synchronize"]
-        cls.fieldstr = "".join([name_str[0].lower()] + ['_'+i.lower() if i.isupper() else i for i in name_str[1:]])  #SynchronizeCommand -> "synchronize"
+        cls.fieldstr = "".join([name_str[0].lower()] + ['_'+i.lower() if i.isupper() 
+                                else i for i in name_str[1:]])  #RasterPixelCommand -> "raster_pixel"
         header_funcstr = cls.bitlayout.pack_fn(cls.cmdtype) ## bitwise operations code
         cls.pack_fn = staticmethod(cls.bytelayout.pack_fn(header_funcstr)) ## struct.pack code
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
     def __bytes__(self):
+        """return bytes
+        """
         return self.pack_fn(vars(self))
     def __len__(self):
         return len(bytes(self))
@@ -148,9 +160,18 @@ class BaseCommand:
         return f"{type(self).__name__}: {vars(self)}"
     @classmethod
     def as_struct_layout(cls):
+        """Convert to Amaranth data.Struct
+        Returns
+        -------
+        :class: data.Struct
+        """
         return data.StructLayout({**cls.bitlayout.as_struct_layout(), **cls.bytelayout.as_struct_layout()})
-
     def pack_dict(self):
+        """Convert to nested dictionary of field names:values
+        Returns
+        -------
+        :class: dict
+        """
         return {"type": self.cmdtype, 
                 "payload": {self.fieldstr: 
                     {**self.bitlayout.pack_dict(vars(self)), **self.bytelayout.pack_dict(vars(self))}}}
