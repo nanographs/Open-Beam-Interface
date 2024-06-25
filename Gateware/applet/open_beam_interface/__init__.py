@@ -1286,9 +1286,7 @@ class OBIApplet(GlasgowApplet):
             await iface.flush()
             await iface.read(4)
             print("synchronized!")
-            #commands = bytearray()
-            # high = VectorPixelCommand(x_coord=0, y_coord=16383, dwell=1).message
-            # low = VectorPixelCommand(x_coord=16383, y_coord=0, dwell=1).message
+
             commands = CommandSequence(sync=False)
             high = VectorPixelCommand(x_coord=0, y_coord=16383, dwell_time=1)
             low = VectorPixelCommand(x_coord=16383, y_coord=0, dwell_time=1)

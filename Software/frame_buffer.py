@@ -7,7 +7,10 @@ import logging
 import tifffile
 
 from base_commands import DACCodeRange, BeamType
-from .stream_interface import RasterScanCommand, RasterFreeScanCommand, setup_logging, RelayExternalCtrlCommand, StreamBlankCommand
+#from .stream_interface import RasterScanCommand, RasterFreeScanCommand, setup_logging, RelayExternalCtrlCommand, StreamBlankCommand
+
+from .stream_interface2 import RasterScanCommand, setup_logging, RelayExternalCtrlCommand, StreamBlankCommand
+
 
 from .tiff_export import draw_scalebar
 

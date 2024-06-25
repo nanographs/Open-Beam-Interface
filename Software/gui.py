@@ -13,7 +13,7 @@ from PyQt6.QtWidgets import (QHBoxLayout, QMainWindow,
 import qasync
 from qasync import asyncSlot, asyncClose, QApplication, QEventLoop
 
-from .stream_interface import Connection
+from .stream_interface2 import Connection
 from base_commands import DACCodeRange, BeamType
 from .frame_buffer import FrameBuffer
 from .gui_modules.image_display import ImageDisplay
