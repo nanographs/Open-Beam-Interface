@@ -3,6 +3,12 @@ Commands
 
 .. currentmodule:: base_commands
 
+Base Command
+------------
+
+.. autoclass:: BaseCommand
+
+
 Flow Control
 ------------
 

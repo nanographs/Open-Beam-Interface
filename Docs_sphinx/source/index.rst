@@ -8,10 +8,10 @@ Welcome to Open Beam Interface's documentation!
 
 .. toctree::
    Install
-   Configuration
+   Theory
+   Gateware
+   Software
    Accessory Boards
-   Commands
-
 
 
 Indices and tables

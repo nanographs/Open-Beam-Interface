@@ -28,6 +28,11 @@ extensions = [
     "sphinx_inline_tabs",
 ]
 
+autodoc_default_options = {
+    "members": True
+}
+napoleon_include_special_with_doc = True
+
 templates_path = ['_templates']
 exclude_patterns = []
 
