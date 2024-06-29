@@ -33,7 +33,7 @@ class CmdType(enum.IntEnum, shape=CMD_SHAPE):
     VectorPixel         = 0xe
     VectorPixelMinDwell = 0xf 
 
-class CommandLayout(UserDict):
+class PayloadLayout(UserDict):
     def unpack_apply(self, leaf_func=eval("lambda key, value: value"), 
                         wrap_func=eval("lambda dict: dict")):
         def unpack(from_dict, to_dict):
@@ -72,7 +72,7 @@ class CommandLayout(UserDict):
         return self.unpack_apply(lambda key, value : value_dict[key])
     
 
-class BitLayout(CommandLayout):
+class BitLayout(PayloadLayout):
     bits_per_field = 1
     def as_struct_layout(self):
         struct_dict = super().as_struct_layout()
@@ -95,7 +95,7 @@ STRUCT_FORMATS = {
     1: "B",
     2: "H",
 }
-class ByteLayout(CommandLayout):
+class ByteLayout(PayloadLayout):
     bits_per_field = 8
     def as_struct_layout(self):
         return self.unpack_apply(
@@ -123,12 +123,20 @@ class ByteLayout(CommandLayout):
         return eval(func)
 
 
-
-
-
 ##### start commands
+from abc import ABCMeta, abstractmethod
+class BaseCommand(metaclass = ABCMeta):
+    @abstractmethod
+    def pack(self):
+        ...
+    
+    # @property
+    # @abstractmethod
+    # def pixel_count(self):
+    #     ...
 
-class BaseCommand:
+
+class LowLevelCommand(BaseCommand):
     """
     A command
 
@@ -148,6 +156,14 @@ class BaseCommand:
                                 else i for i in name_str[1:]])  #RasterPixelCommand -> "raster_pixel"
         header_funcstr = cls.bitlayout.pack_fn(cls.cmdtype) ## bitwise operations code
         cls.pack_fn = staticmethod(cls.bytelayout.pack_fn(header_funcstr)) ## struct.pack code
+    @classmethod
+    def as_struct_layout(cls):
+        """Convert to Amaranth data.Struct
+        Returns
+        -------
+        :class: data.Struct
+        """
+        return data.StructLayout({**cls.bitlayout.as_struct_layout(), **cls.bytelayout.as_struct_layout()})
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
     def __bytes__(self):
@@ -158,15 +174,7 @@ class BaseCommand:
         return len(bytes(self))
     def __repr__(self):
         return f"{type(self).__name__}: {vars(self)}"
-    @classmethod
-    def as_struct_layout(cls):
-        """Convert to Amaranth data.Struct
-        Returns
-        -------
-        :class: data.Struct
-        """
-        return data.StructLayout({**cls.bitlayout.as_struct_layout(), **cls.bytelayout.as_struct_layout()})
-    def pack_dict(self):
+    def as_dict(self):
         """Convert to nested dictionary of field names:values
         Returns
         -------
@@ -175,41 +183,44 @@ class BaseCommand:
         return {"type": self.cmdtype, 
                 "payload": {self.fieldstr: 
                     {**self.bitlayout.pack_dict(vars(self)), **self.bytelayout.pack_dict(vars(self))}}}
+    def pack(self):
+        return bytes(self)
 
 class OutputMode(enum.IntEnum, shape = 2):
     SixteenBit          = 0
     EightBit            = 1
     NoOutput            = 2
 
-class SynchronizeCommand(BaseCommand):
+class BeamType(enum.IntEnum, shape = 2):
+    NoBeam              = 0
+    Electron            = 1
+    Ion                 = 2
+
+class SynchronizeCommand(LowLevelCommand):
     bitlayout = BitLayout({"mode": {
             "raster": 1,
             "output": OutputMode
         }})
     bytelayout = ByteLayout({"cookie": 2})
 
-class AbortCommand(BaseCommand):
+class AbortCommand(LowLevelCommand):
     pass
 
-class FlushCommand(BaseCommand):
+class FlushCommand(LowLevelCommand):
     pass
 
-class ExternalCtrlCommand(BaseCommand):
+class ExternalCtrlCommand(LowLevelCommand):
     bitlayout = BitLayout({"enable": 1})
 
-class BeamType(enum.IntEnum, shape = 2):
-    NoBeam              = 0
-    Electron            = 1
-    Ion                 = 2
-
-class BeamSelectCommand(BaseCommand):
+class BeamSelectCommand(LowLevelCommand):
     bitlayout = BitLayout({"beam_type": BeamType})
 
-class BlankCommand(BaseCommand):
+class BlankCommand(LowLevelCommand):
     bitlayout = BitLayout({"enable": 1, "inline": 1})
 
-class DelayCommand(BaseCommand):
+class DelayCommand(LowLevelCommand):
     bytelayout = ByteLayout({"delay": 2})
+
 
 @dataclass
 class DACCodeRange:
@@ -217,7 +228,7 @@ class DACCodeRange:
     count: int # UQ(14,0)
     step:  int # UQ(8,8)
 
-class RasterRegionCommand(BaseCommand):
+class RasterRegionCommand(LowLevelCommand):
     bytelayout = ByteLayout({"roi": {
         "x_start": 2,
         "x_count": 2,
@@ -231,95 +242,20 @@ class RasterRegionCommand(BaseCommand):
         return super().__init__(x_start = x_range.start, x_count = x_range.count, x_step = x_range.step,
                             y_start = y_range.start, y_count = y_range.count, y_step = y_range.step)
 
-class RasterPixelCommand(BaseCommand):
+class RasterPixelCommand(LowLevelCommand):
     bytelayout = ByteLayout({"dwell_time" : 2})
 
-class ArrayCommand(BaseCommand):
+class ArrayCommand(LowLevelCommand):
     bitlayout = BitLayout({"cmdtype": CmdType})
     bytelayout = ByteLayout({"array_length": 2})
 
-class RasterPixelRunCommand(BaseCommand):
+class RasterPixelRunCommand(LowLevelCommand):
     bytelayout = ByteLayout({"length": 2, "dwell_time" : 2})
-    def __bytes__(self):
-        all_commands = bytearray()
-        for commands, pixel_count in self._iter_chunks():
-            all_commands.extend(commands)
-        return bytes(all_commands)
 
-    def _iter_chunks(self, latency=65536*65536):
-        commands = bytearray()
-
-        def append_command(pixel_count):
-            array_count = pixel_count//65536
-            remainder_pixel_count = pixel_count%65536
-            assert array_count < 65536, "can't handle more than 65536x65536 points"
-            print(f"{array_count=}, {remainder_pixel_count=}")
-            if array_count > 0:
-                commands.extend(bytes(ArrayCommand(cmdtype=CmdType.RasterPixelRun, array_length=array_count)))
-                chunk = array.array('H', [self.dwell_time]*array_count)
-                if not BIG_ENDIAN: # there is no `array.array('>H')`
-                    chunk.byteswap()
-                commands.extend(chunk.tobytes())
-            if remainder_pixel_count > 0:
-                commands.extend(self.pack_fn({"dwell_time":self.dwell_time, "length":remainder_pixel_count}))
-
-        pixel_count = 0
-        total_dwell = 0
-        for _ in range(self.length):
-            pixel_count += 1
-            total_dwell += self.dwell_time
-            if total_dwell >= latency:
-                append_command(pixel_count)
-                yield(commands, pixel_count)
-                commands = bytearray()
-                pixel_count = 0
-                total_dwell = 0
-        if pixel_count > 0:
-            append_command(pixel_count)
-            yield(commands, pixel_count)
-
-class RasterPixelArray:
-    def __init__(self, dwells: list):
-        self.dwells = dwells
-    def __bytes__(self):
-        all_commands = bytearray()
-        for commands, pixel_count in self._iter_chunks():
-            all_commands.extend(commands)
-        return bytes(all_commands)
-
-    def _iter_chunks(self, latency=65536*65536):
-        commands = bytearray()
-
-        def append_command(chunk):
-            cmd = ArrayCommand(cmdtype = CmdType.RasterPixel, array_length=len(chunk))
-            commands.extend(bytes(cmd))
-            if not BIG_ENDIAN: # there is no `array.array('>H')`
-                chunk.byteswap()
-            commands.extend(chunk.tobytes())
-
-        chunk = array.array('H')
-        pixel_count = 0
-        total_dwell = 0
-        for pixel in self.dwells:
-            chunk.append(pixel)
-            pixel_count += 1
-            total_dwell += pixel
-            if len(chunk) == 0xffff or total_dwell >= latency:
-                append_command(chunk)
-                del chunk[:] # clear
-            if total_dwell >= latency:
-                yield (commands, pixel_count)
-                commands = bytearray()
-                pixel_count = 0
-                total_dwell = 0
-        if chunk:
-            append_command(chunk)
-            yield (commands, pixel_count)
-
-class RasterPixelFreeRunCommand(BaseCommand):
+class RasterPixelFreeRunCommand(LowLevelCommand):
     bytelayout = ByteLayout({"dwell_time": 2})
 
-class VectorPixelCommand(BaseCommand):
+class VectorPixelCommand(LowLevelCommand):
     bytelayout = ByteLayout({"dac_stream": {"x_coord": 2, "y_coord": 2, "dwell_time": 2}})
     def pack(self, **kwargs):
         if kwargs["dwell_time"] == 0:
@@ -327,8 +263,11 @@ class VectorPixelCommand(BaseCommand):
         else:
             return super().pack(**kwargs)
 
+
+
+
 import itertools
-class VectorPixelArray:
+class VectorPixelArray(BaseCommand):
     def __init__(self, *, points):
         self.dwells = itertools.batched(points, 3)
     def __iter__(self):
@@ -367,7 +306,7 @@ class VectorPixelArray:
             append_command(chunk)
             yield (commands, pixel_count)
 
-class VectorPixelMinDwellCommand(BaseCommand):
+class VectorPixelMinDwellCommand(LowLevelCommand):
     bytelayout = ByteLayout({"dac_stream": {"x_coord": 2, "y_coord": 2}})
 
 all_commands = [SynchronizeCommand, 
@@ -394,16 +333,103 @@ class Command(data.Struct):
             for cmd in all_commands}
 
 
-# class DwellTimeVal(int):
-#     '''Dwell time is measured in units of ADC cycles.
-#         One DwellTime = 125 ns'''
-#     def __init__(self, value):
-#         assert value <= 65536, f"Pixel dwell time {value} is higher than 65536. Dwell times are limited to 16 bit values"
-#         self.value = value - 1 #Dwell time counter is 0-indexed
+#### start macro commands
 
+class RasterScanCommand(BaseCommand):
+    def __init__(self, x_range, y_range, dwell_time):
+        self.x_range = x_range
+        self.y_range = y_range
+        self.dwell_time = dwell_time
+    def pack(self):
+        all_commands = bytearray()
+        for commands, pixel_count in self._iter_chunks():
+            all_commands.extend(commands)
+        return bytes(all_commands)
+
+    def _iter_chunks(self, latency=65536*65536):
+        commands = bytearray()
+
+        def append_command(pixel_count):
+            array_count = pixel_count//65536
+            remainder_pixel_count = pixel_count%65536
+            assert array_count < 65536, "can't handle more than 65536x65536 points"
+            print(f"{array_count=}, {remainder_pixel_count=}")
+            if array_count > 0:
+                commands.extend(bytes(ArrayCommand(cmdtype=CmdType.RasterPixelRun, array_length=array_count)))
+                chunk = array.array('H', [self.dwell_time]*array_count)
+                if not BIG_ENDIAN: # there is no `array.array('>H')`
+                    chunk.byteswap()
+                commands.extend(chunk.tobytes())
+            if remainder_pixel_count > 0:
+                commands.extend(self.pack_fn({"dwell_time":self.dwell_time, "length":remainder_pixel_count}))
+
+        pixel_count = 0
+        total_dwell = 0
+        for _ in range(self.x_range.count * self.y_range.count):
+            pixel_count += 1
+            total_dwell += self.dwell_time
+            if total_dwell >= latency:
+                append_command(pixel_count)
+                yield(commands, pixel_count)
+                commands = bytearray()
+                pixel_count = 0
+                total_dwell = 0
+        if pixel_count > 0:
+            append_command(pixel_count)
+            yield(commands, pixel_count)
+
+class RasterPixelArray(BaseCommand):
+    def __init__(self, dwell_generator):
+        self.dwell_generator = dwell_generator
+    def pack(self):
+        all_commands = bytearray()
+        iter_chunks = self._iter_chunks(self.dwell_generator)
+        iter_chunks.send(None)
+        while True:
+            try:
+                commands, pixel_count = iter_chunks.send(latency)
+            except StopIteration:
+                break
+            
+        return bytes(all_commands)
+    def _iter_chunks(self, dwell_generator):
+        commands = bytearray()
+
+        def append_command(chunk):
+            cmd = ArrayCommand(cmdtype = CmdType.RasterPixel, array_length=len(chunk))
+            commands.extend(bytes(cmd))
+            if not BIG_ENDIAN: # there is no `array.array('>H')`
+                chunk.byteswap()
+            commands.extend(chunk.tobytes())
+
+        chunk = array.array('H')
+        pixel_count = 0
+        total_dwell = 0
+        max_time, max_points = yield
+        while True:
+            try:
+                dwell = next(self.dwell_generator)
+                chunk.append(pixel)
+                pixel_count += 1
+                total_dwell += pixel
+                if len(chunk) == 0xffff or total_dwell >= latency:
+                    append_command(chunk)
+                    del chunk[:] # clear
+                if total_dwell >= latency:
+                    max_time, max_points = yield (commands, pixel_count)
+                    commands = bytearray()
+                    pixel_count = 0
+                    total_dwell = 0
+            except StopIteration:
+                break
+        if chunk:
+            append_command(chunk)
+            yield (commands, pixel_count)
 
 class CommandSequence:
-    def __init__(self, sync:bool=True, cookie: int=123, output: OutputMode=OutputMode.SixteenBit, raster:bool=False,
+    """A sequence of commands
+    """
+    def __init__(self, *, sync:bool=True, cookie: int=123, output: OutputMode=OutputMode.SixteenBit, raster:bool=False,
                 verbose:bool=False):
         self._bytes = bytearray()
         self._output = output
@@ -411,8 +437,14 @@ class CommandSequence:
         self.verbose = verbose
         if sync:
             self.extend(SynchronizeCommand(cookie=cookie, output=output, raster=raster))
-    def extend(self, other: BaseCommand, verbose:bool=False):
-        if self.verbose:
+    def extend(self, other, verbose:bool=False):
+        """
+        Parameters
+        ----------
+        other
+        verbose
+        """
+        if self.verbose | verbose:
             print(f"adding {other!r}")
         try:
             self._bytes.extend(bytes(other))
@@ -435,3 +467,55 @@ def test_speed():
     end = time.time()
     print(f"{end-start:.4f}")
     print(f"{s}")
+
+
+
+
+
+class Stream(metaclass=ABCMeta):
+    @abstractmethod
+    def send():
+        ...
+    def recv():
+        ...
+    def flush():
+        ...
+
+
+class TCPStream(Stream):
+    def __init__(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
+        self._reader = reader
+        self._writer = writer
+        
+    def send(self, data: bytes | bytearray | memoryview):
+        self._writer.write(data)
+
+    async def recv(self, length: int) -> bytearray:
+        buffer = bytearray()
+        remain = length
+        while remain > 0:
+            data = await self._reader.read(remain)
+            if len(data) == 0:
+                raise asyncio.IncompleteReadError
+            remain -= len(data)
+            buffer.extend(data)
+        return buffer
+    
+    async def flush(self):
+        await self._writer.drain()
+
+class GlasgowStream(Stream):
+    def __init__(self, iface):
+        self.lower = iface
+    
+    async def send(self, data: bytes | bytearray | memoryview):
+        await iface.write(data)
+    
+    async def recv(self, length:int) -> bytearray:
+        return bytearray(await iface.read(length))
+    
+    async def flush(self):
+        await iface.flush()
+
+
+        
