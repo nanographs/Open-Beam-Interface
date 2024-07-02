@@ -2,10 +2,10 @@
 # It is not intended for manual editing.
 
 [metadata]
-groups = ["default", "test"]
+groups = ["default"]
 strategy = ["cross_platform", "inherit_metadata"]
 lock_version = "4.4.1"
-content_hash = "sha256:97bc80814c67cd676009b0b2f61a67cb900562ea1167e420f34eb82c95ad9f1c"
+content_hash = "sha256:0dfc8e7f2052fe02616e059dd0d3d8e5f8334cbde48660a49cb27659f9acd7c0"
 
 [[package]]
 name = "alabaster"
@@ -20,13 +20,13 @@ files = [
 
 [[package]]
 name = "amaranth"
-version = "0.6.0.dev26"
+version = "0.5.0.dev13"
 requires_python = "~=3.8"
 git = "https://github.com/amaranth-lang/amaranth"
-ref = "main"
-revision = "eefca8323028a0616d2b50019d119fcf7dd3d200"
+ref = "v0.5.x"
+revision = "abb80b6aa4b2dcb32e3c32356501fc4a3fc7951f"
 summary = "Amaranth hardware definition language"
-groups = ["default", "test"]
+groups = ["default"]
 dependencies = [
     "Jinja2~=3.0",
     "jschon~=0.11.1",
@@ -300,16 +300,16 @@ files = [
 
 [[package]]
 name = "glasgow"
-version = "0.1.dev2029+g987a11e"
+version = "0.1.dev2032+g3635798"
 requires_python = "!=3.10.0,!=3.10.1,!=3.10.2,~=3.9"
 subdirectory = "software"
 git = "https://github.com/isabelburgos/glasgow"
 ref = "main"
-revision = "987a11ede59a37a8b86f2550951ffdaa9e5b2b34"
+revision = "3635798b7af338114910881ae1a58a100aa4c04b"
 summary = "Software for the Glasgow Interface Explorer, a digital interface multitool"
 groups = ["default"]
 dependencies = [
-    "amaranth @ git+https://github.com/amaranth-lang/amaranth@main",
+    "amaranth @ git+https://github.com/amaranth-lang/amaranth@v0.5.x",
     "fx2<1,>=0.11",
     "libusb1>=3.1.0",
     "packaging>=23.0",
@@ -320,13 +320,13 @@ dependencies = [
 
 [[package]]
 name = "glasgow"
-version = "0.1.dev2029"
+version = "0.1.dev2032"
 extras = ["builtin-toolchain"]
 requires_python = "!=3.10.0,!=3.10.1,!=3.10.2,~=3.9"
 subdirectory = "software"
 git = "https://github.com/isabelburgos/glasgow"
 ref = "main"
-revision = "987a11ede59a37a8b86f2550951ffdaa9e5b2b34"
+revision = "3635798b7af338114910881ae1a58a100aa4c04b"
 summary = "Software for the Glasgow Interface Explorer, a digital interface multitool"
 groups = ["default"]
 dependencies = [
@@ -393,7 +393,7 @@ name = "jinja2"
 version = "3.1.4"
 requires_python = ">=3.7"
 summary = "A very fast and expressive template engine."
-groups = ["default", "test"]
+groups = ["default"]
 dependencies = [
     "MarkupSafe>=2.0",
 ]
@@ -407,7 +407,7 @@ name = "jschon"
 version = "0.11.1"
 requires_python = "~=3.8"
 summary = "A JSON toolkit for Python developers."
-groups = ["default", "test"]
+groups = ["default"]
 dependencies = [
     "rfc3986",
 ]
@@ -518,7 +518,7 @@ name = "markupsafe"
 version = "2.1.5"
 requires_python = ">=3.7"
 summary = "Safely add untrusted strings to HTML/XML markup."
-groups = ["default", "test"]
+groups = ["default"]
 files = [
     {file = "MarkupSafe-2.1.5-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:a17a92de5231666cfbe003f0e4b9b3a7ae3afb1ec2845aadc2bacc93ff85febc"},
     {file = "MarkupSafe-2.1.5-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:72b6be590cc35924b02c78ef34b467da4ba07e4e0f0454a2c5907f473fc50ce5"},
@@ -809,7 +809,7 @@ name = "pyvcd"
 version = "0.4.0"
 requires_python = ">=3.7"
 summary = "Python VCD file support"
-groups = ["default", "test"]
+groups = ["default"]
 files = [
     {file = "pyvcd-0.4.0-py2.py3-none-any.whl", hash = "sha256:a21b10e5018b7940c8f2c20ef83d97496e86f15e215afed134ee115166035e17"},
     {file = "pyvcd-0.4.0.tar.gz", hash = "sha256:31be3f501441a9b8c5dc72660ff7b9cfef9b43b2121a23d96f586d2863270290"},
@@ -837,7 +837,7 @@ name = "rfc3986"
 version = "2.0.0"
 requires_python = ">=3.7"
 summary = "Validating URI References per RFC 3986"
-groups = ["default", "test"]
+groups = ["default"]
 files = [
     {file = "rfc3986-2.0.0-py2.py3-none-any.whl", hash = "sha256:50b1502b60e289cb37883f3dfd34532b8873c7de9f49bb546641ce9cbd256ebd"},
     {file = "rfc3986-2.0.0.tar.gz", hash = "sha256:97aacf9dbd4bfd829baad6e6309fa6573aaf1be3f6fa735c8ab05e46cecb261c"},
