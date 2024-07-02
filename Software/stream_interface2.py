@@ -208,15 +208,7 @@ class Connection:
         await self._stream.flush()
 
 
-class StreamCommand(metaclass=ABCMeta):
-    def __init_subclass__(cls, command:BaseCommand):
-        cls._logger = logger.getChild(f"Command.{cls.__name__}")
-        cls.command_cls = command
-    def __init__(self, **kwargs):
-        self.command = self.command_cls(**kwargs)
-    def __repr__(self):
-        return self.command.__repr__()
-
+class StreamCommand(BaseCommand):
     @classmethod
     def log_transfer(cls, transfer):
         if inspect.isasyncgenfunction(transfer):
@@ -245,57 +237,34 @@ class StreamCommand(metaclass=ABCMeta):
                 self._logger.debug(f"end={repr_short}")
         return wrapper
 
-   #@abstractmethod
-    async def transfer(self, stream: Stream, flush=False):
-        stream.send(bytes(self.command))
-        await stream.flush()
-
-    async def recv_res(self, pixel_count, stream: Stream, output_mode:OutputMode):
-        if output_mode == OutputMode.NoOutput:
-                start = perf_counter()
-                await asyncio.sleep(0)
-                stop = perf_counter()
-                self._logger.debug(f"recv_res None: time - {stop-start:.4f}")
-                pass
-        else:
-            if output_mode == OutputMode.SixteenBit:
-                start = perf_counter()
-                res = array.array('H', await stream.recv(pixel_count * 2))
-                if not BIG_ENDIAN:
-                    res.byteswap()
-                stop = perf_counter()
-                self._logger.debug(f"recv_res 16: time - {stop-start:.4f}")
-                await asyncio.sleep(0)
-                sleep = perf_counter()
-                self._logger.debug(f"recv_res sleep: time - {sleep-stop:.4f}")
-                return res
-            if output_mode == OutputMode.EightBit:
-                start = perf_counter()
-                res = array.array('B', await stream.recv(pixel_count))
-                stop = perf_counter()
-                self._logger.debug(f"recv_res 8: time - {stop-start:.4f}")
-                await asyncio.sleep(0)
-                sleep = perf_counter()
-                self._logger.debug(f"recv_res sleep: time - {sleep-stop:.4f}")
-                return res
-
-class StreamSynchronizeCommand(StreamCommand, command=SynchronizeCommand):
-    pass
-
-class StreamExternalCtrlCommand(StreamCommand, command=ExternalCtrlCommand):
-    pass
-
-class StreamDelayCommand(StreamCommand, command=DelayCommand):
-    pass
-
-class StreamBeamSelectCommand(StreamCommand, command=BeamSelectCommand):
-    pass
-
-class StreamBlankCommand(StreamCommand, command=BlankCommand):
-    pass
-
-class StreamRasterRegionCommand(StreamCommand, command=RasterRegionCommand):
-    pass
+    # async def recv_res(self, pixel_count, stream: Stream, output_mode:OutputMode):
+    #     if output_mode == OutputMode.NoOutput:
+    #             start = perf_counter()
+    #             await asyncio.sleep(0)
+    #             stop = perf_counter()
+    #             self._logger.debug(f"recv_res None: time - {stop-start:.4f}")
+    #             pass
+    #     else:
+    #         if output_mode == OutputMode.SixteenBit:
+    #             start = perf_counter()
+    #             res = array.array('H', await stream.recv(pixel_count * 2))
+    #             if not BIG_ENDIAN:
+    #                 res.byteswap()
+    #             stop = perf_counter()
+    #             self._logger.debug(f"recv_res 16: time - {stop-start:.4f}")
+    #             await asyncio.sleep(0)
+    #             sleep = perf_counter()
+    #             self._logger.debug(f"recv_res sleep: time - {sleep-stop:.4f}")
+    #             return res
+    #         if output_mode == OutputMode.EightBit:
+    #             start = perf_counter()
+    #             res = array.array('B', await stream.recv(pixel_count))
+    #             stop = perf_counter()
+    #             self._logger.debug(f"recv_res 8: time - {stop-start:.4f}")
+    #             await asyncio.sleep(0)
+    #             sleep = perf_counter()
+    #             self._logger.debug(f"recv_res sleep: time - {sleep-stop:.4f}")
+    #             return res
 
 
 # Scan Selector board uses TE 1462051-2 Relay
@@ -319,7 +288,7 @@ class RelayExternalCtrlCommand:
         await stream.flush()
 
 
-class StreamRasterPixelRunCommand(StreamCommand, command = RasterPixelRunCommand):
+class StreamRasterPixelRunCommand(StreamCommand):
     @StreamCommand.log_transfer
     async def transfer(self, stream: Stream, latency: int, output_mode:OutputMode=OutputMode.SixteenBit):
         MAX_PIPELINE = 32
@@ -332,13 +301,13 @@ class StreamRasterPixelRunCommand(StreamCommand, command = RasterPixelRunCommand
             for commands, pixel_count in self.command._iter_chunks(latency):
                 self._logger.debug(f"sender: tokens={tokens}")
                 if tokens == 0:
-                    stream.send(FlushCommand())
+                    stream.send(bytes(FlushCommand()))
                     await stream.flush()
                     await token_fut
                 stream.send(commands)
                 tokens -= 1
                 await asyncio.sleep(0)
-            stream.send(FlushCommand())
+            stream.send(bytes(FlushCommand()))
             await stream.flush()
         asyncio.create_task(sender())
 
@@ -351,7 +320,7 @@ class StreamRasterPixelRunCommand(StreamCommand, command = RasterPixelRunCommand
             yield await self.recv_res(pixel_count, stream, output_mode)
 
 
-class RasterScanCommand:
+class RasterScanCommand(StreamCommand):
     def __init__(self, *, cookie: int, x_range: DACCodeRange, y_range: DACCodeRange, dwell: int):
         self._cookie  = cookie
         self._x_range = x_range
@@ -361,12 +330,12 @@ class RasterScanCommand:
     def __repr__(self):
         return f"RasterScanCommand(cookie={self._cookie}, x_range={self._x_range}, y_range={self._y_range}, dwell={self._dwell}>)"
 
-    #@StreamCommand.log_transfer
+    @StreamCommand.log_transfer
     async def transfer(self, stream: Stream, latency: int):
-        await StreamSynchronizeCommand(cookie=self._cookie, raster=True).transfer(stream)
+        await StreamSynchronizeCommand(cookie=self._cookie, raster=True, output=OutputMode.EightBit).transfer(stream)
         await StreamRasterRegionCommand(x_range=self._x_range, y_range=self._y_range).transfer(stream)
         total, done = self._x_range.count * self._y_range.count, 0
-        async for chunk in StreamRasterPixelRunCommand(dwell=self._dwell, length=total).transfer(stream, latency):
+        async for chunk in StreamRasterPixelRunCommand(dwell_time=self._dwell, length=total).transfer(stream, latency):
             yield chunk
             done += len(chunk)
             self._logger.debug(f"{total=} {done=}")
