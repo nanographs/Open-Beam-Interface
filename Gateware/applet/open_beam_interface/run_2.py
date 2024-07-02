@@ -26,7 +26,7 @@ access_args = DirectArguments(applet_name="open_beam_interface",
                             default_port="AB",
                             pin_count=16)
 OBIApplet.add_build_arguments(parser, access_args)
-OBIApplet.add_interact_arguments(parser)
+#OBIApplet.add_interact_arguments(parser)
 
 
 args = parser.parse_args()
@@ -46,6 +46,9 @@ if args.config_path != None:
         for transform, setting in transforms.items():
             setattr(args, transform, setting)
 
+from .base_commands import *
+from .base_commands.transfer2 import GlasgowStream, GlasgowConnection
+
 async def main():
     device = GlasgowHardwareDevice()
     await device.set_voltage("AB", 5.0)
@@ -60,6 +63,11 @@ async def main():
     await device.download_target(plan)
     print("build plan downloaded")
     iface = await applet.run(device, args)
+    conn = GlasgowConnection()
+    stream = GlasgowStream(iface)
+    conn.connect(stream)
+    await conn._synchronize()
+
 
 def run():
     asyncio.run(main())

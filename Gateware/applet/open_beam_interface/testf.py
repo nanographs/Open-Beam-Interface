@@ -1,3 +1,4 @@
+
 class Context:
     def __enter__(self):
         print("Entering")
