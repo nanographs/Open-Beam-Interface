@@ -99,7 +99,6 @@ class Connection:
         print(f'Scan interrupted externally')
         self._interrupt.set()
 
-
     async def _synchronize(self):
         if not self.connected:
             await self._connect()
@@ -112,7 +111,6 @@ class Connection:
 
         seq = CommandSequence(cookie=cookie, output=OutputMode.SixteenBit, raster=False)
         seq.extend(FlushCommand())
-        #res = SynchronizeCommand(cookie=cookie, output=OutputMode.SixteenBit, raster=False).byte_response
         res = struct.pack(">HH", 65535, cookie)
         self._stream.send(bytes(seq))
         while True:
