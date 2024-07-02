@@ -300,12 +300,12 @@ files = [
 
 [[package]]
 name = "glasgow"
-version = "0.1.dev2027+g2b08c76"
+version = "0.1.dev2029+g987a11e"
 requires_python = "!=3.10.0,!=3.10.1,!=3.10.2,~=3.9"
 subdirectory = "software"
 git = "https://github.com/isabelburgos/glasgow"
 ref = "main"
-revision = "2b08c76a9c36b68e2ead058303654949a71a5947"
+revision = "987a11ede59a37a8b86f2550951ffdaa9e5b2b34"
 summary = "Software for the Glasgow Interface Explorer, a digital interface multitool"
 groups = ["default"]
 dependencies = [
@@ -320,13 +320,13 @@ dependencies = [
 
 [[package]]
 name = "glasgow"
-version = "0.1.dev2027"
+version = "0.1.dev2029"
 extras = ["builtin-toolchain"]
 requires_python = "!=3.10.0,!=3.10.1,!=3.10.2,~=3.9"
 subdirectory = "software"
 git = "https://github.com/isabelburgos/glasgow"
 ref = "main"
-revision = "2b08c76a9c36b68e2ead058303654949a71a5947"
+revision = "987a11ede59a37a8b86f2550951ffdaa9e5b2b34"
 summary = "Software for the Glasgow Interface Explorer, a digital interface multitool"
 groups = ["default"]
 dependencies = [
