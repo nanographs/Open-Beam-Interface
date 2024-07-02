@@ -1,0 +1,70 @@
+from abc import abstractmethod, ABCMeta
+import asyncio
+
+import logging
+logger = logging.getLogger()
+from . import *
+
+
+class TransferError(Exception):
+    pass
+
+class Stream(metaclass = ABCMeta):
+    #_logger = logger.getChild("Stream")
+    @abstractmethod
+    async def write(self, data: bytes | bytearray | memoryview):
+        ...
+    @abstractmethod
+    async def flush(self):
+        ...
+    @abstractmethod
+    async def read(self, length: int) -> memoryview:
+        ...
+    @abstractmethod
+    async def readuntil(self, sep:bytes) -> memoryview:
+        ...
+
+class Connection(metaclass = ABCMeta):
+    def __init__(self):
+        self._stream = None
+        self._synchronized = False
+        self._next_cookie = random.randrange(0, 0x10000, 2) # even cookies only
+    
+    @property
+    def connected(self):
+        """`True` if the connection with the instrument is open, `False` otherwise."""
+        return self._stream is not None
+
+    @property
+    def synchronized(self):
+        """`True` if the instrument is ready to accept commands, `False` otherwise."""
+        return self._synchronized
+    
+    @abstractmethod
+    async def _connect(self):
+        ...
+    
+    def _disconnect(self):
+        assert self.connected
+        self._stream = None
+        self._synchronized = False
+    
+    async def _synchronize(self):
+        ...
+    
+    def _handle_incomplete_read(self, exc):
+        self._disconnect()
+        raise TransferError("connection closed") from exc
+
+    def get_cookie(self):
+        cookie, self._next_cookie = self._next_cookie + 1, self._next_cookie + 2 # odd cookie
+        self._logger.debug(f"allocating cookie {cookie:#06x}")
+        return cookie
+    
+    async def transfer(self, command: BaseCommand, **kwargs):
+        self._logger.debug(f"transfer {command!r}")
+        try:
+            await self._synchronize() # may raise asyncio.IncompleteReadError
+            return await command.transfer(self._stream, **kwargs)
+        except asyncio.IncompleteReadError as e:
+            self._handle_incomplete_read(e)

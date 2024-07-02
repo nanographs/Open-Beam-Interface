@@ -125,11 +125,36 @@ class ByteLayout(PayloadLayout):
 
 ##### start commands
 from abc import ABCMeta, abstractmethod
+
+class OutputMode(enum.IntEnum, shape = 2):
+    SixteenBit          = 0
+    EightBit            = 1
+    NoOutput            = 2
 class BaseCommand(metaclass = ABCMeta):
     @abstractmethod
     def pack(self):
         ...
     
+    async def transfer(self, stream, flush=False):
+        await stream.write(bytes(self))
+        if flush:
+            await stream.flush()
+    
+    async def recv_res(self, pixel_count, stream, output_mode:OutputMode):
+        if output_mode == OutputMode.NoOutput:
+                await asyncio.sleep(0)
+                pass
+        else:
+            if output_mode == OutputMode.SixteenBit:
+                res = array.array('H', await stream.read(pixel_count * 2))
+                if not BIG_ENDIAN:
+                    res.byteswap()
+                await asyncio.sleep(0)
+                return res
+            if output_mode == OutputMode.EightBit:
+                res = array.array('B', await stream.read(pixel_count))
+                await asyncio.sleep(0)
+                return res
     # @property
     # @abstractmethod
     # def pixel_count(self):
@@ -186,10 +211,7 @@ class LowLevelCommand(BaseCommand):
     def pack(self):
         return bytes(self)
 
-class OutputMode(enum.IntEnum, shape = 2):
-    SixteenBit          = 0
-    EightBit            = 1
-    NoOutput            = 2
+
 
 class BeamType(enum.IntEnum, shape = 2):
     NoBeam              = 0
@@ -251,6 +273,86 @@ class ArrayCommand(LowLevelCommand):
 
 class RasterPixelRunCommand(LowLevelCommand):
     bytelayout = ByteLayout({"length": 2, "dwell_time" : 2})
+    def __init__(self, *, length, dwell_time):
+        self.length = length
+        self.dwell_time = dwell_time
+        super().__init__(length=length, dwell_time=dwell_time)
+    def __bytes__(self):
+        all_commands = bytearray()
+        for commands, pixel_count in self._iter_chunks():
+            all_commands.extend(commands)
+        return bytes(all_commands)
+
+    def _iter_chunks(self, latency=65536*65536):
+        commands = bytearray()
+
+        def append_command(pixel_count):
+            array_count = pixel_count//65536
+            remainder_pixel_count = pixel_count%65536
+            assert array_count < 65536, "can't handle more than 65536x65536 points"
+            print(f"{array_count=}, {remainder_pixel_count=}")
+            if array_count > 0:
+                commands.extend(bytes(ArrayCommand(cmdtype=CmdType.RasterPixelRun, array_length=array_count)))
+                chunk = array.array('H', [self.dwell_time]*array_count)
+                if not BIG_ENDIAN: # there is no `array.array('>H')`
+                    chunk.byteswap()
+                commands.extend(chunk.tobytes())
+            if remainder_pixel_count > 0:
+                commands.extend(self.pack_fn({"dwell_time":self.dwell_time, "length":remainder_pixel_count}))
+
+        pixel_count = 0
+        total_dwell = 0
+        for _ in range(self.length):
+            pixel_count += 1
+            total_dwell += self.dwell_time
+            if total_dwell >= latency:
+                append_command(pixel_count)
+                yield(commands, pixel_count)
+                commands = bytearray()
+                pixel_count = 0
+                total_dwell = 0
+        if pixel_count > 0:
+            append_command(pixel_count)
+            yield(commands, pixel_count)
+
+class RasterPixelArray:
+    def __init__(self, dwells: list):
+        self.dwells = dwells
+    def __bytes__(self):
+        all_commands = bytearray()
+        for commands, pixel_count in self._iter_chunks():
+            all_commands.extend(commands)
+        return bytes(all_commands)
+
+    def _iter_chunks(self, latency=65536*65536):
+        commands = bytearray()
+
+        def append_command(chunk):
+            cmd = ArrayCommand(cmdtype = CmdType.RasterPixel, array_length=len(chunk))
+            commands.extend(bytes(cmd))
+            if not BIG_ENDIAN: # there is no `array.array('>H')`
+                chunk.byteswap()
+            commands.extend(chunk.tobytes())
+
+        chunk = array.array('H')
+        pixel_count = 0
+        total_dwell = 0
+        for pixel in self.dwells:
+            chunk.append(pixel)
+            pixel_count += 1
+            total_dwell += pixel
+            if len(chunk) == 0xffff or total_dwell >= latency:
+                append_command(chunk)
+                del chunk[:] # clear
+            if total_dwell >= latency:
+                yield (commands, pixel_count)
+                commands = bytearray()
+                pixel_count = 0
+                total_dwell = 0
+        if chunk:
+            append_command(chunk)
+            yield (commands, pixel_count)
+
 
 class RasterPixelFreeRunCommand(LowLevelCommand):
     bytelayout = ByteLayout({"dwell_time": 2})
@@ -468,54 +570,6 @@ def test_speed():
     print(f"{end-start:.4f}")
     print(f"{s}")
 
-
-
-
-
-class Stream(metaclass=ABCMeta):
-    @abstractmethod
-    def send():
-        ...
-    def recv():
-        ...
-    def flush():
-        ...
-
-
-class TCPStream(Stream):
-    def __init__(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
-        self._reader = reader
-        self._writer = writer
-        
-    def send(self, data: bytes | bytearray | memoryview):
-        self._writer.write(data)
-
-    async def recv(self, length: int) -> bytearray:
-        buffer = bytearray()
-        remain = length
-        while remain > 0:
-            data = await self._reader.read(remain)
-            if len(data) == 0:
-                raise asyncio.IncompleteReadError
-            remain -= len(data)
-            buffer.extend(data)
-        return buffer
-    
-    async def flush(self):
-        await self._writer.drain()
-
-class GlasgowStream(Stream):
-    def __init__(self, iface):
-        self.lower = iface
-    
-    async def send(self, data: bytes | bytearray | memoryview):
-        await iface.write(data)
-    
-    async def recv(self, length:int) -> bytearray:
-        return bytearray(await iface.read(length))
-    
-    async def flush(self):
-        await iface.flush()
 
 
         
