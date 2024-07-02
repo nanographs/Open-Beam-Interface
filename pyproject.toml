@@ -62,7 +62,6 @@ build_docs.cmd = "sphinx-build -M html Docs_sphinx/source/ Docs_sphinx/build/"
 build_docs_2.cmd = "mkdocs build"
 
 [tool.pdm.dev-dependencies]
-test = ["amaranth@ git+https://github.com/amaranth-lang/amaranth@main"]
 docs = [
     "sphinx>=7.3.7",
     "furo>=2024.5.6",
