@@ -218,6 +218,14 @@ class BeamType(enum.IntEnum, shape = 2):
     Electron            = 1
     Ion                 = 2
 
+class DwellTimeVal(int):
+    '''Dwell time is measured in units of ADC cycles.
+        One DwellTime = 125 ns'''
+    def __init__(self, value):
+        assert value <= 65536, f"Pixel dwell time {value} is higher than 65536. Dwell times are limited to 16 bit values"
+        self.value = value - 1 #Dwell time counter is 0-indexed
+
+
 class SynchronizeCommand(LowLevelCommand):
     bitlayout = BitLayout({"mode": {
             "raster": 1,
@@ -359,6 +367,9 @@ class RasterPixelFreeRunCommand(LowLevelCommand):
 
 class VectorPixelCommand(LowLevelCommand):
     bytelayout = ByteLayout({"dac_stream": {"x_coord": 2, "y_coord": 2, "dwell_time": 2}})
+    def __init__(self, *, x_coord, y_coord, dwell_time):
+        dwell = DwellTimeVal(dwell_time).value
+        super().__init__(x_coord=x_coord, y_coord=y_coord, dwell_time=dwell)
     def pack(self, **kwargs):
         if kwargs["dwell_time"] == 0:
             return VectorPixelMinDwellCommand.pack(**kwargs)
@@ -538,8 +549,8 @@ class CommandSequence:
         self._raster = raster
         self.verbose = verbose
         if sync:
-            self.extend(SynchronizeCommand(cookie=cookie, output=output, raster=raster))
-    def extend(self, other, verbose:bool=False):
+            self.add(SynchronizeCommand(cookie=cookie, output=output, raster=raster))
+    def add(self, other, verbose:bool=False):
         """
         Parameters
         ----------
