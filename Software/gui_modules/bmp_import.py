@@ -14,7 +14,7 @@ import qasync
 from qasync import asyncSlot, asyncClose, QApplication, QEventLoop
 import pyqtgraph as pg
 
-from ..stream_interface import Connection, setup_logging
+from ..stream_interface2 import Connection, setup_logging
 from base_commands import *
 from .image_display import ImageDisplay
 
@@ -53,7 +53,7 @@ def line(xarray):
         y, xarray = xarray
         c = bytearray()
         for x in np.nonzero(xarray)[0]:
-            c.extend(VectorPixelCommand(x_coord=x, y_coord = y, dwell=xarray[x]).message)
+            c.extend(bytes(VectorPixelCommand(x_coord=x, y_coord = y, dwell_time=xarray[x])))
         # for x in range(len(xarray)):
         #     dwell = xarray[x]
         #     if dwell > 0:   
@@ -131,9 +131,9 @@ class Worker(QObject):
         ## Unblank with beam at position 0,0
         seq.add(BeamSelectCommand(beam_type = beam_type))
         seq.add(BlankCommand(enable=False, inline=True))
-        seq.add(VectorPixelCommand(x_coord=0, y_coord=0, dwell=1))
+        seq.add(VectorPixelCommand(x_coord=0, y_coord=0, dwell_time=1))
 
-        seqbytes = bytearray(seq.message)
+        seqbytes = bytearray(bytes(seq))
         pool = Pool()
         n = 0
         for i in pool.imap(line, enumerate(self.pattern_array)):
@@ -143,7 +143,7 @@ class Worker(QObject):
             self.progress.emit(n)
         pool.close()
 
-        seqbytes.extend(BlankCommand(enable=True).message)
+        seqbytes.extend(BlankCommand(enable=True))
         self.pattern_seq = seqbytes
         self.vector_process_completed.emit(1)
 
