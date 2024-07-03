@@ -1,6 +1,8 @@
 import struct
 import enum
 import array
+import inspect
+import asyncio
 
 from collections import UserDict
 from dataclasses import dataclass
@@ -9,6 +11,9 @@ from amaranth import *
 from amaranth import ShapeCastable, Shape
 from amaranth.lib import enum, data, wiring
 from amaranth.lib.wiring import In, Out, flipped
+
+import logging
+logger = logging.getLogger()
 
 BIG_ENDIAN = (struct.pack('@H', 0x1234) == struct.pack('>H', 0x1234))
 
@@ -131,35 +136,56 @@ class OutputMode(enum.IntEnum, shape = 2):
     EightBit            = 1
     NoOutput            = 2
 class BaseCommand(metaclass = ABCMeta):
+    def __init_subclass__(cls):
+        cls._logger = logger.getChild(f"Command.{cls.__name__}")
+
+    @classmethod
+    def log_transfer(cls, transfer):
+        if inspect.isasyncgenfunction(transfer):
+            async def wrapper(self, *args, **kwargs):
+                repr_short = repr(self).replace(self.__class__.__name__, "cls")
+                self._logger.debug(f"iter begin={repr_short}")
+                async for chunk in transfer(self, *args, **kwargs):
+                    if isinstance(chunk, list):
+                        self._logger.debug(f"iter chunk=<list of {len(chunk)}>")
+                    elif isinstance(chunk, array.array):
+                        self._logger.debug(f"iter chunk=<array of {len(chunk)}>")
+                    else:
+                        self._logger.debug(f"iter chunk={chunk!r}")
+                    yield chunk
+                self._logger.debug(f"iter end={repr_short}")
+        else:
+            async def wrapper(self, *args, **kwargs):
+                repr_short = repr(self).replace(self.__class__.__name__, "cls")
+                self._logger.debug(f"begin={repr_short}")
+                await transfer(self, *args, **kwargs)
+                self._logger.debug(f"end={repr_short}")
+        return wrapper
+
     @abstractmethod
-    def pack(self):
+    async def transfer(self, stream):
         ...
-    
-    async def transfer(self, stream, flush=False):
-        await stream.write(bytes(self))
-        if flush:
-            await stream.flush()
-    
+
     async def recv_res(self, pixel_count, stream, output_mode:OutputMode):
         if output_mode == OutputMode.NoOutput:
                 await asyncio.sleep(0)
+                self._logger.debug(f"recv_res None")
                 pass
         else:
             if output_mode == OutputMode.SixteenBit:
-                res = array.array('H', await stream.read(pixel_count * 2))
+                res = array.array('H', await stream.recv(pixel_count * 2))
                 if not BIG_ENDIAN:
                     res.byteswap()
+                self._logger.debug(f"recv_res 16")
                 await asyncio.sleep(0)
+                self._logger.debug(f"recv_res sleep")
                 return res
             if output_mode == OutputMode.EightBit:
-                res = array.array('B', await stream.read(pixel_count))
+                res = array.array('B', await stream.recv(pixel_count))
+                self._logger.debug(f"recv_res 8")
                 await asyncio.sleep(0)
+                self._logger.debug(f"recv_res sleep")
                 return res
-    # @property
-    # @abstractmethod
-    # def pixel_count(self):
-    #     ...
-
 
 class LowLevelCommand(BaseCommand):
     """
@@ -210,6 +236,9 @@ class LowLevelCommand(BaseCommand):
                     {**self.bitlayout.pack_dict(vars(self)), **self.bytelayout.pack_dict(vars(self))}}}
     def pack(self):
         return bytes(self)
+    async def transfer(self, stream):
+        stream.send(bytes(self))
+        await stream.flush()
 
 
 
@@ -448,11 +477,37 @@ class Command(data.Struct):
 
 #### start macro commands
 
+# Scan Selector board uses TE 1462051-2 Relay
+# Switching delay is 20 ms
+RELAY_DELAY_CYCLES = int(20 * pow(10, -6) / (1/(48 * pow(10,6))))
+class RelayExternalCtrlCommand(BaseCommand):
+    def __init__(self, enable, beam_type):
+        assert enable <= 1
+        self._enable = enable
+        self._beam_type = beam_type
+
+    def __repr__(self):
+        return f"RelayExternalCtrlCommand(enable={self._enable}, beam_type={self._beam_type})"
+
+    @BaseCommand.log_transfer
+    async def transfer(self, stream):
+        await BlankCommand(enable=(1-self._enable), inline=True).transfer(stream)
+        await ExternalCtrlCommand(enable=self._enable).transfer(stream)
+        await BeamSelectCommand(beam_type=self._beam_type).transfer(stream)
+        await DelayCommand(delay=RELAY_DELAY_CYCLES).transfer(stream)
+        await stream.flush()
+
+
 class RasterScanCommand(BaseCommand):
-    def __init__(self, x_range, y_range, dwell_time):
-        self.x_range = x_range
-        self.y_range = y_range
-        self.dwell_time = dwell_time
+    def __init__(self, *, cookie: int, x_range: DACCodeRange, y_range: DACCodeRange, dwell: int):
+        self._cookie  = cookie
+        self._x_range = x_range
+        self._y_range = y_range
+        self._dwell   = dwell
+
+    def __repr__(self):
+        return f"RasterScanCommand(cookie={self._cookie}, x_range={self._x_range}, y_range={self._y_range}, dwell={self._dwell}>)"
+
     def pack(self):
         all_commands = bytearray()
         for commands, pixel_count in self._iter_chunks():
@@ -469,18 +524,18 @@ class RasterScanCommand(BaseCommand):
             print(f"{array_count=}, {remainder_pixel_count=}")
             if array_count > 0:
                 commands.extend(bytes(ArrayCommand(cmdtype=CmdType.RasterPixelRun, array_length=array_count)))
-                chunk = array.array('H', [self.dwell_time]*array_count)
+                chunk = array.array('H', [self._dwell]*array_count)
                 if not BIG_ENDIAN: # there is no `array.array('>H')`
                     chunk.byteswap()
                 commands.extend(chunk.tobytes())
             if remainder_pixel_count > 0:
-                commands.extend(self.pack_fn({"dwell_time":self.dwell_time, "length":remainder_pixel_count}))
+                commands.extend(bytes(RasterPixelRunCommand(dwell_time = self._dwell, length = remainder_pixel_count)))
 
         pixel_count = 0
         total_dwell = 0
-        for _ in range(self.x_range.count * self.y_range.count):
+        for _ in range(self._x_range.count * self._y_range.count):
             pixel_count += 1
-            total_dwell += self.dwell_time
+            total_dwell += self._dwell
             if total_dwell >= latency:
                 append_command(pixel_count)
                 yield(commands, pixel_count)
@@ -490,6 +545,37 @@ class RasterScanCommand(BaseCommand):
         if pixel_count > 0:
             append_command(pixel_count)
             yield(commands, pixel_count)
+    
+    @BaseCommand.log_transfer
+    async def transfer(self, stream, latency: int, output_mode:OutputMode=OutputMode.SixteenBit):
+        MAX_PIPELINE = 32
+
+        tokens = MAX_PIPELINE
+        token_fut = asyncio.Future()
+
+        async def sender():
+            nonlocal tokens
+            for commands, pixel_count in self._iter_chunks(latency):
+                self._logger.debug(f"sender: tokens={tokens}")
+                if tokens == 0:
+                    await FlushCommand().transfer(stream)
+                    await token_fut
+                stream.send(commands)
+                tokens -= 1
+                await asyncio.sleep(0)
+            await FlushCommand().transfer(stream)
+
+        await SynchronizeCommand(cookie=self._cookie, raster=True, output = output_mode).transfer(stream)
+        await RasterRegionCommand(x_range=self._x_range, y_range=self._y_range).transfer(stream)
+        asyncio.create_task(sender())
+
+        for commands, pixel_count in self._iter_chunks(latency):
+            tokens += 1
+            if tokens == 1:
+                token_fut.set_result(None)
+                token_fut = asyncio.Future()
+            self._logger.debug(f"recver: tokens={tokens}")
+            yield await self.recv_res(pixel_count, stream, output_mode)
 
 class RasterPixelArray(BaseCommand):
     def __init__(self, dwell_generator):
@@ -538,6 +624,34 @@ class RasterPixelArray(BaseCommand):
         if chunk:
             append_command(chunk)
             yield (commands, pixel_count)
+    async def transfer(self, stream, latency: int, output_mode:OutputMode=OutputMode.SixteenBit):
+        MAX_PIPELINE = 32
+
+        tokens = MAX_PIPELINE
+        token_fut = asyncio.Future()
+
+        async def sender():
+            nonlocal tokens
+            for commands, pixel_count in self._iter_chunks(latency):
+                self._logger.debug(f"sender: tokens={tokens}")
+                if tokens == 0:
+                    stream.send(FlushCommand().message)
+                    await stream.flush()
+                    await token_fut
+                stream.send(commands)
+                tokens -= 1
+                await asyncio.sleep(0)
+            stream.send(FlushCommand().message)
+            await stream.flush()
+        asyncio.create_task(sender())
+
+        for commands, pixel_count in self._iter_chunks(latency):
+            tokens += 1
+            if tokens == 1:
+                token_fut.set_result(None)
+                token_fut = asyncio.Future()
+            self._logger.debug(f"recver: tokens={tokens}")
+            yield await self.recv_res(pixel_count, stream, output_mode)
 
 class CommandSequence:
     """A sequence of commands
