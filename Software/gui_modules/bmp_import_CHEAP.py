@@ -49,12 +49,12 @@ def teardown():
     return seq
 
 
-def line(xarray, *, scale_factor=1):
+def line(xarray):
     if xarray:
         y, xarray = xarray
         c = bytearray()
         for x in np.nonzero(xarray)[0]:
-            c.extend(bytes(VectorPixelCommand(x_coord=int(x*scale_factor), y_coord = int(y*scale_factor), dwell_time=xarray[x])))
+            c.extend(bytes(VectorPixelCommand(x_coord=x*8, y_coord = y*8, dwell_time=xarray[x])))
         # for x in range(len(xarray)):
         #     dwell = xarray[x]
         #     if dwell > 0:   
@@ -99,13 +99,13 @@ class Worker(QObject):
         im = im.point(lambda p: level_adjust(p))
         print(f"{pixel_range=} -> scaled_pixel_range= (0,{self.max_dwell})")
 
-        ## scale to 16384 x 16384
+        ## scale to 2048 x 2048
         x_pixels, y_pixels = im._size
-        self.scale_factor = 16384/max(x_pixels, y_pixels)
-        #scaled_y_pixels = int(y_pixels*scale_factor)
-        #scaled_x_pixels = int(x_pixels*scale_factor)
+        scale_factor = 2048/max(x_pixels, y_pixels)
+        scaled_y_pixels = int(y_pixels*scale_factor)
+        scaled_x_pixels = int(x_pixels*scale_factor)
         # https://pillow.readthedocs.io/en/stable/_modules/PIL/Image.html#Image.resize
-        #im = im.resize((scaled_x_pixels, scaled_y_pixels), resample = Image.Resampling.NEAREST)
+        im = im.resize((scaled_x_pixels, scaled_y_pixels), resample = Image.Resampling.NEAREST)
         
 
         #print(f"input image: {x_pixels=}, {y_pixels=} -> {scaled_x_pixels=}, {scaled_y_pixels=}")
@@ -136,18 +136,17 @@ class Worker(QObject):
         seq.add(BlankCommand(enable=False, inline=True))
         seq.add(VectorPixelCommand(x_coord=0, y_coord=0, dwell_time=1))
 
-        scaleline = functools.partial(line, scale_factor=self.scale_factor)
         seqbytes = bytearray(bytes(seq))
         pool = Pool()
         n = 0
-        for i in pool.imap(scaleline, enumerate(self.pattern_array)):
+        for i in pool.imap(line, enumerate(self.pattern_array)):
             seqbytes.extend(i)
             n += 1
             print(f"{n}")
             self.progress.emit(n)
         pool.close()
 
-        seqbytes.extend(BlankCommand(enable=True))
+        seqbytes.extend(bytes(BlankCommand(enable=True)))
         self.pattern_seq = seqbytes
         self.vector_process_completed.emit(1)
 
@@ -297,7 +296,7 @@ class ParameterData(QHBoxLayout):
         self.hfov = pg.SpinBox(value=.000001, suffix="m", siPrefix=True, step=.0000001, compactHeight=False)
         self.hfov.sigValueChanging.connect(self.calculate_exposure)
         self.b.addWidget(self.hfov)
-        self.b.addWidget(QLabel(" ÷ 16384 -----> Pixel Size:"))
+        self.b.addWidget(QLabel(" ÷ 2048 -----> Pixel Size:"))
         self.pix_size = QLabel("      ")
         self.b.addWidget(self.pix_size)
 
@@ -324,7 +323,7 @@ class ParameterData(QHBoxLayout):
             hfov = self.hfov.value()
             dwell = self.dwell.dbox.value()
             current = self.current.value()
-            pixel_size = hfov/16384
+            pixel_size = hfov/2048
             exposure = current*dwell/(pixel_size*pixel_size)
             self.pix_size.setText(f"{pg.siFormat(pixel_size, suffix="m")}")
             self.exposure.setText(f"{pg.siFormat(exposure, suffix="C/m^2")}") #1 GC/m^2 = 1 uC/cm^2
@@ -335,7 +334,7 @@ class VectorProcessState(QHBoxLayout):
         self.convert_btn = QPushButton("Convert to Vector Stream")
         self.addWidget(self.convert_btn)
         self.convert_btn.hide()
-        self.progress_bar = QProgressBar(maximum=16384)
+        self.progress_bar = QProgressBar(maximum=2048)
         self.progress_bar.hide()
         self.addWidget(self.progress_bar)
 
@@ -466,7 +465,7 @@ class MainWindow(QVBoxLayout):
 
     def measure(self):
         if not self.image_display.line == None:
-            pixel_size = self.param_data.hfov.value()/16384
+            pixel_size = self.param_data.hfov.value()/2048
             line_length = self.image_display.get_line_length()
             line_actual_size = line_length*pixel_size
             line_label = pg.siFormat(line_actual_size, suffix="m")
