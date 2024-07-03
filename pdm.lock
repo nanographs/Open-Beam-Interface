@@ -5,7 +5,7 @@
 groups = ["default", "test"]
 strategy = ["cross_platform", "inherit_metadata"]
 lock_version = "4.4.1"
-content_hash = "sha256:c22a8993c3b93a8d07614db945ac8f4d4e600b548f8a9f5cc1adb2313dc8d073"
+content_hash = "sha256:97bc80814c67cd676009b0b2f61a67cb900562ea1167e420f34eb82c95ad9f1c"
 
 [[package]]
 name = "alabaster"
@@ -31,6 +31,19 @@ dependencies = [
     "Jinja2~=3.0",
     "jschon~=0.11.1",
     "pyvcd<0.5,>=0.2.2",
+]
+
+[[package]]
+name = "amaranth-yosys"
+version = "0.40.0.0.post96"
+requires_python = "~=3.8"
+summary = "Specialized WebAssembly build of Yosys used by Amaranth HDL"
+groups = ["default"]
+dependencies = [
+    "wasmtime<23,>=1",
+]
+files = [
+    {file = "amaranth_yosys-0.40.0.0.post96-py3-none-any.whl", hash = "sha256:d4d7b0c40365f00d5090433762d81134209ca69f655ac74bc2e50decd6675255"},
 ]
 
 [[package]]
@@ -127,12 +140,26 @@ files = [
 ]
 
 [[package]]
+name = "click"
+version = "8.1.7"
+requires_python = ">=3.7"
+summary = "Composable command line interface toolkit"
+groups = ["default"]
+dependencies = [
+    "colorama; platform_system == \"Windows\"",
+]
+files = [
+    {file = "click-8.1.7-py3-none-any.whl", hash = "sha256:ae74fb96c20a0277a1d615f1e4d73c8414f5a98db8b799a7931d1582f3390c28"},
+    {file = "click-8.1.7.tar.gz", hash = "sha256:ca9853ad459e787e2192211578cc907e7594e294c7ccc834310722b41b9ca6de"},
+]
+
+[[package]]
 name = "colorama"
 version = "0.4.6"
 requires_python = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,!=3.6.*,>=2.7"
 summary = "Cross-platform colored terminal text."
 groups = ["default"]
-marker = "sys_platform == \"win32\""
+marker = "sys_platform == \"win32\" or platform_system == \"Windows\""
 files = [
     {file = "colorama-0.4.6-py2.py3-none-any.whl", hash = "sha256:4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6"},
     {file = "colorama-0.4.6.tar.gz", hash = "sha256:08695f5cb7ed6e0531a20572697297273c47b8cae5a63ffc6d6ed5c201be6e44"},
@@ -273,19 +300,41 @@ files = [
 
 [[package]]
 name = "glasgow"
-version = "0.1.dev2026"
+version = "0.1.dev2032+g3635798"
 requires_python = "!=3.10.0,!=3.10.1,!=3.10.2,~=3.9"
-path = "/Users/isabelburgos/glasgow/software"
+subdirectory = "software"
+git = "https://github.com/isabelburgos/glasgow"
+ref = "main"
+revision = "3635798b7af338114910881ae1a58a100aa4c04b"
 summary = "Software for the Glasgow Interface Explorer, a digital interface multitool"
 groups = ["default"]
 dependencies = [
-    "amaranth @ git+https://github.com/amaranth-lang/amaranth@main",
+    "amaranth @ git+https://github.com/amaranth-lang/amaranth@v0.5.x",
     "fx2<1,>=0.11",
     "libusb1>=3.1.0",
     "packaging>=23.0",
     "platformdirs<4,>=3.0.0",
     "pyvcd<0.5,>=0.2",
     "typing-extensions<5,>=4.8",
+]
+
+[[package]]
+name = "glasgow"
+version = "0.1.dev2032"
+extras = ["builtin-toolchain"]
+requires_python = "!=3.10.0,!=3.10.1,!=3.10.2,~=3.9"
+subdirectory = "software"
+git = "https://github.com/isabelburgos/glasgow"
+ref = "main"
+revision = "3635798b7af338114910881ae1a58a100aa4c04b"
+summary = "Software for the Glasgow Interface Explorer, a digital interface multitool"
+groups = ["default"]
+dependencies = [
+    "amaranth-yosys",
+    "glasgow @ git+https://github.com/isabelburgos/glasgow@main#subdirectory=software",
+    "yowasp-nextpnr-ice40>=0.1",
+    "yowasp-runtime>=1.42",
+    "yowasp-yosys>=0.31.0.13",
 ]
 
 [[package]]
@@ -331,7 +380,6 @@ version = "6.4.0"
 requires_python = ">=3.8"
 summary = "Read resources from Python packages"
 groups = ["default"]
-marker = "python_version < \"3.10\""
 dependencies = [
     "zipp>=3.1.0; python_version < \"3.10\"",
 ]
@@ -967,6 +1015,64 @@ groups = ["default"]
 files = [
     {file = "urllib3-2.2.1-py3-none-any.whl", hash = "sha256:450b20ec296a467077128bff42b73080516e71b56ff59a60a02bef2232c4fa9d"},
     {file = "urllib3-2.2.1.tar.gz", hash = "sha256:d0570876c61ab9e520d776c38acbbb5b05a776d3f9ff98a5c8fd5162a444cf19"},
+]
+
+[[package]]
+name = "wasmtime"
+version = "22.0.0"
+requires_python = ">=3.8"
+summary = "A WebAssembly runtime powered by Wasmtime"
+groups = ["default"]
+dependencies = [
+    "importlib-resources>=5.10",
+]
+files = [
+    {file = "wasmtime-22.0.0-py3-none-any.whl", hash = "sha256:618e581f34c650e9d0bd8805812fa012d6c89064e157cc0fef8f853f99cb60ff"},
+    {file = "wasmtime-22.0.0-py3-none-macosx_10_13_x86_64.whl", hash = "sha256:793709e8405805dcf1b74cfb798c00fcb7f57dc39f8fe2df5ed7b0670e966489"},
+    {file = "wasmtime-22.0.0-py3-none-macosx_11_0_arm64.whl", hash = "sha256:95ba696d2e4c19ef195b7769fc1a265dbaf365960728c121fdea6f239a151559"},
+    {file = "wasmtime-22.0.0-py3-none-manylinux1_x86_64.whl", hash = "sha256:f9e1740a6af43c5b34d97cd2fe0774566d2a7f1b05bc5cbb65e3422090a82844"},
+    {file = "wasmtime-22.0.0-py3-none-manylinux2014_aarch64.whl", hash = "sha256:963f1f282b43e4f10b729e95e7b88966f2663cea1c73a1f912721b2a904a4373"},
+    {file = "wasmtime-22.0.0-py3-none-musllinux_1_2_x86_64.whl", hash = "sha256:8ad62fd47513e420598f55fd21edfaadc1569c1dce4b063818ac6a7de5d3e847"},
+    {file = "wasmtime-22.0.0-py3-none-win_amd64.whl", hash = "sha256:779fc00dcc7d89b9b6815654fecdaa6238880c5b8519a4ed0f3f667bf70b3068"},
+]
+
+[[package]]
+name = "yowasp-nextpnr-ice40"
+version = "0.7.0.0.post519"
+summary = "nextpnr-ice40 FPGA place and route tool"
+groups = ["default"]
+dependencies = [
+    "yowasp-runtime~=1.1",
+]
+files = [
+    {file = "yowasp_nextpnr_ice40-0.7.0.0.post519-py3-none-any.whl", hash = "sha256:abd245a20de0517526be670f78e645a7d0aff56165a674a501c39e69a2f102b3"},
+]
+
+[[package]]
+name = "yowasp-runtime"
+version = "1.62"
+requires_python = "~=3.8"
+summary = "Common runtime for YoWASP packages"
+groups = ["default"]
+dependencies = [
+    "platformdirs<5,>=3.0",
+    "wasmtime<23,>=21.0.0",
+]
+files = [
+    {file = "yowasp_runtime-1.62-py3-none-any.whl", hash = "sha256:e4b63963cf819ec08f9199b039466b64cab4bf59f14be13c1f1382ce408abca7"},
+]
+
+[[package]]
+name = "yowasp-yosys"
+version = "0.42.0.0.post734"
+summary = "Yosys Open SYnthesis Suite"
+groups = ["default"]
+dependencies = [
+    "click",
+    "yowasp-runtime~=1.12",
+]
+files = [
+    {file = "yowasp_yosys-0.42.0.0.post734-py3-none-any.whl", hash = "sha256:2d914cb3952b25dad30eda0e4ceed47066555804fde13d3d59c1ba052b21b0da"},
 ]
 
 [[package]]
