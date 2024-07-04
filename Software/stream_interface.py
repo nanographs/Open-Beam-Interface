@@ -208,6 +208,38 @@ class Connection:
         await self._stream.flush()
 
 
+class BenchmarkTransfer(BaseCommand):
+    def __repr__(self):
+        return f"BenchmarkTransfer)"
+
+    @BaseCommand.log_transfer
+    async def transfer(self, stream: Stream, output_mode: OutputMode=OutputMode.NoOutput):
+        # await StreamSynchronizeCommand(cookie=123, raster=False, 
+        #                         output=output_mode).transfer(stream)
+        import time
+        stream.send(bytes(SynchronizeCommand(cookie=123, raster=False, output=output_mode)))
+        commands = bytearray()
+        print("preparing commands...")
+        for _ in range(131072*16):
+            commands.extend(bytes(VectorPixelCommand(x_coord=0, y_coord=16383, dwell_time=1)))
+            commands.extend(bytes(VectorPixelCommand(x_coord=16383, y_coord=0, dwell_time=1)))
+            print(f"{len(commands)=}")
+        length = len(commands)
+        
+        pixel_count = int(length/7)
+        while True:
+            begin = time.time()
+            stream.send(commands)
+            await stream.flush()
+            end = time.time()
+            print(f"send: {(length / (end - begin)) / (1 << 20):.2f} MiB/s ({(length / (end - begin)) / (1 << 17):.2f} Mb/s)")
+            begin = time.time()
+            await self.recv_res(pixel_count, stream, output_mode)
+            end = time.time()
+            print(f"recv: {(pixel_count*2 / (end - begin)) / (1 << 20):.2f} MiB/s ({(length / (end - begin)) / (1 << 17):.2f} Mb/s)")
+
+
+
 def setup_logging(levels=None):
     handler = logging.StreamHandler()
     handler.setFormatter(logging.Formatter(style="{",
