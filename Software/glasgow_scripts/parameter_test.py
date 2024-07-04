@@ -11,7 +11,6 @@ seq.add(DelayCommand(delay=5760))
 await iface.write(bytes(seq))
 await iface.flush()
 
-wait = input("ready to go?")
 seq = CommandSequence(output=OutputMode.NoOutput, raster=False)
 seq.add(BlankCommand(enable=False, inline=True))
 seq.add(VectorPixelCommand(x_coord=0, y_coord=0, dwell_time=1))
@@ -56,6 +55,7 @@ def vertical_lines():
 horizontal_lines()
 seq.add(BlankCommand(enable=True))
 
+wait = input("ready to go?")
 print("writing")
 await iface.write(bytes(seq))
 await iface.flush()
