@@ -1,7 +1,7 @@
 import numpy as np
 import pathlib
 from PIL import Image, ImageChops
-from glasgowcontrib.applet.open_beam_interface.base_commands import *
+from Gateware.applet.open_beam_interface.base_commands import *
 
 # parser = argparse.ArgumentParser()
 # parser.add_argument('--img_path', required=True,
@@ -65,20 +65,20 @@ async def pattern():
 
     ## Unblank with beam at position 0,0
     seq.add(BlankCommand(enable=False, inline=True))
-    seq.add(VectorPixelCommand(x_coord=0, y_coord=0, dwell=1))
+    seq.add(VectorPixelCommand(x_coord=0, y_coord=0, dwell_time=1))
 
     for y in range(scaled_y_pixels):
         for x in range(scaled_x_pixels):
             dwell = array[y][x]
             if dwell > 0:
-                seq.add(VectorPixelCommand(x_coord=x, y_coord = y, dwell=dwell))
+                seq.add(VectorPixelCommand(x_coord=x, y_coord = y, dwell_time=dwell))
         progress = 20*y/16384
         progress_bar = "".join(["#"]*int(progress))
         print(f"{progress*5:.2f}%, {y=}/16384")
         print(progress_bar)
     
     print("writing pattern")
-    await iface.write(seq.message)
+    await iface.write(bytes(seq))
     await iface.flush()
     print("done")
 
