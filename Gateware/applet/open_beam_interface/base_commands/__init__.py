@@ -276,6 +276,8 @@ class BeamSelectCommand(LowLevelCommand):
 
 class BlankCommand(LowLevelCommand):
     bitlayout = BitLayout({"enable": 1, "inline": 1})
+    def __init__(self, enable: bool, inline:bool = False):
+        super().__init__(enable=enable, inline=inline)
 
 class DelayCommand(LowLevelCommand):
     bytelayout = ByteLayout({"delay": 2})
@@ -352,7 +354,7 @@ class RasterPixelRunCommand(LowLevelCommand):
             append_command(pixel_count)
             yield(commands, pixel_count)
 
-class RasterPixelArray:
+class RasterPixelArray(BaseCommand):
     def __init__(self, dwells: list):
         self.dwells = dwells
     def __bytes__(self):
@@ -389,7 +391,12 @@ class RasterPixelArray:
         if chunk:
             append_command(chunk)
             yield (commands, pixel_count)
-
+    @BaseCommand.log_transfer
+    async def transfer(self, stream, latency: int, output_mode:OutputMode=OutputMode.SixteenBit):
+        for commands, pixel_count in self._iter_chunks(latency):
+            stream.send(commands)
+            await FlushCommand().transfer(stream)
+            yield await self.recv_res(pixel_count, stream, output_mode)
 
 class RasterPixelFreeRunCommand(LowLevelCommand):
     bytelayout = ByteLayout({"dwell_time": 2})

@@ -2,8 +2,7 @@ from PyQt6.QtWidgets import (QLabel, QGridLayout, QApplication, QWidget,
                              QSpinBox, QComboBox, QHBoxLayout, QVBoxLayout, QPushButton)
 import qasync
 from qasync import asyncSlot, asyncClose, QApplication, QEventLoop
-from ..stream_interface2 import BeamType, StreamBeamSelectCommand, StreamExternalCtrlCommand, StreamBlankCommand
-
+from base_commands import BeamType, BeamSelectCommand, ExternalCtrlCommand, BlankCommand
 
 class SettingBoxWithDefaults(QGridLayout):
     def __init__(self, label, lower_limit, upper_limit, initial_val, defaults=["Custom"]):
@@ -209,22 +208,22 @@ class BeamSettings(QHBoxLayout):
     @asyncSlot()
     async def toggle_ext_ctrl(self):
         if self.ext_ctrl_btn.isChecked():
-            await self.conn.transfer(StreamExternalCtrlCommand(enable=True))
+            await self.conn.transfer(ExternalCtrlCommand(enable=True))
             self.ext_ctrl_btn.setText("Click to Disable External Ctrl")
         else:
-            await self.conn.transfer(StreamExternalCtrlCommand(enable=False))
+            await self.conn.transfer(ExternalCtrlCommand(enable=False))
             self.ext_ctrl_btn.setText("Click to Enable External Ctrl")
     @asyncSlot()
     async def toggle_blank(self):
         if self.blank_btn.isChecked():
-            await self.conn.transfer(StreamBlankCommand(enable=True))
+            await self.conn.transfer(BlankCommand(enable=True, inline=False))
             self.blank_btn.setText("Click to Unblank")
         else:
-            await self.conn.transfer(StreamBlankCommand(enable=False))
+            await self.conn.transfer(BlankCommand(enable=False, inline=False))
             self.blank_btn.setText("Click to Blank")
     @asyncSlot()
     async def beam_select(self):
-        await self.conn.transfer(StreamBeamSelectCommand(beam_type=self.beam_type))
+        await self.conn.transfer(BeamSelectCommand(beam_type=self.beam_type))
     def disable_input(self):
         self.ext_ctrl_btn.setEnabled(False)
         self.blank_btn.setEnabled(False)
