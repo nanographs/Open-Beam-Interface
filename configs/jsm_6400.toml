@@ -3,7 +3,7 @@ manufacturer='JEOL'
 model='6400'
 
 [pinout]
-ext-ebeam-scan-enable = 0
+ext-ebeam-scan-enable = 1
 
 [transforms]
 xflip = true
