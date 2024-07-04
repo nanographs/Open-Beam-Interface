@@ -14,9 +14,14 @@ from .stream_interface import setup_logging
 
 from .tiff_export import draw_scalebar
 
-setup_logging({"Command": logging.DEBUG, "Stream": logging.DEBUG})
+import logging
+logger = logging.getLogger()
+
+setup_logging({"Command": logging.DEBUG, "Stream": logging.DEBUG, 
+            "Frame": logging.DEBUG, "FrameBuffer":  logging.DEBUG})
 
 class Frame:
+    _logger = logger.getChild("Frame")
     def __init__(self, x_range: DACCodeRange, y_range: DACCodeRange):
         self._x_range = x_range
         self._y_range = y_range
@@ -38,32 +43,29 @@ class Frame:
         self.canvas = np.array(pixels, dtype = np.uint16).reshape(self.np_shape)
     
     def fill_lines(self, pixels: array.array):
-        print(f"{len(pixels)=}")
         assert len(pixels)%self._x_count == 0, f"invalid shape: {len(pixels)} is not a multiple of {self._x_count}"
         fill_y_count = int(len(pixels)/self._x_count)
-        print(f"starting with {self.y_ptr=}")
-        print(f"{fill_y_count=}")
+        self._logger.debug(f"fill_lines: fill {len(pixels)} pixels ({fill_y_count} lines), from y ={self.y_ptr}")
         if (fill_y_count == self._y_count) & (self.y_ptr == 0):
             self.fill(pixels)
         elif self.y_ptr + fill_y_count <= self._y_count:
             self.canvas[self.y_ptr:self.y_ptr + fill_y_count] = np.array(pixels, dtype = np.uint16).reshape(fill_y_count, self._x_count)
             self.y_ptr += fill_y_count
             if self.y_ptr == self._y_count:
-                print("Rolling over")
+                self._logger.debug("fill_lines: roll over to top of frame")
                 self.y_ptr == 0
         elif self.y_ptr + fill_y_count > self._y_count:
-            print(f"{self.y_ptr} + {fill_y_count} > {self._y_count}")
+            self._logger.debug(f"fill_lines: {self.y_ptr} + {fill_y_count} > {self._y_count}")
             remaining_lines = self._y_count - self.y_ptr
             remaining_pixel_count = remaining_lines*self._x_count
             remaining_pixels = pixels[:remaining_pixel_count]
-            print(f"{remaining_lines=}")
             self.canvas[self.y_ptr:self._y_count] = np.array(remaining_pixels, dtype = np.uint16).reshape(remaining_lines, self._x_count)
             rewrite_lines = fill_y_count - remaining_lines
             rewrite_pixels = pixels[remaining_pixel_count:]
-            print(f"{rewrite_lines=}")
+            self._logger.debug(f"fill_lines: {remaining_lines=}, {rewrite_lines=}")
             self.canvas[:rewrite_lines] = np.array(rewrite_pixels, dtype = np.uint16).reshape(rewrite_lines, self._x_count)
             self.y_ptr = rewrite_lines
-        print(f"ending with {self.y_ptr=}")
+        self._logger.debug(f"fill_lines: end at y = {self.y_ptr}")
 
 
     def as_uint16(self):
@@ -90,6 +92,7 @@ class Frame:
         print(f"saved: {img_name}")
     
 class FrameBuffer():
+    _logger = logger.getChild("FrameBuffer")
     def __init__(self, conn):
         self.conn = conn
         self._interrupt = asyncio.Event()
@@ -111,31 +114,30 @@ class FrameBuffer():
         frame = self.get_frame(x_range,y_range)
         res = array.array('H')
         pixels_per_chunk = self.opt_chunk_size(frame)
-        print(f"{pixels_per_chunk=}")
+        self._logger.debug(f"{pixels_per_chunk=}")
         cmd = RasterScanCommand(cookie=123,
             x_range=x_range, y_range=y_range, dwell=dwell)
         async for chunk in self.conn.transfer_multiple(cmd, latency=latency):
-            print(f"have {len(res)=}. got {len(chunk)=}")
+            self._logger.debug(f"{len(res)} old pixels + {len(chunk)} new pixels -> {len(res)+len(chunk)} total")
             res.extend(chunk)
-            print(f"now have {len(res)=}")
 
             async def slice_chunk():
                 nonlocal res
                 if len(res) >= pixels_per_chunk:
                     to_frame = res[:pixels_per_chunk]
                     res = res[pixels_per_chunk:]
-                    print(f"after slicing {pixels_per_chunk} chunk, have {len(res)}")
+                    self._logger.debug(f"slice: {pixels_per_chunk}, {len(res)} pixels remaining")
                     frame.fill_lines(to_frame)
                     yield frame
                     if len(res) > pixels_per_chunk:
                         yield slice_chunk()
                 else:
-                    print(f"need {pixels_per_chunk=}, have {len(res)=}")
+                    self._logger.debug(f"need chunk: {pixels_per_chunk}, have {len(res)} pixels")
 
             async for frame in slice_chunk():
                 yield frame
 
-        print(f"end of frame: {len(res)=}")
+        self._logger.debug(f"end of frame: {len(res)} pixels")
         frame.fill_lines(res)
         self.current_frame = frame
         yield frame

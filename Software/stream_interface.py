@@ -11,9 +11,7 @@ import random
 import time
 from time import perf_counter
 
-#from .support import dump_hex
 from base_commands import *
-#from ..Gateware.applet.base_commands.transfer2 import Stream
 
 BIG_ENDIAN = (struct.pack('@H', 0x1234) == struct.pack('>H', 0x1234))
 
@@ -62,7 +60,6 @@ class TCPStream(Stream):
         return await self.recv(recv_length)
 
 class TCPConnection:
-    _logger = logger.getChild("Connection")
 
     def __init__(self, host: str, port: int, *, read_buffer_size=0x10000*128):
         self.host = host
