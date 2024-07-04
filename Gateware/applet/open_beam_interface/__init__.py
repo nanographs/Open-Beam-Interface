@@ -11,7 +11,8 @@ from amaranth.lib.wiring import In, Out, flipped
 
 from glasgow.support.logging import dump_hex
 from glasgow.support.endpoint import ServerEndpoint
-from .base_commands import Command, CmdType, BeamType, OutputMode
+from .base_commands.structs import CmdType, BeamType, OutputMode
+from .base_commands.commands import Command
 
 # Overview of (linear) processing pipeline:
 # 1. PC software (in: user input, out: bytes)

@@ -47,7 +47,7 @@ if args.config_path != None:
             setattr(args, transform, setting)
 
 from .base_commands import *
-from .base_commands.transfer2 import GlasgowStream, GlasgowConnection
+#from .base_commands.transfer2 import GlasgowStream, GlasgowConnection
 
 async def main():
     device = GlasgowHardwareDevice()

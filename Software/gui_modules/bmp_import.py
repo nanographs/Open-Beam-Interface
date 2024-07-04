@@ -14,7 +14,7 @@ import qasync
 from qasync import asyncSlot, asyncClose, QApplication, QEventLoop
 import pyqtgraph as pg
 
-from ..stream_interface import Connection, setup_logging
+from ..stream_interface import TCPConnection, setup_logging
 from base_commands import *
 from .image_display import ImageDisplay
 
@@ -516,7 +516,7 @@ class MainWindow(QVBoxLayout):
 
 
 async def _main():
-    conn = Connection('localhost', 2224)
+    conn = TCPConnection('localhost', 2224)
     app = QApplication(sys.argv)
 
     event_loop = QEventLoop(app)
