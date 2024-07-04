@@ -67,7 +67,15 @@ async def main():
     stream = GlasgowStream(iface)
     conn.connect(stream)
     await conn._synchronize()
-
+    dac_range = DACCodeRange(start=0, count=128, step=2)
+    cmd = RasterScanCommand(cookie=123,
+            x_range=dac_range, y_range=dac_range, dwell=2)
+    import array
+    res = array.array('H')
+    async for chunk in conn.transfer_multiple(cmd, latency=65536):
+        res.extend(chunk)
+    #print(res)
+    print(len(res))
 
 def run():
     asyncio.run(main())
