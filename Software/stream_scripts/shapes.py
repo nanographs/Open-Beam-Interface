@@ -5,10 +5,10 @@ import argparse
 import matplotlib.pyplot as plt
 import logging
 import sys
-from ..stream_interface import Connection, VectorPixelLinearRunCommand, StreamExternalCtrlCommand, StreamBeamSelectCommand, BeamType, setup_logging
-from base_commands import CommandSequence, VectorPixelCommand, SynchronizeCommand, ExternalCtrlCommand, BlankCommand, OutputMode, BeamType, BeamSelectCommand
+from ..stream_interface import TCPConnection, setup_logging
+from base_commands import *
 
-setup_logging({"Stream": logging.DEBUG})
+setup_logging({"TCPStream": logging.DEBUG})
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--show', action='store_true', help="show the pattern with matplotlib")
@@ -81,14 +81,14 @@ def iterpattern(x, y, dwell, repeats=1):
             yield x_coord, y_coord, dwell
 
 async def stream_pattern(x, y, dwell):
-    conn = Connection('localhost', 2224)
-    await conn.transfer(StreamExternalCtrlCommand(enable=True))
-    await conn.transfer(StreamBeamSelectCommand(beam_type=BeamType.Ion))
+    conn = TCPConnection('localhost', 2224)
+    await conn.transfer(ExternalCtrlCommand(enable=True))
+    await conn.transfer(BeamSelectCommand(beam_type=BeamType.Ion))
     pattern = iterpattern(x, y, dwell, repeats=args.repeats)
-    async for chunk in conn.transfer_multiple(VectorPixelLinearRunCommand(pattern_generator=pattern), 
+    async for chunk in conn.transfer_multiple(VectorPixelIter(pattern_generator=pattern), 
                                         output_mode=0):
         pass
-    #await conn.transfer(_ExternalCtrlCommand(enable=False, beam_type=BeamType.Ion))
+    #await conn.transfer(ExternalCtrlCommand(enable=False))
 
 def buffer_pattern(x, y, dwell):
     pattern = iterpattern(x, y, dwell, repeats=args.repeats)
@@ -98,10 +98,10 @@ def buffer_pattern(x, y, dwell):
     seq.add(ExternalCtrlCommand(enable=True))
     seq.add(BlankCommand(enable=False, inline=True))
     for x, y, dwell in pattern:
-        seq.add(VectorPixelCommand(x_coord = x, y_coord = y, dwell = dwell))
+        seq.add(VectorPixelCommand(x_coord = x, y_coord = y, dwell_time = dwell))
     seq.add(BlankCommand(enable=True))
     seq.add(ExternalCtrlCommand(enable=False))
-    sys.stdout.buffer.write(seq.message)
+    sys.stdout.buffer.write(bytes(seq))
 
 
 def main():
@@ -110,8 +110,7 @@ def main():
     if args.buffer:
         buffer_pattern(x, y, args.dwell)
     else:
-        while True:
-            asyncio.run(stream_pattern(x, y, args.dwell))
+        asyncio.run(stream_pattern(x, y, args.dwell))
 main()
     
 

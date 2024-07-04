@@ -43,7 +43,67 @@ class VectorPixelArray(BaseCommand):
             append_command(chunk)
             yield (commands, pixel_count)
 
+    @BaseCommand.log_transfer
+    async def transfer(self, stream, output_mode:OutputMode=OutputMode.SixteenBit):
+        MAX_OUT_BUFFER = 131072
+        commands, pixel_count = self._iter_chunks()
 
+        await SynchronizeCommand(cookie=123, raster=False, output=output_mode).transfer(stream)
+        
+        async def sender():
+            nonlocal commands
+            while len(commands) > MAX_OUT_BUFFER:
+                await stream.write(commands[:MAX_OUT_BUFFER])
+                commands = commands[MAX_OUT_BUFFER:]
+            if len(commands) > 0:
+                await stream.write(commands)
+            await FlushCommand().transfer(stream)
+            await stream.flush()
+            self._logger.debug(f"sender: done")
+
+        await sender()
+        yield await self.recv_res(pixel_count, stream, output_mode)
+
+
+class VectorPixelIter(BaseCommand):
+    def __init__(self, *, pattern_generator):
+        self._pattern_generator = pattern_generator
+
+    def _iter_chunks(self):
+        commands = bytearray()
+        pixel_count = 0
+        total_dwell  = 0
+        while True:
+            try:
+                x_coord, y_coord, dwell = next(self._pattern_generator)
+                pixel_count += 1
+                total_dwell += dwell
+                commands.extend(bytes(VectorPixelCommand(x_coord=x_coord, y_coord=y_coord, dwell_time=dwell)))
+            except StopIteration:
+                break
+        print("iter_chunks: reached end of pattern generator")
+        return commands, pixel_count
+    
+    @BaseCommand.log_transfer
+    async def transfer(self, stream, output_mode:OutputMode=OutputMode.SixteenBit):
+        MAX_OUT_BUFFER = 131072
+        commands, pixel_count = self._iter_chunks()
+
+        await SynchronizeCommand(cookie=123, raster=False, output=output_mode).transfer(stream)
+
+        async def sender():
+            nonlocal commands
+            while len(commands) > MAX_OUT_BUFFER:
+                await stream.write(commands[:MAX_OUT_BUFFER])
+                commands = commands[MAX_OUT_BUFFER:]
+            if len(commands) > 0:
+                await stream.write(commands)
+            await FlushCommand().transfer(stream)
+            await stream.flush()
+            self._logger.debug(f"sender: done")
+
+        await sender()
+        yield await self.recv_res(pixel_count, stream, output_mode)
 
 
 #### start macro commands

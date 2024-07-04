@@ -82,7 +82,7 @@ __all__ += ["Stream", "Connection"]
 from .transfer import GlasgowStream, GlasgowConnection
 __all__ += ["GlasgowStream", "GlasgowConnection"]
 
-from .sequences import (CommandSequence, VectorPixelArray, RelayExternalCtrlCommand, 
+from .sequences import (CommandSequence, VectorPixelArray, VectorPixelIter, RelayExternalCtrlCommand, 
                         RasterScanCommand, RasterPatternCommand)
-__all__ += ["CommandSequence", "VectorPixelArray", "RelayExternalCtrlCommand", 
+__all__ += ["CommandSequence", "VectorPixelArray", "VectorPixelIter", "RelayExternalCtrlCommand", 
             "RasterScanCommand", "RasterPatternCommand"]
