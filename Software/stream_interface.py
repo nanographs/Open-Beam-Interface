@@ -11,7 +11,7 @@ import random
 import time
 from time import perf_counter
 
-from .support import dump_hex
+#from .support import dump_hex
 from base_commands import *
 #from ..Gateware.applet.base_commands.transfer2 import Stream
 
@@ -30,7 +30,7 @@ class TCPStream(Stream):
         self._writer = writer
         
     async def write(self, data: bytes | bytearray | memoryview):
-        #self._logger.debug(f"send: data=<{dump_hex(data)}>")
+        self._logger.debug(f"send: data=<{dump_hex(data)}>")
         self._writer.write(data)
         self._logger.debug(f"send: done")
 
@@ -48,7 +48,7 @@ class TCPStream(Stream):
             if len(data) == 0:
                 raise asyncio.IncompleteReadError
             remain -= len(data)
-            #self._logger.debug(f"recv: data=<{dump_hex(data)}> remain={remain} - time {stop-start:.4f}")
+            self._logger.debug(f"recv: data=<{dump_hex(data)}> remain={remain}")
             buffer.extend(data)
         stop = perf_counter()
         self._logger.debug(f"recv: done")
@@ -158,16 +158,11 @@ class TCPConnection:
     async def transfer_multiple(self, command: Command, **kwargs):
         self._logger.debug(f"transfer multiple {command!r}")
         try:
-            start = perf_counter()
             await self._synchronize() # may raise asyncio.IncompleteReadError
-            stop = perf_counter()
-            self._logger.debug(f"synchronize transfer_multiple: time - {stop-start:.4f}")
-            start = perf_counter()
+            self._logger.debug(f"synchronize transfer_multiple")
             async for value in command.transfer(self._stream, **kwargs):
                 yield value
-                now = perf_counter()
-                self._logger.debug(f"yield transfer_multiple: time - {now-start:.4f}")
-                start = now
+                self._logger.debug(f"yield transfer_multiple")
         except asyncio.IncompleteReadError as e:
             self._handle_incomplete_read(e)
     

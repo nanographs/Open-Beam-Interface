@@ -30,6 +30,8 @@ class Stream(metaclass = ABCMeta):
     #     ...
 
 class Connection(metaclass = ABCMeta):
+    _logger = logger.getChild("Connection")
+
     def __init__(self):
         self._stream = None
         self._synchronized = False
@@ -70,7 +72,8 @@ class Connection(metaclass = ABCMeta):
     async def transfer(self, command, **kwargs):
         self._logger.debug(f"transfer {command!r}")
         try:
-            await self._synchronize() # may raise asyncio.IncompleteReadError
+            if not self.synchronized:
+                await self._synchronize() # may raise asyncio.IncompleteReadError
             return await command.transfer(self._stream, **kwargs)
         except asyncio.IncompleteReadError as e:
             self._handle_incomplete_read(e)
@@ -141,7 +144,7 @@ class GlasgowStream(Stream):
 
 class GlasgowConnection(Connection):
     def connect(self, stream):
-        self.stream = stream
+        self._stream = stream
     async def _synchronize(self):
         print("synchronizing")
         if self.synchronized:
@@ -156,18 +159,29 @@ class GlasgowConnection(Connection):
         cmd = bytearray()
         cmd.extend(bytes(SynchronizeCommand(raster=True, output=OutputMode.SixteenBit, cookie=cookie)))
         cmd.extend(bytes(FlushCommand()))
-        await self.stream.write(cmd)
-        await self.stream.flush()
+        await self._stream.write(cmd)
+        await self._stream.flush()
         res = struct.pack(">HH", 0xffff, cookie)
-        data = await self.stream.readuntil(res)
+        data = await self._stream.readuntil(res)
         #data = await self.stream.read(4)
         print(str(list(data)))
 
+    async def transfer(self, command, flush:bool = False, **kwargs):
+        self._logger.debug(f"transfer {command!r}")
+        try:
+            await self._synchronize() # may raise asyncio.IncompleteReadError")
+            return await command.transfer(self._stream, **kwargs)
+        except asyncio.IncompleteReadError as e:
+            self._handle_incomplete_read(e)
 
-#     async def transfer(self, seq): #CommandSequence
-#         #await self._synchronize()
-#         await self.lower.write(seq.message)
-#         await self.lower.flush()
-#         data = await self.lower.read(seq._response_length)
-#         return seq.unpack(data)
+    async def transfer_multiple(self, command, **kwargs):
+        self._logger.debug(f"transfer multiple {command!r}")
+        try:
+            await self._synchronize() # may raise asyncio.IncompleteReadError
+            self._logger.debug(f"synchronize transfer_multiple")
+            async for value in command.transfer(self._stream, **kwargs):
+                yield value
+                self._logger.debug(f"yield transfer_multiple")
+        except asyncio.IncompleteReadError as e:
+            self._handle_incomplete_read(e)
     

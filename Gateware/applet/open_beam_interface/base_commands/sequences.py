@@ -153,7 +153,7 @@ class RasterScanCommand(BaseCommand):
             array_count = pixel_count//65536
             remainder_pixel_count = pixel_count%65536
             assert array_count < 65536, "can't handle more than 65536x65536 points"
-            print(f"{array_count=}, {remainder_pixel_count=}")
+            self._logger.debug(f"{array_count=}, {remainder_pixel_count=}")
             if array_count > 0:
                 commands.extend(bytes(ArrayCommand(cmdtype=CmdType.RasterPixelRun, array_length=array_count)))
                 chunk = array.array('H', [self._dwell]*array_count)
@@ -189,6 +189,7 @@ class RasterScanCommand(BaseCommand):
             nonlocal tokens
             for commands, pixel_count in self._iter_chunks(latency):
                 self._logger.debug(f"sender: tokens={tokens}")
+                print(f"sender: {len(commands)=}, {pixel_count=}")
                 if tokens == 0:
                     await FlushCommand().transfer(stream)
                     await token_fut

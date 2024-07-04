@@ -50,7 +50,7 @@ class BaseCommand(metaclass = ABCMeta):
                 pass
         else:
             if output_mode == OutputMode.SixteenBit:
-                res = array.array('H', await stream.read(pixel_count * 2))
+                res = array.array('H', bytes(await stream.read(pixel_count * 2)))
                 if not BIG_ENDIAN:
                     res.byteswap()
                 self._logger.debug(f"recv_res 16")
@@ -86,3 +86,8 @@ from .sequences import (CommandSequence, VectorPixelArray, VectorPixelIter, Rela
                         RasterScanCommand, RasterPatternCommand)
 __all__ += ["CommandSequence", "VectorPixelArray", "VectorPixelIter", "RelayExternalCtrlCommand", 
             "RasterScanCommand", "RasterPatternCommand"]
+
+from .support import dump_hex
+__all__ += ["dump_hex"]
+
+
