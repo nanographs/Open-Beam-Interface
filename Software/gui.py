@@ -13,7 +13,7 @@ from PyQt6.QtWidgets import (QHBoxLayout, QMainWindow,
 import qasync
 from qasync import asyncSlot, asyncClose, QApplication, QEventLoop
 
-from .stream_interface import Connection
+from .stream_interface import TCPConnection
 from base_commands import DACCodeRange, BeamType
 from .frame_buffer import FrameBuffer
 from .gui_modules.image_display import ImageDisplay
@@ -107,7 +107,7 @@ class Window(QVBoxLayout):
         super().__init__()
         self.debug = debug
         self.config = tomllib.load(open(args.config_path, "rb") )
-        self.conn = Connection('localhost', int(args.port))
+        self.conn = TCPConnection('localhost', int(args.port))
         self.fb = FrameBuffer(self.conn)
 
         self.live_settings = LiveSettings()

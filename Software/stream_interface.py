@@ -13,7 +13,7 @@ from time import perf_counter
 
 from .support import dump_hex
 from base_commands import *
-
+#from ..Gateware.applet.base_commands.transfer2 import Stream
 
 BIG_ENDIAN = (struct.pack('@H', 0x1234) == struct.pack('>H', 0x1234))
 
@@ -24,17 +24,13 @@ logger = logging.getLogger()
 class TransferError(Exception):
     pass
 
-
-class Stream:
-    _logger = logger.getChild("Stream")
-    high_water = 262144 #65536
-
+class TCPStream(Stream):
     def __init__(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
         self._reader = reader
         self._writer = writer
         
-    def send(self, data: bytes | bytearray | memoryview):
-        self._logger.debug(f"send: data=<{dump_hex(data)}>")
+    async def write(self, data: bytes | bytearray | memoryview):
+        #self._logger.debug(f"send: data=<{dump_hex(data)}>")
         self._writer.write(data)
         self._logger.debug(f"send: done")
 
@@ -43,50 +39,29 @@ class Stream:
         await self._writer.drain()
         self._logger.debug("flush: done")
 
-    async def recv(self, length: int) -> bytearray:
+    async def read(self, length: int) -> memoryview:
         self._logger.debug(f"recv: length={length}")
         buffer = bytearray()
         remain = length
-        loop_start = perf_counter()
         while remain > 0:
-            start = perf_counter()
             data = await self._reader.read(remain)
-            stop = perf_counter()
             if len(data) == 0:
                 raise asyncio.IncompleteReadError
             remain -= len(data)
-            self._logger.debug(f"recv: data=<{dump_hex(data)}> remain={remain} - time {stop-start:.4f}")
+            #self._logger.debug(f"recv: data=<{dump_hex(data)}> remain={remain} - time {stop-start:.4f}")
             buffer.extend(data)
         stop = perf_counter()
-        self._logger.debug(f"recv: done - time {stop-loop_start:.4f}")
-        return buffer
-    
-    async def recv_until_done(self, length: int, done_sending: asyncio.Event) -> bytearray:
-        self._logger.debug(f"recv: length={length}")
-        buffer = bytearray()
-        remain = length
-        while remain > 0:
-            if done_sending.is_set():
-                self._logger.debug("recv: break on done_sending")
-                break
-            data = await self._reader.read(remain)
-            if len(data) == 0:
-                raise asyncio.IncompleteReadError
-            remain -= len(data)
-            self._logger.debug(f"recv: data=<{dump_hex(data)}> remain={remain}")
-            buffer.extend(data)
         self._logger.debug(f"recv: done")
-        return buffer
+        return memoryview(buffer)
+    
+    async def readuntil(self, separator=b'\n', *, flush=True, max_count=False) -> memoryview:
+        return await self._reader.readuntil(seperator, flush=flush, max_count=max_count)
 
     async def xchg(self, data: bytes | bytearray | memoryview, *, recv_length: int) -> bytes:
-        start = perf_counter()
-        self.send(data)
+        await self.send(data)
         return await self.recv(recv_length)
-        stop = perf_counter()
-        self._logger.debug(f"xchg time: {stop-start:.4f}")
 
-
-class Connection:
+class TCPConnection:
     _logger = logger.getChild("Connection")
 
     def __init__(self, host: str, port: int, *, read_buffer_size=0x10000*128):
@@ -112,7 +87,7 @@ class Connection:
 
     async def _connect(self):
         assert not self.connected
-        self._stream = Stream(*await asyncio.open_connection(
+        self._stream = TCPStream(*await asyncio.open_connection(
             self.host, self.port, limit=self.read_buffer_size))
 
         peername = self._stream._writer.get_extra_info('peername')
@@ -142,7 +117,7 @@ class Connection:
         seq.add(FlushCommand())
         #res = SynchronizeCommand(cookie=cookie, output=OutputMode.SixteenBit, raster=False).byte_response
         res = struct.pack('>HH', 65535, cookie)
-        self._stream.send(bytes(seq))
+        await self._stream.write(bytes(seq))
         while True:
             self._logger.debug("trying to synchronize...")
             try:
@@ -199,12 +174,12 @@ class Connection:
     async def transfer_raw(self, command, flush:bool = False, **kwargs):
         self._logger.debug(f"transfer {command!r}")
         await self._synchronize() # may raise asyncio.IncompleteReadError
-        self._stream.send(bytes(command))
+        await self._stream.write(bytes(command))
         await self._stream.flush()
     
     async def transfer_bytes(self, data:bytes, flush:bool = False, **kwargs):
         await self._synchronize() # may raise asyncio.IncompleteReadError
-        self._stream.send(data)
+        await self._stream.write(data)
         await self._stream.flush()
 
 
@@ -217,7 +192,7 @@ class BenchmarkTransfer(BaseCommand):
         # await StreamSynchronizeCommand(cookie=123, raster=False, 
         #                         output=output_mode).transfer(stream)
         import time
-        stream.send(bytes(SynchronizeCommand(cookie=123, raster=False, output=output_mode)))
+        await stream.write(bytes(SynchronizeCommand(cookie=123, raster=False, output=output_mode)))
         commands = bytearray()
         print("preparing commands...")
         for _ in range(131072*16):
@@ -229,7 +204,7 @@ class BenchmarkTransfer(BaseCommand):
         pixel_count = int(length/7)
         while True:
             begin = time.time()
-            stream.send(commands)
+            await stream.write(commands)
             await stream.flush()
             end = time.time()
             print(f"send: {(length / (end - begin)) / (1 << 20):.2f} MiB/s ({(length / (end - begin)) / (1 << 17):.2f} Mb/s)")
