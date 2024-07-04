@@ -50,6 +50,7 @@ obi_server.cmd = "obi_run --config_path ~/open-beam-interface/configs/jsm_6400.t
 obi_script.cmd = "obi_run --config_path ~/open-beam-interface/configs/jsm_6400.toml script {args}"
 ## used with server
 gui.cmd = "python -m Software.gui 2224 --config_path ~/open-beam-interface/configs/jsm_6400.toml"
+pattern_gui.cmd = "python -m Software.gui_modules.bmp_import_CHEAP"
 debug_gui.cmd = "python -m Software.gui 2224 --debug --config_path ~/open-beam-interface/configs/jsm_6400.toml"
 hilbert.cmd = "python -m Software.hilbert"
 ## unit tests
