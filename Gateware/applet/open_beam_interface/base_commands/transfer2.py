@@ -144,6 +144,7 @@ class GlasgowStream(Stream):
         # or an EOF has happened.
         while True:
             buflen = len(self.lower._in_buffer)
+            print(f"{buflen=}")
 
             if max_count & (buflen >= max_count):
                 break
@@ -197,6 +198,7 @@ class GlasgowConnection(Connection):
         await self.stream.flush()
         res = struct.pack(">HH", 0xffff, cookie)
         data = await self.stream.readuntil(res)
+        #data = await self.stream.read(4)
         print(str(list(data)))
 
 

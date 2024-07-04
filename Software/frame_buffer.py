@@ -6,10 +6,10 @@ import numpy as np
 import logging
 import tifffile
 
-from base_commands import DACCodeRange, BeamType
+from base_commands import DACCodeRange, BeamType, BlankCommand, RasterScanCommand, RelayExternalCtrlCommand
 #from .stream_interface import RasterScanCommand, RasterFreeScanCommand, setup_logging, RelayExternalCtrlCommand, StreamBlankCommand
 
-from .stream_interface2 import RasterScanCommand, setup_logging, RelayExternalCtrlCommand, StreamBlankCommand
+from .stream_interface import setup_logging
 
 
 from .tiff_export import draw_scalebar

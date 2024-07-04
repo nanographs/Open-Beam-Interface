@@ -15,7 +15,7 @@ import qasync
 from qasync import asyncSlot, asyncClose, QApplication, QEventLoop
 import pyqtgraph as pg
 
-from ..stream_interface2 import Connection, setup_logging
+from ..stream_interface import Connection, setup_logging
 from base_commands import *
 from .image_display import ImageDisplay
 
@@ -35,7 +35,7 @@ DEALWITHRGB = False
 def setup(beam_type):
     seq = CommandSequence(output=OutputMode.NoOutput, raster=False)
     #seq = CommandSequence(sync=False)
-    seq.add(BlankCommand(enable=True))
+    seq.add(BlankCommand(enable=True, inline=False))
     seq.add(BeamSelectCommand(beam_type=beam_type))
     seq.add(ExternalCtrlCommand(enable=True))
     seq.add(DelayCommand(delay=5760))
@@ -146,7 +146,7 @@ class Worker(QObject):
             self.progress.emit(n)
         pool.close()
 
-        seqbytes.extend(bytes(BlankCommand(enable=True)))
+        seqbytes.extend(bytes(BlankCommand(enable=True, inline=False)))
         self.pattern_seq = seqbytes
         self.vector_process_completed.emit(1)
 

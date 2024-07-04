@@ -14,7 +14,7 @@ import qasync
 from qasync import asyncSlot, asyncClose, QApplication, QEventLoop
 import pyqtgraph as pg
 
-from ..stream_interface2 import Connection, setup_logging
+from ..stream_interface import Connection, setup_logging
 from base_commands import *
 from .image_display import ImageDisplay
 
