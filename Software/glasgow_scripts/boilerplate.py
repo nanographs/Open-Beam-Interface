@@ -1,4 +1,4 @@
-from glasgowcontrib.applet.open_beam_interface.base_commands import *
+from Gateware.applet.open_beam_interface.base_commands import *
 
 '''
 CommandSequence sends a sync command with the following configuration options:
@@ -17,8 +17,9 @@ seq.add(BlankCommand(enable=True))
 '''Enable all of the external control relays'''
 seq.add(ExternalCtrlCommand(enable=True))
 '''Uncomment E or I beam to select what beam to use'''
-## seq.add(SelectEbeamCommand())
-## seq.add(SelectIbeamCommand())
+## seq.add(BeamSelectCommand(beam_type=BeamType.Electron))
+## seq.add(BeamSelectCommand(beam_type=BeamType.Ion))
+
 
 '''Add your sequence of commands below here'''
 
@@ -28,9 +29,9 @@ seq.add(ExternalCtrlCommand(enable=True))
 
 
 '''Return beam control to the microscope'''
-seq.add(DisableExtCtrlCommand())
+seq.add(ExternalCtrlCommand(enable=False))
 
 '''Send the sequence of commands to the Open Beam Interface'''
-await iface.write(seq.message)
+await iface.write(bytes(seq))
 '''Recieve the data back from the Open Beam Interface'''
 response = await iface.read()

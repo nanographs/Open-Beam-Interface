@@ -5,7 +5,7 @@ def filled_box(x_start, y_start, x_width, y_height, dwell):
     for y in range(y_start, y_start+y_height):
         for x in range(x_start, x_start+x_width):
             seq.add(BlankCommand(enable=False, inline=True))
-            seq.add(VectorPixelCommand(x_coord=x, y_coord = y, dwell = dwell))
+            seq.add(VectorPixelCommand(x_coord=x, y_coord = y, dwell_time = dwell))
             seq.add(BlankCommand(enable=True))
 
 def array_of_squares(square_width: int, square_spacing: int, squares_per_side: int,
@@ -21,5 +21,5 @@ def array_of_squares(square_width: int, square_spacing: int, squares_per_side: i
 def line(x_start, x_count, x_step, y, dwell):
     for x in range(x_start, x_start+(x_count*x_step), x_step):
         seq.add(BlankCommand(enable=False, inline=True))
-        seq.add(VectorPixelCommand(x_coord=x, y_coord = y, dwell = dwell))
+        seq.add(VectorPixelCommand(x_coord=x, y_coord = y, dwell_time = dwell))
         seq.add(BlankCommand(enable=True))

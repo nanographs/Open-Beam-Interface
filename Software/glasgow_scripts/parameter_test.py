@@ -1,4 +1,4 @@
-from glasgowcontrib.applet.open_beam_interface.base_commands import *
+from Gateware.applet.open_beam_interface.base_commands import *
 import numpy as np
 
 
@@ -14,13 +14,13 @@ await iface.flush()
 wait = input("ready to go?")
 seq = CommandSequence(output=OutputMode.NoOutput, raster=False)
 seq.add(BlankCommand(enable=False, inline=True))
-seq.add(VectorPixelCommand(x_coord=0, y_coord=0, dwell=1))
+seq.add(VectorPixelCommand(x_coord=0, y_coord=0, dwell_time=1))
 
 
 def gradient_line(x_start, x_count, x_step, y, dwells):
     for x in range(x_start, x_start+(x_count*x_step), x_step):
         #seq.add(BlankCommand(enable=False, inline=True))
-        seq.add(VectorPixelCommand(x_coord=int(x), y_coord = int(y), dwell = int(dwells[x])))
+        seq.add(VectorPixelCommand(x_coord=int(x), y_coord = int(y), dwell_time = int(dwells[x])))
         #seq.add(BlankCommand(enable=True))
 
 dwells = np.linspace(1, 160, num=16384)
@@ -49,7 +49,7 @@ def vertical_lines():
             n_lines = int(n_lines_array[yn])
             print(f"{y_start=}, {n_lines=}, {y_start+n_lines=}")
             for line in range(n_lines):
-                seq.add(VectorPixelCommand(x_coord=int(x_start), y_coord = int(y), dwell = int(dwells[x])))
+                seq.add(VectorPixelCommand(x_coord=int(x_start), y_coord = int(y), dwell_time = int(dwells[x])))
                 x_start += 1
 
 
@@ -57,12 +57,12 @@ horizontal_lines()
 seq.add(BlankCommand(enable=True))
 
 print("writing")
-await iface.write(seq.message)
+await iface.write(bytes(seq))
 await iface.flush()
 print("all done!")
 
 wait = input("return control?")
-await iface.write(ExternalCtrlCommand(enable=False).message)
+await iface.write(bytes(ExternalCtrlCommand(enable=False)))
 await iface.flush()
 print("bye~")
 
