@@ -11,8 +11,7 @@ from . import StreamSignature
 from . import Supersampler, RasterScanner, RasterRegion
 from . import CommandParser, CommandExecutor, Command, BeamType, OutputMode, CmdType
 from . import BusController, Flippenator
-# from .base_commands import *
-from .base_commands3 import *
+from .base_commands import *
 
 
 
@@ -299,7 +298,7 @@ class OBIAppletTestCase(unittest.TestCase):
                 for byte in bytes(command):
                     await put_stream(ctx, dut.usb_stream, byte)
             async def get_testbench(ctx):
-                d = command.pack_dict()
+                d = command.as_dict()
                 print(f"{d=}")
                 await get_stream(ctx, dut.cmd_stream, d, 
                     timeout_steps=len(command)*2 + 2)
@@ -347,7 +346,7 @@ class OBIAppletTestCase(unittest.TestCase):
                         await put_stream(ctx, dut.usb_stream, byte)
             async def get_testbench(ctx):
                 for dwell in dwells:
-                    await get_stream(ctx, dut.cmd_stream, RasterPixelCommand(dwell_time=dwell).pack_dict(), timeout_steps=len(command)*2 + len(dwells)*2 + 2)
+                    await get_stream(ctx, dut.cmd_stream, RasterPixelCommand(dwell_time=dwell).as_dict(), timeout_steps=len(command)*2 + len(dwells)*2 + 2)
                     assert ctx.get(dut.cmd_stream.valid) == 0
             self.simulate(dut, [get_testbench,put_testbench], name="parse_cmd_rasterpixel")  
         
@@ -362,7 +361,7 @@ class OBIAppletTestCase(unittest.TestCase):
 
             async def put_testbench(ctx):
                 await put_stream(ctx, dut.cmd_stream, 
-                        SynchronizeCommand(raster=True, output=OutputMode.NoOutput, cookie=cookie).pack_dict())
+                        SynchronizeCommand(raster=True, output=OutputMode.NoOutput, cookie=cookie).as_dict())
             
             async def get_testbench(ctx):
                 await get_stream(ctx, dut.img_stream, 65535) # FFFF
@@ -375,7 +374,7 @@ class OBIAppletTestCase(unittest.TestCase):
             async def put_testbench(ctx):
                 await put_stream(ctx, dut.cmd_stream, 
                     RasterRegionCommand(x_range=DACCodeRange(start=5, count=2, step=0x2_00),
-                    y_range=DACCodeRange(start=9, count=1, step=0x5_00)).pack_dict())
+                    y_range=DACCodeRange(start=9, count=1, step=0x5_00)).as_dict())
             async def get_testbench(ctx):
                 res = await ctx.tick().sample(dut.raster_scanner.roi_stream.payload).until(dut.raster_scanner.roi_stream.valid == 1)
                 wrapped_payload = dut.raster_scanner.roi_stream.payload.shape().const(
@@ -393,7 +392,7 @@ class OBIAppletTestCase(unittest.TestCase):
 
             async def put_testbench(ctx):
                 await put_stream(ctx, dut.cmd_stream, 
-                    RasterPixelCommand(dwell_time=5).pack_dict())
+                    RasterPixelCommand(dwell_time=5).as_dict())
             async def get_testbench(ctx):
                 res = await ctx.tick().sample(dut.raster_scanner.dwell_stream.payload).until(dut.raster_scanner.dwell_stream.valid == 1)
                 wrapped_payload = dut.raster_scanner.dwell_stream.payload.shape().const(
@@ -411,7 +410,7 @@ class OBIAppletTestCase(unittest.TestCase):
 
             async def put_testbench(ctx):
                 await put_stream(ctx, dut.cmd_stream, 
-                RasterPixelRunCommand(length=2, dwell_time=1).pack_dict())
+                RasterPixelRunCommand(length=2, dwell_time=1).as_dict())
 
             async def get_testbench(ctx):
                 async def get_stream(ctx, stream, payload):
@@ -443,7 +442,7 @@ class OBIAppletTestCase(unittest.TestCase):
         dut = CommandExecutor()
 
         async def async_unblank(ctx): #assumes starting from default or blanked state
-            ctx.set(dut.cmd_stream.payload, BlankCommand(enable=False, inline=False).pack_dict())
+            ctx.set(dut.cmd_stream.payload, BlankCommand(enable=False, inline=False).as_dict())
             ctx.set(dut.cmd_stream.valid, 1)
             await ctx.tick()
             ctx.set(dut.cmd_stream.valid, 0)
@@ -451,7 +450,7 @@ class OBIAppletTestCase(unittest.TestCase):
             assert ctx.get(dut.blank_enable) == 0
 
         async def async_blank(ctx): #assumes starting from an unblanked state
-            ctx.set(dut.cmd_stream.payload, BlankCommand(enable=True, inline=False).pack_dict())
+            ctx.set(dut.cmd_stream.payload, BlankCommand(enable=True, inline=False).as_dict())
             ctx.set(dut.cmd_stream.valid, 1)
             await ctx.tick()
             ctx.set(dut.cmd_stream.valid, 0)
@@ -459,12 +458,12 @@ class OBIAppletTestCase(unittest.TestCase):
             assert ctx.get(dut.blank_enable) == 1
         
         async def sync_unblank(ctx): #assumes starting from default or blanked state
-            ctx.set(dut.cmd_stream.payload, BlankCommand(enable=False, inline=True).pack_dict())
+            ctx.set(dut.cmd_stream.payload, BlankCommand(enable=False, inline=True).as_dict())
             ctx.set(dut.cmd_stream.valid, 1)
             await ctx.tick().until(dut.cmd_stream.ready == 0)
             assert ctx.get(dut.blank_enable) == 1 #shouldn't be unblanked yet
             ctx.set(dut.cmd_stream.payload, 
-                VectorPixelCommand(x_coord=1, y_coord=1, dwell_time=0).pack_dict())
+                VectorPixelCommand(x_coord=1, y_coord=1, dwell_time=0).as_dict())
             ctx.set(dut.cmd_stream.valid, 1)
             await ctx.tick().until(dut.cmd_stream.ready == 0)
             ctx.set(dut.cmd_stream.valid, 0)
@@ -473,11 +472,11 @@ class OBIAppletTestCase(unittest.TestCase):
             assert ctx.get(dut.blank_enable) == 0
 
         async def sync_blank(ctx): #assumes starting from an unblanked state
-            ctx.set(dut.cmd_stream.payload, BlankCommand(enable=True, inline=True).pack_dict())
+            ctx.set(dut.cmd_stream.payload, BlankCommand(enable=True, inline=True).as_dict())
             ctx.set(dut.cmd_stream.valid, 1)
             await ctx.tick().until(dut.cmd_stream.ready == 0)
             assert ctx.get(dut.blank_enable) == 0 #shouldn't be blanked yet
-            ctx.set(dut.cmd_stream.payload, VectorPixelCommand(x_coord=2, y_coord=2, dwell_time=0).pack_dict())
+            ctx.set(dut.cmd_stream.payload, VectorPixelCommand(x_coord=2, y_coord=2, dwell_time=0).as_dict())
             ctx.set(dut.cmd_stream.valid, 1)
             await ctx.tick().until(dut.cmd_stream.ready == 0)
             ctx.set(dut.cmd_stream.valid, 0)
@@ -514,7 +513,7 @@ class OBIAppletTestCase(unittest.TestCase):
                 return len(self.response)*BUS_CYCLES
             async def put_testbench(self, ctx, dut):
                 print(f"put_testbench: {self}")
-                await put_stream(ctx, dut.cmd_stream, self.command.pack_dict(), timeout_steps=self.exec_cycles+100)
+                await put_stream(ctx, dut.cmd_stream, self.command.as_dict(), timeout_steps=self.exec_cycles+100)
             async def get_testbench(self, ctx, dut):
                 print(f"get_testbench: {self}")
                 if len(self.response) > 0:
