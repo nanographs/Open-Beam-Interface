@@ -43,3 +43,18 @@ copybutton_copy_empty_lines = False
 
 html_theme = 'furo'
 html_static_path = ['_static']
+html_theme_options = {
+    "light_css_variables": {
+        "color-brand-primary": "#FF4F00",
+        "color-brand-content": "#2EA22A",
+        "color-brand-visited": "#1F7B1E"
+    },
+    "dark_css_variables": {
+        "color-brand-primary": "#FF4F00",
+        "color-brand-content": "#2EA22A",
+        "color-brand-visited": "#1F7B1E"
+    },
+    "light_logo": "image_scan_drawing_black.svg",
+    "dark_logo": "image_scan_drawing_white.svg"
+}
+

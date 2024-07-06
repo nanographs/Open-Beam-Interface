@@ -35,11 +35,11 @@ Raster
 
 .. autoclass:: RasterRegionCommand
 
+.. autoclass:: RasterPixelCommand
+
 .. autoclass:: RasterPixelRunCommand
 
 .. autoclass:: RasterPixelFreeRunCommand
-
-.. autoclass:: RasterPixelsCommand
 
 
 Vector

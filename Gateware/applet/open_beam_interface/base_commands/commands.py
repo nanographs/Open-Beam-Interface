@@ -115,8 +115,8 @@ class DelayCommand(LowLevelCommand):
 
 class RasterRegionCommand(LowLevelCommand):
     '''
-    Sets the region of the internal raster scanner
-    Takes :class:`DACCodeRange` as input
+    Sets the region of the internal raster scanner module.
+    Takes :class:`DACCodeRange` as input.
     '''
     bytelayout = ByteLayout({"roi": {
         "x_start": 2,
@@ -137,17 +137,35 @@ class RasterPixelCommand(LowLevelCommand):
     depends on the current :class:`RasterRegionCommand`. 
     '''
     bytelayout = ByteLayout({"dwell_time" : 2})
+    def __init__(self, *, dwell_time):
+        dwell = DwellTimeVal(dwell_time).value
+        super().__init__(length=length, dwell_time=dwell)
 
 class ArrayCommand(LowLevelCommand):
     bitlayout = BitLayout({"cmdtype": CmdType})
     bytelayout = ByteLayout({"array_length": 2})
 
 class RasterPixelRunCommand(LowLevelCommand):
+    '''
+    One pixel dwell value, to be repeated for a specified length. 
+    The position at which these pixels are executed
+    depends on the current :class:`RasterRegionCommand`. 
+    '''
     bytelayout = ByteLayout({"length": 2, "dwell_time" : 2})
-
+    def __init__(self, *, length, dwell_time):
+        dwell = DwellTimeVal(dwell_time).value
+        super().__init__(length=length, dwell_time=dwell)
 
 class RasterPixelFreeRunCommand(LowLevelCommand):
+    '''
+    One pixel dwell value, to be repeated indefinitely.
+    The position at which these pixels are executed
+    depends on the current :class:`RasterRegionCommand`.
+    '''
     bytelayout = ByteLayout({"dwell_time": 2})
+    def __init__(self, *, dwell_time):
+        dwell = DwellTimeVal(dwell_time).value
+        super().__init__(length=length, dwell_time=dwell)
 
 class VectorPixelCommand(LowLevelCommand):
     '''
