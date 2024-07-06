@@ -60,7 +60,7 @@ class TCPStream(Stream):
         return await self.recv(recv_length)
 
 class TCPConnection:
-
+    _logger = logger.getChild("Connection")
     def __init__(self, host: str, port: int, *, read_buffer_size=0x10000*128):
         self.host = host
         self.port = port
