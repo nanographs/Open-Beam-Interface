@@ -541,8 +541,6 @@ class CommandParser(wiring.Component):
         self.command_reg = Signal(Command)
         array_length = Signal(16)
 
-        
-        
         with m.FSM():
             def goto_first_deserialized_state(from_type=self.command.type):
                 with m.Switch(from_type):
