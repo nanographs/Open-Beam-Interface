@@ -832,21 +832,18 @@ class CommandExecutor(wiring.Component):
                             raster_region.y_step.eq(0),
                             raster_region.y_count.eq(0),
 
-                            self.raster_scanner.dwell_stream.payload.dwell_time.eq(command.payload.vector_pixel.dwell_time),
                             self.raster_scanner.dwell_stream.valid.eq(1),
                             self.raster_scanner.dwell_stream.payload.blank.eq(sync_blank),
                             self.raster_scanner.dwell_stream.payload.delay.eq(inline_delay_counter)
                         ]
+
+                        # account for 0-indexing, but also don't underflow
+                        # this means dwell 0 = 0 = 1 count, and dwell 1 also = 0 = 1 count
+                        with m.If(command.payload.vector_pixel.dwell_time == 0):
+                            m.d.comb += self.raster_scanner.dwell_stream.payload.dwell_time.eq(command.payload.vector_pixel.dwell_time)
+                        with m.Else(): 
+                            m.d.comb += self.raster_scanner.dwell_stream.payload.dwell_time.eq(command.payload.vector_pixel.dwell_time - 1)
                         
-                        # m.d.comb += vector_stream.valid.eq(1)
-                        # with m.If(command.type==CmdType.VectorPixel):
-                        #     m.d.sync += command_transforms.xflip.eq(command.payload.vector_pixel.payload.transform.xflip)
-                        #     m.d.sync += command_transforms.yflip.eq(command.payload.vector_pixel.payload.transform.yflip)
-                        #     m.d.sync += command_transforms.rotate90.eq(command.payload.vector_pixel.payload.transform.rotate90)
-                        # with m.If(command.type==CmdType.VectorPixelMinDwell):
-                        #     m.d.sync += command_transforms.xflip.eq(command.payload.vector_pixel_min.payload.transform.xflip)
-                        #     m.d.sync += command_transforms.yflip.eq(command.payload.vector_pixel_min.payload.transform.yflip)
-                        #     m.d.sync += command_transforms.rotate90.eq(command.payload.vector_pixel_min.payload.transform.rotate90)
                         with m.If(vector_stream.ready):
                             m.d.sync += inline_delay_counter.eq(0)
                             m.d.comb += submit_pixel.eq(1)
