@@ -74,15 +74,29 @@ class SynchronizeCommand(LowLevelCommand):
     bytelayout = ByteLayout({"cookie": 2})
 
 class AbortCommand(LowLevelCommand):
+    '''
+    End the current :class:`RasterRegionCommand`
+    '''
     pass
 
 class FlushCommand(LowLevelCommand):
+    '''
+    Submits the data in the FPGA FIFO over USB,
+    regardless of whether the FIFO is full.
+    '''
     pass
 
 class ExternalCtrlCommand(LowLevelCommand):
+    '''
+    Enable or disable external control of the beam
+    '''
     bitlayout = BitLayout({"enable": 1})
 
 class BeamSelectCommand(LowLevelCommand):
+    '''
+    Set the beam type
+    :class:`BeamType`
+    '''
     bitlayout = BitLayout({"beam_type": BeamType})
 
 class BlankCommand(LowLevelCommand):
@@ -91,10 +105,19 @@ class BlankCommand(LowLevelCommand):
         super().__init__(enable=enable, inline=inline)
 
 class DelayCommand(LowLevelCommand):
+    '''
+    Starts a counter, pausing execution of subsequent commands until the
+    time is up.
+    One unit of delay is one 48MHz clock cycle, or 20.83 ns.
+    '''
     bytelayout = ByteLayout({"delay": 2})
 
 
 class RasterRegionCommand(LowLevelCommand):
+    '''
+    Sets the region of the internal raster scanner
+    Takes :class:`DACCodeRange` as input
+    '''
     bytelayout = ByteLayout({"roi": {
         "x_start": 2,
         "x_count": 2,
@@ -109,6 +132,10 @@ class RasterRegionCommand(LowLevelCommand):
                             y_start = y_range.start, y_count = y_range.count, y_step = y_range.step)
 
 class RasterPixelCommand(LowLevelCommand):
+    '''
+    One pixel dwell value. The position at which this pixel is executed
+    depends on the current :class:`RasterRegionCommand`. 
+    '''
     bytelayout = ByteLayout({"dwell_time" : 2})
 
 class ArrayCommand(LowLevelCommand):
@@ -123,6 +150,9 @@ class RasterPixelFreeRunCommand(LowLevelCommand):
     bytelayout = ByteLayout({"dwell_time": 2})
 
 class VectorPixelCommand(LowLevelCommand):
+    '''
+    Sets DAC output to the coordinate X, Y for the specified dwell time.
+    '''
     bytelayout = ByteLayout({"dac_stream": {"x_coord": 2, "y_coord": 2, "dwell_time": 2}})
     def __init__(self, *, x_coord, y_coord, dwell_time):
         dwell = DwellTimeVal(dwell_time).value

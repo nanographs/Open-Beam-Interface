@@ -132,6 +132,9 @@ class RelayExternalCtrlCommand(BaseCommand):
 
 
 class RasterScanCommand(BaseCommand):
+    '''
+    Basic sequence of commands to acquire an image
+    '''
     def __init__(self, *, cookie: int, x_range: DACCodeRange, y_range: DACCodeRange, dwell: int):
         self._cookie  = cookie
         self._x_range = x_range

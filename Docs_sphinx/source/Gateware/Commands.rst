@@ -46,3 +46,9 @@ Vector
 ------
 
 .. autoclass:: VectorPixelCommand
+
+
+Array
+------
+
+.. autoclass:: ArrayCommand
