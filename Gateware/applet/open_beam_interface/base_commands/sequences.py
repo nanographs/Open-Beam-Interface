@@ -276,6 +276,7 @@ class RasterPatternCommand(BaseCommand):
         await SynchronizeCommand(cookie=self._cookie, raster=True, output = output_mode).transfer(stream)
         await RasterRegionCommand(x_range=self._x_range, y_range=self._y_range).transfer(stream)
         asyncio.create_task(sender())
+        cookie = await stream.read(4)
 
         for commands, pixel_count in self._iter_chunks(latency):
             tokens += 1
