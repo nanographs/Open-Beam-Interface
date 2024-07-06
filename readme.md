@@ -1,8 +1,13 @@
 # Open Beam Interface
 ![Overview of PCB](Images/Open%20Beam%20Interface%20Product%20Front.jpeg)
 ## About
+The Open Beam Interface project aims to make getting data into and out of scanning and patterning systems substantially more accessible. It is applicable to a varity of scanning and patterning system but is especially useful for Electron and Ion microscopes.
+
+
 ### Hardware
-2 high speed DACs, 1 high speed ADC. Just what you need to control the beam and get an image.
+2 high speed Digital to Analog converters to position the beam in X and Y and a high speed Analog to Digital converter to aquire the signal from a detector.
+
+Just what you need to control the beam and get an image.
 
 ### Gateware
 Built on [Glasgow](https://glasgow-embedded.org/), written in [Amaranth](https://amaranth-lang.org).
@@ -14,10 +19,12 @@ Glasgow handles getting the bytes in and out of your computer. Our software take
 
 ## Example Images
 ![Nanographs Logo Fib milled](Images/Nanographs%20Logo%20FIB%20Milled%20-%201.jpeg)
+![Diatom Milled with a FIB](Images/OBI%20Milled%20Diatom.jpg)
 ![ICE 40 FIB Blasted](Images/ICE40%20FIB%20Blasted%20-%201.jpeg)
 ![PS4 FIB Xsection](Images/PS4%20FIB%20Xsection.jpg)
 ![Mystery Chip FIB Blasted](Images/Mystery%20Chip%20FIB%20Blasted%20-%201.jpeg)
 ![Mystery Cip FIB Xsection](Images/Mystery%20Chip%20FIB%20X-Section%20-%201.jpeg)
+
 
 ## Roadmap
 
@@ -73,6 +80,7 @@ Microscopes the board has been specifically integrated into, this is far from an
 - JEOL 35C
 - JEOL 840
 - JEOL 63/6400
+- JEOL T330
 - FEI xT Platform
 
 #### Partial Support
@@ -89,6 +97,7 @@ We would like to thank our sponsors' generous sustaining contributions. Without 
 We are always open to potential microscope donations to use for hardware development, in order to expand the range of microscopes and capabilities we can support. Right now we are especially in search of FIBs, Dual Beams, and TEMs.
 
 - JEOL 6320F: Rob Flickenger https://hackerfriendly.com/
+- JEOL 1200 Mrk II on loan from Joe Bricker https://www.emqso.com
 
 ### Financial Supporters
 Thanks to the generous support of our financial sponsors we have been able to dedicate almost all of our time and facility resources to developing the project this far. We are looking for more sponsors in order to continue our work, involve more enginers, and take this project to the next level.
