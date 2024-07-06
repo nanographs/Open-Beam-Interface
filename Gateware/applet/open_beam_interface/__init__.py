@@ -397,7 +397,6 @@ class Supersampler(wiring.Component):
                 with m.If(self.dac_stream.valid):
                     m.d.sync += self.dac_stream_data.eq(self.dac_stream.payload)
                     m.d.sync += dwell_counter.eq(0)
-                    # m.d.sync += delay_counter.eq(0)
                     m.next = "Generate"
                 
 
@@ -463,6 +462,7 @@ class RasterScanner(wiring.Component):
     dwell_stream: In(StreamSignature(data.StructLayout({
         "dwell_time": DwellTime,
         "blank": BlankRequest,
+        "delay": 3
     })))
 
     abort: In(1)
@@ -645,8 +645,6 @@ class CommandExecutor(wiring.Component):
         wiring.connect(m, flipped(self.bus), bus_controller.bus)
         m.d.comb += self.inline_blank.eq(bus_controller.inline_blank)
 
-        vector_stream = StreamSignature(DACStream).create()
-
         command_transforms = Signal(Transforms)
         m.d.comb += self.flippenator.transforms.xflip.eq(command_transforms.xflip ^ self.default_transforms.xflip)
         m.d.comb += self.flippenator.transforms.yflip.eq(command_transforms.yflip ^ self.default_transforms.yflip)
@@ -655,10 +653,8 @@ class CommandExecutor(wiring.Component):
         raster_mode = Signal()
         output_mode = Signal(2)
         command = Signal.like(self.cmd_stream.payload)
-        with m.If(raster_mode):
-            wiring.connect(m, self.raster_scanner.dac_stream, self.supersampler.dac_stream)
-        with m.Else():
-            wiring.connect(m, vector_stream, self.supersampler.dac_stream)
+
+        wiring.connect(m, self.raster_scanner.dac_stream, self.supersampler.dac_stream)
 
         in_flight_pixels = Signal(4) # should never overflow
         submit_pixel = Signal()
@@ -688,9 +684,9 @@ class CommandExecutor(wiring.Component):
         m.d.comb += [
             self.raster_scanner.roi_stream.payload.eq(raster_region),
             #vector_stream.payload.eq(command.payload.vector_pixel.payload.dac_stream)
-            vector_stream.payload.dac_x_code.eq(command.payload.vector_pixel.dac_stream.x_coord),
-            vector_stream.payload.dac_y_code.eq(command.payload.vector_pixel.dac_stream.y_coord),
-            vector_stream.payload.dwell_time.eq(command.payload.vector_pixel.dac_stream.dwell_time)
+            #vector_stream.payload.dac_x_code.eq(command.payload.vector_pixel.dac_stream.x_coord),
+            #vector_stream.payload.dac_y_code.eq(command.payload.vector_pixel.dac_stream.y_coord),
+            #vector_stream.payload.dwell_time.eq(command.payload.vector_pixel.dac_stream.dwell_time)
         ]
 
         sync_req = Signal()
@@ -825,9 +821,24 @@ class CommandExecutor(wiring.Component):
 
 
                     with m.Case(CmdType.VectorPixel, CmdType.VectorPixelMinDwell):
-                        m.d.comb += vector_stream.valid.eq(1)
-                        m.d.comb += vector_stream.payload.blank.eq(sync_blank)
-                        m.d.comb += vector_stream.payload.delay.eq(inline_delay_counter)
+                        m.d.comb += [
+                            self.raster_scanner.roi_stream.payload.eq(raster_region),
+                            self.raster_scanner.roi_stream.valid.eq(1),
+
+                            raster_region.x_start.eq(command.payload.vector_pixel.x_coord),
+                            raster_region.x_step.eq(0),
+                            raster_region.x_count.eq(0),
+                            raster_region.y_start.eq(command.payload.vector_pixel.y_coord),
+                            raster_region.y_step.eq(0),
+                            raster_region.y_count.eq(0),
+
+                            self.raster_scanner.dwell_stream.payload.dwell_time.eq(command.payload.vector_pixel.dwell_time),
+                            self.raster_scanner.dwell_stream.valid.eq(1),
+                            self.raster_scanner.dwell_stream.payload.blank.eq(sync_blank),
+                            self.raster_scanner.dwell_stream.payload.delay.eq(inline_delay_counter)
+                        ]
+                        
+                        # m.d.comb += vector_stream.valid.eq(1)
                         # with m.If(command.type==CmdType.VectorPixel):
                         #     m.d.sync += command_transforms.xflip.eq(command.payload.vector_pixel.payload.transform.xflip)
                         #     m.d.sync += command_transforms.yflip.eq(command.payload.vector_pixel.payload.transform.yflip)
