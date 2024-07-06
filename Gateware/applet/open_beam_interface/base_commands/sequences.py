@@ -103,6 +103,7 @@ class VectorPixelIter(BaseCommand):
             self._logger.debug(f"sender: done")
 
         await sender()
+        cookie = await stream.read(4)
         yield await self.recv_res(pixel_count, stream, output_mode)
 
 
@@ -202,6 +203,7 @@ class RasterScanCommand(BaseCommand):
         await RasterRegionCommand(x_range=self._x_range, y_range=self._y_range).transfer(stream)
         asyncio.create_task(sender())
 
+        cookie = await stream.read(4)
         for commands, pixel_count in self._iter_chunks(latency):
             tokens += 1
             if tokens == 1:
