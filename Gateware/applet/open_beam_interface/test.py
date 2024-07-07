@@ -333,10 +333,10 @@ class OBIAppletTestCase(unittest.TestCase):
 
         test_cmd(VectorPixelCommand(x_coord=4, y_coord=5, dwell_time= 6),"cmd_vectorpixel")
 
-        test_cmd(VectorPixelCommand(x_coord=4, y_coord=5, dwell_time= 0),"cmd_vectorpixelmin")
+        test_cmd(VectorPixelCommand(x_coord=4, y_coord=5, dwell_time= 1),"cmd_vectorpixelmin")
     
         def test_raster_pixels_cmd():
-            command = ArrayCommand(cmdtype = CmdType.RasterPixel, length = 5)
+            command = ArrayCommand(cmdtype = CmdType.RasterPixel, array_length = 5)
             dwells = [1,2,3,4,5]
             async def put_testbench(ctx):
                 for byte in bytes(command):
@@ -813,9 +813,9 @@ class OBIAppletTestCase(unittest.TestCase):
                 self.assertEqual(await iface.read(4), bytes([0xFF, 0xFF, 123, 234])) # FF, FF, cookie
                 # await iface.flush()
                 commands = bytearray()
-                for n in range(10):
-                    await iface.write(VectorPixelCommand(x_coord=n, y_coord=n, dwell_time=1))
-                res = array.array('H',[x for x in range(10)])
+                for n in range(1,11):
+                    await iface.write(VectorPixelCommand(x_coord=n, y_coord=n, dwell_time=4))
+                res = array.array('H',[x for x in range(1,11)])
                 res.byteswap()
                 self.assertEqual(await iface.read(20), bytes(res))
             
