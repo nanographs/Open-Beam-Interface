@@ -37,7 +37,7 @@ class LowLevelCommand(BaseCommand):
     def __bytes__(self):
         """return bytes
         """
-        return self.pack_fn(vars(self))
+        return self.pack()
     def __len__(self):
         return len(bytes(self))
     def __repr__(self):
@@ -52,7 +52,7 @@ class LowLevelCommand(BaseCommand):
                 "payload": {self.fieldstr: 
                     {**self.bitlayout.pack_dict(vars(self)), **self.bytelayout.pack_dict(vars(self))}}}
     def pack(self):
-        return bytes(self)
+        return self.pack_fn(vars(self))
     async def transfer(self, stream):
         await stream.write(bytes(self))
         await stream.flush()
@@ -177,9 +177,9 @@ class VectorPixelCommand(LowLevelCommand):
     def __init__(self, *, x_coord, y_coord, dwell_time):
         dwell = DwellTimeVal(dwell_time)
         super().__init__(x_coord=x_coord, y_coord=y_coord, dwell_time=dwell)
-    def pack(self, **kwargs):
-        if kwargs["dwell_time"] <= 1:
-            return VectorPixelMinDwellCommand.pack(**kwargs)
+    def pack(self):
+        if vars(self)["dwell_time"] <= 1:
+            return VectorPixelMinDwellCommand(**vars(self)).pack()
         else:
             return super().pack(**kwargs)
 

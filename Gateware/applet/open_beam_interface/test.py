@@ -814,7 +814,7 @@ class OBIAppletTestCase(unittest.TestCase):
                 # await iface.flush()
                 commands = bytearray()
                 for n in range(1,11):
-                    await iface.write(VectorPixelCommand(x_coord=n, y_coord=n, dwell_time=4))
+                    await iface.write(VectorPixelCommand(x_coord=n, y_coord=n, dwell_time=1))
                 res = array.array('H',[x for x in range(1,11)])
                 res.byteswap()
                 self.assertEqual(await iface.read(20), bytes(res))
@@ -868,6 +868,10 @@ class OBIAppletTestCase(unittest.TestCase):
         test_case.test_vector_blank()
         test_case.test_loopback_raster()
         test_case.test_loopback_vector()
+    
+    def test_v(self):
+
+        print(bytes(VectorPixelCommand(x_coord=10, y_coord=10, dwell_time=1)))
 
         
 
