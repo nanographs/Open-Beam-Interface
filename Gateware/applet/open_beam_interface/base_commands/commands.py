@@ -181,7 +181,13 @@ class VectorPixelCommand(LowLevelCommand):
         if vars(self)["dwell_time"] <= 1:
             return VectorPixelMinDwellCommand(**vars(self)).pack()
         else:
-            return super().pack(**kwargs)
+            return super().pack()
+    def as_dict(self):
+        if vars(self)["dwell_time"] <= 1:
+            return VectorPixelMinDwellCommand(**vars(self)).as_dict()
+        else:
+            return super().as_dict()
+        
 
 class VectorPixelMinDwellCommand(LowLevelCommand):
     bytelayout = ByteLayout({"dac_stream": {"x_coord": 2, "y_coord": 2}})

@@ -12,6 +12,8 @@ parser.add_argument('-c', '--config_path', required=False,
                     #expand paths starting with ~ to absolute
                     type=lambda p: pathlib.Path(p).expanduser(), 
                     help='path to microscope.toml')
+parser.add_argument('--loopback', required=False, action = 'store_true',
+                help="load applet in loopback mode")
 subparsers = parser.add_subparsers(title='mode',
                                 description='valid obi modes',
                                 help='server: launch server at port [PORT]. \n \
@@ -31,7 +33,7 @@ args = parser.parse_args()
 
 pin_args = []
 transform_args = []
-if hasattr(args, "config_path"):
+if (hasattr(args, "config_path")) & (args.config_path != None):
     print(f"loading config from {args.config_path}")
     config = tomllib.load(open(args.config_path, "rb") )
     if "pinout" in config:
@@ -43,6 +45,8 @@ if hasattr(args, "config_path"):
         transforms = config["transforms"]
         transform_args += ["--" + x for x in transforms if transforms.get(x) == True]
 
+if (hasattr(args, "loopback")) &(args.loopback != None):
+    pin_args += ["--loopback"]
 
 
 endpoint_arg = []

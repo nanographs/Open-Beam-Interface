@@ -380,12 +380,14 @@ class Supersampler(wiring.Component):
         m = Module()
 
         dwell_counter = Signal.like(self.dac_stream_data.dwell_time)
+        last = Signal()
         m.d.comb += [
             self.super_dac_stream.payload.dac_x_code.eq(self.dac_stream_data.dac_x_code),
             self.super_dac_stream.payload.dac_y_code.eq(self.dac_stream_data.dac_y_code),
             self.super_dac_stream.payload.blank.eq(self.dac_stream_data.blank),
             self.super_dac_stream.payload.delay.eq(self.dac_stream_data.delay),
-            self.super_dac_stream.payload.last.eq(dwell_counter == self.dac_stream_data.dwell_time),
+            #self.super_dac_stream.payload.last.eq(dwell_counter == self.dac_stream_data.dwell_time),
+            last.eq(dwell_counter == self.dac_stream_data.dwell_time),
         ]
         with m.If(self.stall_count_reset):
             m.d.sync += self.stall_cycles.eq(0)
@@ -403,7 +405,8 @@ class Supersampler(wiring.Component):
             with m.State("Generate"):
                 m.d.comb += self.super_dac_stream.valid.eq(1)
                 with m.If(self.super_dac_stream.ready):
-                    with m.If(self.super_dac_stream.payload.last):
+                    with m.If(last):
+                        m.d.comb += self.super_dac_stream.payload.last.eq(last)
                         m.next = "Wait"
                     with m.Else():
                         m.d.sync += dwell_counter.eq(dwell_counter + 1)
@@ -453,8 +456,100 @@ class RasterRegion(data.Struct):
 
 DwellTime = unsigned(16)
 
+class PointStream(data.Struct):
+    dac_x_code: 14
+    dac_y_code: 14
+
 
 class RasterScanner(wiring.Component):
+    FRAC_BITS = 8
+
+    roi_stream: In(StreamSignature(RasterRegion))
+
+    point_stream: In(StreamSignature(PointStream))
+
+    dwell_stream: In(StreamSignature(data.StructLayout({
+        "dwell_time": DwellTime,
+        "blank": BlankRequest,
+        "delay": 3
+    })))
+
+    abort: In(1)
+    #: Interrupt the scan in progress and fetch the next ROI from `roi_stream`.
+
+    dac_stream: Out(StreamSignature(DACStream))
+
+    def elaborate(self, platform):
+        m = Module()
+
+        region  = Signal.like(self.roi_stream.payload)
+
+        x_accum = Signal(14 + self.FRAC_BITS)
+        x_count = Signal.like(region.x_count)
+        y_accum = Signal(14 + self.FRAC_BITS)
+        y_count = Signal.like(region.y_count)
+
+        dac_x_code = Signal(14)
+        dac_y_code = Signal(14)
+
+        m.d.comb += [
+            self.dac_stream.payload.dac_x_code.eq(dac_x_code),
+            self.dac_stream.payload.dac_y_code.eq(dac_y_code),
+            self.dac_stream.payload.dwell_time.eq(self.dwell_stream.payload.dwell_time),
+            self.dac_stream.payload.blank.eq(self.dwell_stream.payload.blank)
+        ]
+
+        self.point_stream.ready.eq(1)
+        with m.If(self.point_stream.valid):
+            m.d.comb += dac_x_code.eq(self.point_stream.payload.dac_x_code)
+            m.d.comb += dac_y_code.eq(self.point_stream.payload.dac_y_code)
+            m.d.comb += self.dwell_stream.ready.eq(self.dac_stream.ready)
+            m.d.comb += self.dac_stream.valid.eq(self.dwell_stream.valid)
+        with m.Else():
+            self.dac_stream.payload.dac_x_code.eq(x_accum >> self.FRAC_BITS),
+            self.dac_stream.payload.dac_y_code.eq(y_accum >> self.FRAC_BITS),
+
+        with m.FSM():
+            with m.State("Get-ROI"):
+                m.d.comb += self.roi_stream.ready.eq(1)
+                with m.If(self.roi_stream.valid):
+                    m.d.sync += [
+                        region.eq(self.roi_stream.payload),
+                        x_accum.eq(self.roi_stream.payload.x_start << self.FRAC_BITS),
+                        x_count.eq(self.roi_stream.payload.x_count - 1),
+                        y_accum.eq(self.roi_stream.payload.y_start << self.FRAC_BITS),
+                        y_count.eq(self.roi_stream.payload.y_count - 1),
+                    ]
+                    m.next = "Scan"
+
+            with m.State("Scan"):
+                m.d.comb += self.dac_stream.payload.dac_x_code.eq(x_accum >> self.FRAC_BITS)
+                m.d.comb += self.dac_stream.payload.dac_y_code.eq(y_accum >> self.FRAC_BITS)
+                m.d.comb += self.dwell_stream.ready.eq(self.dac_stream.ready)
+                m.d.comb += self.dac_stream.valid.eq(self.dwell_stream.valid)
+                with m.If(self.dac_stream.ready):
+                    with m.If(self.abort):
+                        m.next = "Get-ROI"
+                with m.If(self.dwell_stream.valid & self.dac_stream.ready):
+                    # AXI4-Stream §2.2.1
+                    # > Once TVALID is asserted it must remain asserted until the handshake occurs.
+
+                    with m.If(x_count == 0):
+                        with m.If(y_count == 0):
+                            m.next = "Get-ROI"
+                        with m.Else():
+                            m.d.sync += y_accum.eq(y_accum + region.y_step)
+                            m.d.sync += y_count.eq(y_count - 1)
+
+                        m.d.sync += x_accum.eq(region.x_start << self.FRAC_BITS)
+                        m.d.sync += x_count.eq(region.x_count - 1)
+                    with m.Else():
+                        m.d.sync += x_accum.eq(x_accum + region.x_step)
+                        m.d.sync += x_count.eq(x_count - 1)
+
+        return m
+
+class RasterScanner2(wiring.Component):
     FRAC_BITS = 8
 
     roi_stream: In(StreamSignature(RasterRegion))
@@ -822,15 +917,19 @@ class CommandExecutor(wiring.Component):
 
                     with m.Case(CmdType.VectorPixel, CmdType.VectorPixelMinDwell):
                         m.d.comb += [
-                            self.raster_scanner.roi_stream.payload.eq(raster_region),
-                            self.raster_scanner.roi_stream.valid.eq(1),
+                            # self.raster_scanner.roi_stream.payload.eq(raster_region),
+                            # self.raster_scanner.roi_stream.valid.eq(1),
 
-                            raster_region.x_start.eq(command.payload.vector_pixel.x_coord),
-                            raster_region.x_step.eq(0),
-                            raster_region.x_count.eq(1),
-                            raster_region.y_start.eq(command.payload.vector_pixel.y_coord),
-                            raster_region.y_step.eq(0),
-                            raster_region.y_count.eq(1),
+                            # raster_region.x_start.eq(command.payload.vector_pixel.x_coord),
+                            # raster_region.x_step.eq(0),
+                            # raster_region.x_count.eq(1),
+                            # raster_region.y_start.eq(command.payload.vector_pixel.y_coord),
+                            # raster_region.y_step.eq(0),
+                            # raster_region.y_count.eq(1),
+
+                            self.raster_scanner.point_stream.payload.dac_x_code.eq(command.payload.vector_pixel.x_coord),
+                            self.raster_scanner.point_stream.payload.dac_y_code.eq(command.payload.vector_pixel.y_coord),
+                            self.raster_scanner.point_stream.valid.eq(1),
 
                             self.raster_scanner.dwell_stream.valid.eq(1),
                             self.raster_scanner.dwell_stream.payload.blank.eq(sync_blank),
@@ -988,7 +1087,7 @@ class OBISubtarget(wiring.Component):
 
             loopback_dwell_time = Signal()
             if self.loopback:
-                m.d.sync += loopback_dwell_time.eq(executor.cmd_stream.payload.type == Command.Type.RasterPixel)
+                m.d.sync += loopback_dwell_time.eq(executor.cmd_stream.payload.type == CmdType.RasterPixel)
 
             with m.If(loopback_dwell_time):
                 m.d.comb += loopback_adapter.loopback_stream.eq(executor.supersampler.dac_stream_data.dwell_time)
@@ -1096,10 +1195,12 @@ class OBISubtarget(wiring.Component):
                 control.d_clock.o.eq(executor.bus.dac_clk),
                 control.a_clock.o.eq(executor.bus.adc_clk),
 
-                executor.bus.data_i.eq(data.i),
                 data.o.eq(executor.bus.data_o),
                 data.oe.eq(executor.bus.data_oe),
             ]
+
+            if not self.loopback:
+                m.d.comb += executor.bus.data_i.eq(data.i)
 
         return m
 

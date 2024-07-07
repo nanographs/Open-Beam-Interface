@@ -46,7 +46,7 @@ includes = ["Gateware"]
 [tool.pdm.scripts]
 _.env = {GLASGOW_OUT_OF_TREE_APPLETS = "I-am-okay-with-breaking-changes"}
 ## wrapper around glasgow cli
-obi_server.cmd = "obi_run --config_path ~/open-beam-interface/configs/jsm_6400.toml server 2224"
+obi_server.cmd = "obi_run {args} --config_path ~/open-beam-interface/configs/jsm_6400.toml server 2224"
 obi_script.cmd = "obi_run --config_path ~/open-beam-interface/configs/jsm_6400.toml script {args}"
 ## used with server
 gui.cmd = "python -m Software.gui 2224 --config_path ~/open-beam-interface/configs/jsm_6400.toml"

@@ -61,7 +61,6 @@ def filtered_dict(data, payload):
     data = prettier_dict(data)
     filtered_data = {}
     def unpack(data, payload, filtered_data):
-        print(f"{filtered_data=}")
         for signal, payload_value in payload.items():
             data_value = data[signal]
             if isinstance(data_value, dict):
@@ -808,16 +807,39 @@ class OBIAppletTestCase(unittest.TestCase):
             @applet_simulation_test("setup_x_loopback")
             async def test_loopback_vector(self):
                 iface = await self.run_simulated_applet()
-                await iface.write(SynchronizeCommand(output=OutputMode.SixteenBit, raster=False, cookie=123*256+234))
-                await iface.write(FlushCommand())
-                self.assertEqual(await iface.read(4), bytes([0xFF, 0xFF, 123, 234])) # FF, FF, cookie
-                # await iface.flush()
                 commands = bytearray()
+                commands.extend(bytes(SynchronizeCommand(output=OutputMode.SixteenBit, raster=False, cookie=123*256+234)))
+                commands.extend(bytes(FlushCommand()))
                 for n in range(1,11):
-                    await iface.write(VectorPixelCommand(x_coord=n, y_coord=n, dwell_time=1))
+                    commands.extend(bytes(VectorPixelCommand(x_coord=n, y_coord=n, dwell_time=1)))
+                await iface.write(commands)
+                self.assertEqual(await iface.read(4), bytes([0xFF, 0xFF, 123, 234])) # FF, FF, cookie
                 res = array.array('H',[x for x in range(1,11)])
                 res.byteswap()
                 self.assertEqual(await iface.read(20), bytes(res))
+            
+            @applet_simulation_test("setup_x_loopback")
+            async def test_loopback_multimode(self):
+                iface = await self.run_simulated_applet()
+                # await iface.flush()
+                commands = bytearray()
+                #commands.extend(bytes(SynchronizeCommand(output=OutputMode.SixteenBit, raster=False, cookie=123*256+234)))
+                for n in range(1,11):
+                    commands.extend(bytes(VectorPixelCommand(x_coord=n, y_coord=n, dwell_time=1)))
+                x_range = DACCodeRange(start=0, count=5, step=256) #step = 1 DAC code
+                y_range = DACCodeRange(start=5, count=10, step=256)
+                commands.extend(bytes(RasterRegionCommand(x_range=x_range, y_range=y_range)))
+                commands.extend(bytes(RasterPixelRunCommand(length=25, dwell_time=2)))
+                await iface.write(commands)
+                #self.assertEqual(await iface.read(4), bytes([0xFF, 0xFF, 123, 234])) # FF, FF, cookie
+                res = array.array('H',[x for x in range(1,11)])
+                res.byteswap()
+                self.assertEqual(await iface.read(20), bytes(res))
+                #await iface.write(SynchronizeCommand(cookie=123*256 + 234, raster=True, output=OutputMode.SixteenBit))
+                #self.assertEqual(await iface.read(4), bytes([0xFF, 0xFF, 123, 234])) # FF, FF, cookie
+                res = array.array('H',[x for x in range(5)]*5)
+                res.byteswap()
+                self.assertEqual(await iface.read(50), bytes(res))
             
             ## tests that are more for observation
             @applet_simulation_test("setup_test", args=["--pin-ext-ibeam-scan-enable", "0", "--pin-ext-ibeam-scan-enable-2", "1"])
@@ -862,16 +884,13 @@ class OBIAppletTestCase(unittest.TestCase):
             
         test_case = OBIApplet_TestCase()
         test_case.setUp()
-        test_case.test_build()
-        test_case.test_sync_cookie()
-        test_case.test_benchmark()
-        test_case.test_vector_blank()
-        test_case.test_loopback_raster()
-        test_case.test_loopback_vector()
-    
-    def test_v(self):
-
-        print(bytes(VectorPixelCommand(x_coord=10, y_coord=10, dwell_time=1)))
+        # test_case.test_build()
+        # test_case.test_sync_cookie()
+        # test_case.test_benchmark()
+        # test_case.test_vector_blank()
+        # test_case.test_loopback_raster()
+        # test_case.test_loopback_vector()
+        test_case.test_loopback_multimode()
 
         
 
