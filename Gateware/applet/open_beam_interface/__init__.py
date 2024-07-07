@@ -692,9 +692,9 @@ class CommandExecutor(wiring.Component):
         sync_req = Signal()
         sync_ack = Signal()
 
-        is_executing = Signal()
+        self.is_executing = Signal()
         with m.FSM() as fsm:
-            m.d.comb += is_executing.eq(fsm.ongoing("Execute"))
+            m.d.comb += self.is_executing.eq(fsm.ongoing("Execute"))
             with m.State("Fetch"):
                 m.d.comb += self.cmd_stream.ready.eq(1)
                 with m.If(self.cmd_stream.valid):
@@ -827,10 +827,10 @@ class CommandExecutor(wiring.Component):
 
                             raster_region.x_start.eq(command.payload.vector_pixel.x_coord),
                             raster_region.x_step.eq(0),
-                            raster_region.x_count.eq(0),
+                            raster_region.x_count.eq(1),
                             raster_region.y_start.eq(command.payload.vector_pixel.y_coord),
                             raster_region.y_step.eq(0),
-                            raster_region.y_count.eq(0),
+                            raster_region.y_count.eq(1),
 
                             self.raster_scanner.dwell_stream.valid.eq(1),
                             self.raster_scanner.dwell_stream.payload.blank.eq(sync_blank),
@@ -844,7 +844,7 @@ class CommandExecutor(wiring.Component):
                         with m.Else(): 
                             m.d.comb += self.raster_scanner.dwell_stream.payload.dwell_time.eq(command.payload.vector_pixel.dwell_time - 1)
                         
-                        with m.If(vector_stream.ready):
+                        with m.If(self.raster_scanner.dwell_stream.ready):
                             m.d.sync += inline_delay_counter.eq(0)
                             m.d.comb += submit_pixel.eq(1)
                             m.next = "Fetch"
