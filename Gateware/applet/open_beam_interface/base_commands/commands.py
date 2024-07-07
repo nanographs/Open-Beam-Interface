@@ -63,7 +63,9 @@ class DwellTimeVal(int):
         One DwellTime = 125 ns'''
     def __init__(self, value):
         assert value <= 65536, f"Pixel dwell time {value} is higher than 65536. Dwell times are limited to 16 bit values"
-        self.value = value - 1 #Dwell time counter is 0-indexed
+    def __new__(self, value):
+        self.__init__(self, value)
+        return value
 
 
 class SynchronizeCommand(LowLevelCommand):
@@ -138,8 +140,8 @@ class RasterPixelCommand(LowLevelCommand):
     '''
     bytelayout = ByteLayout({"dwell_time" : 2})
     def __init__(self, *, dwell_time):
-        dwell = DwellTimeVal(dwell_time).value
-        super().__init__(length=length, dwell_time=dwell)
+        dwell = DwellTimeVal(dwell_time)
+        super().__init__(dwell_time=dwell)
 
 class ArrayCommand(LowLevelCommand):
     bitlayout = BitLayout({"cmdtype": CmdType})
@@ -153,7 +155,7 @@ class RasterPixelRunCommand(LowLevelCommand):
     '''
     bytelayout = ByteLayout({"length": 2, "dwell_time" : 2})
     def __init__(self, *, length, dwell_time):
-        dwell = DwellTimeVal(dwell_time).value
+        dwell = DwellTimeVal(dwell_time)
         super().__init__(length=length, dwell_time=dwell)
 
 class RasterPixelFreeRunCommand(LowLevelCommand):
@@ -164,19 +166,19 @@ class RasterPixelFreeRunCommand(LowLevelCommand):
     '''
     bytelayout = ByteLayout({"dwell_time": 2})
     def __init__(self, *, dwell_time):
-        dwell = DwellTimeVal(dwell_time).value
-        super().__init__(length=length, dwell_time=dwell)
+        dwell = DwellTimeVal(dwell_time)
+        super().__init__(dwell_time=dwell)
 
 class VectorPixelCommand(LowLevelCommand):
     '''
     Sets DAC output to the coordinate X, Y for the specified dwell time.
     '''
-    bytelayout = ByteLayout({"dac_stream": {"x_coord": 2, "y_coord": 2, "dwell_time": 2}})
+    bytelayout = ByteLayout({"x_coord": 2, "y_coord": 2, "dwell_time": 2})
     def __init__(self, *, x_coord, y_coord, dwell_time):
-        dwell = DwellTimeVal(dwell_time).value
+        dwell = DwellTimeVal(dwell_time)
         super().__init__(x_coord=x_coord, y_coord=y_coord, dwell_time=dwell)
     def pack(self, **kwargs):
-        if kwargs["dwell_time"] == 0:
+        if kwargs["dwell_time"] <= 1:
             return VectorPixelMinDwellCommand.pack(**kwargs)
         else:
             return super().pack(**kwargs)
