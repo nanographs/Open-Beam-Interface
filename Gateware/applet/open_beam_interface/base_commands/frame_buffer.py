@@ -6,10 +6,9 @@ import numpy as np
 import logging
 import tifffile
 
-from base_commands import DACCodeRange, BeamType, BlankCommand, RasterScanCommand, RelayExternalCtrlCommand
-#from .stream_interface import RasterScanCommand, RasterFreeScanCommand, setup_logging, RelayExternalCtrlCommand, StreamBlankCommand
+from . import *
 
-from .stream_interface import setup_logging
+#from .stream_interface import setup_logging
 
 
 from .tiff_export import draw_scalebar
@@ -17,8 +16,8 @@ from .tiff_export import draw_scalebar
 import logging
 logger = logging.getLogger()
 
-setup_logging({"Command": logging.DEBUG, "Stream": logging.DEBUG, 
-            "Frame": logging.DEBUG, "FrameBuffer":  logging.DEBUG})
+# setup_logging({"Command": logging.DEBUG, "Stream": logging.DEBUG, 
+#             "Frame": logging.DEBUG, "FrameBuffer":  logging.DEBUG})
 
 class Frame:
     _logger = logger.getChild("Frame")
