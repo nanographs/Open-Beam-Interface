@@ -8,7 +8,7 @@ import sys
 from . import OBIApplet, obi_resources
 from glasgow.target.hardware import GlasgowHardwareTarget
 from glasgow.device.hardware import GlasgowHardwareDevice
-from glasgow.access.direct import DirectArguments, DirectMultiplexer, DirectDemultiplexer
+from glasgow.access.direct import DirectMultiplexer, DirectDemultiplexer
 
 
 
