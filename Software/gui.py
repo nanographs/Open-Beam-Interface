@@ -5,17 +5,16 @@ import tomllib
 import asyncio
 import sys
 import pyqtgraph as pg
-from PyQt6.QtWidgets import (QHBoxLayout, QMainWindow, 
+from PyQt6.QtWidgets import (QHBoxLayout, QMainWindow, QDialog,
                              QMessageBox, QPushButton, QComboBox,
                              QVBoxLayout, QWidget, QLabel, QGridLayout,
-                             QSpinBox, QFileDialog, QLineEdit)
+                             QSpinBox, QFileDialog, QLineEdit, QDialogButtonBox)
 
 import qasync
 from qasync import asyncSlot, asyncClose, QApplication, QEventLoop
 
 from .stream_interface import TCPConnection
-from base_commands import DACCodeRange, BeamType
-from .frame_buffer import FrameBuffer
+from base_commands import DACCodeRange, BeamType, FrameBuffer
 from .gui_modules.image_display import ImageDisplay
 from .gui_modules.settings import SettingBox, SettingBoxWithDefaults, ImageSettings, BeamSettings
 
@@ -110,6 +109,11 @@ class Window(QVBoxLayout):
         self.conn = TCPConnection('localhost', int(args.port))
         self.fb = FrameBuffer(self.conn)
 
+        w = QWidget()
+        layout = QVBoxLayout()
+        w.setLayout(layout)
+        self.setCentralWidget(w)
+
         self.live_settings = LiveSettings()
         self.live_settings.live_capture_btn.clicked.connect(self.capture_live)
 
@@ -124,22 +128,22 @@ class Window(QVBoxLayout):
         combined_settings.addLayout(self.beam_settings)
         combined_settings.addLayout(self.photo_settings)
         combined_settings.addLayout(self.live_settings)
-        self.addLayout(combined_settings)
+        layout.addLayout(combined_settings)
 
         
         self.live_settings.save_btn.clicked.connect(self.save_image)
         self.image_display = ImageDisplay(512,512)
-        self.addWidget(self.image_display)
+        layout.addWidget(self.image_display)
         self.dir_path = os.getcwd()
         self.image_data = ImageData()
-        self.addLayout(self.image_data)
+        layout.addLayout(self.image_data)
         self.image_data.measure_btn.clicked.connect(self.toggle_measure)
         self.save_settings = SaveSettings()
         self.save_settings.file_btn.clicked.connect(self.file_dialog)
-        self.addLayout(self.save_settings)
+        layout.addLayout(self.save_settings)
         if self.debug:
             self.debug_settings = DebugSettings()
-            self.addLayout(self.debug_settings)
+            layout.addLayout(self.debug_settings)
             self.debug_settings.connect_btn.clicked.connect(self.toggle_connection)
             self.debug_settings.sync_btn.clicked.connect(self.request_sync)
             self.debug_settings.freescan_btn.clicked.connect(self.free_scan)
@@ -173,7 +177,7 @@ class Window(QVBoxLayout):
     
     @property
     def hfov_m(self):
-        if hasattr(self.config, "mag_cal"):
+        if "mag_cal" in self.config:
             mag = self.image_data.mag.getval()
             cal = self.config["mag_cal"]
             cal_factor = cal["m_per_FOV"]
@@ -198,15 +202,15 @@ class Window(QVBoxLayout):
             self.image_display.add_line()
             self.image_display.line.sigRegionChanged.connect(self.measure)
             self.image_data.mag.spinbox.valueChanged.connect(self.measure)
-            self.settings.rx.spinbox.valueChanged.connect(self.measure)
-            self.settings.ry.spinbox.valueChanged.connect(self.measure)
+            #self.settings.rx.spinbox.valueChanged.connect(self.measure)
+            #self.settings.ry.spinbox.valueChanged.connect(self.measure)
             self.measure()
         else:
             self.image_display.remove_line()
             self.image_data.measure_length.setText("      ")
             self.image_data.mag.spinbox.valueChanged.disconnect(self.measure)
-            self.settings.rx.spinbox.valueChanged.disconnect(self.measure)
-            self.settings.ry.spinbox.valueChanged.disconnect(self.measure)
+            #self.settings.rx.spinbox.valueChanged.disconnect(self.measure)
+            #self.settings.ry.spinbox.valueChanged.disconnect(self.measure)
     
 
     def measure(self):
@@ -330,12 +334,10 @@ def run_gui():
     app_close_event = asyncio.Event()
     app.aboutToQuit.connect(app_close_event.set)
 
-    w = QWidget()
     window = Window(debug=args.debug)
-    w.setLayout(window)
     if not args.window_size == None:
-        w.resize(args.window_size[0], args.window_size[1])
-    w.show()
+        window.resize(args.window_size[0], args.window_size[1])
+    window.show()
 
     with event_loop:
         event_loop.run_until_complete(app_close_event.wait())
