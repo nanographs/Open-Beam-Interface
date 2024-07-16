@@ -829,7 +829,9 @@ class OBIAppletTestCase(unittest.TestCase):
                 x_range = DACCodeRange(start=0, count=5, step=256) #step = 1 DAC code
                 y_range = DACCodeRange(start=5, count=10, step=256)
                 commands.extend(bytes(RasterRegionCommand(x_range=x_range, y_range=y_range)))
-                commands.extend(bytes(RasterPixelRunCommand(length=25, dwell_time=2)))
+                commands.extend(bytes(RasterPixelRunCommand(length=20, dwell_time=2)))
+                commands.extend(bytes(VectorPixelCommand(x_coord=4, y_coord=7, dwell_time=2)))
+                commands.extend(bytes(RasterPixelRunCommand(length=4, dwell_time=2)))
                 await iface.write(commands)
                 #self.assertEqual(await iface.read(4), bytes([0xFF, 0xFF, 123, 234])) # FF, FF, cookie
                 res = array.array('H',[x for x in range(1,11)])
@@ -837,9 +839,9 @@ class OBIAppletTestCase(unittest.TestCase):
                 self.assertEqual(await iface.read(20), bytes(res))
                 #await iface.write(SynchronizeCommand(cookie=123*256 + 234, raster=True, output=OutputMode.SixteenBit))
                 #self.assertEqual(await iface.read(4), bytes([0xFF, 0xFF, 123, 234])) # FF, FF, cookie
-                res = array.array('H',[x for x in range(5)]*5)
+                res = array.array('H',[x for x in range(5)]*4)
                 res.byteswap()
-                self.assertEqual(await iface.read(50), bytes(res))
+                self.assertEqual(await iface.read(40), bytes(res))
             
             ## tests that are more for observation
             @applet_simulation_test("setup_test", args=["--pin-ext-ibeam-scan-enable", "0", "--pin-ext-ibeam-scan-enable-2", "1"])

@@ -90,4 +90,10 @@ __all__ += ["CommandSequence", "VectorPixelArray", "VectorPixelIter", "RelayExte
 from .support import dump_hex
 __all__ += ["dump_hex"]
 
+from .frame_buffer import Frame, FrameBuffer
+__all__ += ["Frame", "FrameBuffer"]
+
+from .tiff_export import draw_scalebar
+__all__ += ["draw_scalebar"]
+
 

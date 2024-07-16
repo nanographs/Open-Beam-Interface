@@ -506,8 +506,8 @@ class RasterScanner(wiring.Component):
             m.d.comb += self.dwell_stream.ready.eq(self.dac_stream.ready)
             m.d.comb += self.dac_stream.valid.eq(self.dwell_stream.valid)
         with m.Else():
-            self.dac_stream.payload.dac_x_code.eq(x_accum >> self.FRAC_BITS),
-            self.dac_stream.payload.dac_y_code.eq(y_accum >> self.FRAC_BITS),
+            m.d.comb += dac_x_code.eq(x_accum >> self.FRAC_BITS),
+            m.d.comb += dac_y_code.eq(y_accum >> self.FRAC_BITS),
 
         with m.FSM():
             with m.State("Get-ROI"):
@@ -523,8 +523,6 @@ class RasterScanner(wiring.Component):
                     m.next = "Scan"
 
             with m.State("Scan"):
-                m.d.comb += self.dac_stream.payload.dac_x_code.eq(x_accum >> self.FRAC_BITS)
-                m.d.comb += self.dac_stream.payload.dac_y_code.eq(y_accum >> self.FRAC_BITS)
                 m.d.comb += self.dwell_stream.ready.eq(self.dac_stream.ready)
                 m.d.comb += self.dac_stream.valid.eq(self.dwell_stream.valid)
                 with m.If(self.dac_stream.ready):
