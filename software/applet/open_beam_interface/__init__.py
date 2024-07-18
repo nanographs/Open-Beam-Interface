@@ -460,10 +460,14 @@ class Supersampler(wiring.Component):
 
 class RasterRegion(data.Struct):
     x_start: 14 # UQ(14,0)
+    padding_x_start: 2
     x_count: 14 # UQ(14,0)
+    padding_x_count: 2
     x_step:  16 # UQ(8,8)
     y_start: 14 # UQ(14,0)
+    padding_y_start: 2
     y_count: 14 # UQ(14,0)
+    padding_y_count: 2
     y_step:  16 # UQ(8,8)
 
 
@@ -707,7 +711,7 @@ class CommandExecutor(wiring.Component):
                 m.d.sync += async_blank.request.eq(0)
 
         run_length = Signal.like(command.payload.raster_pixel_run.length)
-        raster_region = Signal.like(command.payload.raster_region)
+        raster_region = Signal.like(command.payload.raster_region.roi)
         m.d.comb += [
             self.raster_scanner.roi_stream.payload.eq(raster_region),
             vector_stream.payload.eq(command.payload.vector_pixel)
@@ -778,10 +782,10 @@ class CommandExecutor(wiring.Component):
                                 m.next = "Fetch"
 
                     with m.Case(CmdType.RasterRegion):
-                        m.d.sync += raster_region.eq(command.payload.raster_region)
+                        m.d.sync += raster_region.eq(command.payload.raster_region.roi)
                         m.d.comb += [
                             self.raster_scanner.roi_stream.valid.eq(1),
-                            self.raster_scanner.roi_stream.payload.eq(command.payload.raster_region),
+                            self.raster_scanner.roi_stream.payload.eq(command.payload.raster_region.roi),
                         ]
                         with m.If(self.raster_scanner.roi_stream.ready):
                             m.next = "Fetch"
@@ -789,7 +793,7 @@ class CommandExecutor(wiring.Component):
                     with m.Case(CmdType.RasterPixel):
                         m.d.comb += [
                             self.raster_scanner.dwell_stream.valid.eq(1),
-                            self.raster_scanner.dwell_stream.payload.dwell_time.eq(command.payload.raster_pixel),
+                            self.raster_scanner.dwell_stream.payload.dwell_time.eq(command.payload.raster_pixel.dwell_time),
                             self.raster_scanner.dwell_stream.payload.blank.eq(sync_blank)
                         ]
                         with m.If(self.raster_scanner.dwell_stream.ready):
