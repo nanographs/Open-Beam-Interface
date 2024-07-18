@@ -727,7 +727,7 @@ class CommandExecutor(wiring.Component):
                 m.d.sync += self.flush.eq(0)
 
                 with m.Switch(command.type):
-                    with m.Case(Command.Type.Synchronize):
+                    with m.Case(CmdType.Synchronize):
                         m.d.sync += self.flush.eq(1)
                         m.d.comb += sync_req.eq(1)
                         with m.If(sync_ack):
@@ -735,41 +735,37 @@ class CommandExecutor(wiring.Component):
                             m.d.sync += output_mode.eq(command.payload.synchronize.mode.output)
                             m.next = "Fetch"
 
-                    with m.Case(Command.Type.Abort):
+                    with m.Case(CmdType.Abort):
                         m.d.sync += self.flush.eq(1)
                         m.d.comb += self.raster_scanner.abort.eq(1)
                         m.next = "Fetch"
 
-                    with m.Case(Command.Type.Flush):
+                    with m.Case(CmdType.Flush):
                         m.d.sync += self.flush.eq(1)
                         m.next = "Fetch"
 
-                    with m.Case(Command.Type.Delay):
-                        with m.If(delay_counter == command.payload.delay):
+                    with m.Case(CmdType.Delay):
+                        # if inline delay
+                        #     m.d.sync += inline_delay_counter.eq(command.payload.delay.delay)
+                        with m.If(delay_counter == command.payload.delay.delay):
                             m.d.sync += delay_counter.eq(0)
                             m.next = "Fetch"
                         with m.Else():
                             m.d.sync += delay_counter.eq(delay_counter + 1)
                     
-                    with m.Case(Command.Type.InlineDelay):
-                        m.d.sync += inline_delay_counter.eq(command.payload.delay)
-                        m.next = "Fetch"
-
-                    with m.Case(Command.Type.EnableExtCtrl, Command.Type.DisableExtCtrl):
+                    with m.Case(CmdType.ExternalCtrl):
                         #Don't change control in the middle of previously submitted pixels
                         with m.If(self.supersampler.dac_stream.ready):
                             m.d.sync += self.ext_ctrl_enable.eq(command.payload.external_ctrl.enable)
                             m.next = "Fetch"
                     
-                    with m.Case(Command.Type.SelectEbeam, Command.Type.SelectIbeam,
-                                Command.Type.SelectNoBeam):
+                    with m.Case(CmdType.BeamSelect):
                         #Don't change control in the middle of previously submitted pixels
                         with m.If(self.supersampler.dac_stream.ready):
-                            m.d.sync += self.beam_type.eq(command.payload.beam_type)
+                            m.d.sync += self.beam_type.eq(command.payload.beam_select.beam_type)
                             m.next = "Fetch"
 
-                    with m.Case(Command.Type.Blank, Command.Type.BlankInline,
-                                Command.Type.Unblank, Command.Type.UnblankInline):
+                    with m.Case(CmdType.Blank):
                         with m.If(command.payload.blank.inline):
                             m.d.sync += sync_blank.enable.eq(command.payload.blank.enable)
                             m.d.sync += sync_blank.request.eq(1)
@@ -781,16 +777,7 @@ class CommandExecutor(wiring.Component):
                                 m.d.sync += async_blank.request.eq(1)
                                 m.next = "Fetch"
 
-                    with m.Case(Command.Type.FlipX, Command.Type.UnFlipX):
-                        m.d.sync += command_transforms.xflip.eq(command.payload.transform.xflip)
-                    
-                    with m.Case(Command.Type.FlipY, Command.Type.UnFlipY):
-                        m.d.sync += command_transforms.yflip.eq(command.payload.transform.yflip)
-                    
-                    with m.Case(Command.Type.Rotate90, Command.Type.UnRotate90):
-                        m.d.sync += command_transforms.rotate90.eq(command.payload.transform.rotate90)
-
-                    with m.Case(Command.Type.RasterRegion):
+                    with m.Case(CmdType.RasterRegion):
                         m.d.sync += raster_region.eq(command.payload.raster_region)
                         m.d.comb += [
                             self.raster_scanner.roi_stream.valid.eq(1),
@@ -799,7 +786,7 @@ class CommandExecutor(wiring.Component):
                         with m.If(self.raster_scanner.roi_stream.ready):
                             m.next = "Fetch"
 
-                    with m.Case(Command.Type.RasterPixel):
+                    with m.Case(CmdType.RasterPixel):
                         m.d.comb += [
                             self.raster_scanner.dwell_stream.valid.eq(1),
                             self.raster_scanner.dwell_stream.payload.dwell_time.eq(command.payload.raster_pixel),
@@ -809,7 +796,7 @@ class CommandExecutor(wiring.Component):
                             m.d.comb += submit_pixel.eq(1)
                             m.next = "Fetch"
 
-                    with m.Case(Command.Type.RasterPixelRun):
+                    with m.Case(CmdType.RasterPixelRun):
                         m.d.comb += [
                             self.raster_scanner.dwell_stream.valid.eq(1),
                             self.raster_scanner.dwell_stream.payload.dwell_time.eq(command.payload.raster_pixel_run.dwell_time),
@@ -823,7 +810,7 @@ class CommandExecutor(wiring.Component):
                             with m.Else():
                                 m.d.sync += run_length.eq(run_length + 1)
 
-                    with m.Case(Command.Type.RasterPixelFreeRun):
+                    with m.Case(CmdType.RasterPixelFreeRun):
                         m.d.comb += [
                             self.raster_scanner.roi_stream.payload.eq(raster_region),
                             self.raster_scanner.dwell_stream.payload.dwell_time.eq(command.payload.raster_pixel),
@@ -842,7 +829,7 @@ class CommandExecutor(wiring.Component):
                                 m.d.comb += submit_pixel.eq(1)
 
 
-                    with m.Case(Command.Type.VectorPixel, Command.Type.VectorPixelMinDwell):
+                    with m.Case(CmdType.VectorPixel, CmdType.VectorPixelMinDwell):
                         m.d.comb += vector_stream.valid.eq(1)
                         m.d.comb += vector_stream.payload.blank.eq(sync_blank)
                         m.d.comb += vector_stream.payload.delay.eq(inline_delay_counter)
