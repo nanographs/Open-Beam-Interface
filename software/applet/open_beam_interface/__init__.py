@@ -623,7 +623,7 @@ class CommandExecutor(wiring.Component):
 
 
     def __init__(self, *, out_only:bool=False, adc_latency=6):
-        self.adc_latency = 6
+        self.adc_latency = 8
         self.supersampler = Supersampler()
         self.flippenator = Flippenator()
 
