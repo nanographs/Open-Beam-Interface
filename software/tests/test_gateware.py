@@ -795,3 +795,169 @@ class OBIAppletTestCase(unittest.TestCase):
         test_exec_4()
         test_exec_5()
         test_exec_6()
+
+    def test_all(self):
+        from amaranth import Module
+        from applet.open_beam_interface import OBIApplet
+        from glasgow.applet import GlasgowAppletTestCase, synthesis_test, applet_simulation_test
+        from .board_sim import OBI_Board
+
+        class OBIApplet_TestCase(GlasgowAppletTestCase, applet = OBIApplet):
+            @synthesis_test
+            def test_build(self):
+                self.assertBuilds(args=["--pin-ext-ebeam-scan-enable", "1", "--xflip", "--yflip", "--rotate90"])
+            
+            def setup_test(self):
+                self.build_simulated_applet()
+
+            def setup_x_loopback(self):
+                self.build_simulated_applet()
+                obi_subtarget = self.applet.mux_interface._subtargets[0]
+                m = Module()
+                m.submodules["board"] = board = OBI_Board()
+                m.d.comb += [
+                            obi_subtarget.data.i.eq(board.a_latch_chip.q),
+                            board.x_latch_chip.d.eq(obi_subtarget.data.o),
+                            board.y_latch_chip.d.eq(obi_subtarget.data.o),
+                            board.a_adc_chip.a.eq(board.x_dac_chip.a),
+                            board.x_latch.eq(obi_subtarget.control.x_latch.o),
+                            board.y_latch.eq(obi_subtarget.control.y_latch.o),
+                            board.a_latch.eq(obi_subtarget.control.a_latch.o),
+                            board.a_enable.eq(obi_subtarget.control.a_enable.o),
+                            board.a_clock.eq(obi_subtarget.control.a_clock.o),
+                            board.d_clock.eq(obi_subtarget.control.d_clock.o),
+                            board.adc_input.eq(board.x_dac_chip.a)
+                            ]
+                self.target.add_submodule(m)
+
+            ## tests that actually test against output
+            
+            @applet_simulation_test("setup_test")
+            async def test_sync_cookie(self):
+                iface = await self.run_simulated_applet()
+                #await iface.write(bytes([0, 123, 234])) # sync, cookie, raster_mode
+                await iface.write(SynchronizeCommand(cookie=123*256 + 234, raster=False, output=OutputMode.SixteenBit))
+                self.assertEqual(await iface.read(4), bytes([0xFF, 0xFF, 123, 234])) # FF, FF, cookie
+            
+            @applet_simulation_test("setup_x_loopback")
+            async def test_loopback_raster(self):
+                iface = await self.run_simulated_applet()
+                await iface.write(SynchronizeCommand(cookie=123*256 + 234, raster=True, output=OutputMode.SixteenBit))
+                self.assertEqual(await iface.read(4), bytes([0xFF, 0xFF, 123, 234])) # FF, FF, cookie
+                x_range = DACCodeRange(start=0, count=5, step=256) #step = 1 DAC code
+                y_range = DACCodeRange(start=5, count=10, step=256)
+                await iface.write(RasterRegionCommand(x_range=x_range, y_range=y_range))
+                await iface.write(RasterPixelRunCommand(length=25, dwell_time=2))
+                res = array.array('H',[x for x in range(5)]*5)
+                res.byteswap()
+                #await iface.read(50)
+                self.assertEqual(await iface.read(50), bytes(res))
+            
+            @applet_simulation_test("setup_x_loopback")
+            async def test_benchmark(self):
+                iface = await self.run_simulated_applet()
+                output_mode = 2 #no output
+                raster_mode = 0 #no raster
+                mode = int(output_mode<<1 | raster_mode)
+                sync_cmd = struct.pack('>BHB', 0, 123, mode)
+                flush_cmd = struct.pack('>B', 2)
+                await iface.write(sync_cmd)
+                await iface.write(flush_cmd)
+                # await iface.flush()
+                commands = bytearray()
+                for _ in range(10):
+                    await iface.write(VectorPixelCommand(x_coord=4, y_coord=4, dwell_time=1))
+                    await iface.write(VectorPixelCommand(x_coord=16380, y_coord=16380, dwell_time=1))
+                    await iface.write(VectorPixelCommand(x_coord=4, y_coord=16380, dwell_time=1))
+                    await iface.write(VectorPixelCommand(x_coord=16380, y_coord=4, dwell_time=1))
+            
+            @applet_simulation_test("setup_x_loopback")
+            async def test_loopback_vector(self):
+                iface = await self.run_simulated_applet()
+                commands = bytearray()
+                commands.extend(bytes(SynchronizeCommand(output=OutputMode.SixteenBit, raster=False, cookie=123*256+234)))
+                commands.extend(bytes(FlushCommand()))
+                for n in range(1,11):
+                    commands.extend(bytes(VectorPixelCommand(x_coord=n, y_coord=n, dwell_time=1)))
+                await iface.write(commands)
+                self.assertEqual(await iface.read(4), bytes([0xFF, 0xFF, 123, 234])) # FF, FF, cookie
+                res = array.array('H',[x for x in range(1,11)])
+                res.byteswap()
+                self.assertEqual(await iface.read(20), bytes(res))
+            
+            @applet_simulation_test("setup_x_loopback")
+            async def test_loopback_multimode(self):
+                iface = await self.run_simulated_applet()
+                # await iface.flush()
+                commands = bytearray()
+                #commands.extend(bytes(SynchronizeCommand(output=OutputMode.SixteenBit, raster=False, cookie=123*256+234)))
+                for n in range(1,11):
+                    commands.extend(bytes(VectorPixelCommand(x_coord=n, y_coord=n, dwell_time=1)))
+                x_range = DACCodeRange(start=0, count=5, step=256) #step = 1 DAC code
+                y_range = DACCodeRange(start=5, count=10, step=256)
+                commands.extend(bytes(RasterRegionCommand(x_range=x_range, y_range=y_range)))
+                commands.extend(bytes(RasterPixelRunCommand(length=20, dwell_time=2)))
+                commands.extend(bytes(VectorPixelCommand(x_coord=4, y_coord=7, dwell_time=2)))
+                commands.extend(bytes(RasterPixelRunCommand(length=4, dwell_time=2)))
+                commands.extend(bytes(FlushCommand()))
+                await iface.write(commands)
+                #self.assertEqual(await iface.read(4), bytes([0xFF, 0xFF, 123, 234])) # FF, FF, cookie
+                res = array.array('H',[x for x in range(1,11)])
+                res.byteswap()
+                self.assertEqual(await iface.read(20), bytes(res))
+                #await iface.write(SynchronizeCommand(cookie=123*256 + 234, raster=True, output=OutputMode.SixteenBit))
+                #self.assertEqual(await iface.read(4), bytes([0xFF, 0xFF, 123, 234])) # FF, FF, cookie
+                res = array.array('H',[x for x in range(5)]*4)
+                res.byteswap()
+                self.assertEqual(await iface.read(40), bytes(res))
+            
+            ## tests that are more for observation
+            @applet_simulation_test("setup_test", args=["--pin-ext-ibeam-scan-enable", "0", "--pin-ext-ibeam-scan-enable-2", "1"])
+            async def test_vector_blank(self):
+                iface = await self.run_simulated_applet()
+                await iface.write(SynchronizeCommand(cookie=4, output=2, raster=0))
+                await iface.write(BlankCommand(enable=True, inline=False))
+                await iface.write(ExternalCtrlCommand(enable=True))
+                await iface.write(BeamSelectCommand(beam_type=BeamType.Ion))
+                await iface.write(DelayCommand(delay=10))
+                await iface.write(BlankCommand(enable=False, inline=False))
+                for n in range(1,3):
+                    await iface.write(VectorPixelCommand(x_coord=n, y_coord=n, dwell_time=1))
+                await iface.write(VectorPixelCommand(x_coord=7, y_coord=7, dwell_time=3))
+                await iface.write(BlankCommand(enable=True, inline=False))
+                await iface.write(DelayCommand(delay=3))
+                await iface.write(BlankCommand(enable=False, inline=False))
+                await iface.write(VectorPixelCommand(x_coord=1, y_coord=1, dwell_time=1))
+                await iface.write(BlankCommand(enable=True, inline=False))
+                await iface.write(SynchronizeCommand(cookie=4, output=2, raster=0))
+                await iface.read(6)
+
+
+            @applet_simulation_test("setup_x_loopback", args=["--out_only"])
+            async def test_vector_delay(self):
+                iface = await self.run_simulated_applet()
+                await iface.write(VectorPixelCommand(x_coord=1, y_coord=1, dwell_time=6))
+                await iface.write(InlineDelayCommand(delay=2))
+                await iface.write(VectorPixelCommand(x_coord=2, y_coord=2, dwell_time=6))
+                await iface.write(InlineDelayCommand(delay=3))
+                await iface.write(VectorPixelCommand(x_coord=3, y_coord=3, dwell_time=6))
+                await iface.write(InlineDelayCommand(delay=4))
+                await iface.write(VectorPixelCommand(x_coord=4, y_coord=4, dwell_time=6))
+                await iface.write(InlineDelayCommand(delay=5))
+                await iface.write(VectorPixelCommand(x_coord=5, y_coord=5, dwell_time=6))
+                await iface.write(InlineDelayCommand(delay=6))
+                await iface.write(VectorPixelCommand(x_coord=6, y_coord=6, dwell_time=6))
+                await iface.write(InlineDelayCommand(delay=7))
+                await iface.write(SynchronizeCommand(cookie=4, output=2, raster=0))
+                await iface.read(4)
+                
+            
+        test_case = OBIApplet_TestCase()
+        test_case.setUp()
+        test_case.test_build()
+        test_case.test_sync_cookie()
+        test_case.test_benchmark()
+        test_case.test_vector_blank()
+        test_case.test_loopback_raster()
+        test_case.test_loopback_vector()
+        #test_case.test_loopback_multimode()
