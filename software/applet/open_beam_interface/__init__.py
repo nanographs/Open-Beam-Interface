@@ -111,6 +111,27 @@ class PipelinedLoopbackAdapter(wiring.Component):
 
         return m
 
+
+class DACStream(data.Struct):
+    dac_x_code: 14
+    padding_x: 2
+    dac_y_code: 14
+    padding_x: 2
+    dwell_time: 16
+    blank: BlankRequest
+    delay: 3
+
+
+class SuperDACStream(data.Struct):
+    dac_x_code: 14
+    padding_x: 2
+    dac_y_code: 14
+    padding_y: 2
+    blank: BlankRequest
+    last:       1
+    delay: 3
+
+
 class Transforms(data.Struct):
     xflip: 1
     yflip: 1
@@ -118,18 +139,8 @@ class Transforms(data.Struct):
 
 class Flippenator(wiring.Component):
     transforms: In(Transforms)
-    in_stream: In(StreamSignature(data.StructLayout({
-        "dac_x_code": 14,
-        "dac_y_code": 14,
-        "last":       1,
-        "blank": BlankRequest
-    })))
-    out_stream: Out(StreamSignature(data.StructLayout({
-        "dac_x_code": 14,
-        "dac_y_code": 14,
-        "last":       1,
-        "blank": BlankRequest
-    })))
+    in_stream: In(StreamSignature(SuperDACStream))
+    out_stream: Out(StreamSignature(SuperDACStream))
     def elaborate(self, platform):
         m = Module()
         a = Signal(14)
@@ -149,13 +160,7 @@ class Flippenator(wiring.Component):
 
 class BusController(wiring.Component):
     # FPGA-side interface
-    dac_stream: In(StreamSignature(data.StructLayout({
-        "dac_x_code": 14,
-        "dac_y_code": 14,
-        "last":       1,
-        "blank": BlankRequest,
-        "delay": 3
-    })))
+    dac_stream: In(StreamSignature(SuperDACStream))
 
     adc_stream: Out(StreamSignature(data.StructLayout({
         "adc_code": 14,
@@ -206,7 +211,6 @@ class BusController(wiring.Component):
         ]
 
         dac_stream_data = Signal.like(self.dac_stream.payload)
-        m.d.comb += self.inline_blank.eq(dac_stream_data.blank)
 
         m.d.comb += adc_stream_data.adc_code.eq(self.bus.data_i)
 
@@ -228,6 +232,8 @@ class BusController(wiring.Component):
                     # Latch DAC codes from input stream.
                     m.d.comb += self.dac_stream.ready.eq(1)
                     m.d.sync += dac_stream_data.eq(self.dac_stream.payload)
+                    # Transmit blanking state from input stream
+                    m.d.comb += self.inline_blank.eq(self.dac_stream.payload.blank)
                     # Schedule ADC sample for these DAC codes to be output.
                     m.d.sync += accept_sample.eq(Cat(1, accept_sample))
                     # Carry over the flag for last sample [of averaging window] to the output.
@@ -274,13 +280,7 @@ class BusController(wiring.Component):
 
 class FastBusController(wiring.Component):
     # FPGA-side interface
-    dac_stream: In(StreamSignature(data.StructLayout({
-        "dac_x_code": 14,
-        "dac_y_code": 14,
-        "last":       1,
-        "blank": BlankRequest,
-        "delay": 3
-    })))
+    dac_stream: In(StreamSignature(SuperDACStream))
 
 
     # IO-side interface
@@ -358,25 +358,13 @@ class FastBusController(wiring.Component):
 #=========================================================================
 
 class Supersampler(wiring.Component):
-    dac_stream: In(StreamSignature(data.StructLayout({
-        "dac_x_code": 14,
-        "dac_y_code": 14,
-        "dwell_time": 16,
-        "blank": BlankRequest,
-        "delay": 3
-    })))
+    dac_stream: In(StreamSignature(DACStream))
 
     adc_stream: Out(StreamSignature(data.StructLayout({
         "adc_code":   14,
     })))
 
-    super_dac_stream: Out(StreamSignature(data.StructLayout({
-        "dac_x_code": 14,
-        "dac_y_code": 14,
-        "last":       1,
-        "blank": BlankRequest,
-        "delay": 3
-    })))
+    super_dac_stream: Out(StreamSignature(SuperDACStream))
 
     super_adc_stream: In(StreamSignature(data.StructLayout({
         "adc_code":   14,
@@ -397,12 +385,14 @@ class Supersampler(wiring.Component):
         m = Module()
 
         dwell_counter = Signal.like(self.dac_stream_data.dwell_time)
+        last = Signal()
         m.d.comb += [
             self.super_dac_stream.payload.dac_x_code.eq(self.dac_stream_data.dac_x_code),
             self.super_dac_stream.payload.dac_y_code.eq(self.dac_stream_data.dac_y_code),
             self.super_dac_stream.payload.blank.eq(self.dac_stream_data.blank),
             self.super_dac_stream.payload.delay.eq(self.dac_stream_data.delay),
-            self.super_dac_stream.payload.last.eq(dwell_counter == self.dac_stream_data.dwell_time),
+            last.eq(dwell_counter == self.dac_stream_data.dwell_time)
+            #self.super_dac_stream.payload.last.eq(dwell_counter == self.dac_stream_data.dwell_time),
         ]
         with m.If(self.stall_count_reset):
             m.d.sync += self.stall_cycles.eq(0)
@@ -421,7 +411,8 @@ class Supersampler(wiring.Component):
             with m.State("Generate"):
                 m.d.comb += self.super_dac_stream.valid.eq(1)
                 with m.If(self.super_dac_stream.ready):
-                    with m.If(self.super_dac_stream.payload.last):
+                    with m.If(last):
+                        m.d.comb += self.super_dac_stream.payload.last.eq(last)
                         m.next = "Wait"
                     with m.Else():
                         m.d.sync += dwell_counter.eq(dwell_counter + 1)
@@ -484,13 +475,7 @@ class RasterScanner(wiring.Component):
     abort: In(1)
     #: Interrupt the scan in progress and fetch the next ROI from `roi_stream`.
 
-    dac_stream: Out(StreamSignature(data.StructLayout({
-        "dac_x_code": 14,
-        "dac_y_code": 14,
-        "dwell_time": DwellTime,
-        "blank": BlankRequest,
-        "delay": 3
-    })))
+    dac_stream: Out(StreamSignature(DACStream))
 
     def elaborate(self, platform):
         m = Module()
@@ -659,20 +644,13 @@ class CommandExecutor(wiring.Component):
         m.submodules.flippenator    = self.flippenator
         m.submodules.raster_scanner = self.raster_scanner = RasterScanner()
 
-        # wiring.connect(m, self.supersampler.super_dac_stream, self.flippenator.in_stream)
-        # wiring.connect(m, self.flippenator.out_stream, bus_controller.dac_stream)
-        wiring.connect(m, self.supersampler.super_dac_stream, bus_controller.dac_stream)
+        wiring.connect(m, self.supersampler.super_dac_stream, self.flippenator.in_stream)
+        wiring.connect(m, self.flippenator.out_stream, bus_controller.dac_stream)
         wiring.connect(m, bus_controller.adc_stream, self.supersampler.super_adc_stream)
         wiring.connect(m, flipped(self.bus), bus_controller.bus)
         m.d.comb += self.inline_blank.eq(bus_controller.inline_blank)
 
-        vector_stream = StreamSignature(data.StructLayout({
-            "dac_x_code": 14,
-            "dac_y_code": 14,
-            "dwell_time": DwellTime,
-            "blank": BlankRequest,
-            "delay": 3
-        })).create()
+        vector_stream = StreamSignature(DACStream).create()
 
         command_transforms = Signal(Transforms)
         m.d.comb += self.flippenator.transforms.xflip.eq(command_transforms.xflip ^ self.default_transforms.xflip)
