@@ -1,5 +1,5 @@
 
-from stream import Stream, Connection
+from .stream import Stream, Connection
 
 class GlasgowStream(Stream):
     def __init__(self, iface):
