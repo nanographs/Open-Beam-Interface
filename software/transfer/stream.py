@@ -28,3 +28,53 @@ class Stream(metaclass = ABCMeta):
     # @abstractmethod
     # async def xchg(self, data: bytes | bytearray | memoryview, *, recv_length: int) -> bytes:
     #     ...
+
+class Connection(metaclass = ABCMeta):
+    _logger = logger.getChild("Connection")
+
+    def __init__(self):
+        self._stream = None
+        self._synchronized = False
+        self._next_cookie = random.randrange(0, 0x10000, 2) # even cookies only
+    
+    @property
+    def connected(self):
+        """`True` if the connection with the instrument is open, `False` otherwise."""
+        return self._stream is not None
+
+    @property
+    def synchronized(self):
+        """`True` if the instrument is ready to accept commands, `False` otherwise."""
+        return self._synchronized
+    
+    # @abstractmethod
+    # async def _connect(self):
+    #     ...
+    
+    # def _disconnect(self):
+    #     assert self.connected
+    #     self._stream = None
+    #     self._synchronized = False
+    
+    @abstractmethod
+    async def _synchronize(self):
+        ...
+    
+    def _handle_incomplete_read(self, exc):
+        self._disconnect()
+        raise TransferError("connection closed") from exc
+
+    def get_cookie(self):
+        cookie, self._next_cookie = self._next_cookie + 1, self._next_cookie + 2 # odd cookie
+        self._logger.debug(f"allocating cookie {cookie:#06x}")
+        return cookie
+    
+    async def transfer(self, command, **kwargs):
+        self._logger.debug(f"transfer {command!r}")
+        try:
+            if not self.synchronized:
+                await self._synchronize() # may raise asyncio.IncompleteReadError
+            return await command.transfer(self._stream, **kwargs)
+        except asyncio.IncompleteReadError as e:
+            self._handle_incomplete_read(e)
+
