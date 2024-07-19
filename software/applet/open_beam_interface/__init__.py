@@ -692,13 +692,17 @@ class CommandExecutor(wiring.Component):
         raster_region = Signal.like(command.payload.raster_region.roi)
         m.d.comb += [
             self.raster_scanner.roi_stream.payload.eq(raster_region),
-            vector_stream.payload.eq(command.payload.vector_pixel)
+            vector_stream.payload.dac_x_code.eq(command.payload.vector_pixel.x_coord),
+            vector_stream.payload.dac_y_code.eq(command.payload.vector_pixel.y_coord),
+            vector_stream.payload.dwell_time.eq(command.payload.vector_pixel.dwell_time)
         ]
 
         sync_req = Signal()
         sync_ack = Signal()
 
-        with m.FSM():
+        self.is_executing = Signal()
+        with m.FSM() as fsm:
+            m.d.comb += self.is_executing.eq(fsm.ongoing("Execute"))
             with m.State("Fetch"):
                 m.d.comb += self.cmd_stream.ready.eq(1)
                 with m.If(self.cmd_stream.valid):
@@ -786,7 +790,7 @@ class CommandExecutor(wiring.Component):
                         ]
                         with m.If(self.raster_scanner.dwell_stream.ready):
                             m.d.comb += submit_pixel.eq(1)
-                            with m.If(run_length == command.payload.raster_pixel_run.length):
+                            with m.If(run_length + 1 == command.payload.raster_pixel_run.length):
                                 m.d.sync += run_length.eq(0)
                                 m.next = "Fetch"
                             with m.Else():
@@ -795,7 +799,7 @@ class CommandExecutor(wiring.Component):
                     with m.Case(CmdType.RasterPixelFreeRun):
                         m.d.comb += [
                             self.raster_scanner.roi_stream.payload.eq(raster_region),
-                            self.raster_scanner.dwell_stream.payload.dwell_time.eq(command.payload.raster_pixel),
+                            self.raster_scanner.dwell_stream.payload.dwell_time.eq(command.payload.raster_pixel.dwell_time),
                             self.raster_scanner.dwell_stream.payload.blank.eq(sync_blank)
                         ]
                         with m.If(self.cmd_stream.valid):

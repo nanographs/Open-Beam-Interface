@@ -561,3 +561,237 @@ class OBIAppletTestCase(unittest.TestCase):
         self.simulate(dut, [sync_unblank], name="sync_unblank")
         self.simulate(dut, [test_seq_1], name="blank_seq_1")
     
+    def test_command_executor_sequences(self):
+        BUS_CYCLES = 6 #combined ADC and DAC latching cycles
+        class TestCommand:
+            response = []
+            def __init_subclass__(cls, command:BaseCommand):
+                cls.command_cls = command
+            def __init__(self, **kwargs):
+                self.command = self.command_cls(**kwargs)
+            def __repr__(self):
+                return self.command.__repr__()
+            @property
+            def exec_cycles(self):
+                return len(self.response)*BUS_CYCLES
+            async def put_testbench(self, ctx, dut):
+                print(f"put_testbench: {self}")
+                await put_stream(ctx, dut.cmd_stream, self.command.as_dict(), timeout_steps=self.exec_cycles+100)
+            async def get_testbench(self, ctx, dut):
+                print(f"get_testbench: {self}")
+                if len(self.response) > 0:
+                    n = 0
+                    print(f"getting {len(self.response)} responses")
+                    for n in range(len(self.response)):
+                        await get_stream(ctx, dut.img_stream, self.response[n], timeout_steps=self.exec_cycles+100)
+                        n += 1
+                        print(f"got {n}/{len(self.response)} responses")
+                    print(f"got all {len(self.response)} responses")
+                else:
+                    print("get_testbench: no response expected")
+                    pass
+        
+        class TestCommandSequence:
+            def __init__(self):
+                self.dut =  CommandExecutor()
+                self.put_testbenches = []
+                self.get_testbenches = []
+        
+            def add(self, command: TestCommand):
+                async def put_bench(ctx):
+                    await command.put_testbench(ctx, self.dut)
+                self.put_testbenches.append(put_bench)
+
+                async def get_bench(ctx):
+                    await command.get_testbench(ctx, self.dut)
+                self.get_testbenches.append(get_bench)
+            
+            async def put_testbench(self, ctx):
+                for testbench in self.put_testbenches:
+                    await testbench(ctx)
+            
+            async def get_testbench(self, ctx):
+                for testbench in self.get_testbenches:
+                    await testbench(ctx)
+    
+        class TestSyncCommand(TestCommand, command=SynchronizeCommand):
+            @property
+            def response(self):
+                return [65535, self.command.cookie] # FFFF, cookie
+        
+        class TestFlushCommand(TestCommand, command=FlushCommand):
+            pass
+
+        class TestExternalCtrlCommand(TestCommand, command = ExternalCtrlCommand):
+            async def put_testbench(self, ctx, dut):
+                await super().put_testbench(ctx, dut)
+                if not ctx.get(dut.is_executing) == 0:
+                    await ctx.tick()
+                assert ctx.get(dut.ext_ctrl_enable) == self.command.enable
+            
+        class TestBeamSelectCommand(TestCommand, command = BeamSelectCommand):
+            async def put_testbench(self, ctx, dut):
+                await super().put_testbench(ctx, dut)
+                if not ctx.get(dut.is_executing) == 0:
+                    await ctx.tick()
+                assert ctx.get(dut.beam_type) == self.command.beam_type
+
+        class TestDelayCommand(TestCommand, command = DelayCommand):
+            @property
+            def exec_cycles(self):
+                return self.command.delay
+
+            async def put_testbench(self, ctx, dut):
+                await super().put_testbench(ctx, dut)
+                for _ in range(self.command.delay):
+                    await ctx.tick()
+            
+            async def get_testbench(self, ctx, dut):
+                for _ in range(self.command.delay):
+                    await ctx.tick()
+                await super().get_testbench(ctx, dut)
+        
+        class TestRasterRegionCommand(TestCommand, command=RasterRegionCommand):
+            async def put_testbench(self, ctx, dut):
+                await super().put_testbench(ctx, dut)
+                region = ctx.get(dut.raster_scanner.roi_stream.payload)
+                expected_region = {
+                    "x_start": self.command.x_start,
+                    "x_count": self.command.x_count,
+                    "x_step": self.command.x_step,
+                    "y_start": self.command.y_start,
+                    "y_count": self.command.y_count,
+                    "y_step": self.command.y_step}
+                wrapped = dut.raster_scanner.roi_stream.payload.shape().const(expected_region)
+                assert wrapped == region, f"{prettier_diff(region, expected_region)}"
+        
+        class TestRasterPixelRunCommand(TestCommand, command=RasterPixelRunCommand):
+            @property
+            def response(self):
+                return [0]*self.command.length
+            @property
+            def exec_cycles(self):
+                return self.command.dwell_time*self.command.length*BUS_CYCLES
+
+            async def put_testbench(self, ctx, dut):
+                await super().put_testbench(ctx, dut)
+                dwell = ctx.get(dut.raster_scanner.dwell_stream.payload.dwell_time)
+                assert dwell == self.command.dwell_time, f"{dwell} != {self.command.dwell_time}"
+        
+        class TestRasterPixelFreeRunCommand(TestCommand, command=RasterPixelFreeRunCommand):
+            def __init__(self, *, dwell_time, test_samples):
+                super().__init__(dwell_time = dwell_time)
+                self.test_samples = test_samples
+
+            @property
+            def response(self):
+                return [0]*self.test_samples
+            @property
+            def exec_cycles(self):
+                return self.command.dwell_time*self.test_samples*BUS_CYCLES
+        
+            async def put_testbench(self, ctx, dut):
+                print(f"put_testbench: {self}")
+                await super().put_testbench(ctx, dut)
+                n = 0
+                print(f"extending put_testbench for {self.test_samples} samples")
+                while True:
+                    if n == self.test_samples:
+                        break
+                    await ctx.tick().until(dut.supersampler.dac_stream.ready == 1)
+                    n += 1
+                    print(f"{n}/{self.test_samples} valid samples")
+                    
+
+        class TestVectorPixelCommand(TestCommand, command=VectorPixelCommand):
+            @property
+            def response(self):
+                return [0]
+            @property
+            def exec_cycles(self):
+                return self.command.dwell_time*BUS_CYCLES
+        
+
+
+        def test_exec_1():
+            test_seq = TestCommandSequence()
+            test_seq.add(TestSyncCommand(cookie=502, raster=True, output=OutputMode.SixteenBit))
+            test_seq.add(TestSyncCommand(cookie=505, raster=True, output=OutputMode.SixteenBit))
+            test_seq.add(TestRasterRegionCommand(x_range=DACCodeRange(start=5, count=3, step=0x2_00),
+                                                y_range=DACCodeRange(start=9, count=3, step=0x5_00)))
+            test_seq.add(TestRasterPixelRunCommand(length=6, dwell_time=1))
+            test_seq.add(TestSyncCommand(cookie=502, raster=True, output=OutputMode.SixteenBit))
+            test_seq.add(TestRasterPixelFreeRunCommand(dwell_time=1, test_samples = 6))
+            test_seq.add(TestSyncCommand(cookie=502, raster=True, output=OutputMode.SixteenBit))
+            test_seq.add(TestSyncCommand(cookie=102, raster=True, output=OutputMode.SixteenBit))
+
+            self.simulate(test_seq.dut, [test_seq.put_testbench, test_seq.get_testbench], name="exec_1")
+
+        def test_exec_2():
+            test_seq = TestCommandSequence()
+            test_seq.add(TestExternalCtrlCommand(enable=True))
+            test_seq.add(TestBeamSelectCommand(beam_type=BeamType.Electron))
+            test_seq.add(TestDelayCommand(delay=960))
+            test_seq.add(TestSyncCommand(cookie=505, raster=True, output=OutputMode.SixteenBit))
+            test_seq.add(TestRasterRegionCommand(x_range=DACCodeRange(start=5, count=2, step=0x2_00),
+                                                y_range=DACCodeRange(start=9, count=3, step=0x5_00)))
+            test_seq.add(TestRasterPixelRunCommand(length=5, dwell_time=1))
+
+            self.simulate(test_seq.dut, [test_seq.put_testbench, test_seq.get_testbench], name="exec_2")
+        
+        def test_exec_3():
+            test_seq = TestCommandSequence()
+            test_seq.add(TestSyncCommand(cookie=502, raster=True, output=OutputMode.SixteenBit))
+            test_seq.add(TestSyncCommand(cookie=505, raster=True, output=OutputMode.SixteenBit))
+            test_seq.add(TestExternalCtrlCommand(enable=True))
+            test_seq.add(TestBeamSelectCommand(beam_type=BeamType.Electron))
+            test_seq.add(TestDelayCommand(delay=960))
+            test_seq.add(TestRasterRegionCommand(x_range=DACCodeRange(start=5, count=10, step=0x2_00),
+                                                y_range=DACCodeRange(start=9, count=2, step=0x5_00)))
+            test_seq.add(TestRasterPixelFreeRunCommand(dwell_time=1, test_samples=20))
+            test_seq.add(TestSyncCommand(cookie=502, raster=True, output=OutputMode.SixteenBit))
+            test_seq.add(TestRasterRegionCommand(x_range=DACCodeRange(start=5, count=10, step=0x2_00),
+                                                y_range=DACCodeRange(start=9, count=2, step=0x5_00)))
+            test_seq.add(TestRasterPixelFreeRunCommand(dwell_time=1, test_samples=20))
+            test_seq.add(TestExternalCtrlCommand(enable=True))
+            test_seq.add(TestBeamSelectCommand(beam_type=BeamType.Electron))
+            test_seq.add(TestDelayCommand(delay=960))
+            test_seq.add(TestSyncCommand(cookie=502, raster=True, output=OutputMode.SixteenBit))
+
+            self.simulate(test_seq.dut, [test_seq.put_testbench, test_seq.get_testbench], name="exec_3")
+        
+        def test_exec_4():
+            test_seq = TestCommandSequence()
+            test_seq.add(TestSyncCommand(cookie=502, raster=False, output=OutputMode.SixteenBit))
+            test_seq.add(TestVectorPixelCommand(x_coord=100, y_coord=244, dwell_time=3))
+            test_seq.add(TestVectorPixelCommand(x_coord=90, y_coord=144, dwell_time=2))
+            test_seq.add(TestVectorPixelCommand(x_coord=110, y_coord=2004, dwell_time=5))
+            test_seq.add(TestSyncCommand(cookie=502, raster=False, output=OutputMode.SixteenBit))
+
+            self.simulate(test_seq.dut, [test_seq.put_testbench, test_seq.get_testbench], name="exec_4")
+        
+        def test_exec_5():
+            test_seq = TestCommandSequence()
+            test_seq.add(TestSyncCommand(cookie=502, raster=False, output=OutputMode.NoOutput))
+            test_seq.add(TestFlushCommand())
+            for n in range(100):
+                test_seq.add(TestVectorPixelCommand(x_coord=1, y_coord=1, dwell_time=1))
+                test_seq.add(TestVectorPixelCommand(x_coord=16384, y_coord=16384, dwell_time=1))
+            test_seq.add(TestSyncCommand(cookie=502, raster=False, output=OutputMode.NoOutput))
+
+            self.simulate(test_seq.dut, [test_seq.put_testbench, test_seq.get_testbench], name="exec_5")
+        
+        def test_exec_6():
+            test_seq = TestCommandSequence()
+            test_seq.add(TestExternalCtrlCommand(enable=True))
+            test_seq.add(TestBeamSelectCommand(beam_type=BeamType.Ion))
+            test_seq.add(TestVectorPixelCommand(x_coord=1, y_coord=1, dwell_time=1))
+            self.simulate(test_seq.dut, [test_seq.put_testbench, test_seq.get_testbench], name="exec_6")
+
+
+        test_exec_1()
+        test_exec_2()
+        test_exec_3()
+        test_exec_4()
+        test_exec_5()
+        test_exec_6()
