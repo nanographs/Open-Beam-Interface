@@ -140,8 +140,38 @@ class BeamType(enum.IntEnum, shape = 2):
     Electron            = 1
     Ion                 = 2
 
+
+
 @dataclass
 class DACCodeRange:
     start: int # UQ(14,0)
     count: int # UQ(14,0)
     step:  int # UQ(8,8)
+    '''
+    A range of DAC codes
+
+    Accepts:
+        start(int): The first DAC code to start on. UQ(14,0)
+        count(int): The number of steps to count up from the starting code. UQ(14,0)
+        step(int): The step size to increment by each step. UQ(8,8)
+    Returns:
+        DACCodeRange
+    '''
+    def __post_init__(self):
+        if self.count > 16384:
+            raise ValueError(f"{self.count=} > max resolution: 16384")
+    def __repr__(self):
+        return f"DACCodeRange(start={self.start}, count={self.count}, step={self.step} - step size {self.step/256:0.03f})"
+    @classmethod
+    def from_resolution(cls, resolution: int):
+        '''
+        Accepts:
+            resolution (int): Number of pixels to fill entire DAC range
+        Returns:
+            DACCodeRange
+        '''
+        return cls(
+                start = 0,
+                count = resolution,
+                step = int((16384/resolution)*256)
+            )
