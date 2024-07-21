@@ -3,11 +3,16 @@ import socket
 
 import inspect
 import random
+import struct
+
+from time import perf_counter
 
 import logging
 logger = logging.getLogger()
 
 from .stream import Stream, Connection, TransferError
+from commands import Command, SynchronizeCommand, FlushCommand, OutputMode
+from .support import dump_hex
 
 BIG_ENDIAN = (struct.pack('@H', 0x1234) == struct.pack('>H', 0x1234))
 
@@ -100,11 +105,13 @@ class TCPConnection:
         cookie, self._next_cookie = self._next_cookie, (self._next_cookie + 2) & 0xffff # even cookie
         self._logger.debug(f'synchronizing with cookie {cookie:#06x}')
 
-        seq = CommandSequence(cookie=cookie, output=OutputMode.SixteenBit, raster=False)
-        seq.add(FlushCommand())
+        #seq = CommandSequence(cookie=cookie, output=OutputMode.SixteenBit, raster=False)
+        #seq.add(FlushCommand())
+        await SynchronizeCommand(cookie=cookie, output=OutputMode.SixteenBit, raster=False).transfer(self._stream)
+        await FlushCommand().transfer(self._stream)
         #res = SynchronizeCommand(cookie=cookie, output=OutputMode.SixteenBit, raster=False).byte_response
         res = struct.pack('>HH', 65535, cookie)
-        await self._stream.write(bytes(seq))
+        #await self._stream.write(bytes(seq))
         while True:
             self._logger.debug("trying to synchronize...")
             try:
