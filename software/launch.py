@@ -36,8 +36,9 @@ async def main():
     await device.download_target(plan)
     print("bitstream loaded")
     iface = await applet.run(device, args)
-    await device.set_voltage("AB", 5.0)
-    print("port AB voltage set to 5.0 V")
+    voltage = 5.0
+    await device.set_voltage("AB", voltage)
+    print(f"port AB voltage set to {voltage} V")
     await applet.interact(device, args, iface)
 
 asyncio.run(main())
