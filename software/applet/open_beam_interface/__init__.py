@@ -9,11 +9,14 @@ from amaranth.lib import enum, data, wiring
 from amaranth.lib.fifo import SyncFIFOBuffered
 from amaranth.lib.wiring import In, Out, flipped
 
+from glasgow.applet import GlasgowApplet
 from glasgow.support.logging import dump_hex
 from glasgow.support.endpoint import ServerEndpoint
 
 from commands.structs import CmdType, BeamType, OutputMode
 from commands.low_level_commands import Command
+
+import logging
 
 # Overview of (linear) processing pipeline:
 # 1. PC software (in: user input, out: bytes)
@@ -1211,6 +1214,7 @@ class OBIApplet(GlasgowApplet):
         ServerEndpoint.add_argument(parser, "endpoint")
 
     async def interact(self, device, args, iface):
+
         class ForwardProtocol(asyncio.Protocol):
             logger = self.logger
 
@@ -1285,8 +1289,6 @@ class OBIApplet(GlasgowApplet):
 
                 asyncio.create_task(self.reset())
                 
-
-
         proto, *proto_args = args.endpoint
         server = await asyncio.get_event_loop().create_server(ForwardProtocol, *proto_args, backlog=1)
         await server.serve_forever()
