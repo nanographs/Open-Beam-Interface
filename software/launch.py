@@ -35,10 +35,11 @@ async def main():
     print("build plan done")
     await device.download_target(plan)
     print("bitstream loaded")
-    iface = await applet.run(device, args)
     voltage = 5.0
+    ## TODO: only turn on voltage after gateware is loaded
     await device.set_voltage("AB", voltage)
     print(f"port AB voltage set to {voltage} V")
+    iface = await applet.run(device, args)
     await applet.interact(device, args, iface)
 
 asyncio.run(main())
