@@ -5,7 +5,7 @@
 groups = ["default"]
 strategy = ["cross_platform", "inherit_metadata"]
 lock_version = "4.4.1"
-content_hash = "sha256:6a5f475bab4e00b5012b48ec7885a611adc7cd1bacb80ac61a20589d17b9c04d"
+content_hash = "sha256:6999f60d89a80bb4044218fa33d779d4beea00f0c7dddb11dc9eea5aa3983cc9"
 
 [[package]]
 name = "amaranth"
@@ -312,6 +312,20 @@ groups = ["default"]
 files = [
     {file = "rfc3986-2.0.0-py2.py3-none-any.whl", hash = "sha256:50b1502b60e289cb37883f3dfd34532b8873c7de9f49bb546641ce9cbd256ebd"},
     {file = "rfc3986-2.0.0.tar.gz", hash = "sha256:97aacf9dbd4bfd829baad6e6309fa6573aaf1be3f6fa735c8ab05e46cecb261c"},
+]
+
+[[package]]
+name = "tifffile"
+version = "2024.7.21"
+requires_python = ">=3.9"
+summary = "Read and write TIFF files"
+groups = ["default"]
+dependencies = [
+    "numpy",
+]
+files = [
+    {file = "tifffile-2024.7.21-py3-none-any.whl", hash = "sha256:7f335b5d6ca49401fe0f1d87deb206f5dae47297e47b1ed52a676d05d6d26798"},
+    {file = "tifffile-2024.7.21.tar.gz", hash = "sha256:818b577d49350421fb511f389f937984f9feaa2cd8177fa00823001920bf3483"},
 ]
 
 [[package]]

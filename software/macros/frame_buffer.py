@@ -1,9 +1,14 @@
 import logging
+import array
+import datetime
+import os
+
 import numpy as np
 import tifffile
 
 from .raster import RasterScanCommand
-from commands import DACCodeRange, Connection
+from commands import DACCodeRange
+from transfer import Connection
 logger = logging.getLogger()
 
 class Frame:
@@ -92,13 +97,13 @@ class FrameBuffer():
         else:
             return Frame(x_range, y_range)
 
-    async def capture_frame(self, x_range:DACCodeRange, y_range:DACCodeRange, *, dwell, latency, frame=None):
+    async def capture_frame(self, x_range:DACCodeRange, y_range:DACCodeRange, *, dwell_time, latency, frame=None):
         frame = self.get_frame(x_range,y_range)
         res = array.array('H')
         pixels_per_chunk = self.opt_chunk_size(frame)
         self._logger.debug(f"{pixels_per_chunk=}")
         cmd = RasterScanCommand(cookie=123,
-            x_range=x_range, y_range=y_range, dwell=dwell)
+            x_range=x_range, y_range=y_range, dwell_time=dwell_time)
         async for chunk in self.conn.transfer_multiple(cmd, latency=latency):
             self._logger.debug(f"{len(res)} old pixels + {len(chunk)} new pixels -> {len(res)+len(chunk)} total")
             res.extend(chunk)
@@ -127,7 +132,7 @@ class FrameBuffer():
 
 
     def opt_chunk_size(self, frame: Frame):
-        FPS = 30
+        FPS = 60
         DWELL_NS = 125
         s_per_frame = 1/FPS
         dwells_per_frame = s_per_frame/(DWELL_NS*pow(10,-9))
