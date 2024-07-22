@@ -13,7 +13,6 @@ __all__ = []
 from .structs import CmdType, OutputMode, BeamType, DACCodeRange
 __all__ += ["CmdType", "OutputMode", "BeamType", "DACCodeRange"]
 
-from transfer import Stream
 class BaseCommand(metaclass = ABCMeta):
     def __init_subclass__(cls):
         cls._logger = logger.getChild(f"Command.{cls.__name__}")
@@ -42,10 +41,10 @@ class BaseCommand(metaclass = ABCMeta):
         return wrapper
 
     @abstractmethod
-    async def transfer(self, stream:Stream):
+    async def transfer(self, stream):
         ...
 
-    async def recv_res(self, pixel_count, stream:Stream, output_mode:OutputMode):
+    async def recv_res(self, pixel_count, stream, output_mode:OutputMode):
         if output_mode == OutputMode.NoOutput:
                 await asyncio.sleep(0)
                 self._logger.debug(f"recv_res None")
