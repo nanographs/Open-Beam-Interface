@@ -18,6 +18,13 @@ license = {text = "\"0BSD OR Apache-2.0\""}
 [project.entry-points."glasgow.applet"]
 open_beam_interface = "applet.open_beam_interface:OBIApplet"
 
+
+[project.optional-dependencies]
+":gui" = [
+    "pyqtgraph>=0.13.7",
+    "PyQt6>=6.7.1",
+    "qasync>=0.27.1",
+]
 [build-system]
 requires = ["pdm-backend"]
 build-backend = "pdm.backend"
