@@ -30,7 +30,8 @@ class Frame:
         return self._y_range.count, self._x_range.count
 
     def fill(self, pixels: array.array):
-        assert len(pixels) == self.pixels, f"expected {self.pixels}, got {len(pixels)}"
+        if len(pixels) != self.pixels:
+            raise ValueError(f"expected {self._x_count} x {self._y_count} = {self.pixels} pixels, got {len(pixels)} pixels")
         self.canvas = np.array(pixels, dtype = np.uint16).reshape(self.np_shape)
     
     def fill_lines(self, pixels: array.array):
