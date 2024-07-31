@@ -793,7 +793,7 @@ class CommandExecutor(wiring.Component):
                         ]
                         with m.If(self.raster_scanner.dwell_stream.ready):
                             m.d.comb += submit_pixel.eq(1)
-                            with m.If(run_length + 1 == command.payload.raster_pixel_run.length):
+                            with m.If(run_length == command.payload.raster_pixel_run.length):
                                 m.d.sync += run_length.eq(0)
                                 m.next = "Fetch"
                             with m.Else():

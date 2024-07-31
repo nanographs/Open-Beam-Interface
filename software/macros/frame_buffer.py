@@ -98,7 +98,9 @@ class FrameBuffer():
         else:
             return Frame(x_range, y_range)
 
-    async def capture_frame_iter_fill(self, *, x_range:DACCodeRange, y_range:DACCodeRange, dwell_time: int, latency, frame=None):
+    async def capture_frame_iter_fill(self, *, x_res: int, y_res: int, dwell_time: int, latency=65536, frame=None):
+        x_range = DACCodeRange.from_resolution(x_res)
+        y_range = DACCodeRange.from_resolution(y_res)
         frame = self.get_frame(x_range,y_range)
         res = array.array('H')
         pixels_per_chunk = self.opt_chunk_size(frame)

@@ -36,3 +36,7 @@ includes = ["applet"]
 _.env = {GLASGOW_OUT_OF_TREE_APPLETS = "I-am-okay-with-breaking-changes"}
 ## unit tests
 test.cmd = "python -m unittest test"
+[tool.pdm.dev-dependencies]
+dev = [
+    "rich>=13.7.1",
+]

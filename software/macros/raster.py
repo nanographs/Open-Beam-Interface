@@ -1,5 +1,10 @@
-from commands import *
 import asyncio
+import array
+import struct
+
+from commands import *
+
+BIG_ENDIAN = (struct.pack('@H', 0x1234) == struct.pack('>H', 0x1234))
 
 class RasterScanCommand(BaseCommand):
     def __init__(self, x_range: DACCodeRange, y_range: DACCodeRange, dwell_time: int, cookie: int,
@@ -10,6 +15,9 @@ class RasterScanCommand(BaseCommand):
         self._cookie = cookie
         self._output_mode = output_mode
     
+    def __repr__(self):
+        return f"RasterScanCommand: x_range={self._x_range}, y_range={self._y_range}, \
+                dwell={self._dwell}, cookie={self._cookie}, output_mode={self._output_mode}"
     def _iter_chunks(self, latency=65536*65536):
         commands = bytearray()
 
@@ -19,13 +27,17 @@ class RasterScanCommand(BaseCommand):
             assert array_count < 65536, "can't handle more than 65536x65536 points"
             self._logger.debug(f"{array_count=}, {remainder_pixel_count=}")
             if array_count > 0:
-                commands.extend(bytes(ArrayCommand(cmdtype=CmdType.RasterPixelRun, array_length=array_count)))
-                chunk = array.array('H', [self._dwell]*array_count)
-                if not BIG_ENDIAN: # there is no `array.array('>H')`
-                    chunk.byteswap()
-                commands.extend(chunk.tobytes())
+                arr_cmd = ArrayCommand(cmdtype=CmdType.RasterPixelRun, array_length=array_count)
+                self._logger.debug(f"{arr_cmd!r}...")
+                commands.extend(bytes(arr_cmd))
+                run_cmd = RasterPixelRunCommand(dwell_time = self._dwell, length=65535)
+                run_cmd_frag = bytes(run_cmd)[1:]
+                for _ in range(array_count):
+                    self._logger.debug(f"\nadding {run_cmd!r}")
+                    commands.extend(run_cmd_frag)
+                
             if remainder_pixel_count > 0:
-                commands.extend(bytes(RasterPixelRunCommand(dwell_time = self._dwell, length = remainder_pixel_count)))
+                commands.extend(bytes(RasterPixelRunCommand(dwell_time = self._dwell, length = remainder_pixel_count-1)))
 
         pixel_count = 0
         total_dwell = 0
@@ -54,8 +66,9 @@ class RasterScanCommand(BaseCommand):
             for commands, pixel_count in self._iter_chunks(latency):
                 self._logger.debug(f"sender: tokens={tokens}")
                 print(f"sender: {len(commands)=}, {pixel_count=}")
+                await FlushCommand().transfer(stream)
+                print(f"sender: send FlushCommand")
                 if tokens == 0:
-                    await FlushCommand().transfer(stream)
                     await token_fut
                 await stream.write(commands)
                 tokens -= 1
@@ -67,6 +80,7 @@ class RasterScanCommand(BaseCommand):
         asyncio.create_task(sender())
 
         cookie = await stream.read(4) #just assume these are exactly FFFF + cookie, and discard them
+        print(f"{cookie=}")
         for commands, pixel_count in self._iter_chunks(latency):
             tokens += 1
             if tokens == 1:

@@ -62,7 +62,10 @@ class DwellTimeVal(int):
     '''Dwell time is measured in units of ADC cycles.
         One DwellTime = 125 ns'''
     def __init__(self, value):
-        assert value <= 65536, f"Pixel dwell time {value} is higher than 65536. Dwell times are limited to 16 bit values"
+        if value < 1:
+            raise ValueError(f"Pixel dwell time {value} is < 1")
+        if value >= 65536:
+            raise ValueError(f"Pixel dwell time {value} is higher than 65536. Dwell times are limited to 16 bit values")
     def __new__(self, value):
         self.__init__(self, value)
         return value
