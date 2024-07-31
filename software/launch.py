@@ -22,7 +22,7 @@ async def main():
         logging.Formatter(style="{", fmt="{levelname[0]:s}: {name:s}: {message:s}"))
     device = GlasgowHardwareDevice()
 
-    from applet.open_beam_interface import OBIApplet, obi_resources
+    from obi.applet.open_beam_interface import OBIApplet, obi_resources
     from glasgow.access.direct import DirectMultiplexer, DirectDemultiplexer
 
     applet = OBIApplet()

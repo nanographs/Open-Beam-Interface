@@ -6,9 +6,9 @@ import os
 import numpy as np
 import tifffile
 
+from obi.commands import DACCodeRange
+from obi.transfer import Connection
 from .raster import RasterScanCommand
-from commands import DACCodeRange
-from transfer import Connection
 logger = logging.getLogger()
 
 class Frame:

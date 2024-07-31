@@ -63,9 +63,13 @@ class LiveScanControls(ScanParameters):
         self.resolution_settings = SettingBoxWithDefaults("Resolution", 256, 16384, 512, defaults=["256", "512", "1024", "2048", "Custom"])
         self.dwell_time = SettingBoxWithDefaults("Dwell Time", 1, 65536, 1, defaults=["1", "2", "4", "8", "16", "Custom"])
         super().__init__("Live")
-        self.start_btn = QPushButton("Start Live Scan")
 
+        self.start_btn = QPushButton("Start Live Scan")
         self.addWidget(self.start_btn)
+
+        self.roi_btn = QPushButton("ROI Scan")
+        self.roi_btn.setCheckable(True)
+        self.addWidget(self.roi_btn)
 
 class PhotoScanControls(ScanParameters):
     def __init__(self):

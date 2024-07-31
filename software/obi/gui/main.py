@@ -14,12 +14,12 @@ import pyqtgraph as pg
 import qasync
 from qasync import asyncSlot, asyncClose, QApplication, QEventLoop
 
-from .components import ImageDisplay, CombinedScanControls
+from obi.gui.components import ImageDisplay, CombinedScanControls
 
-from transfer import TCPConnection, setup_logging
-from macros import FrameBuffer
+from obi.transfer import TCPConnection, setup_logging
+from obi.macros import FrameBuffer
 
-setup_logging({"GUI": logging.DEBUG, "Command": logging.DEBUG})
+setup_logging({"GUI": logging.DEBUG, "Command": logging.DEBUG, "FrameBuffer": logging.DEBUG})
 
 class ScanControlWidget(QDockWidget):
     def __init__(self):
@@ -44,17 +44,49 @@ class Window(QMainWindow):
         self.scan_control = ScanControlWidget()
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.scan_control)
 
-        self.scan_control.inner.live.start_btn.clicked.connect(self.start_live_scan)
+        self.scan_control.inner.live.start_btn.clicked.connect(self.toggle_live_scan)
+        self.scan_control.inner.live.roi_btn.clicked.connect(self.toggle_roi_scan)
     
-    @asyncSlot()
-    async def start_live_scan(self):
+    async def capture_ROI(self):
+        x_upper, x_lower, y_upper, y_lower = self.image_display.get_ROI()
+
+    async def capture_frame(self, stop_scan: asyncio.Event):
+        abort = False
         resolution, dwell_time = self.scan_control.inner.live.getval()
         async for frame in self.fb.capture_frame_iter_fill(
             x_res=resolution, y_res=resolution, dwell_time=dwell_time, latency=65536
             ):
             self.image_display.setImage(frame.as_uint8())
             self._logger.debug("set image")
+            if stop_scan.is_set():
+                abort = True
+                break
+        return abort
 
+    def stop_scan_fn(self):
+        self.stop_scan.set()
+        self._logger.debug("stopped scan")
+        breakpoint()
+        self.stop_scan.clear()
+    
+
+    @asyncSlot()
+    async def toggle_live_scan(self):
+        self.scan_control.inner.live.start_btn.setText("Stop Live Scan")
+        self.stop_scan = asyncio.Event()
+        self.scan_control.inner.live.start_btn.clicked.disconnect(self.toggle_live_scan)
+        self.scan_control.inner.live.start_btn.clicked.connect(self.stop_scan_fn)
+        while True:
+            abort = await self.capture_frame(self.stop_scan)
+            if abort:
+                break
+        self.scan_control.inner.live.start_btn.clicked.connect(self.toggle_live_scan)
+        self.scan_control.inner.live.start_btn.setText("Start Live Scan")
+        print("done")
+
+    def toggle_roi_scan(self):
+        self.image_display.add_ROI()
+        self.image_display.roi.sigRegionChanged.connect(self.capture_ROI)
 
 def run_gui():
     app = QApplication(sys.argv)

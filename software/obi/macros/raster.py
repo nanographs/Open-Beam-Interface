@@ -2,7 +2,7 @@ import asyncio
 import array
 import struct
 
-from commands import *
+from obi.commands import *
 
 BIG_ENDIAN = (struct.pack('@H', 0x1234) == struct.pack('>H', 0x1234))
 
@@ -50,10 +50,10 @@ class RasterScanCommand(BaseCommand):
         async def sender():
             nonlocal tokens
             for commands, pixel_count in self._iter_chunks(latency):
-                self._logger.debug(f"sender: tokens={tokens}")
+                #self._logger.debug(f"sender: tokens={tokens}")
                 print(f"sender: {len(commands)=}, {pixel_count=}")
                 await FlushCommand().transfer(stream)
-                print(f"sender: send FlushCommand")
+                #self._logger.debug(f"sender: send FlushCommand")
                 if tokens == 0:
                     await token_fut
                 await stream.write(commands)

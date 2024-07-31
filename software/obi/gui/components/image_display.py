@@ -67,7 +67,6 @@ class ImageDisplay(pg.GraphicsLayoutWidget):
         self.roi.addScaleHandle([0, 0], [1, 1])
         self.image_view.addItem(self.roi)
         self.roi.setZValue(10)  # make sure ROI is drawn above image
-        self.roi.sigRegionChanged.connect(self.get_ROI)
     
     def add_line(self, start=None, end=None):
         if start == None:
@@ -97,14 +96,15 @@ class ImageDisplay(pg.GraphicsLayoutWidget):
             self.roi = None
 
     def get_ROI(self):
-        x0, y0 = self.roi.pos() ## upper left corner
-        x1, y1 = self.roi.size()
-        x_upper = int(x0)
-        y_upper = int(y0)
-        x_lower = int(x0 + x1)
-        y_lower = int(y0 + y1)
-        self._logger.debug(f"get_ROI: {x_upper=}, {x_lower=}, {y_upper=}, {y_lower=}")
-        return x_upper, x_lower, y_upper, y_lower
+        x_start, y_start = self.roi.pos() ## upper left corner
+        x_count, y_count = self.roi.size()
+        # x_upper = int(x0)
+        # y_upper = int(y0)
+        # x_lower = int(x0 + x1)
+        # y_lower = int(y0 + y1)
+        # self._logger.debug(f"get_ROI: {x_upper=}, {x_lower=}, {y_upper=}, {y_lower=}")
+        # return x_upper, x_lower, y_upper, y_lower
+        return x_start, x_count, y_start, y_count
         
 
     def setImage(self, image: np.array(np.uint8)):

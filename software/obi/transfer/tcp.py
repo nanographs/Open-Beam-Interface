@@ -11,7 +11,7 @@ import logging
 logger = logging.getLogger()
 
 from .stream import Stream, Connection, TransferError
-from commands import Command, SynchronizeCommand, FlushCommand, OutputMode
+from obi.commands import Command, SynchronizeCommand, FlushCommand, OutputMode
 from .support import dump_hex
 
 BIG_ENDIAN = (struct.pack('@H', 0x1234) == struct.pack('>H', 0x1234))

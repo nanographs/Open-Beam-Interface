@@ -1,8 +1,8 @@
 import asyncio 
 
-from transfer import TCPConnection, TCPStream
-from commands import DACCodeRange
-from macros import FrameBuffer
+from obi.transfer import TCPConnection, TCPStream
+from obi.commands import DACCodeRange
+from obi.macros import FrameBuffer
 
 import os
 cwd = os.getcwd()

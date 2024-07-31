@@ -13,8 +13,8 @@ from glasgow.applet import GlasgowApplet
 from glasgow.support.logging import dump_hex
 from glasgow.support.endpoint import ServerEndpoint
 
-from commands.structs import CmdType, BeamType, OutputMode
-from commands.low_level_commands import Command
+from obi.commands.structs import CmdType, BeamType, OutputMode
+from obi.commands.low_level_commands import Command
 
 import logging
 
