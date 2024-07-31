@@ -47,22 +47,17 @@ class BaseCommand(metaclass = ABCMeta):
     async def recv_res(self, pixel_count, stream, output_mode:OutputMode):
         if output_mode == OutputMode.NoOutput:
                 await asyncio.sleep(0)
-                self._logger.debug(f"recv_res None")
                 pass
         else:
             if output_mode == OutputMode.SixteenBit:
                 res = array.array('H', bytes(await stream.read(pixel_count * 2)))
                 if not BIG_ENDIAN:
                     res.byteswap()
-                self._logger.debug(f"recv_res 16")
                 await asyncio.sleep(0)
-                self._logger.debug(f"recv_res sleep")
                 return res
             if output_mode == OutputMode.EightBit:
                 res = array.array('B', await stream.read(pixel_count))
-                self._logger.debug(f"recv_res 8")
                 await asyncio.sleep(0)
-                self._logger.debug(f"recv_res sleep")
                 return res
 __all__ += ["BaseCommand"]
 
