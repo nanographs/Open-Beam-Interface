@@ -22,22 +22,8 @@ class RasterScanCommand(BaseCommand):
         commands = bytearray()
 
         def append_command(pixel_count):
-            array_count = pixel_count//65536
-            remainder_pixel_count = pixel_count%65536
-            assert array_count < 65536, "can't handle more than 65536x65536 points"
-            self._logger.debug(f"{array_count=}, {remainder_pixel_count=}")
-            if array_count > 0:
-                arr_cmd = ArrayCommand(cmdtype=CmdType.RasterPixelRun, array_length=array_count)
-                self._logger.debug(f"{arr_cmd!r}...")
-                commands.extend(bytes(arr_cmd))
-                run_cmd = RasterPixelRunCommand(dwell_time = self._dwell, length=65535)
-                run_cmd_frag = bytes(run_cmd)[1:]
-                for _ in range(array_count):
-                    self._logger.debug(f"\nadding {run_cmd!r}")
-                    commands.extend(run_cmd_frag)
-                
-            if remainder_pixel_count > 0:
-                commands.extend(bytes(RasterPixelRunCommand(dwell_time = self._dwell, length = remainder_pixel_count-1)))
+            cmd = RasterPixelRunCommand(dwell_time = self._dwell, length=pixel_count-1)
+            commands.extend(bytes(cmd))
 
         pixel_count = 0
         total_dwell = 0
