@@ -966,7 +966,7 @@ class OBISubtarget(wiring.Component):
 
             loopback_dwell_time = Signal()
             if self.loopback:
-                m.d.sync += loopback_dwell_time.eq(executor.cmd_stream.payload.type == Command.Type.RasterPixel)
+                m.d.sync += loopback_dwell_time.eq(executor.cmd_stream.payload.type == CmdType.RasterPixel)
 
             with m.If(loopback_dwell_time):
                 m.d.comb += loopback_adapter.loopback_stream.eq(executor.supersampler.dac_stream_data.dwell_time)
@@ -1074,10 +1074,12 @@ class OBISubtarget(wiring.Component):
                 control.d_clock.o.eq(executor.bus.dac_clk),
                 control.a_clock.o.eq(executor.bus.adc_clk),
 
-                executor.bus.data_i.eq(data.i),
                 data.o.eq(executor.bus.data_o),
                 data.oe.eq(executor.bus.data_oe),
             ]
+
+            if not self.loopback:
+                m.d.comb += executor.bus.data_i.eq(data.i),
 
         return m
 
