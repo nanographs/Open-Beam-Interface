@@ -51,7 +51,7 @@ class RasterScanCommand(BaseCommand):
             nonlocal tokens
             for commands, pixel_count in self._iter_chunks(latency):
                 #self._logger.debug(f"sender: tokens={tokens}")
-                print(f"sender: {len(commands)=}, {pixel_count=}")
+                #print(f"sender: {len(commands)=}, {pixel_count=}")
                 await FlushCommand().transfer(stream)
                 #self._logger.debug(f"sender: send FlushCommand")
                 if tokens == 0:
