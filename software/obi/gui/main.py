@@ -63,25 +63,18 @@ class Window(QMainWindow):
                 break
         return abort
 
-    def stop_scan_fn(self):
-        self.stop_scan.set()
-        self._logger.debug("stopped scan")
-        breakpoint()
-        self.stop_scan.clear()
-    
-
     @asyncSlot()
     async def toggle_live_scan(self):
         self.scan_control.inner.live.start_btn.setText("Stop Live Scan")
-        self.stop_scan = asyncio.Event()
-        self.scan_control.inner.live.start_btn.clicked.disconnect(self.toggle_live_scan)
-        self.scan_control.inner.live.start_btn.clicked.connect(self.stop_scan_fn)
+        stop_scan = asyncio.Event()
+        self.scan_control.inner.live.start_btn.clicked.connect(stop_scan.set)
         while True:
-            abort = await self.capture_frame(self.stop_scan)
+            abort = await self.capture_frame(stop_scan)
             if abort:
                 break
-        self.scan_control.inner.live.start_btn.clicked.connect(self.toggle_live_scan)
         self.scan_control.inner.live.start_btn.setText("Start Live Scan")
+        self.scan_control.inner.live.start_btn.clicked.connect(self.toggle_live_scan)
+        self.scan_control.inner.live.start_btn.setEnabled(True)
         print("done")
 
     def toggle_roi_scan(self):
