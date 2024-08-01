@@ -23,6 +23,10 @@ class RasterScanCommand(BaseCommand):
         commands = bytearray()
 
         def append_command(pixel_count):
+            while pixel_count > 65536:
+                cmd = RasterPixelRunCommand(dwell_time = self._dwell, length=65535)
+                commands.extend(bytes(cmd))
+                pixel_count -= 65536
             cmd = RasterPixelRunCommand(dwell_time = self._dwell, length=pixel_count-1)
             commands.extend(bytes(cmd))
 
@@ -32,6 +36,7 @@ class RasterScanCommand(BaseCommand):
             pixel_count += 1
             total_dwell += self._dwell
             if total_dwell >= latency:
+                print(f"{total_dwell} >= {latency}")
                 append_command(pixel_count)
                 yield(commands, pixel_count)
                 commands = bytearray()
@@ -42,7 +47,8 @@ class RasterScanCommand(BaseCommand):
             yield(commands, pixel_count)
 
     @BaseCommand.log_transfer
-    async def transfer(self, stream, latency: int):
+    async def transfer(self, stream, *, latency: int):
+        print(f"transfer - {latency=}")
         MAX_PIPELINE = 32
 
         tokens = MAX_PIPELINE

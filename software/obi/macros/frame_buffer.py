@@ -105,7 +105,7 @@ class FrameBuffer():
         if self.abort is not None:
             self.abort.set()
 
-    async def capture_frame_iter_fill(self, *, x_res: int, y_res: int, dwell_time: int, latency=65536, frame=None):
+    async def capture_frame_iter_fill(self, *, x_res: int, y_res: int, dwell_time: int, latency:int=65536, frame=None):
         x_range = DACCodeRange.from_resolution(x_res)
         y_range = DACCodeRange.from_resolution(y_res)
         frame = self.get_frame(x_range,y_range)
@@ -117,7 +117,7 @@ class FrameBuffer():
         self.abort = cmd.abort
         #self.conn._synchronized = False
         async for chunk in self.conn.transfer_multiple(cmd, latency=latency):
-            self._logger.debug(f"{len(res)} old pixels + {len(chunk)} new pixels -> {len(res)+len(chunk)} total in buffer")
+            self._logger.debug(f"{len(res)} old pixels + {len(chunk)} new pixels -> {len(res)+len(chunk)} total in buffer. {latency=}")
             res.extend(chunk)
 
             async def slice_chunk():

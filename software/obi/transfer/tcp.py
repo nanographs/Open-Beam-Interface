@@ -54,7 +54,7 @@ class TCPStream(Stream):
         await self.send(data)
         return await self.recv(recv_length)
 
-class TCPConnection:
+class TCPConnection(Connection):
     _logger = logger.getChild("Connection")
     def __init__(self, host: str, port: int, *, read_buffer_size=0x10000*128):
         self.host = host
@@ -137,28 +137,6 @@ class TCPConnection:
         cookie, self._next_cookie = self._next_cookie + 1, self._next_cookie + 2 # odd cookie
         self._logger.debug(f"allocating cookie {cookie:#06x}")
         return cookie
-
-    async def transfer(self, command: Command, flush:bool = False, **kwargs):
-        self._logger.debug(f"transfer {command!r}")
-        try:
-            start = perf_counter()
-            await self._synchronize() # may raise asyncio.IncompleteReadError
-            stop = perf_counter()
-            self._logger.debug(f"transfer: time - {stop-start:.4f}")
-            return await command.transfer(self._stream, **kwargs)
-        except asyncio.IncompleteReadError as e:
-            self._handle_incomplete_read(e)
-
-    async def transfer_multiple(self, command: Command, **kwargs):
-        self._logger.debug(f"transfer multiple {command!r}")
-        try:
-            await self._synchronize() # may raise asyncio.IncompleteReadError
-            self._logger.debug(f"synchronize transfer_multiple")
-            async for value in command.transfer(self._stream, **kwargs):
-                yield value
-                self._logger.debug(f"yield transfer_multiple")
-        except asyncio.IncompleteReadError as e:
-            self._handle_incomplete_read(e)
     
     async def transfer_raw(self, command, flush:bool = False, **kwargs):
         self._logger.debug(f"transfer {command!r}")
