@@ -14,6 +14,7 @@ class RasterScanCommand(BaseCommand):
         self._dwell = dwell_time
         self._cookie = cookie
         self._output_mode = output_mode
+        self.abort = asyncio.Event()
     
     def __repr__(self):
         return f"RasterScanCommand: x_range={self._x_range}, y_range={self._y_range}, \
@@ -50,14 +51,14 @@ class RasterScanCommand(BaseCommand):
         async def sender():
             nonlocal tokens
             for commands, pixel_count in self._iter_chunks(latency):
-                #self._logger.debug(f"sender: tokens={tokens}")
-                #print(f"sender: {len(commands)=}, {pixel_count=}")
-                await FlushCommand().transfer(stream)
-                #self._logger.debug(f"sender: send FlushCommand")
+                self._logger.debug(f"sender: tokens={tokens}")
                 if tokens == 0:
+                    await FlushCommand().transfer(stream)
                     await token_fut
                 await stream.write(commands)
                 tokens -= 1
+                if self.abort.is_set():
+                    break
                 await asyncio.sleep(0)
             await FlushCommand().transfer(stream)
 
@@ -66,11 +67,14 @@ class RasterScanCommand(BaseCommand):
         asyncio.create_task(sender())
 
         cookie = await stream.read(4) #just assume these are exactly FFFF + cookie, and discard them
-        print(f"{cookie=}")
+        print(f"{str(list(cookie))=}")
         for commands, pixel_count in self._iter_chunks(latency):
             tokens += 1
             if tokens == 1:
                 token_fut.set_result(None)
                 token_fut = asyncio.Future()
+            if tokens == MAX_PIPELINE + 1:
+                if self.abort.is_set():
+                    break
             self._logger.debug(f"recver: tokens={tokens}")
             yield await self.recv_res(pixel_count, stream, self._output_mode)

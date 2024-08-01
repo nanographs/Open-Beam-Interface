@@ -45,6 +45,7 @@ class BaseCommand(metaclass = ABCMeta):
         ...
 
     async def recv_res(self, pixel_count, stream, output_mode:OutputMode):
+        self._logger.debug(f"waiting to receive {pixel_count} pixels, {output_mode=}")
         if output_mode == OutputMode.NoOutput:
                 await asyncio.sleep(0)
                 pass

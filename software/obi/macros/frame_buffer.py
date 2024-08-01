@@ -89,14 +89,20 @@ class FrameBuffer():
     def __init__(self, conn: Connection):
         self.conn = conn
         self.current_frame = None
+        self.abort = None
     
     def get_frame(self, x_range, y_range):
         if self.current_frame == None:
             return Frame(x_range, y_range)
         elif (x_range == self.current_frame._x_range) & (y_range == self.current_frame._y_range):
+            self.current_frame.y_ptr = 0
             return self.current_frame
         else:
             return Frame(x_range, y_range)
+    
+    def abort_scan(self):
+        if self.abort is not None:
+            self.abort.set()
 
     async def capture_frame_iter_fill(self, *, x_res: int, y_res: int, dwell_time: int, latency=65536, frame=None):
         x_range = DACCodeRange.from_resolution(x_res)
@@ -107,8 +113,10 @@ class FrameBuffer():
         self._logger.debug(f"{pixels_per_chunk=}")
         cmd = RasterScanCommand(cookie=123,
             x_range=x_range, y_range=y_range, dwell_time=dwell_time)
+        self.abort = cmd.abort
+        #self.conn._synchronized = False
         async for chunk in self.conn.transfer_multiple(cmd, latency=latency):
-            self._logger.debug(f"{len(res)} old pixels + {len(chunk)} new pixels -> {len(res)+len(chunk)} total")
+            self._logger.debug(f"{len(res)} old pixels + {len(chunk)} new pixels -> {len(res)+len(chunk)} total in buffer")
             res.extend(chunk)
 
             async def slice_chunk():
@@ -116,19 +124,19 @@ class FrameBuffer():
                 if len(res) >= pixels_per_chunk:
                     to_frame = res[:pixels_per_chunk]
                     res = res[pixels_per_chunk:]
-                    self._logger.debug(f"slice: {pixels_per_chunk}, {len(res)} pixels remaining")
+                    self._logger.debug(f"slice to display: {pixels_per_chunk}, {len(res)} pixels left in buffer")
                     frame.fill_lines(to_frame)
                     yield frame
                     if len(res) > pixels_per_chunk:
                         yield slice_chunk()
                 else:
-                    self._logger.debug(f"need chunk: {pixels_per_chunk}, have {len(res)} pixels")
+                    self._logger.debug(f"have {len(res)} pixels in buffer, need minimum {pixels_per_chunk} pixels")
 
             async for frame in slice_chunk():
                 self.current_frame = frame
                 yield frame
 
-        self._logger.debug(f"end of frame: {len(res)} pixels")
+        self._logger.debug(f"end of scan: {len(res)} pixels in buffer")
         frame.fill_lines(res)
         self.current_frame = frame
         yield frame

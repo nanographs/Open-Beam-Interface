@@ -19,7 +19,7 @@ from obi.gui.components import ImageDisplay, CombinedScanControls
 from obi.transfer import TCPConnection, setup_logging
 from obi.macros import FrameBuffer
 
-setup_logging({"GUI": logging.DEBUG, "Command": logging.DEBUG, "FrameBuffer": logging.DEBUG})
+setup_logging({"GUI": logging.DEBUG, "Command": logging.DEBUG, "FrameBuffer": logging.DEBUG, "Stream": logging.DEBUG})
 
 class ScanControlWidget(QDockWidget):
     def __init__(self):
@@ -50,30 +50,34 @@ class Window(QMainWindow):
     async def capture_ROI(self):
         x_upper, x_lower, y_upper, y_lower = self.image_display.get_ROI()
 
-    async def capture_frame(self, stop_scan: asyncio.Event):
-        abort = False
+    async def capture_frame(self):
         resolution, dwell_time = self.scan_control.inner.live.getval()
         async for frame in self.fb.capture_frame_iter_fill(
             x_res=resolution, y_res=resolution, dwell_time=dwell_time, latency=65536
             ):
             self.image_display.setImage(frame.as_uint8())
             self._logger.debug("set image")
-            if stop_scan.is_set():
-                abort = True
-                break
-        return abort
 
     @asyncSlot()
     async def toggle_live_scan(self):
-        self.scan_control.inner.live.start_btn.setText("Stop Live Scan")
+        self.scan_control.inner.live.start_btn.setEnabled(False)
+
         stop_scan = asyncio.Event()
-        self.scan_control.inner.live.start_btn.clicked.connect(stop_scan.set)
-        while True:
-            abort = await self.capture_frame(stop_scan)
-            if abort:
-                break
+        self.scan_control.inner.live.start_btn.clicked.disconnect(self.toggle_live_scan)
+        self.scan_control.inner.live.start_btn.clicked.connect(self.fb.abort_scan)
+        self.scan_control.inner.live.start_btn.setText("Stop Live Scan")
+
+        self.scan_control.inner.live.start_btn.setEnabled(True)
+        
+        # while True:
+        #     abort = await self.capture_frame(stop_scan)
+        #     if abort:
+        #         break
+        await self.capture_frame()
+        
         self.scan_control.inner.live.start_btn.setText("Start Live Scan")
         self.scan_control.inner.live.start_btn.clicked.connect(self.toggle_live_scan)
+
         self.scan_control.inner.live.start_btn.setEnabled(True)
         print("done")
 
