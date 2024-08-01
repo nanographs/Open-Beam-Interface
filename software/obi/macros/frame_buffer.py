@@ -138,7 +138,9 @@ class FrameBuffer():
                 yield frame
 
         self._logger.debug(f"end of scan: {len(res)} pixels in buffer")
-        frame.fill_lines(res)
+        last_lines = len(res)//self.current_frame._x_count
+        if last_lines > 0:
+            frame.fill_lines(res[:self.current_frame._x_count*last_lines])
         self.current_frame = frame
         yield frame
 
