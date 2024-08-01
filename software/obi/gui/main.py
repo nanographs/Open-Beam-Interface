@@ -69,11 +69,8 @@ class Window(QMainWindow):
 
         self.scan_control.inner.live.start_btn.setEnabled(True)
         
-        # while True:
-        #     abort = await self.capture_frame(stop_scan)
-        #     if abort:
-        #         break
-        await self.capture_frame()
+        while not self.fb.is_aborted:
+            await self.capture_frame()
         
         self.scan_control.inner.live.start_btn.setText("Start Live Scan")
         self.scan_control.inner.live.start_btn.clicked.connect(self.toggle_live_scan)

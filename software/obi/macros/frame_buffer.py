@@ -104,6 +104,16 @@ class FrameBuffer():
     def abort_scan(self):
         if self.abort is not None:
             self.abort.set()
+    
+    @property
+    def is_aborted(self):
+        if self.abort is not None:
+            if self.abort.is_set():
+                self.abort = None
+                return True
+        else:
+            return False
+
 
     async def capture_frame_iter_fill(self, *, x_res: int, y_res: int, dwell_time: int, latency:int=65536, frame=None):
         x_range = DACCodeRange.from_resolution(x_res)
