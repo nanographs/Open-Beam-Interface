@@ -84,6 +84,7 @@ class Frame:
 
         print(f"saved: {img_name}")
 
+
 class FrameBuffer():
     _logger = logger.getChild("FrameBuffer")
     def __init__(self, conn: Connection):
