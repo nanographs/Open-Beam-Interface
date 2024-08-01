@@ -1,10 +1,11 @@
 import unittest
 import array
 import asyncio
+import time
 
 from obi.macros import Frame, FrameBuffer
 from obi.commands import DACCodeRange
-from obi.transfer import MockConnection
+from obi.transfer import MockConnection, setup_logging
 
 class FrameTest(unittest.TestCase):
     def test_fill(self):
@@ -19,7 +20,12 @@ class FrameBufferTest(unittest.TestCase):
             conn = MockConnection()
             await conn._connect()
             fb = FrameBuffer(conn)
-            async for frame in fb.capture_frame_iter_fill(x_res=2048, y_res=2048, dwell_time=2):
-                print(f"{frame=}")
+            start = time.time()
+            async for frame in fb.capture_frame_iter_fill(x_res=2048, y_res=2048, dwell_time=215):
+                now = time.time()
+                elapsed = now-start
+                print(f"{frame=}, {elapsed=:04f}")
+                if elapsed > .5:
+                    fb.abort_scan()
         asyncio.run(test_fn())
 
