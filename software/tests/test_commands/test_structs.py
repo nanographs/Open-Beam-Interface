@@ -1,5 +1,5 @@
 import unittest
-from commands.structs import DACCodeRange
+from obi.commands.structs import DACCodeRange
 
 
 class DACCodeRangeTest(unittest.TestCase):

@@ -1,8 +1,8 @@
 import unittest
 import array
 
-from macros import Frame
-from commands import DACCodeRange
+from obi.macros import Frame
+from obi.commands import DACCodeRange
 
 class FrameTest(unittest.TestCase):
     def test_fill(self):

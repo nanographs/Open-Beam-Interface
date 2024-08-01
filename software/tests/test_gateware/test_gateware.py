@@ -7,11 +7,11 @@ from amaranth import DriverConflict
 from abc import ABCMeta, abstractmethod
 import asyncio
 
-from applet.open_beam_interface import StreamSignature
-from applet.open_beam_interface import Supersampler, RasterScanner, RasterRegion
-from applet.open_beam_interface import CommandParser, CommandExecutor, Command, BeamType, OutputMode, CmdType
-from applet.open_beam_interface import BusController, Flippenator
-from commands import *
+from obi.applet.open_beam_interface import StreamSignature
+from obi.applet.open_beam_interface import Supersampler, RasterScanner, RasterRegion
+from obi.applet.open_beam_interface import CommandParser, CommandExecutor, Command, BeamType, OutputMode, CmdType
+from obi.applet.open_beam_interface import BusController, Flippenator
+from obi.commands import *
 
 
 ## support functions for prettier output
