@@ -137,14 +137,3 @@ class TCPConnection(Connection):
         cookie, self._next_cookie = self._next_cookie + 1, self._next_cookie + 2 # odd cookie
         self._logger.debug(f"allocating cookie {cookie:#06x}")
         return cookie
-    
-    async def transfer_raw(self, command, flush:bool = False, **kwargs):
-        self._logger.debug(f"transfer {command!r}")
-        await self._synchronize() # may raise asyncio.IncompleteReadError
-        await self._stream.write(bytes(command))
-        await self._stream.flush()
-    
-    async def transfer_bytes(self, data:bytes, flush:bool = False, **kwargs):
-        await self._synchronize() # may raise asyncio.IncompleteReadError
-        await self._stream.write(data)
-        await self._stream.flush()

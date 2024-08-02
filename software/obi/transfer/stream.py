@@ -89,4 +89,14 @@ class Connection(metaclass = ABCMeta):
         except asyncio.IncompleteReadError as e:
             self._handle_incomplete_read(e)
     
+    async def transfer_raw(self, command, flush:bool = False, **kwargs):
+        self._logger.debug(f"transfer {command!r}")
+        await self._synchronize() # may raise asyncio.IncompleteReadError
+        await self._stream.write(bytes(command))
+        await self._stream.flush()
+    
+    async def transfer_bytes(self, data:bytes, flush:bool = False, **kwargs):
+        await self._synchronize() # may raise asyncio.IncompleteReadError
+        await self._stream.write(data)
+        await self._stream.flush()
 
