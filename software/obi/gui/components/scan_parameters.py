@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import (QLabel, QGridLayout, QApplication, QWidget, QFrame, QFileDialog,
+from PyQt6.QtWidgets import (QLabel, QGridLayout, QApplication, QWidget, QFrame, QFileDialog, QCheckBox,
                              QSpinBox, QComboBox, QHBoxLayout, QVBoxLayout, QPushButton)
 from PyQt6.QtCore import Qt
 
@@ -116,7 +116,7 @@ class PatternImport(QVBoxLayout):
     def select_file(self):
         file_path = QFileDialog.getOpenFileName()
         self.path_label.setText(os.path.basename(file_path[0]))
-        self.path = file_path
+        self.path = file_path[0]
 
 class PatternControls(QWidget):
     def __init__(self):
@@ -128,11 +128,22 @@ class PatternControls(QWidget):
         layout.addWidget(QHLine())
         self.invert_selected = QCheckBox("Invert")
         self.resolution_settings = SettingBoxWithDefaults("Resolution", 256, 16384, 4096, defaults=["512", "1024", "2048", "4096", "8192", "16384", "Custom"])
-        layout.addWidget(self.resolution_settings)
-
+        layout.addLayout(self.resolution_settings)
+        self.dwell_time = SettingBoxWithDefaults("Dwell Time", 1, 65536, 8, defaults=["1", "2", "4", "8", "16", "32", "64", "Custom"])
+        layout.addLayout(self.dwell_time)
         self.convert_btn = QPushButton("Convert to Vector")
+        layout.addWidget(self.convert_btn)
+        self.write_btn = QPushButton("Write Pattern")
+        layout.addWidget(self.write_btn)
+        self.write_btn.hide()
 
         self.setLayout(layout)
+
+    def getvals(self):
+        dwell_time = self.dwell_time.getval()
+        resolution = self.resolution_settings.getval()
+        invert = self.invert_selected.isChecked()
+        return resolution, dwell_time, invert
 
 
 

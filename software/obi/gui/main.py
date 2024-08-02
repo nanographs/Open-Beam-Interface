@@ -1,11 +1,13 @@
 import sys
 import asyncio
+from multiprocessing import Pool, Value
 import logging
 logger = logging.getLogger()
 
+import numpy as np
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (QHBoxLayout, QMainWindow, QDialog, QProgressBar,
-                             QMessageBox, QPushButton, QComboBox,
+                             QMessageBox, QPushButton, QComboBox, QCheckBox,
                              QVBoxLayout, QWidget, QLabel, QGridLayout,
                              QSpinBox, QFileDialog, QLineEdit, QDialogButtonBox,
                              QDockWidget)
@@ -19,6 +21,8 @@ from obi.gui.components import ImageDisplay, CombinedScanControls, PatternContro
 
 from obi.transfer import TCPConnection, setup_logging
 from obi.macros import FrameBuffer
+
+from obi.commands import *
 
 setup_logging({"GUI": logging.DEBUG, "FrameBuffer": logging.DEBUG})
 
@@ -42,8 +46,82 @@ class PatternControlWidget(QDockWidget):
         self.inner = PatternControls()
         self.setWidget(self.inner)
 
+
+def pool_initializer(S):
+    global scale_factor
+    scale_factor = S
+
+def line(xarray):
+    if xarray:
+        y, xarray = xarray
+        c = bytearray()
+        for x in np.nonzero(xarray)[0]:
+            c.extend(bytes(VectorPixelCommand(x_coord=int(x*scale_factor), y_coord = int(y*scale_factor), dwell_time=xarray[x])))
+        return c
+
+
+
+class PatternWorker(QObject):
+    progress = pyqtSignal(int)
+    process_requested = pyqtSignal(dict)
+    process_completed = pyqtSignal(int)
+
+    @Slot(dict)
+    def process_to_vector(self, kwargs):
+        path = kwargs["path"]
+        resolution = kwargs["resolution"]
+        max_dwell = kwargs["dwell_time"]
+        invert = kwargs["invert"]
+        from PIL import Image
+        self.pattern_im = im = Image.open(path).convert("L")
+
+        ## scale dwell times 
+        def level_adjust(pixel_value):
+            return int((pixel_value/255)*max_dwell)
+        pixel_range = im.getextrema()
+        im = im.point(lambda p: level_adjust(p))
+        print(f"{pixel_range=} -> scaled_pixel_range= (0,{max_dwell})")
+        
+        ## scale to resolution
+        x_pixels, y_pixels = im._size
+        scale_factor = resolution/max(x_pixels, y_pixels)
+        scaled_y_pixels = int(y_pixels*scale_factor)
+        scaled_x_pixels = int(x_pixels*scale_factor)
+
+        # https://pillow.readthedocs.io/en/stable/_modules/PIL/Image.html#Image.resize
+        im = im.resize((scaled_x_pixels, scaled_y_pixels), resample = Image.Resampling.NEAREST)
+        print(f"input image: {x_pixels=}, {y_pixels=} -> {scaled_x_pixels=}, {scaled_y_pixels=}")
+
+        pattern_array = np.asarray(im)
+        print(f"{pattern_array=}")
+        seq = bytearray()
+
+        ## Unblank with beam at position 0,0
+        seq.extend(bytes(BeamSelectCommand(beam_type = BeamType.Ion)))
+        seq.extend(bytes(BlankCommand(enable=False, inline=True)))
+        seq.extend(bytes(VectorPixelCommand(x_coord=0, y_coord=0, dwell_time=1)))
+
+        pool = Pool(initializer=pool_initializer, initargs=[scale_factor])
+        n = 0
+
+        for i in pool.imap(line, enumerate(pattern_array)):
+            seq.extend(i)
+            n += 1
+            progress = int(100*n/scaled_y_pixels)
+            print(f"{n=}, {scaled_y_pixels=}, {int(100*n/scaled_y_pixels)=}")
+            self.progress.emit(progress)
+        pool.close()
+
+        seq.extend(bytes(BlankCommand(enable=True)))
+        self.pattern_seq = seq
+        self.process_completed.emit(1)
+        print("done~")
+
+
+
 class Window(QMainWindow):
     _logger = logging.getLogger("GUI")
+    vector_process_requested = pyqtSignal(dict)
     def __init__(self):
         super().__init__()
         self.conn = TCPConnection("localhost", 2224)
@@ -61,7 +139,24 @@ class Window(QMainWindow):
         self.scan_control.inner.live.start_btn.clicked.connect(self.toggle_live_scan)
         self.scan_control.inner.live.roi_btn.clicked.connect(self.toggle_roi_scan)
 
-        self.pattern_control.inner.importer.convert_btn.clicked.connect(self.convert_pattern)
+        self.pattern_worker = PatternWorker()
+        self.worker_thread = QThread()
+
+        self.pattern_control.inner.convert_btn.clicked.connect(self.convert_pattern)
+        self.pattern_control.inner.write_btn.clicked.connect(self.write_pattern)
+        self.vector_process_requested.connect(self.pattern_worker.process_to_vector)
+        self.pattern_worker.progress.connect(self.update_progress)
+        self.pattern_worker.process_completed.connect(self.complete_process_vector)
+
+        self.progress_bar = QProgressBar(maximum=100)
+        self.pattern_control.inner.importer.addWidget(self.progress_bar)
+        self.progress_bar.hide()
+
+        # move worker to the worker thread
+        self.pattern_worker.moveToThread(self.worker_thread)
+
+        # start the thread
+        self.worker_thread.start()
 
     async def capture_ROI(self, resolution, dwell_time):
         x_start, x_count, y_start, y_count = self.image_display.get_ROI()
@@ -114,13 +209,28 @@ class Window(QMainWindow):
             self.image_display.remove_ROI()
 
     def convert_pattern(self):
-        self.progress_bar = QProgressBar(maximum=1000)
-        self.pattern_control.inner.addWidget(self.progress_bar)
+        self.progress_bar.show()
+        resolution, dwell_time, invert = self.pattern_control.inner.getvals()
+        self.vector_process_requested.emit({"path":self.pattern_control.inner.importer.path, "resolution":resolution, "dwell_time":dwell_time, "invert":invert})
+    
+    def update_progress(self, v):
+        self.progress_bar.setValue(v)
+        print(f"progress {v=}")
 
+    def complete_process_vector(self):
+        self.progress_bar.hide()
+        self.progress_bar.setValue(0)
+        self.pattern_control.inner.write_btn.setText("Write Pattern")
+        self.pattern_control.inner.write_btn.show()
 
-class PatternWorker(QObject):
-    progress = pyqtSignal(int)
-    process_completed = pyqtSignal()
+    @asyncSlot()
+    async def write_pattern(self):
+        self.pattern_control.inner.write_btn.setText("Writing pattern...")
+        self.pattern_control.inner.write_btn.setEnabled(False)
+        await self.conn.transfer_bytes(self.pattern_worker.pattern_seq)
+        self.pattern_control.inner.write_btn.setText("Write Pattern")
+        self.pattern_control.inner.write_btn.setEnabled(True)
+
 
 def run_gui():
     app = QApplication(sys.argv)
