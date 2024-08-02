@@ -61,11 +61,12 @@ class ImageDisplay(pg.GraphicsLayoutWidget):
     def add_ROI(self):
         border = pg.mkPen(color = "#00ff00", width = 2)
         # Custom ROI for selecting an image region
-        self.roi = pg.ROI([.25*self.x_width, .25*self.y_height], [.5*self.x_width, .5*self.y_height], pen = border, handlePen=border,
+        self.roi = pg.ROI([int(.25*self.x_width), int(.25*self.y_height)], [int(.5*self.x_width), int(.5*self.y_height)], pen = border, handlePen=border,
                         scaleSnap = True, translateSnap = True)
         self.roi.addScaleHandle([1, 1], [0, 0])
         self.roi.addScaleHandle([0, 0], [1, 1])
         self.image_view.addItem(self.roi)
+        self.roi.maxBounds = QtCore.QRectF(0, 0, self.x_width, self.y_height)
         self.roi.setZValue(10)  # make sure ROI is drawn above image
     
     def add_line(self, start=None, end=None):
@@ -98,13 +99,7 @@ class ImageDisplay(pg.GraphicsLayoutWidget):
     def get_ROI(self):
         x_start, y_start = self.roi.pos() ## upper left corner
         x_count, y_count = self.roi.size()
-        # x_upper = int(x0)
-        # y_upper = int(y0)
-        # x_lower = int(x0 + x1)
-        # y_lower = int(y0 + y1)
-        # self._logger.debug(f"get_ROI: {x_upper=}, {x_lower=}, {y_upper=}, {y_lower=}")
-        # return x_upper, x_lower, y_upper, y_lower
-        return x_start, x_count, y_start, y_count
+        return int(x_start), int(x_count), int(y_start), int(y_count)
         
 
     def setImage(self, image: np.array(np.uint8)):

@@ -7,7 +7,7 @@ from obi.commands import *
 BIG_ENDIAN = (struct.pack('@H', 0x1234) == struct.pack('>H', 0x1234))
 
 class RasterScanCommand(BaseCommand):
-    def __init__(self, x_range: DACCodeRange, y_range: DACCodeRange, dwell_time: int, cookie: int,
+    def __init__(self, x_range: DACCodeRange, y_range: DACCodeRange, dwell_time:int, cookie: int,
         output_mode:OutputMode=OutputMode.SixteenBit):
         self._x_range = x_range
         self._y_range = y_range
@@ -36,7 +36,6 @@ class RasterScanCommand(BaseCommand):
             pixel_count += 1
             total_dwell += self._dwell
             if total_dwell >= latency:
-                print(f"{total_dwell} >= {latency}")
                 append_command(pixel_count)
                 yield(commands, pixel_count)
                 commands = bytearray()
@@ -84,3 +83,6 @@ class RasterScanCommand(BaseCommand):
                     break
             self._logger.debug(f"recver: tokens={tokens}")
             yield await self.recv_res(pixel_count, stream, self._output_mode)
+
+
+

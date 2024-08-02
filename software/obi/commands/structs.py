@@ -178,7 +178,7 @@ class DACCodeRange:
     @classmethod
     def from_roi(cls, resolution: int, start:int, count:int):
         return cls(
-                start = start,
+                start = start*int(16384/resolution),
                 count = count,
                 step = int((16384/resolution)*256)
             )

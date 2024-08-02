@@ -13,21 +13,23 @@ logger = logging.getLogger()
 
 class Frame:
     _logger = logger.getChild("Frame")
-    def __init__(self, x_range: DACCodeRange, y_range: DACCodeRange):
-        self._x_range = x_range
-        self._y_range = y_range
-        self._x_count = x_range.count
-        self._y_count = y_range.count
+    def __init__(self, x_res:int, y_res:int):
+        self._x_count = x_res
+        self._y_count = y_res
         self.canvas = np.zeros(shape = self.np_shape, dtype = np.uint16)
         self.y_ptr = 0
+    
+    @classmethod
+    def from_DAC_ranges(cls, x_range:DACCodeRange, y_range:DACCodeRange):
+        return cls(x_range.count, y_range.count)
 
     @property
     def pixels(self):
-        return self._x_range.count * self._y_range.count
+        return self._x_count * self._y_count
 
     @property
     def np_shape(self):
-        return self._y_range.count, self._x_range.count
+        return self._y_count, self._x_count
 
     def fill(self, pixels: array.array):
         if len(pixels) != self.pixels:
@@ -92,14 +94,15 @@ class FrameBuffer():
         self.current_frame = None
         self.abort = None
     
-    def get_frame(self, x_range, y_range):
-        if self.current_frame == None:
-            return Frame(x_range, y_range)
-        elif (x_range == self.current_frame._x_range) & (y_range == self.current_frame._y_range):
-            self.current_frame.y_ptr = 0
-            return self.current_frame
+    def set_current_frame(self, x_res, y_res):
+        # if resolution is exactly the same
+        if (self.current_frame is not None):
+            if (x_res == self.current_frame._x_count) & (y_res == self.current_frame._y_count):
+                self.current_frame.y_ptr = 0 #reset to top
+            else:
+                self.current_frame = Frame(x_res, y_res) #Create new empty frame
         else:
-            return Frame(x_range, y_range)
+            self.current_frame = Frame(x_res, y_res) #Create new empty frame
     
     def abort_scan(self):
         if self.abort is not None:
@@ -115,19 +118,33 @@ class FrameBuffer():
             return False
 
 
-    async def capture_frame_iter_fill(self, *, x_res: int, y_res: int, dwell_time: int, latency:int=65536, frame=None):
+    async def capture_frame_roi(self, *, x_res, y_res, x_start, x_count, y_start, y_count, **kwargs):
+        x_range = DACCodeRange.from_roi(x_res, x_start, x_count)
+        y_range = DACCodeRange.from_roi(y_res, y_start, y_count)
+        roi_frame = Frame.from_DAC_ranges(x_range, y_range)
+        roi_frame.canvas = self.current_frame.canvas[y_start:(y_start+y_count),x_start:(x_start+x_count)] #copy frame underneath
+        self.set_current_frame(x_res, y_res)
+        async for roi_frame in self.capture_frame_iter_fill(frame=roi_frame, x_range=x_range, y_range=y_range,**kwargs):
+            self.current_frame.canvas[y_start:(y_start+y_count),x_start:(x_start+x_count)] = roi_frame.canvas
+            yield self.current_frame
+
+    async def capture_full_frame(self, *, x_res: int, y_res: int, **kwargs):
         x_range = DACCodeRange.from_resolution(x_res)
         y_range = DACCodeRange.from_resolution(y_res)
-        frame = self.get_frame(x_range,y_range)
+        self.set_current_frame(x_res, y_res)
+        async for frame in self.capture_frame_iter_fill(frame=self.current_frame, x_range=x_range, y_range=y_range, **kwargs):
+            self.current_frame = frame
+            yield frame
+
+    async def capture_frame_iter_fill(self, *, frame: Frame, x_range, y_range, dwell_time: int, latency:int=65536):
         res = array.array('H')
         pixels_per_chunk = self.opt_chunk_size(frame)
         self._logger.debug(f"{pixels_per_chunk=}")
-        cmd = RasterScanCommand(cookie=123,
-            x_range=x_range, y_range=y_range, dwell_time=dwell_time)
+        cmd = RasterScanCommand(cookie=123,x_range=x_range, y_range=y_range, dwell_time=dwell_time)
         self.abort = cmd.abort
         #self.conn._synchronized = False
         async for chunk in self.conn.transfer_multiple(cmd, latency=latency):
-            self._logger.debug(f"{len(res)} old pixels + {len(chunk)} new pixels -> {len(res)+len(chunk)} total in buffer. {latency=}")
+            #self._logger.debug(f"{len(res)} old pixels + {len(chunk)} new pixels -> {len(res)+len(chunk)} total in buffer. {latency=}")
             res.extend(chunk)
 
             async def slice_chunk():
@@ -135,23 +152,22 @@ class FrameBuffer():
                 if len(res) >= pixels_per_chunk:
                     to_frame = res[:pixels_per_chunk]
                     res = res[pixels_per_chunk:]
-                    self._logger.debug(f"slice to display: {pixels_per_chunk}, {len(res)} pixels left in buffer")
+                    #self._logger.debug(f"slice to display: {pixels_per_chunk}, {len(res)} pixels left in buffer")
                     frame.fill_lines(to_frame)
                     yield frame
                     if len(res) > pixels_per_chunk:
                         yield slice_chunk()
                 else:
-                    self._logger.debug(f"have {len(res)} pixels in buffer, need minimum {pixels_per_chunk} pixels")
+                    pass
+                    #self._logger.debug(f"have {len(res)} pixels in buffer, need minimum {pixels_per_chunk} pixels")
 
             async for frame in slice_chunk():
-                self.current_frame = frame
                 yield frame
 
-        self._logger.debug(f"end of scan: {len(res)} pixels in buffer")
-        last_lines = len(res)//self.current_frame._x_count
+        #self._logger.debug(f"end of scan: {len(res)} pixels in buffer")
+        last_lines = len(res)//frame._x_count
         if last_lines > 0:
-            frame.fill_lines(res[:self.current_frame._x_count*last_lines])
-        self.current_frame = frame
+            frame.fill_lines(res[:frame._x_count*last_lines])
         yield frame
 
     async def capture_frame(self, *, x_range:DACCodeRange, y_range:DACCodeRange, dwell_time, **kwargs):

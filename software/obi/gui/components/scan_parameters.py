@@ -1,6 +1,10 @@
-from PyQt6.QtWidgets import (QLabel, QGridLayout, QApplication, QWidget, QFrame,
+from PyQt6.QtWidgets import (QLabel, QGridLayout, QApplication, QWidget, QFrame, QFileDialog,
                              QSpinBox, QComboBox, QHBoxLayout, QVBoxLayout, QPushButton)
 from PyQt6.QtCore import Qt
+
+from rich import print
+
+import os
 
 
 class QHLine(QFrame):
@@ -94,13 +98,49 @@ class CombinedScanControls(QWidget):
         layout.addLayout(self.photo)
         self.setLayout(layout)
 
+class BmpImport(QFileDialog):
+    def __init__(self):
+        super().__init__()
+        self.setNameFilters(["Images (*.png *.jpg *.bmp)"])
+
+class PatternImport(QVBoxLayout):
+    def __init__(self):
+        super().__init__()
+        self.file_select_btn = QPushButton("Select Pattern")
+        self.addWidget(self.file_select_btn)
+        self.file_select_btn.clicked.connect(self.select_file)
+        self.path_label = QLabel(" ")
+        self.addWidget(self.path_label)
+        self.path = None
+    
+    def select_file(self):
+        file_path = QFileDialog.getOpenFileName()
+        self.path_label.setText(os.path.basename(file_path[0]))
+        self.path = file_path
+
+class PatternControls(QWidget):
+    def __init__(self):
+        super().__init__()
+        layout = QVBoxLayout()
+
+        self.importer = PatternImport()
+        layout.addLayout(self.importer)
+        layout.addWidget(QHLine())
+        self.invert_selected = QCheckBox("Invert")
+        self.resolution_settings = SettingBoxWithDefaults("Resolution", 256, 16384, 4096, defaults=["512", "1024", "2048", "4096", "8192", "16384", "Custom"])
+        layout.addWidget(self.resolution_settings)
+
+        self.convert_btn = QPushButton("Convert to Vector")
+
+        self.setLayout(layout)
+
 
 
 if __name__ == "__main__":
     import sys
     app = QApplication(sys.argv)
     w = QWidget()
-    s = CombinedSettings()
+    s = PatternImport()
     w.setLayout(s)
     w.show()
     app.exec()
