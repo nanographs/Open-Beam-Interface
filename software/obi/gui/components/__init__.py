@@ -6,5 +6,5 @@ __all__ += ["ImageDisplay"]
 from .scan_parameters import CombinedScanControls
 __all__ += ["CombinedScanControls"]
 
-from .bmp2vector_controls import PatternControls
-__all__ += ["PatternControls"]
+from .bmp2vector_controls import CombinedPatternControls
+__all__ += ["CombinedPatternControls"]

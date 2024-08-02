@@ -34,7 +34,7 @@ class BitmapVectorPattern:
     Intermediate outputs
     - progress toward conversions
     """
-    def __init__(self, path, ):
+    def __init__(self, path):
         self.im = Image.open(path)
         self.processed_im = None
     
