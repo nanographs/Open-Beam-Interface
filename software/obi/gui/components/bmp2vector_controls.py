@@ -78,8 +78,9 @@ class PatternControlButtons(QVBoxLayout):
         self.write_btn.setEnabled(False)
 
         self.addWidget(self.convert_btn)
-        self.addWidget(self.write_btn)
         self.addWidget(self.progress_bar)
+        self.addWidget(self.write_btn)
+        
     def setEnabled(self, enabled=True):
         self.write_btn.setEnabled(enabled)
 

@@ -64,7 +64,16 @@ class Window(QMainWindow):
         self.scan_control.inner.live.start_btn.clicked.connect(self.toggle_live_scan)
         self.scan_control.inner.live.roi_btn.clicked.connect(self.toggle_roi_scan)
         self.scan_control.inner.photo.acq_btn.clicked.connect(self.acquire_photo)
+
+        self.unique_controllers = [self.scan_control.inner.live, self.scan_control.inner.photo, self.pattern_control]
         
+    def ensure_unique_control(self, control_item):
+        for item in self.unique_controllers:
+            if item != control_item:
+                item.setEnabled(False)
+    def enable_all_controls(self):
+        for item in self.unique_controllers:
+            item.setEnabled(True)
 
     async def capture_ROI(self, resolution, dwell_time):
         x_start, x_count, y_start, y_count = self.image_display.get_ROI()
@@ -94,22 +103,29 @@ class Window(QMainWindow):
 
         resolution, dwell_time = self.scan_control.inner.photo.getval()
         await self.capture_frame(resolution, dwell_time)
-
         self.scan_control.inner.photo.acq_btn.to_paused_state(self.acquire_photo)
+        self.ensure_unique_control(self.scan_control.inner.photo)
+        print(f"capture done! {self.fb.is_aborted=}")
 
-        if not self.fb.is_aborted:
-            print("time to save the image!")
+        # if not self.fb.is_aborted:
+        print("time to save the image!")
+        path = self.scan_control.inner.photo.file.path()
+        self.fb.current_frame.saveImage_tifffile(path)
+        self.enable_all_controls()
+
 
 
     @asyncSlot()
     async def toggle_live_scan(self):
         self.scan_control.inner.live.start_btn.to_live_state(self.fb.abort_scan)
+        self.ensure_unique_control(self.scan_control.inner.live)
         
         while not self.fb.is_aborted:
             resolution, dwell_time = self.scan_control.inner.live.getval()
             await self.capture_frame(resolution, dwell_time)
         
         self.scan_control.inner.live.start_btn.to_paused_state(self.toggle_live_scan)
+        self.enable_all_controls()
         print("done")
 
     def toggle_roi_scan(self):

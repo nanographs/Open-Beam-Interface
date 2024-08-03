@@ -68,13 +68,9 @@ class Frame:
     def as_uint8(self):
         return np.right_shift(self.canvas, 6).astype(np.uint8)
 
-    def saveImage_tifffile(self, save_dir, img_name=None, bit_depth_8=True, bit_depth_16=False,
+    def saveImage_tifffile(self, save_path, bit_depth_8=True, bit_depth_16=False,
                             scalebar_HFOV=None):
-        if img_name == None:
-            img_name = "saved" + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
-        else:
-            img_name = img_name + " " + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
-        img_name = os.path.join(save_dir, img_name)
+        img_name = save_path + " saved " + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
         if not scalebar_HFOV==None:
             #draw_scalebar(np.fliplr(self.as_uint8()), scalebar_HFOV, img_name)
             pass
