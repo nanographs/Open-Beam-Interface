@@ -18,30 +18,43 @@ import time
 import asyncio
 import random
 
+from obi.transfer import TCPConnection
 
-async def a_task(stop):
-    while not stop.done():
-        print("Hello world!")
-        await asyncio.sleep(1)
-    print(stop.result())
 
-async def async_iter_fn():
-    n = 0
-    while True:
-        stop = asyncio.Future()
-        asyncio.create_task(a_task(stop))
-        s = random.randint(1,10)
-        await asyncio.sleep(s)
-        stop.set_result("All done!")
-        n += 1
-        yield n
+class ConnectionWrapper:
+    def __init__(self):
+        self.open = asyncio.Lock()
+        self.conn = TCPConnection('127.0.0.1', 8888)
+    async def write(self, message):
+        async with self.open:
+            await self.conn._stream.write(message.encode())
+            await self.conn._stream.flush()
+            data = await self.conn._stream._reader.readuntil(message.encode())
+            print(f"Recieved {data.decode()}")
+            
 
+async def a_task(n, conn):
+    s = random.randint(0,10)
+    print(f"Task {n} will sleep for {s} seconds")
+    await asyncio.sleep(s)
+    print(f"Task {n} woke up!")
+    await conn.write(f"Hello from task {n}")
+
+        
 
 async def main():
-    async for n in async_iter_fn():
-        print(f"{n=}")
+    loop = asyncio.get_event_loop()
+    conn = ConnectionWrapper()
+    await conn.conn._connect()
+
+    for n in range(10):
+        asyncio.create_task(a_task(n, conn))
+
+    pending = asyncio.all_tasks()
+    await asyncio.gather(*pending)
 
 asyncio.run(main())
 
 
 
+    
