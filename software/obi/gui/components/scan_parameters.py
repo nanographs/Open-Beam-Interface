@@ -4,6 +4,22 @@ from PyQt6.QtCore import Qt
 
 import os
 
+class ToggleButton(QPushButton):
+    def __init__(self, enable_str, disable_str):
+        super().__init__(enable_str)
+        self.enable_str = enable_str
+        self.disable_str = disable_str
+    def to_live_state(self, fn):
+        self.toggle(self.enable_str, fn)
+    def to_paused_state(self, fn):
+        self.toggle(self.disable_str, fn)
+    def toggle(self, label, fn):
+        self.setEnabled(False)
+        self.setText(label)
+        self.clicked.disconnect()
+        self.clicked.connect(fn)
+        self.setEnabled(True)
+
 
 class QHLine(QFrame):
     def __init__(self):
@@ -66,21 +82,27 @@ class LiveScanControls(ScanParameters):
         self.dwell_time = SettingBoxWithDefaults("Dwell Time", 1, 65536, 1, defaults=["1", "2", "4", "8", "16", "Custom"])
         super().__init__("Live")
 
-        self.start_btn = QPushButton("Start Live Scan")
+        self.start_btn = ToggleButton("Start Live Scan", "Stop Live Scan")
         self.addWidget(self.start_btn)
 
         self.roi_btn = QPushButton("ROI Scan")
         self.roi_btn.setCheckable(True)
         self.addWidget(self.roi_btn)
+    def setEnabled(self, enabled=True):
+        self.start_btn.setEnabled(enabled)
+        self.roi_btn.setEnabled(enabled)
+
 
 class PhotoScanControls(ScanParameters):
     def __init__(self):
         self.resolution_settings = SettingBoxWithDefaults("Resolution", 256, 16384, 4096, defaults=["512", "1024", "2048", "4096", "8192", "16384", "Custom"])
         self.dwell_time = SettingBoxWithDefaults("Dwell Time", 1, 65536, 8, defaults=["1", "2", "4", "8", "16", "32", "64", "Custom"])
         super().__init__("Photo")
-        self.acq_btn = QPushButton("Acquire Photo")
+        self.acq_btn = ToggleButton("Acquire Photo", "Abort Photo Scan")
 
         self.addWidget(self.acq_btn)
+    def setEnabled(self, enabled=True):
+        self.acq_btn.setEnabled(enabled)
 
 class CombinedScanControls(QWidget):
     def __init__(self):
@@ -95,6 +117,9 @@ class CombinedScanControls(QWidget):
         layout.addWidget(self.line)
         layout.addLayout(self.photo)
         self.setLayout(layout)
+    def setEnabled(self, enabled=True):
+        self.live.setEnabled(enabled)
+        self.photo.setEnabled(enabled)
 
 
 if __name__ == "__main__":

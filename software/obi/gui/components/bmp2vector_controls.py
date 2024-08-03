@@ -80,6 +80,8 @@ class PatternControlButtons(QVBoxLayout):
         self.addWidget(self.convert_btn)
         self.addWidget(self.write_btn)
         self.addWidget(self.progress_bar)
+    def setEnabled(self, enabled=True):
+        self.write_btn.setEnabled(enabled)
 
 
 class CombinedPatternControls(QWidget):
@@ -112,6 +114,9 @@ class CombinedPatternControls(QWidget):
         # start the thread
         self.worker_thread.start()
     
+    def setEnabled(self, enabled=True):
+        self.controls.write_btn.setEnabled(enabled)
+    
     def import_file(self):
         self.importer.select_file()
         self.controls.convert_btn.setEnabled(True)
@@ -137,5 +142,7 @@ class CombinedPatternControls(QWidget):
         self.conn._synchronized = False
         self.controls.write_btn.setText("Write Pattern")
         self.controls.write_btn.setEnabled(True)
+    
+    
 
 
