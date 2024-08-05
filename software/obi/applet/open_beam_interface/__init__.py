@@ -5,7 +5,7 @@ import struct
 import time
 import asyncio
 from amaranth import *
-from amaranth.lib import enum, data, wiring
+from amaranth.lib import enum, data, io, wiring
 from amaranth.lib.fifo import SyncFIFOBuffered
 from amaranth.lib.wiring import In, Out, flipped
 
@@ -900,7 +900,6 @@ class ImageSerializer(wiring.Component):
 #=========================================================================
 
 from amaranth.build import *
-from glasgow.gateware.pads import Pads
 
 obi_resources  = [
     Resource("control", 0,
@@ -920,11 +919,12 @@ obi_resources  = [
     ),
 ]
 
+
 class OBISubtarget(wiring.Component):
-    def __init__(self, *, pads, out_fifo, in_fifo, led, control, data, 
+    def __init__(self, *, ports, out_fifo, in_fifo, led, control, data, 
                         benchmark_counters = None, sim=False, loopback=False,
                         xflip = False, yflip = False, rotate90 = False, out_only=False):
-        self.pads = pads
+        self.ports = ports
         self.out_fifo = out_fifo
         self.in_fifo  = in_fifo
         self.sim = sim
@@ -1018,8 +1018,6 @@ class OBISubtarget(wiring.Component):
                     with m.Else():
                         m.d.sync += out_stall_event.eq(0)
         
-        
-
 
         if not self.sim:
             led = self.led
@@ -1028,43 +1026,36 @@ class OBISubtarget(wiring.Component):
 
             m.d.comb += led.o.eq(~serializer.usb_stream.ready)
 
-            def connect_pin(pin_name: str, signal):
-                pin_name += "_t"
-                if hasattr(self.pads, pin_name):
-                    m.d.comb += getattr(self.pads, pin_name).oe.eq(1)
-                    m.d.comb += getattr(self.pads, pin_name).o.eq(signal)
-            #### External IO control logic           
-            connect_pin("ext_ibeam_scan_enable", executor.ext_ctrl_enable)
-            connect_pin("ext_ibeam_scan_enable_2", executor.ext_ctrl_enable)
-            connect_pin("ext_ibeam_blank_enable", executor.ext_ctrl_enable)
-            connect_pin("ext_ibeam_blank_enable_2", executor.ext_ctrl_enable)
-            connect_pin("ext_ebeam_scan_enable", executor.ext_ctrl_enable)
-            connect_pin("ext_ebeam_scan_enable_2", executor.ext_ctrl_enable)
+
+            def connect_pins(pin_name: str, signal):
+                if hasattr(self.ports, pin_name):
+                    if self.ports[f"{pin_name}"] is not None:
+                        if not hasattr(m.submodules, f"{pin_name}_buffer"):
+                            m.submodules[f"{pin_name}_buffer"] = io.Buffer("o", self.ports[f"{pin_name}"])
+                        m.d.comb += m.submodules[f"{pin_name}_buffer"].o.eq(signal)
+            #### External IO control logic     
+            connect_pins("ext_ebeam_scan_enable", executor.ext_ctrl_enable)      
+            connect_pins("ext_ibeam_scan_enable", executor.ext_ctrl_enable)
+            connect_pins("ext_ebeam_blank_enable", executor.ext_ctrl_enable)
+            connect_pins("ext_ibeam_blank_enable", executor.ext_ctrl_enable)
+            
 
             with m.If(executor.ext_ctrl_enable):
                 with m.If(executor.beam_type == BeamType.NoBeam):
-                    connect_pin("ebeam_blank", 1)
-                    connect_pin("ebeam_blank_2", 1)
-                    connect_pin("ibeam_blank_low", 0)
-                    connect_pin("ibeam_blank_high", 1)
+                    connect_pins("ebeam_blank", 1)
+                    connect_pins("ibeam_blank", 1)
 
                 with m.Elif(executor.beam_type == BeamType.Electron):
-                    connect_pin("ebeam_blank", executor.blank_enable)
-                    connect_pin("ebeam_blank_2", executor.blank_enable)
-                    connect_pin("ibeam_blank_low", 0)
-                    connect_pin("ibeam_blank_high", 1)
+                    connect_pins("ebeam_blank", executor.blank_enable)
+                    connect_pins("ibeam_blank", 1)
                     
                 with m.Elif(executor.beam_type == BeamType.Ion):
-                    connect_pin("ibeam_blank_high", executor.blank_enable)
-                    connect_pin("ibeam_blank_low", ~executor.blank_enable)
-                    connect_pin("ebeam_blank", 1)
-                    connect_pin("ebeam_blank_2", 1)
+                    connect_pins("ibeam_blank", executor.blank_enable)
+                    connect_pins("ebeam_blank", 1)
             with m.Else():
                 # Do not blank if external control is not enables
-                connect_pin("ebeam_blank",0)
-                connect_pin("ebeam_blank_2",0)
-                connect_pin("ibeam_blank_low",1)
-                connect_pin("ibeam_blank_high",0)
+                connect_pins("ebeam_blank",0)
+                connect_pins("ibeam_blank",0)
             
 
 
@@ -1094,26 +1085,17 @@ class OBIApplet(GlasgowApplet):
     Scanning beam control applet
     """
 
-    __pins = ("ext_ebeam_scan_enable", "ext_ebeam_scan_enable_2",
-                "ext_ibeam_scan_enable", "ext_ibeam_scan_enable_2",
-                "ext_ibeam_blank_enable", "ext_ibeam_blank_enable_2",
-                "ibeam_blank_high", "ibeam_blank_low",
-                "ebeam_blank", "ebeam_blank_2")
-
     @classmethod
     def add_build_arguments(cls, parser, access):
         super().add_build_arguments(parser, access)
 
-        access.add_pin_argument(parser, "ext_ebeam_scan_enable", default=None)
-        access.add_pin_argument(parser, "ext_ebeam_scan_enable_2", default=None)
-        access.add_pin_argument(parser, "ext_ibeam_scan_enable", default=None)
-        access.add_pin_argument(parser, "ext_ibeam_scan_enable_2", default=None)
-        access.add_pin_argument(parser, "ext_ibeam_blank_enable", default=None)
-        access.add_pin_argument(parser, "ext_ibeam_blank_enable_2", default=None)
-        access.add_pin_argument(parser, "ibeam_blank_high", default=None)
-        access.add_pin_argument(parser, "ibeam_blank_low", default=None)
-        access.add_pin_argument(parser, "ebeam_blank", default=None)
-        access.add_pin_argument(parser, "ebeam_blank_2", default=None)
+        access.add_pin_set_argument(parser, "ext_ebeam_scan_enable", range(1,3))
+        access.add_pin_set_argument(parser, "ext_ibeam_scan_enable", range(1,3))
+        access.add_pin_set_argument(parser, "ext_ebeam_blank_enable", range(1,3))
+        access.add_pin_set_argument(parser, "ext_ibeam_blank_enable", range(1,3))
+        access.add_pin_set_argument(parser, "ibeam_blank_enable", range(1,3))
+        access.add_pin_set_argument(parser, "ebeam_blank_enable", range(1,3))
+
 
         parser.add_argument("--loopback",
             dest = "loopback", action = 'store_true',
@@ -1141,10 +1123,17 @@ class OBIApplet(GlasgowApplet):
         self.mux_interface = iface = \
             target.multiplexer.claim_interface(self, args, throttle="none")
 
-        pads = iface.get_pads(args, pins=self.__pins)
+        ports = iface.get_port_group(
+            ext_ebeam_scan_enable = args.pins_ext_ebeam_scan_enable,
+            ext_ibeam_scan_enable = args.pins_ext_ibeam_scan_enable,
+            ext_ebeam_blank_enable = args.pins_ext_ebeam_blank_enable,
+            ext_ibeam_blank_enable = args.pins_ext_ibeam_blank_enable,
+            ebeam_blank = args.pins_ebeam_blank,
+            ibeam_blank = args.pins_ibeam_blank,
+        )
 
         subtarget_args = {
-            "pads": pads,
+            "ports": ports,
             "in_fifo": iface.get_in_fifo(depth=512, auto_flush=False),
             "out_fifo": iface.get_out_fifo(depth=512),
             "led": target.platform.request("led"),
