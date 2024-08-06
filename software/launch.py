@@ -28,16 +28,44 @@ class OBIDemuxInterface(glasgow_access.DirectDemultiplexerInterface):
         await super().reset()
 
 
-async def main():
-    from glasgow.access.direct.arguments import PinArgument
+def load_config():
     import argparse
     args = argparse.Namespace(port_spec="AB",
-            pins_ext_ebeam_scan_enable=PinArgument(1), pins_ext_ibeam_scan_enable=None,
+            pins_ext_ebeam_scan_enable=None, pins_ext_ibeam_scan_enable=None,
             pins_ext_ebeam_blank_enable=None, pins_ext_ibeam_blank_enable=None,
-            pins_ebeam_blank=None, pins_ibeam_blank=[PinArgument(2),PinArgument(3, invert=True)],
+            pins_ebeam_blank=None, pins_ibeam_blank=None,
             xflip=None, yflip=None, rotate90=None,
             loopback=None, out_only=None, benchmark=None,
             endpoint=('tcp', 'localhost', 2224))
+    import pathlib
+    import tomllib
+    from glasgow.access.direct.arguments import PinArgument
+    # config_path = pathlib.Path("~/microscope.toml").expanduser()
+    config = tomllib.load(open("microscope.toml", "rb") )
+    if "beam" in config:
+        beam_types = config["beam"]
+        print(f"beam types: {[x for x in beam_types.keys()]}")
+        beam_prefixes = {"electron": "ebeam", "ion": "ibeam"}
+        for beam, beam_config in beam_types.items():
+            if "pinout" in beam_config:
+                pinout = beam_config["pinout"]
+                for pin_name in pinout:
+                    pin_num = pinout.get(pin_name)
+                    pin_name = f"pins_{beam_prefixes.get(beam)}_{pin_name.replace("-","_")}"
+                    print(f"{pin_name=}")
+                    print(f"{pin_num=}")
+                    pins = [PinArgument(num) if num > 0 else PinArgument(num, invert=True) for num in pin_num ]
+                    setattr(args, pin_name, pins)
+    if "transforms" in config:
+        transforms = config["transforms"]
+        for transform, setting in transforms.items():
+            setattr(args, transform, setting)
+    return args
+
+
+async def main():
+    args = load_config()
+    from glasgow.access.direct.arguments import PinArgument    
 
     from glasgow.target.hardware import GlasgowHardwareTarget
     from glasgow.device.hardware import GlasgowHardwareDevice
