@@ -5,21 +5,22 @@
 groups = ["default", ":gui", "dev"]
 strategy = ["cross_platform", "inherit_metadata"]
 lock_version = "4.4.1"
-content_hash = "sha256:51cfc792010937041541f5dcfa497d9a8bf7b670273cd2edc78a68100df0abb8"
+content_hash = "sha256:46e99721b57e4be900a08b45c009b7dfeda21a5093752b447969463545e7c59c"
 
 [[package]]
 name = "amaranth"
-version = "0.5.0.dev14"
+version = "0.5.1"
 requires_python = "~=3.8"
-git = "https://github.com/amaranth-lang/amaranth"
-ref = "v0.5.x"
-revision = "d0b01dd13a757434048028035faf9fd66677cc57"
 summary = "Amaranth hardware definition language"
 groups = ["default"]
 dependencies = [
     "Jinja2~=3.0",
     "jschon~=0.11.1",
     "pyvcd<0.5,>=0.2.2",
+]
+files = [
+    {file = "amaranth-0.5.1-py3-none-any.whl", hash = "sha256:2d370cc5b97e2472aab0a4eca515ab7f5116274550bd454132520eaec6068fb6"},
+    {file = "amaranth-0.5.1.tar.gz", hash = "sha256:58b01efcec24c3696a7465e97a6e62f46466afab1f956a6eb00bda4b791c8345"},
 ]
 
 [[package]]
@@ -75,38 +76,38 @@ files = [
 
 [[package]]
 name = "glasgow"
-version = "0.1.dev2032+g3635798"
+version = "0.1.dev2171+g7b9dac8"
 requires_python = "!=3.10.0,!=3.10.1,!=3.10.2,~=3.9"
 subdirectory = "software"
-git = "https://github.com/isabelburgos/glasgow"
+git = "https://github.com/GlasgowEmbedded/glasgow"
 ref = "main"
-revision = "3635798b7af338114910881ae1a58a100aa4c04b"
+revision = "7b9dac8e87044fb6ba4a0a52aef11bfe63a5d883"
 summary = "Software for the Glasgow Interface Explorer, a digital interface multitool"
 groups = ["default"]
 dependencies = [
-    "amaranth @ git+https://github.com/amaranth-lang/amaranth@v0.5.x",
+    "amaranth<0.6,>=0.5.1",
     "fx2<1,>=0.11",
     "libusb1>=3.1.0",
     "packaging>=23.0",
-    "platformdirs<4,>=3.0.0",
+    "platformdirs<5,>=3.0.0",
     "pyvcd<0.5,>=0.2",
     "typing-extensions<5,>=4.8",
 ]
 
 [[package]]
 name = "glasgow"
-version = "0.1.dev2032"
+version = "0.1.dev2171"
 extras = ["builtin-toolchain"]
 requires_python = "!=3.10.0,!=3.10.1,!=3.10.2,~=3.9"
 subdirectory = "software"
-git = "https://github.com/isabelburgos/glasgow"
+git = "https://github.com/GlasgowEmbedded/glasgow"
 ref = "main"
-revision = "3635798b7af338114910881ae1a58a100aa4c04b"
+revision = "7b9dac8e87044fb6ba4a0a52aef11bfe63a5d883"
 summary = "Software for the Glasgow Interface Explorer, a digital interface multitool"
 groups = ["default"]
 dependencies = [
     "amaranth-yosys",
-    "glasgow @ git+https://github.com/isabelburgos/glasgow@3635798b7af338114910881ae1a58a100aa4c04b#subdirectory=software",
+    "glasgow @ git+https://github.com/GlasgowEmbedded/glasgow@main#subdirectory=software",
     "yowasp-nextpnr-ice40>=0.1",
     "yowasp-runtime>=1.42",
     "yowasp-yosys>=0.31.0.13",
@@ -418,6 +419,8 @@ dependencies = [
     "PyQt6-sip<14,>=13.8",
 ]
 files = [
+    {file = "PyQt6-6.7.1-1-cp38-abi3-manylinux_2_28_aarch64.whl", hash = "sha256:7f397f4b38b23b5588eb2c0933510deb953d96b1f0323a916c4839c2a66ccccc"},
+    {file = "PyQt6-6.7.1-1-cp38-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:c2f202b7941aa74e5c7e1463a6f27d9131dbc1e6cabe85571d7364f5b3de7397"},
     {file = "PyQt6-6.7.1-cp38-abi3-macosx_11_0_universal2.whl", hash = "sha256:f053378e3aef6248fa612c8afddda17f942fb63f9fe8a9aeb2a6b6b4cbb0eba9"},
     {file = "PyQt6-6.7.1-cp38-abi3-manylinux_2_28_aarch64.whl", hash = "sha256:0adb7914c732ad1dee46d9cec838a98cb2b11bc38cc3b7b36fbd8701ae64bf47"},
     {file = "PyQt6-6.7.1-cp38-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:2d771fa0981514cb1ee937633dfa64f14caa902707d9afffab66677f3a73e3da"},
@@ -528,7 +531,7 @@ files = [
 
 [[package]]
 name = "tifffile"
-version = "2024.7.21"
+version = "2024.7.24"
 requires_python = ">=3.9"
 summary = "Read and write TIFF files"
 groups = ["default"]
@@ -536,8 +539,8 @@ dependencies = [
     "numpy",
 ]
 files = [
-    {file = "tifffile-2024.7.21-py3-none-any.whl", hash = "sha256:7f335b5d6ca49401fe0f1d87deb206f5dae47297e47b1ed52a676d05d6d26798"},
-    {file = "tifffile-2024.7.21.tar.gz", hash = "sha256:818b577d49350421fb511f389f937984f9feaa2cd8177fa00823001920bf3483"},
+    {file = "tifffile-2024.7.24-py3-none-any.whl", hash = "sha256:f5cce1a915c37bc44ae4a792e3b42c07a30a3fa88406f5c6060a3de076487ed1"},
+    {file = "tifffile-2024.7.24.tar.gz", hash = "sha256:723456ebf2b4918878ae05a7b50fa366ff3b3a686293317eb7a0f294c3eea050"},
 ]
 
 [[package]]

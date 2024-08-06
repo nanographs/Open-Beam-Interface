@@ -7,7 +7,7 @@ authors = [
     {name = "isabelburgos", email = "isabel@nanographs.io"},
 ]
 dependencies = [
-    "glasgow[builtin-toolchain] @ git+https://github.com/isabelburgos/glasgow@main#subdirectory=software",
+    "glasgow[builtin-toolchain] @ git+https://github.com/GlasgowEmbedded/glasgow@main#subdirectory=software",
     "numpy>=2.0.1",
     "tifffile>=2024.7.21",
     "Pillow>=10.4.0",
