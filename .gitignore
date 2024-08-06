@@ -12,3 +12,4 @@ Gateware/open_beam_interface.bin
 *.kicad_prl
 *.gtkw
 *.pdm-python
+software/microscope.toml
