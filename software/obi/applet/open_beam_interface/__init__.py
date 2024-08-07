@@ -14,9 +14,11 @@ from glasgow.support.logging import dump_hex
 from glasgow.support.endpoint import ServerEndpoint
 
 from obi.commands.structs import CmdType, BeamType, OutputMode
-from obi.commands.low_level_commands import Command
+from obi.commands.low_level_commands import Command, ExternalCtrlCommand
 
 import logging
+
+from rich import print
 
 # Overview of (linear) processing pipeline:
 # 1. PC software (in: user input, out: bytes)
@@ -604,6 +606,36 @@ class CommandParser(wiring.Component):
         return m
 
 #=========================================================================
+
+
+# class ExtendedTimer(wiring.Component):
+#     def __init__(self, delay_ms = 20):
+#         self.delay_ms = delay_ms
+#     def elaborate(self, platform):
+#         ms_counter = Signal(16) 
+#         cyc_counter = Signal(16)
+
+#         ms_tick = Signal()
+#         m.d.comb += ms_tick.eq(cyc_counter == 48000)
+
+#         with m.If(ms_tick): # 1 ms
+#             m.d.sync += cyc_counter.eq(0)
+#         with m.Else():
+#             m.d.sync += cyc_counter.eq(cyc_counter + 1)
+        
+#         done_tick = Signal()
+#         m.d.comb += done_tick.eq(ms_counter = self.delay_ms)
+        
+#         with m.If(ms_tick): # once per ms
+#             with m.If(done_tick):
+#                 m.d.sync += ms_counter.eq(0)
+#             with m.Else():
+#                 m.d.sync += ms_counter.eq(ms_counter + 1)
+
+
+
+
+
 class CommandExecutor(wiring.Component):
     cmd_stream: In(StreamSignature(Command))
     img_stream: Out(StreamSignature(unsigned(16)))
@@ -616,17 +648,21 @@ class CommandExecutor(wiring.Component):
 
     default_transforms: In(Transforms)
     # Input to Scan/Signal Selector Relay Board
-    ext_ctrl_enable: Out(1)
+    ext_ctrl_enable: Out(2)
+    ext_ctrl_enabled: Out(2)
     beam_type: Out(BeamType)
     # Input to Blanking control board
-    blank_enable: Out(1, reset=1)
+    blank_enable: Out(1, init=1)
 
     #Input to Serializer
     output_mode: Out(2)
 
 
-    def __init__(self, *, out_only:bool=False, adc_latency=6):
-        self.adc_latency = 8
+    def __init__(self, *, out_only:bool=False, adc_latency=8, ext_switch_delay=960000):
+        self.adc_latency = adc_latency
+        # Time for external control relay/switch to actuate
+        self.ext_switch_delay = ext_switch_delay
+
         self.supersampler = Supersampler()
         self.flippenator = Flippenator()
 
@@ -638,6 +674,8 @@ class CommandExecutor(wiring.Component):
 
         delay_counter = Signal(DwellTime)
         inline_delay_counter = Signal(3)
+
+        ext_switch_delay_counter = Signal(24)
 
         if self.out_only:
             m.submodules.bus_controller = bus_controller = FastBusController()
@@ -746,7 +784,18 @@ class CommandExecutor(wiring.Component):
                         #Don't change control in the middle of previously submitted pixels
                         with m.If(self.supersampler.dac_stream.ready):
                             m.d.sync += self.ext_ctrl_enable.eq(command.payload.external_ctrl.enable)
-                            m.next = "Fetch"
+                            # if we are going into external control, change blank states instantly
+                            with m.If(command.payload.external_ctrl.enable):
+                                m.d.sync += self.ext_ctrl_enabled.eq(1)
+                            # if we are going out of external control, don't change blank states
+                            # until switching delay has elapsed
+                            with m.If(ext_switch_delay_counter == self.ext_switch_delay): 
+                                m.d.sync += ext_switch_delay_counter.eq(0)
+                                with m.If(~command.payload.external_ctrl.enable):
+                                    m.d.sync += self.ext_ctrl_enabled.eq(0)
+                                m.next = "Fetch"
+                            with m.Else():
+                                m.d.sync += ext_switch_delay_counter.eq(ext_switch_delay_counter + 1)
                     
                     with m.Case(CmdType.BeamSelect):
                         #Don't change control in the middle of previously submitted pixels
@@ -922,13 +971,15 @@ obi_resources  = [
 
 class OBISubtarget(wiring.Component):
     def __init__(self, *, ports, out_fifo, in_fifo, led, control, data, 
-                        benchmark_counters = None, sim=False, loopback=False,
+                        benchmark_counters=None, sim=False, loopback=False,
+                        ext_switch_delay=None,
                         xflip = False, yflip = False, rotate90 = False, out_only=False):
         self.ports = ports
         self.out_fifo = out_fifo
         self.in_fifo  = in_fifo
         self.sim = sim
         self.loopback = loopback
+        self.ext_switch_delay = ext_switch_delay
         self.xflip = xflip
         self.yflip = yflip
         self.rotate90 = rotate90
@@ -951,7 +1002,7 @@ class OBISubtarget(wiring.Component):
         m = Module()
 
         m.submodules.parser     = parser     = CommandParser()
-        m.submodules.executor   = executor   = CommandExecutor(out_only=self.out_only)
+        m.submodules.executor   = executor   = CommandExecutor(out_only=self.out_only, ext_switch_delay=self.ext_switch_delay)
         m.submodules.serializer = serializer = ImageSerializer()
 
         if self.xflip:
@@ -1032,15 +1083,16 @@ class OBISubtarget(wiring.Component):
                     if self.ports[f"{pin_name}"] is not None:
                         if not hasattr(m.submodules, f"{pin_name}_buffer"):
                             m.submodules[f"{pin_name}_buffer"] = io.Buffer("o", self.ports[f"{pin_name}"])
-                        m.d.comb += m.submodules[f"{pin_name}_buffer"].o.eq(signal)
+                        # drive every pin in port with 1-bit signal
+                        for pin in m.submodules[f"{pin_name}_buffer"].o:
+                            m.d.comb += pin.eq(signal)
             #### External IO control logic     
-            connect_pins("ext_ebeam_scan_enable", executor.ext_ctrl_enable)      
-            connect_pins("ext_ibeam_scan_enable", executor.ext_ctrl_enable)
-            connect_pins("ext_ebeam_blank_enable", executor.ext_ctrl_enable)
-            connect_pins("ext_ibeam_blank_enable", executor.ext_ctrl_enable)
-            
+            connect_pins("ebeam_scan_enable", executor.ext_ctrl_enable)      
+            connect_pins("ibeam_scan_enable", executor.ext_ctrl_enable)
+            connect_pins("ebeam_blank_enable", executor.ext_ctrl_enable)
+            connect_pins("ibeam_blank_enable", executor.ext_ctrl_enable)
 
-            with m.If(executor.ext_ctrl_enable):
+            with m.If(executor.ext_ctrl_enabled):
                 with m.If(executor.beam_type == BeamType.NoBeam):
                     connect_pins("ebeam_blank", 1)
                     connect_pins("ibeam_blank", 1)
@@ -1053,8 +1105,8 @@ class OBISubtarget(wiring.Component):
                     connect_pins("ibeam_blank", executor.blank_enable)
                     connect_pins("ebeam_blank", 1)
             with m.Else():
-                # Do not blank if external control is not enables
-                connect_pins("ebeam_blank",0)
+                # Do not blank if external control is not enabled
+                connect_pins("ebeam_blank",0) #TODO: check diff pair behavior here
                 connect_pins("ibeam_blank",0)
             
 
@@ -1089,12 +1141,12 @@ class OBIApplet(GlasgowApplet):
     def add_build_arguments(cls, parser, access):
         super().add_build_arguments(parser, access)
 
-        access.add_pin_set_argument(parser, "ext_ebeam_scan_enable", range(1,3))
-        access.add_pin_set_argument(parser, "ext_ibeam_scan_enable", range(1,3))
-        access.add_pin_set_argument(parser, "ext_ebeam_blank_enable", range(1,3))
-        access.add_pin_set_argument(parser, "ext_ibeam_blank_enable", range(1,3))
-        access.add_pin_set_argument(parser, "ibeam_blank_enable", range(1,3))
+        access.add_pin_set_argument(parser, "ebeam_scan_enable", range(1,3))
+        access.add_pin_set_argument(parser, "ibeam_scan_enable", range(1,3))
         access.add_pin_set_argument(parser, "ebeam_blank_enable", range(1,3))
+        access.add_pin_set_argument(parser, "ibeam_blank_enable", range(1,3))
+        access.add_pin_set_argument(parser, "ibeam_blank", range(1,3))
+        access.add_pin_set_argument(parser, "ebeam_blank", range(1,3))
 
 
         parser.add_argument("--loopback",
@@ -1115,6 +1167,8 @@ class OBIApplet(GlasgowApplet):
         parser.add_argument("--out_only",
             dest = "out_only", action = 'store_true',
             help = "use FastBusController instead of BusController; don't use ADC")
+        parser.add_argument("--ext_switch_delay", type=int, default=0,
+            help="time for external control switch to actuate, in ms")
 
 
     def build(self, target, args):
@@ -1123,14 +1177,19 @@ class OBIApplet(GlasgowApplet):
         self.mux_interface = iface = \
             target.multiplexer.claim_interface(self, args, throttle="none")
 
+        print(f"{args=}")
+
         ports = iface.get_port_group(
-            ext_ebeam_scan_enable = args.pins_ext_ebeam_scan_enable,
-            ext_ibeam_scan_enable = args.pins_ext_ibeam_scan_enable,
-            ext_ebeam_blank_enable = args.pins_ext_ebeam_blank_enable,
-            ext_ibeam_blank_enable = args.pins_ext_ibeam_blank_enable,
-            ebeam_blank = args.pins_ebeam_blank,
-            ibeam_blank = args.pins_ibeam_blank,
+            ebeam_scan_enable = args.pin_set_ebeam_scan_enable,
+            ibeam_scan_enable = args.pin_set_ibeam_scan_enable,
+            ebeam_blank_enable = args.pin_set_ebeam_blank_enable,
+            ibeam_blank_enable = args.pin_set_ibeam_blank_enable,
+            ebeam_blank = args.pin_set_ebeam_blank,
+            ibeam_blank = args.pin_set_ibeam_blank,
         )
+
+        ext_delay_cycles = int(args.ext_switch_delay * pow(10, -3) / (1/(48 * pow(10,6))))
+        print(f"{ext_delay_cycles=}")
 
         subtarget_args = {
             "ports": ports,
@@ -1140,6 +1199,7 @@ class OBIApplet(GlasgowApplet):
             "control": target.platform.request("control"),
             "data": target.platform.request("data"),
             "loopback": args.loopback,
+            "ext_switch_delay": ext_delay_cycles,
             "xflip": args.xflip,
             "yflip": args.yflip,
             "rotate90": args.rotate90,
@@ -1147,9 +1207,9 @@ class OBIApplet(GlasgowApplet):
         }
 
         if args.benchmark:
-            out_stall_events, self.__addr_out_stall_events = target.registers.add_ro(8, reset=0)
-            out_stall_cycles, self.__addr_out_stall_cycles = target.registers.add_ro(16, reset=0)
-            stall_count_reset, self.__addr_stall_count_reset = target.registers.add_rw(1, reset=1)
+            out_stall_events, self.__addr_out_stall_events = target.registers.add_ro(8, init=0)
+            out_stall_cycles, self.__addr_out_stall_cycles = target.registers.add_ro(16, init=0)
+            stall_count_reset, self.__addr_stall_count_reset = target.registers.add_rw(1, init=1)
             subtarget_args.update({"benchmark_counters": [out_stall_events, out_stall_cycles, stall_count_reset]})
 
         subtarget = OBISubtarget(**subtarget_args)
@@ -1213,7 +1273,7 @@ class OBIApplet(GlasgowApplet):
 
             async def reset(self):
                 await iface.reset()
-                # await iface.write([4,0,1]) #disable external ctrl
+                await iface.write(bytes(ExternalCtrlCommand(enable=False)))
                 self.logger.debug("reset")
                 self.logger.debug(iface.statistics())
 
