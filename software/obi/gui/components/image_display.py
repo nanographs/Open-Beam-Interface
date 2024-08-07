@@ -14,6 +14,88 @@ from PyQt6.QtWidgets import (QHBoxLayout, QMainWindow,
 
 logger = logging.getLogger()
 
+from PyQt6.QtCore import QPointF
+
+from rich import print
+
+class ALine(pg.LineSegmentROI):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+    @staticmethod
+    def parse_points(points):
+        x1 = points[0][1].x()
+        y1 = points[0][1].y()
+        x2 = points[1][1].x()
+        y2 = points[1][1].y()
+        return (x1, y1), (x2, y2)
+    @property
+    def local_endpoints(self):
+        points = self.getLocalHandlePositions()
+        return self.parse_points(points)
+    @property
+    def scene_endpoints(self):
+        points = self.getSceneHandlePositions()
+        return self.parse_points(points)
+    @staticmethod
+    def length_angle(p1, p2):
+        d = math.sqrt(pow(p1[0] - p2[0],2) + pow(p1[1] - p2[1],2))
+        if p2[0] != p1[0]:
+            m = (p2[1] - p1[1])/(p2[0] - p1[0])
+            a = math.degrees(math.atan(m))
+        else:
+            a = 0
+        return d, a
+
+class DoubleLines(pg.GraphicsObject):
+    def __init__(self):
+        super().__init__()
+
+        x_width = y_height = 512
+        start  = [.25*x_width, .25*y_height]
+        end = [start[0] + .25*x_width, start[1]]
+
+        self.lines = pg.LinearRegionItem(values=(start[0], end[0]), movable=False)
+        self.lines.setParentItem(self)
+        
+        border = pg.mkPen(color = "#00ff00", width = 2)
+        self.line = ALine(positions = (start,end),
+                        pen = border, handlePen=border,)
+        self.line.setParentItem(self)
+
+        self.line.sigRegionChanged.connect(self.fn)
+
+    def fn(self):
+        p1, p2 = self.line.local_endpoints
+        d, a = self.line.length_angle(p1, p2)
+
+        s1, s2 = self.line.scene_endpoints
+        image_view = self.parentItem().parentItem()
+        tr = image_view.mapViewToScene(QPointF(0,0))
+        tx, ty = tr.x(), tr.y()
+        tr_s1 = [s1[0]-tx, s1[1]-ty]
+        tr_s2 = [s2[0]-tx, s2[1]-ty]
+
+        d_s, a_s = self.line.length_angle(s1, s2)
+        scale = d/d_s
+        tr_s_s1 = [tr_s1[0]*scale, tr_s1[1]*scale]
+        tr_s_s2 = [tr_s2[0]*scale, tr_s2[1]*scale]
+
+        p1, p2 = tr_s_s1, tr_s_s2
+
+        self.lines.setTransformOriginPoint(*p1)
+        self.lines.setRotation(a)
+
+        # map to the coordinate system of the linear region
+        if p2[0] >= p1[0]:
+            p_rot = [p1[0] + d, p1[1]]
+        elif p2[0] < p1[0]: # if the lines are swapped
+            p_rot = [p1[0] - d, p1[1]]
+        
+        self.lines.setRegion([p1, p_rot])
+
+
+        
+
 class ImageDisplay(pg.GraphicsLayoutWidget):
     _logger = logger.getChild("ImageDisplay")
     def __init__(self, y_height, x_width, invertY=True, invertX=False):
@@ -26,11 +108,7 @@ class ImageDisplay(pg.GraphicsLayoutWidget):
         ## lock the aspect ratio so pixels are always square
         self.image_view.setAspectLocked(True)
         # self.image_view.setRange(QtCore.QRectF(0, 0, y_height, x_width))
-        
-        # self.image_view.setLimits(xMin=0, xMax=self.x_width, 
-        #     minXRange=0, maxXRange=self.x_width, 
-        #     yMin=0, yMax=self.x_width,
-        #     minYRange=0, maxYRange=self.x_width)
+    
         
         self.live_img = pg.ImageItem(border='w',axisOrder="row-major")
         self.live_img.setImage(np.full((y_height, x_width), 0, np.uint8), rect = (0,0,x_width, y_height), autoLevels=False, autoHistogramRange=True)
@@ -58,6 +136,20 @@ class ImageDisplay(pg.GraphicsLayoutWidget):
         # lut = np.array(lut, dtype = np.uint8)
         # self.live_img.setLookupTable(lut)
 
+        def show_all_maps(point):
+            print(f"point = {point!r}")
+            print(f"mapToView: {self.image_view.mapToView(point)}")
+            print(f"mapFromView: {self.image_view.mapFromView(point)}")
+            print(f"mapSceneToView: {self.image_view.mapSceneToView(point)}")
+            print(f"mapViewToScene: {self.image_view.mapViewToScene(point)}")
+            print(f"mapDeviceToView: {self.image_view.mapDeviceToView(point)}")
+            print(f"mapViewToDevice: {self.image_view.mapViewToDevice(point)}")
+            print("\n")
+        
+        show_all_maps(QPointF(0,0))
+        show_all_maps(QPointF(0,512))
+        show_all_maps(QPointF(512, 512))
+
     def add_ROI(self):
         border = pg.mkPen(color = "#00ff00", width = 2)
         # Custom ROI for selecting an image region
@@ -79,6 +171,10 @@ class ImageDisplay(pg.GraphicsLayoutWidget):
                         pen = border, handlePen=border,)
         self.image_view.addItem(self.line)
         self.line.setZValue(10)  # make sure line is drawn above image
+    
+    def add_double_line(self):
+        line = DoubleLines()
+        self.image_view.addItem(line)
 
     def remove_line(self):
         if not self.line == None:
@@ -114,9 +210,13 @@ class ImageDisplay(pg.GraphicsLayoutWidget):
             self.image_view.autoRange()
             if not self.roi == None:
                 self.roi.maxBounds = QtCore.QRectF(0, 0, x_width, y_height)
-        self.image_view.setRange(QtCore.QRectF(0, 0, x_width, y_height))
-        self.x_width = x_width
-        self.y_height = y_height
+            self.image_view.setRange(QtCore.QRectF(0, 0, x_width, y_height))
+            self.x_width = x_width
+            self.y_height = y_height
+            if x_width >= y_height:
+                self.image_view.setLimits(maxXRange=1.2*x_width)
+            else:
+                self.image_view.setLimits(maxYRange=1.2*y_height)
     
     def showTest(self):
         array = np.random.randint(0, 255,size = (self.y_height, self.x_width))
@@ -133,8 +233,8 @@ if __name__ == "__main__":
     app = pg.mkQApp()
     image_display = ImageDisplay(512, 512)
     # image_display.showTest()
-    # image_display.add_ROI()
+    #image_display.add_ROI()
     #image_display.remove_ROI()
-    image_display.add_line()
+    image_display.add_double_line()
     image_display.show()
     pg.exec()
