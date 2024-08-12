@@ -77,6 +77,7 @@ class SynchronizeCommand(LowLevelCommand):
             "output": OutputMode
         }})
     bytelayout = ByteLayout({"cookie": 2})
+    #: Arbitrary value for synchronization. When received, returned as-is in an USB IN frame.
 
 class AbortCommand(LowLevelCommand):
     '''
