@@ -537,8 +537,6 @@ class RasterScanner(wiring.Component):
         return m
 
 #=========================================================================
-Cookie = unsigned(16)
-#: Arbitrary value for synchronization. When received, returned as-is in an USB IN frame.
 
 class CommandParser(wiring.Component):
     usb_stream: In(StreamSignature(8))
@@ -606,35 +604,6 @@ class CommandParser(wiring.Component):
         return m
 
 #=========================================================================
-
-
-# class ExtendedTimer(wiring.Component):
-#     def __init__(self, delay_ms = 20):
-#         self.delay_ms = delay_ms
-#     def elaborate(self, platform):
-#         ms_counter = Signal(16) 
-#         cyc_counter = Signal(16)
-
-#         ms_tick = Signal()
-#         m.d.comb += ms_tick.eq(cyc_counter == 48000)
-
-#         with m.If(ms_tick): # 1 ms
-#             m.d.sync += cyc_counter.eq(0)
-#         with m.Else():
-#             m.d.sync += cyc_counter.eq(cyc_counter + 1)
-        
-#         done_tick = Signal()
-#         m.d.comb += done_tick.eq(ms_counter = self.delay_ms)
-        
-#         with m.If(ms_tick): # once per ms
-#             with m.If(done_tick):
-#                 m.d.sync += ms_counter.eq(0)
-#             with m.Else():
-#                 m.d.sync += ms_counter.eq(ms_counter + 1)
-
-
-
-
 
 class CommandExecutor(wiring.Component):
     cmd_stream: In(StreamSignature(Command))
@@ -952,7 +921,7 @@ from amaranth.build import *
 
 obi_resources  = [
     Resource("control", 0,
-        Subsignal("power_good", Pins("K1", dir="o")), # D17
+        Subsignal("power_good", Pins("K1", dir="i")), # D17
         #Subsignal("D18", Pins("J1", dir="o")), # D18
         Subsignal("x_latch", Pins("H3", dir="o")), # D19
         Subsignal("y_latch", Pins("H1", dir="o")), # D20
@@ -971,19 +940,22 @@ obi_resources  = [
 
 class OBISubtarget(wiring.Component):
     def __init__(self, *, ports, out_fifo, in_fifo, led, control, data, 
-                        benchmark_counters=None, sim=False, loopback=False,
-                        ext_switch_delay=None,
-                        xflip = False, yflip = False, rotate90 = False, out_only=False):
-        self.ports = ports
-        self.out_fifo = out_fifo
-        self.in_fifo  = in_fifo
-        self.sim = sim
-        self.loopback = loopback
+                        ext_switch_delay=0, xflip = False, yflip = False, rotate90 = False, 
+                        benchmark_counters=None, loopback=False, out_only=False):
+        self.ports            = ports
+        self.out_fifo         = out_fifo
+        self.in_fifo          = in_fifo
+        self.led              = led
+        self.control          = control
+        self.data             = data
+
         self.ext_switch_delay = ext_switch_delay
-        self.xflip = xflip
-        self.yflip = yflip
-        self.rotate90 = rotate90
-        self.out_only = out_only
+        self.xflip            = xflip
+        self.yflip            = yflip
+        self.rotate90         = rotate90
+
+        self.loopback         = loopback
+        self.out_only         = out_only
 
         if not benchmark_counters == None:
             self.benchmark = True
@@ -994,26 +966,85 @@ class OBISubtarget(wiring.Component):
         else:
             self.benchmark = False
 
-        self.led = led
-        self.control = control
-        self.data = data
-
     def elaborate(self, platform):
         m = Module()
 
+        ## core modules and interconnections
         m.submodules.parser     = parser     = CommandParser()
         m.submodules.executor   = executor   = CommandExecutor(out_only=self.out_only, ext_switch_delay=self.ext_switch_delay)
         m.submodules.serializer = serializer = ImageSerializer()
 
+        wiring.connect(m, parser.cmd_stream, executor.cmd_stream)
+        wiring.connect(m, executor.img_stream, serializer.img_stream)
+
+        wiring.connect(m, self.out_fifo.stream, parser.usb_stream)
+        wiring.connect(m, self.in_fifo.stream, serializer.usb_stream)
+
+        m.d.comb += [
+            self.in_fifo.flush.eq(executor.flush),
+            serializer.output_mode.eq(executor.output_mode)
+        ]
+
+        ## use LED to indicate backpressure
+        m.d.comb += self.led.o.eq(~serializer.usb_stream.ready)
+
+        ### Configure with default transforms
         if self.xflip:
             m.d.comb += executor.default_transforms.xflip.eq(1)
         if self.yflip:
             m.d.comb += executor.default_transforms.yflip.eq(1)
         if self.rotate90:
             m.d.comb += executor.default_transforms.rotate90.eq(1)
-        
 
-        if self.loopback:
+        ## Ports/resources
+        m.d.comb += [
+            self.control.x_latch.o.eq(executor.bus.dac_x_le_clk),
+            self.control.y_latch.o.eq(executor.bus.dac_y_le_clk),
+            self.control.a_latch.o.eq(executor.bus.adc_le_clk),
+            self.control.a_enable.o.eq(executor.bus.adc_oe),
+            self.control.d_clock.o.eq(executor.bus.dac_clk),
+            self.control.a_clock.o.eq(executor.bus.adc_clk),
+
+            self.data.o.eq(executor.bus.data_o),
+            #self.data.oe.eq(executor.bus.data_oe),
+
+            self.data.oe.eq(control.power_good.i),
+            self.control.oe.eq(control.power_good.i)
+        ]
+
+        #### External IO control logic  
+        def connect_pins(pin_name: str, signal):
+            if hasattr(self.ports, pin_name):
+                if self.ports[f"{pin_name}"] is not None:
+                    if not hasattr(m.submodules, f"{pin_name}_buffer"):
+                        m.submodules[f"{pin_name}_buffer"] = io.Buffer("o", self.ports[f"{pin_name}"])
+                    # drive every pin in port with 1-bit signal
+                    for pin in m.submodules[f"{pin_name}_buffer"].o:
+                        m.d.comb += pin.eq(signal)
+        
+        connect_pins("ebeam_scan_enable", executor.ext_ctrl_enable)      
+        connect_pins("ibeam_scan_enable", executor.ext_ctrl_enable)
+        connect_pins("ebeam_blank_enable", executor.ext_ctrl_enable)
+        connect_pins("ibeam_blank_enable", executor.ext_ctrl_enable)
+
+        with m.If(executor.ext_ctrl_enabled):
+            with m.If(executor.beam_type == BeamType.NoBeam):
+                connect_pins("ebeam_blank", 1)
+                connect_pins("ibeam_blank", 1)
+
+            with m.Elif(executor.beam_type == BeamType.Electron):
+                connect_pins("ebeam_blank", executor.blank_enable)
+                connect_pins("ibeam_blank", 1)
+                
+            with m.Elif(executor.beam_type == BeamType.Ion):
+                connect_pins("ibeam_blank", executor.blank_enable)
+                connect_pins("ebeam_blank", 1)
+        with m.Else():
+            # Do not blank if external control is not enabled
+            connect_pins("ebeam_blank",0) #TODO: check diff pair behavior here
+            connect_pins("ibeam_blank",0)
+
+        if self.loopback: ## In loopback mode, connect input to output
             m.submodules.loopback_adapter = loopback_adapter = PipelinedLoopbackAdapter(executor.adc_latency)
             wiring.connect(m, executor.bus, flipped(loopback_adapter.bus))
 
@@ -1025,25 +1056,9 @@ class OBISubtarget(wiring.Component):
                 m.d.comb += loopback_adapter.loopback_stream.eq(executor.supersampler.dac_stream_data.dwell_time)
             with m.Else():
                 m.d.comb += loopback_adapter.loopback_stream.eq(executor.supersampler.super_dac_stream.payload.dac_x_code)
-
-
-        wiring.connect(m, parser.cmd_stream, executor.cmd_stream)
-        wiring.connect(m, executor.img_stream, serializer.img_stream)
-
-        if self.sim:
-            m.submodules.out_fifo = self.out_fifo
-            m.submodules.in_fifo = self.in_fifo
-
-        m.d.comb += [
-            parser.usb_stream.payload.eq(self.out_fifo.r_data),
-            parser.usb_stream.valid.eq(self.out_fifo.r_rdy),
-            self.out_fifo.r_en.eq(parser.usb_stream.ready),
-            self.in_fifo.w_data.eq(serializer.usb_stream.payload),
-            self.in_fifo.w_en.eq(serializer.usb_stream.valid),
-            serializer.usb_stream.ready.eq(self.in_fifo.w_rdy),
-            self.in_fifo.flush.eq(executor.flush),
-            serializer.output_mode.eq(executor.output_mode)
-        ]
+        else: ## if not in loopback, connect input to external input
+            m.d.comb += executor.bus.data_i.eq(self.data.i)
+            
 
         if self.benchmark:
             m.d.comb += self.out_stall_cycles.eq(executor.supersampler.stall_cycles)
@@ -1068,63 +1083,6 @@ class OBISubtarget(wiring.Component):
                                 m.d.sync += self.out_stall_events.eq(self.out_stall_events + 1)
                     with m.Else():
                         m.d.sync += out_stall_event.eq(0)
-        
-
-        if not self.sim:
-            led = self.led
-            control = self.control
-            data = self.data
-
-            m.d.comb += led.o.eq(~serializer.usb_stream.ready)
-
-
-            def connect_pins(pin_name: str, signal):
-                if hasattr(self.ports, pin_name):
-                    if self.ports[f"{pin_name}"] is not None:
-                        if not hasattr(m.submodules, f"{pin_name}_buffer"):
-                            m.submodules[f"{pin_name}_buffer"] = io.Buffer("o", self.ports[f"{pin_name}"])
-                        # drive every pin in port with 1-bit signal
-                        for pin in m.submodules[f"{pin_name}_buffer"].o:
-                            m.d.comb += pin.eq(signal)
-            #### External IO control logic     
-            connect_pins("ebeam_scan_enable", executor.ext_ctrl_enable)      
-            connect_pins("ibeam_scan_enable", executor.ext_ctrl_enable)
-            connect_pins("ebeam_blank_enable", executor.ext_ctrl_enable)
-            connect_pins("ibeam_blank_enable", executor.ext_ctrl_enable)
-
-            with m.If(executor.ext_ctrl_enabled):
-                with m.If(executor.beam_type == BeamType.NoBeam):
-                    connect_pins("ebeam_blank", 1)
-                    connect_pins("ibeam_blank", 1)
-
-                with m.Elif(executor.beam_type == BeamType.Electron):
-                    connect_pins("ebeam_blank", executor.blank_enable)
-                    connect_pins("ibeam_blank", 1)
-                    
-                with m.Elif(executor.beam_type == BeamType.Ion):
-                    connect_pins("ibeam_blank", executor.blank_enable)
-                    connect_pins("ebeam_blank", 1)
-            with m.Else():
-                # Do not blank if external control is not enabled
-                connect_pins("ebeam_blank",0) #TODO: check diff pair behavior here
-                connect_pins("ibeam_blank",0)
-            
-
-
-            m.d.comb += [
-                control.x_latch.o.eq(executor.bus.dac_x_le_clk),
-                control.y_latch.o.eq(executor.bus.dac_y_le_clk),
-                control.a_latch.o.eq(executor.bus.adc_le_clk),
-                control.a_enable.o.eq(executor.bus.adc_oe),
-                control.d_clock.o.eq(executor.bus.dac_clk),
-                control.a_clock.o.eq(executor.bus.adc_clk),
-
-                data.o.eq(executor.bus.data_o),
-                data.oe.eq(executor.bus.data_oe),
-            ]
-
-            if not self.loopback:
-                m.d.comb += executor.bus.data_i.eq(data.i),
 
         return m
 
@@ -1177,8 +1135,6 @@ class OBIApplet(GlasgowApplet):
         self.mux_interface = iface = \
             target.multiplexer.claim_interface(self, args, throttle="none")
 
-        print(f"{args=}")
-
         ports = iface.get_port_group(
             ebeam_scan_enable = args.pin_set_ebeam_scan_enable,
             ibeam_scan_enable = args.pin_set_ibeam_scan_enable,
@@ -1188,9 +1144,6 @@ class OBIApplet(GlasgowApplet):
             ibeam_blank = args.pin_set_ibeam_blank,
         )
 
-        ext_delay_cycles = int(args.ext_switch_delay * pow(10, -3) / (1/(48 * pow(10,6))))
-        print(f"{ext_delay_cycles=}")
-
         subtarget_args = {
             "ports": ports,
             "in_fifo": iface.get_in_fifo(depth=512, auto_flush=False),
@@ -1199,12 +1152,15 @@ class OBIApplet(GlasgowApplet):
             "control": target.platform.request("control"),
             "data": target.platform.request("data"),
             "loopback": args.loopback,
-            "ext_switch_delay": ext_delay_cycles,
             "xflip": args.xflip,
             "yflip": args.yflip,
             "rotate90": args.rotate90,
             "out_only": args.out_only
         }
+
+        if args.ext_switch_delay:
+            ext_delay_cycles = int(args.ext_switch_delay * pow(10, -3) / (1/(48 * pow(10,6))))
+            subtarget_args.update({"ext_switch_delay": ext_delay_cycles})
 
         if args.benchmark:
             out_stall_events, self.__addr_out_stall_events = target.registers.add_ro(8, init=0)
