@@ -18,7 +18,7 @@ class MagCalTable(pg.TableWidget):
         super().__init__(*args, **kwargs,
             sortable=False, editable=True)
         self.setFont(QFont('Arial', 14)) 
-    def to_mag_cal(self):
+    def to_dict(self):
         rows = list(range(self.rowCount()))
         columns = range(2)
         d = {}
@@ -26,9 +26,9 @@ class MagCalTable(pg.TableWidget):
         for r in rows:
             mag = self.item(r, 0).value
             fov = self.item(r, 1).value
-            d.update({mag:fov})
+            d.update({int(mag):float(fov)})
             
-        return MagCal.from_dict(d)
+        return d
 
 
 class MagCalibration(QHBoxLayout):
@@ -126,39 +126,39 @@ class MagCalibration(QHBoxLayout):
             self.m_per_fov = dict(sorted(self.m_per_fov.items()))
             self.display_data()
         
+    def write_path_to_toml(self, path):
+        self.scope_settings.beam_settings[f"{self.beam_name}"].mag_cal = mag_cal = MagCal.from_csv(path)
+        self.m_per_fov = mag_cal.m_per_fov
+        self.display_data()
+        self.sigRequestUpdateToml.emit(self.scope_settings)
+
     def save_to_file(self):
-        data = self.table.to_mag_cal().to_csv()
+        path, _ = QFileDialog.getSaveFileName(
+            caption = "Save Calibration",
+            filter = f"{self.tr('Comma-separated values')} (*.csv)"
+        )
+        if not path:
+            return
+        mag_cal = MagCal(
+            path = path,
+            m_per_fov = self.table.to_dict()
+        )
         now = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
         header = f"Beam,{self.beam_name}\nDate,{now}\n"
-        data = header + data
-        print(data)
-
-        fileName, _ = QFileDialog.getSaveFileName(
-            # self,
-            caption = "Save Calibration",
-            filter = f"{self.tr('TableWidget', 'Comma-separated values')} (*.csv)"
-        )
-        if not fileName:
-            return
+        data = header + mag_cal.to_csv()
         with open(fileName, 'w') as fd:
             fd.write(data)
-        
-        path = os.path.join(os.getcwd(),fileName)
-        print(f"{path=}")
-    
+        self.write_path_to_toml(path)
+
     def load_from_file(self):
-        fileName, _ = QFileDialog.getOpenFileName(
+        path, _ = QFileDialog.getOpenFileName(
             # self,
             caption = "Load Calibration",
             filter = f"{self.tr('TableWidget', 'Comma-separated values')} (*.csv)"
         )
-        if not fileName:
+        if not path:
             return
-        else:
-            self.scope_settings.beam_settings[f"{self.beam_name}"].mag_cal = mag_cal = MagCal.from_csv(fileName)
-            self.m_per_fov = mag_cal.m_per_fov
-            self.display_data()
-            self.sigRequestUpdateToml.emit(self.scope_settings)
+        self.write_path_to_toml(path)
 
     def pass_toml(self, settings:ScopeSettings):
         self.scope_settings = settings
