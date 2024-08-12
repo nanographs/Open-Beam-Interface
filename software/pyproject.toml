@@ -1,5 +1,5 @@
 [project]
-name = "open_beam_interface"
+name = "obi"
 version = "0"
 description = "Electron microscope image capture with Glasgow and Open Beam Interface hardware"
 authors = [
@@ -11,6 +11,7 @@ dependencies = [
     "numpy>=2.0.1",
     "tifffile>=2024.7.21",
     "Pillow>=10.4.0",
+    "tomlkit>=0.13.0",
 ]
 requires-python = "!=3.10.0,!=3.10.1,!=3.10.2,~=3.9"
 readme = "README.md"
@@ -35,6 +36,8 @@ includes = ["applet"]
 
 [tool.pdm.scripts]
 _.env = {GLASGOW_OUT_OF_TREE_APPLETS = "I-am-okay-with-breaking-changes"}
+build.cmd = "glasgow -vv build --rev C3 open_beam_interface --pins-ebeam-scan-enable 0 --pins-ebeam-blank-enable 1 --pins-ebeam-blank 2,3"
+build.env = {AMARANTH_verbose = "1"}
 ## unit tests
 test.cmd = "python -m unittest test"
 [tool.pdm.dev-dependencies]

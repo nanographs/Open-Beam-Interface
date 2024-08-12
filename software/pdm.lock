@@ -5,7 +5,7 @@
 groups = ["default", ":gui", "dev"]
 strategy = ["cross_platform", "inherit_metadata"]
 lock_version = "4.4.1"
-content_hash = "sha256:46e99721b57e4be900a08b45c009b7dfeda21a5093752b447969463545e7c59c"
+content_hash = "sha256:c738822194f2641a5da3181877da48606c71dce98fa635ea388e5b198b7c6112"
 
 [[package]]
 name = "amaranth"
@@ -76,12 +76,12 @@ files = [
 
 [[package]]
 name = "glasgow"
-version = "0.1.dev2171+g7b9dac8"
+version = "0.1.dev2172+g60736dc"
 requires_python = "!=3.10.0,!=3.10.1,!=3.10.2,~=3.9"
 subdirectory = "software"
 git = "https://github.com/GlasgowEmbedded/glasgow"
 ref = "main"
-revision = "7b9dac8e87044fb6ba4a0a52aef11bfe63a5d883"
+revision = "60736dc71c02b9ba042e1f080fd3565c374e8458"
 summary = "Software for the Glasgow Interface Explorer, a digital interface multitool"
 groups = ["default"]
 dependencies = [
@@ -96,13 +96,13 @@ dependencies = [
 
 [[package]]
 name = "glasgow"
-version = "0.1.dev2171"
+version = "0.1.dev2172"
 extras = ["builtin-toolchain"]
 requires_python = "!=3.10.0,!=3.10.1,!=3.10.2,~=3.9"
 subdirectory = "software"
 git = "https://github.com/GlasgowEmbedded/glasgow"
 ref = "main"
-revision = "7b9dac8e87044fb6ba4a0a52aef11bfe63a5d883"
+revision = "60736dc71c02b9ba042e1f080fd3565c374e8458"
 summary = "Software for the Glasgow Interface Explorer, a digital interface multitool"
 groups = ["default"]
 dependencies = [
@@ -541,6 +541,17 @@ dependencies = [
 files = [
     {file = "tifffile-2024.7.24-py3-none-any.whl", hash = "sha256:f5cce1a915c37bc44ae4a792e3b42c07a30a3fa88406f5c6060a3de076487ed1"},
     {file = "tifffile-2024.7.24.tar.gz", hash = "sha256:723456ebf2b4918878ae05a7b50fa366ff3b3a686293317eb7a0f294c3eea050"},
+]
+
+[[package]]
+name = "tomlkit"
+version = "0.13.0"
+requires_python = ">=3.8"
+summary = "Style preserving TOML library"
+groups = ["default"]
+files = [
+    {file = "tomlkit-0.13.0-py3-none-any.whl", hash = "sha256:7075d3042d03b80f603482d69bf0c8f345c2b30e41699fd8883227f89972b264"},
+    {file = "tomlkit-0.13.0.tar.gz", hash = "sha256:08ad192699734149f5b97b45f1f18dad7eb1b6d16bc72ad0c2335772650d7b72"},
 ]
 
 [[package]]
