@@ -47,9 +47,12 @@ class PatternImport(QVBoxLayout):
         self.path = None
     
     def select_file(self):
-        file_path = QFileDialog.getOpenFileName()
-        self.path_label.setText(os.path.basename(file_path[0]))
-        self.path = file_path[0]
+        path, _ = QFileDialog.getOpenFileName(
+            caption = "Select Pattern File",
+            filter = f"{self.tr('Images')} (*.bmp *.png *.jpeg *.jpg *.webp *.tiff)"
+        )
+        self.path_label.setText(os.path.basename(path))
+        self.path = path
 
 class PatternParameters(QVBoxLayout):
     def __init__(self):
