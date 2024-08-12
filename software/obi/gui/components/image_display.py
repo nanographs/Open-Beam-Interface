@@ -11,6 +11,7 @@ from PyQt6.QtWidgets import (QHBoxLayout, QMainWindow,
                              QMessageBox, QPushButton,
                              QVBoxLayout, QWidget, QLabel, QGridLayout,
                              QSpinBox)
+from PyQt6.QtCore import QThread, QObject, pyqtSignal, pyqtSlot as Slot
 
 logger = logging.getLogger()
 
@@ -47,6 +48,7 @@ class ALine(pg.LineSegmentROI):
         return d, a
 
 class DoubleLines(pg.GraphicsObject):
+    sigRegionChanged = pyqtSignal(float)
     def __init__(self):
         super().__init__()
 
@@ -92,12 +94,13 @@ class DoubleLines(pg.GraphicsObject):
             p_rot = [p1[0] - d, p1[1]]
         
         self.lines.setRegion([p1, p_rot])
-
+        self.sigRegionChanged.emit(d)
 
         
 
 class ImageDisplay(pg.GraphicsLayoutWidget):
     _logger = logger.getChild("ImageDisplay")
+    sigResolutionChanged = pyqtSignal(tuple)
     def __init__(self, y_height, x_width, invertY=True, invertX=False):
         super().__init__()
         self.y_height = y_height
@@ -127,6 +130,7 @@ class ImageDisplay(pg.GraphicsLayoutWidget):
 
         self.roi = None
         self.line = None
+        self.measure_lines = DoubleLines()
 
         ### reverse the default LUT
         # lut = []
@@ -145,10 +149,6 @@ class ImageDisplay(pg.GraphicsLayoutWidget):
             print(f"mapDeviceToView: {self.image_view.mapDeviceToView(point)}")
             print(f"mapViewToDevice: {self.image_view.mapViewToDevice(point)}")
             print("\n")
-        
-        show_all_maps(QPointF(0,0))
-        show_all_maps(QPointF(0,512))
-        show_all_maps(QPointF(512, 512))
 
     def add_ROI(self):
         border = pg.mkPen(color = "#00ff00", width = 2)
@@ -173,8 +173,12 @@ class ImageDisplay(pg.GraphicsLayoutWidget):
         self.line.setZValue(10)  # make sure line is drawn above image
     
     def add_double_line(self):
-        line = DoubleLines()
-        self.image_view.addItem(line)
+        self.image_view.addItem(self.measure_lines)
+        self.measure_lines.fn()
+    
+    def remove_double_lines(self):
+        self.image_view.removeItem(self.measure_lines)
+
 
     def remove_line(self):
         if not self.line == None:
@@ -207,16 +211,17 @@ class ImageDisplay(pg.GraphicsLayoutWidget):
         
     def setRange(self, y_height, x_width):
         if (x_width != self.x_width) | (y_height != self.y_height):
-            self.image_view.autoRange()
             if not self.roi == None:
                 self.roi.maxBounds = QtCore.QRectF(0, 0, x_width, y_height)
-            self.image_view.setRange(QtCore.QRectF(0, 0, x_width, y_height))
+            #self.image_view.setRange(QtCore.QRectF(0, 0, x_width, y_height))
             self.x_width = x_width
             self.y_height = y_height
             if x_width >= y_height:
                 self.image_view.setLimits(maxXRange=1.2*x_width)
             else:
                 self.image_view.setLimits(maxYRange=1.2*y_height)
+            self.image_view.autoRange()
+            self.sigResolutionChanged.emit((y_height,x_width))
     
     def showTest(self):
         array = np.random.randint(0, 255,size = (self.y_height, self.x_width))
