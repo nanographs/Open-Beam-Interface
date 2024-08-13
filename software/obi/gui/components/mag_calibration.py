@@ -2,10 +2,11 @@ import datetime
 import os
 
 from PyQt6.QtWidgets import (QLabel, QGridLayout, QApplication, QWidget, QFrame, QFileDialog, QCheckBox,
-                             QSpinBox, QComboBox, QHBoxLayout, QVBoxLayout, QPushButton, QLineEdit)
+                             QSpinBox, QComboBox, QHBoxLayout, QVBoxLayout, QPushButton, QLineEdit, QSizePolicy)
 from PyQt6.QtCore import Qt
 from PyQt6.QtCore import QThread, QObject, pyqtSignal, pyqtSlot as Slot
 from PyQt6.QtGui import QFont
+from PyQt6 import QtCore
 
 import pyqtgraph as pg
 import numpy as np
@@ -29,6 +30,12 @@ class MagCalTable(pg.TableWidget):
             d.update({int(mag):float(fov)})
             
         return d
+    # def sizeHint(self):
+    #     h = super().sizeHint()
+    #     height, width = h.height(), h.width()
+    #     return QtCore.QSize(width*2, height*2)
+    def sizePolicy(self):
+        return QSizePolicy(QSizePolicy.Maximum, QSizePolicy.Minimum)
 
 
 class MagCalibration(QHBoxLayout):
@@ -45,8 +52,8 @@ class MagCalibration(QHBoxLayout):
         self.fov_length.setSuffix("m")
         self.fov_length.setOpts(siPrefix=True)
         self.fov_length.setReadOnly(True)
-        self.measure_btn = QPushButton("Measure")
-        self.update_btn = QPushButton("Update Calibration Curve")
+        self.measure_btn = QPushButton("📏")
+        self.update_btn = QPushButton("Update Calibration Curve 📍")
         self.to_file_btn = QPushButton("Save Calibration to File")
         self.from_file_btn = QPushButton("Load Calibration from File")
 
@@ -78,16 +85,21 @@ class MagCalibration(QHBoxLayout):
         left.addWidget(QLabel("Magnification"))
         left.addWidget(self.mag)
         left.addWidget(QLabel("Measured Length"))
-        left.addWidget(self.length)
-        left.addWidget(QLabel("HFOV Length:"))
+        measure = QHBoxLayout()
+        measure.addWidget(self.length)
+        measure.addWidget(self.measure_btn)
+        measure.setSpacing(1)
+        left.addLayout(measure)
+        left.addWidget(QLabel("↓↓"))
+        left.addWidget(QLabel("HFOV Length"))
         left.addWidget(self.fov_length)
-        left.addWidget(self.measure_btn)
         left.addWidget(self.update_btn)
         left.setAlignment(self, Qt.AlignmentFlag.AlignTop)
         left.addStretch()
         left.addWidget(self.table)
         left.addWidget(self.to_file_btn)
         left.addWidget(self.from_file_btn)
+        left.setSpacing(1)
         self.addLayout(left)
 
         right = QVBoxLayout()
