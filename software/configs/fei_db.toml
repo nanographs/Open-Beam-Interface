@@ -11,7 +11,11 @@ blank = [-4, 5]
 blank = [6,7]
 scan_enable = [8,9]
 
-
 [transforms]
 xflip = true
 rotate90 = true
+
+[timings]
+# Scan Selector board uses TE 1462051-2 Relay
+# Switching delay is 20 ms
+ext_switch_delay_ms = 20
