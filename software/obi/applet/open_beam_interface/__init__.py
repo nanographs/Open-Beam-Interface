@@ -1160,8 +1160,6 @@ class OBIApplet(GlasgowApplet):
             ibeam_blank = args.pin_set_ibeam_blank,
         )
 
-        print(f"{vars(obi_resources[0].ios[0])}=")
-
         subtarget_args = {
             "ports": ports,
             "in_fifo": iface.get_in_fifo(depth=512, auto_flush=False),
