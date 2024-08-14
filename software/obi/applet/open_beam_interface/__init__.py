@@ -985,9 +985,6 @@ class OBISubtarget(wiring.Component):
             serializer.output_mode.eq(executor.output_mode)
         ]
 
-        ## use LED to indicate backpressure
-        m.d.comb += self.led.o.eq(~serializer.usb_stream.ready)
-
         ### Configure with default transforms
         if self.xflip:
             m.d.comb += executor.default_transforms.xflip.eq(1)
@@ -996,20 +993,37 @@ class OBISubtarget(wiring.Component):
         if self.rotate90:
             m.d.comb += executor.default_transforms.rotate90.eq(1)
 
-        ## Ports/resources
+
+        ## Ports/resources ==========================================================
+        ### IO buffers
+        m.submodules.led_buffer = led = io.Buffer("o", self.led)
+
+        m.submodules.x_latch_buffer  = x_latch  = io.Buffer("o", self.control.x_latch)
+        m.submodules.y_latch_buffer  = y_latch  = io.Buffer("o", self.control.y_latch)
+        m.submodules.a_latch_buffer  = a_latch  = io.Buffer("o", self.control.a_latch)
+        m.submodules.a_enable_buffer = a_enable = io.Buffer("o", self.control.a_enable)
+        m.submodules.d_clock_buffer  = d_clock  = io.Buffer("o", self.control.d_clock)
+        m.submodules.a_clock_buffer  = a_clock  = io.Buffer("o", self.control.a_clock)
+
+        m.submodules.data_buffer = data = io.Buffer("io", self.data)
+
+        ### use LED to indicate backpressure
+        m.d.comb += led.o.eq(~serializer.usb_stream.ready)
+
+        ### connect buffers to data + control signals
         m.d.comb += [
-            self.control.x_latch.o.eq(executor.bus.dac_x_le_clk),
-            self.control.y_latch.o.eq(executor.bus.dac_y_le_clk),
-            self.control.a_latch.o.eq(executor.bus.adc_le_clk),
-            self.control.a_enable.o.eq(executor.bus.adc_oe),
-            self.control.d_clock.o.eq(executor.bus.dac_clk),
-            self.control.a_clock.o.eq(executor.bus.adc_clk),
+            x_latch.o.eq(executor.bus.dac_x_le_clk),
+            y_latch.o.eq(executor.bus.dac_y_le_clk),
+            a_latch.o.eq(executor.bus.adc_le_clk),
+            a_enable.o.eq(executor.bus.adc_oe),
+            d_clock.o.eq(executor.bus.dac_clk),
+            a_clock.o.eq(executor.bus.adc_clk),
 
-            self.data.o.eq(executor.bus.data_o),
-            #self.data.oe.eq(executor.bus.data_oe),
+            data.o.eq(executor.bus.data_o),
+            data.oe.eq(executor.bus.data_oe),
 
-            self.data.oe.eq(control.power_good.i),
-            self.control.oe.eq(control.power_good.i)
+            #data.oe.eq(~self.control.power_good.i),
+            #control.oe.eq(~self.control.power_good.i)
         ]
 
         #### External IO control logic  
@@ -1043,6 +1057,8 @@ class OBISubtarget(wiring.Component):
             # Do not blank if external control is not enabled
             connect_pins("ebeam_blank",0) #TODO: check diff pair behavior here
             connect_pins("ibeam_blank",0)
+        
+        #=================================================================== end resources
 
         if self.loopback: ## In loopback mode, connect input to output
             m.submodules.loopback_adapter = loopback_adapter = PipelinedLoopbackAdapter(executor.adc_latency)
@@ -1057,7 +1073,7 @@ class OBISubtarget(wiring.Component):
             with m.Else():
                 m.d.comb += loopback_adapter.loopback_stream.eq(executor.supersampler.super_dac_stream.payload.dac_x_code)
         else: ## if not in loopback, connect input to external input
-            m.d.comb += executor.bus.data_i.eq(self.data.i)
+            m.d.comb += executor.bus.data_i.eq(data.i)
             
 
         if self.benchmark:
@@ -1144,13 +1160,15 @@ class OBIApplet(GlasgowApplet):
             ibeam_blank = args.pin_set_ibeam_blank,
         )
 
+        print(f"{vars(obi_resources[0].ios[0])}=")
+
         subtarget_args = {
             "ports": ports,
             "in_fifo": iface.get_in_fifo(depth=512, auto_flush=False),
             "out_fifo": iface.get_out_fifo(depth=512),
-            "led": target.platform.request("led"),
-            "control": target.platform.request("control"),
-            "data": target.platform.request("data"),
+            "led": target.platform.request("led", dir="-"),
+            "control": target.platform.request("control", dir={pin.name:"-" for pin in obi_resources[0].ios}),
+            "data": target.platform.request("data", dir="-"),
             "loopback": args.loopback,
             "xflip": args.xflip,
             "yflip": args.yflip,
