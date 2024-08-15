@@ -30,10 +30,6 @@ class MagCalTable(pg.TableWidget):
             d.update({int(mag):float(fov)})
             
         return d
-    # def sizeHint(self):
-    #     h = super().sizeHint()
-    #     height, width = h.height(), h.width()
-    #     return QtCore.QSize(width*2, height*2)
     def sizePolicy(self):
         return QSizePolicy(QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Minimum)
 
