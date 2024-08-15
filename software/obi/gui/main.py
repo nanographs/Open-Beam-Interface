@@ -11,7 +11,7 @@ from PyQt6.QtWidgets import (QHBoxLayout, QMainWindow, QDialog, QProgressBar,
                              QMessageBox, QPushButton, QComboBox, QCheckBox,
                              QVBoxLayout, QWidget, QLabel, QGridLayout,
                              QSpinBox, QFileDialog, QLineEdit, QDialogButtonBox, QToolBar,
-                             QDockWidget)
+                             QDockWidget, QSizePolicy)
 import pyqtgraph as pg
 
 import qasync
@@ -62,6 +62,7 @@ class Tools(QToolBar):
     def __init__(self):
         super().__init__()
         self.calibrate = self.addAction("Calibrate")
+        self.debug = self.addAction("???")
         self.setFont(QFont('Arial', 14)) 
         
 
@@ -80,6 +81,7 @@ class Window(QMainWindow):
         self.toolbar = Tools()
         self.addToolBar(self.toolbar)
         self.toolbar.calibrate.triggered.connect(self.open_calibration)
+        self.toolbar.debug.triggered.connect(self.printstuff)
 
         self.beam_control = BeamStateWidget(self.conn, self.scope_settings.beam_settings)
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.beam_control)
@@ -93,8 +95,7 @@ class Window(QMainWindow):
         self.scan_control.inner.live.start_btn.clicked.connect(self.toggle_live_scan)
         self.scan_control.inner.live.roi_btn.clicked.connect(self.toggle_roi_scan)
         self.scan_control.inner.photo.acq_btn.clicked.connect(self.acquire_photo)
-
-        self.unique_controllers = [self.scan_control.inner.live, self.scan_control.inner.photo, self.pattern_control]
+        self.unique_controllers = [self.scan_control.inner.live, self.scan_control.inner.photo, self.pattern_control, self.beam_control]
 
         ## Popup window
         self.mag_cal = MagCalWidget()
@@ -103,7 +104,24 @@ class Window(QMainWindow):
         self.image_display.sigResolutionChanged.connect(self.mag_cal.inner.get_resolution)
         self.beam_control.inner.sigBeamTypeChanged.connect(self.mag_cal.inner.set_beam)
         self.mag_cal.inner.sigRequestUpdateToml.connect(self.update_toml)
+        self.mag_cal.inner.sigToggleMeasureLines.connect(self.image_display.toggle_double_lines)
     
+    def printstuff(self):
+        from rich import print
+        def describe(obj):
+            print(obj)
+            print(obj.size())
+            print(obj.sizeHint())
+            print(obj.sizePolicy().horizontalPolicy(),obj.sizePolicy().verticalPolicy())
+        describe(self)
+        #describe(self.image_display)
+        describe(self.mag_cal.inner.table)
+
+        #print(self.image_display.image_view.windowFrameRect())
+
+    # def sizeHint(self):
+    #     return self.screen().availableGeometry().size()
+
     @Slot(ScopeSettings)
     def update_toml(self, settings:ScopeSettings):
         self.scope_settings = settings
@@ -116,7 +134,6 @@ class Window(QMainWindow):
             self.mag_cal.inner.set_beam(beam)
         if self.fb.current_frame is not None:
             self.mag_cal.inner.resolution = max(self.fb.current_frame._x_count, self.fb.current_frame._y_count)
-        self.mag_cal.inner.measure_btn.clicked.connect(self.image_display.add_double_line)
         self.mag_cal.show()
         
     def ensure_unique_control(self, control_item):

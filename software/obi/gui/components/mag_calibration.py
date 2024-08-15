@@ -1,7 +1,7 @@
 import datetime
 import os
 
-from PyQt6.QtWidgets import (QLabel, QGridLayout, QApplication, QWidget, QFrame, QFileDialog, QCheckBox,
+from PyQt6.QtWidgets import (QLabel, QGridLayout, QApplication, QWidget, QFrame, QFileDialog, QCheckBox, 
                              QSpinBox, QComboBox, QHBoxLayout, QVBoxLayout, QPushButton, QLineEdit, QSizePolicy)
 from PyQt6.QtCore import Qt
 from PyQt6.QtCore import QThread, QObject, pyqtSignal, pyqtSlot as Slot
@@ -35,11 +35,12 @@ class MagCalTable(pg.TableWidget):
     #     height, width = h.height(), h.width()
     #     return QtCore.QSize(width*2, height*2)
     def sizePolicy(self):
-        return QSizePolicy(QSizePolicy.Maximum, QSizePolicy.Minimum)
+        return QSizePolicy(QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Minimum)
 
 
 class MagCalibration(QHBoxLayout):
     sigRequestUpdateToml = pyqtSignal(ScopeSettings)
+    sigToggleMeasureLines = pyqtSignal(bool)
     def __init__(self):
         super().__init__()
         self.mag = pg.SpinBox()
@@ -53,11 +54,13 @@ class MagCalibration(QHBoxLayout):
         self.fov_length.setOpts(siPrefix=True)
         self.fov_length.setReadOnly(True)
         self.measure_btn = QPushButton("📏")
+        self.measure_btn.setCheckable(True)
+        self.measure_btn.clicked.connect(self.toggle_measure)
         self.update_btn = QPushButton("Update Calibration Curve 📍")
         self.to_file_btn = QPushButton("Save Calibration to File")
         self.from_file_btn = QPushButton("Load Calibration from File")
 
-        self.update_btn.clicked.connect(self.save_calibration)
+        self.update_btn.clicked.connect(self.save_point)
         self.to_file_btn.clicked.connect(self.save_to_file)
         self.from_file_btn.clicked.connect(self.load_from_file)
         self.mag.sigValueChanging.connect(self.calculate_fov_length)
@@ -95,7 +98,7 @@ class MagCalibration(QHBoxLayout):
         left.addWidget(self.fov_length)
         left.addWidget(self.update_btn)
         left.setAlignment(self, Qt.AlignmentFlag.AlignTop)
-        left.addStretch()
+        left.addStretch(stretch=2)
         left.addWidget(self.table)
         left.addWidget(self.to_file_btn)
         left.addWidget(self.from_file_btn)
@@ -115,21 +118,34 @@ class MagCalibration(QHBoxLayout):
 
     def table_fn(self, row, column):
         print(f"clicked {row=}, {column=}")
+    
+    def toggle_measure(self):
+        measure = self.measure_btn.isChecked()
+        self.sigToggleMeasureLines.emit(measure)
+
 
     @Slot(str)
     def set_beam(self, beam_name):
-        self.beam_name = beam_name
         if beam_name is not None:
+            self.beam_name = beam_name
             beam_settings = self.scope_settings.beam_settings.get(self.beam_name)
-            if hasattr(beam_settings, "mag_cal"):
+            if beam_settings.mag_cal is not None:
                 self.m_per_fov = beam_settings.mag_cal.m_per_fov
-                self.display_data()
+            else:
+                self.m_per_fov = {}
+        else:
+            self.beam_name = None
+            self.m_per_fov = {}
+        self.display_data()
+        
     
     def display_data(self):
         if self.m_per_fov is not None:
             self.show_data(self.m_per_fov)
+            self.table.resize(self.table.sizeHint()) ## show all of the rows
+            self.table.updateGeometry()
 
-    def save_calibration(self):
+    def save_point(self):
         if self.m_per_fov is not None:
             self.calculate_fov_length()
             m_per_fov = self.fov_length.value()
@@ -213,6 +229,10 @@ class MagCalWidget(QWidget):
         self.setWindowTitle("Magnification Calibration")
         self.inner = MagCalibration()
         self.setLayout(self.inner)
+    def closeEvent(self, event):
+        self.inner.sigToggleMeasureLines.emit(False)
+        self.inner.measure_btn.setChecked(False)
+        event.accept()
 
 if __name__ == "__main__":
     import sys

@@ -10,8 +10,8 @@ from pyqtgraph.graphicsItems.TextItem import TextItem
 from PyQt6.QtWidgets import (QHBoxLayout, QMainWindow,
                              QMessageBox, QPushButton,
                              QVBoxLayout, QWidget, QLabel, QGridLayout,
-                             QSpinBox)
-from PyQt6.QtCore import QThread, QObject, pyqtSignal, pyqtSlot as Slot
+                             QSpinBox, QSizePolicy)
+from PyQt6.QtCore import QThread, QObject, pyqtSignal, pyqtSlot as Slot, Qt, QRectF
 
 logger = logging.getLogger()
 
@@ -96,8 +96,6 @@ class DoubleLines(pg.GraphicsObject):
         self.lines.setRegion([p1, p_rot])
         self.sigRegionChanged.emit(d)
 
-        
-
 class ImageDisplay(pg.GraphicsLayoutWidget):
     _logger = logger.getChild("ImageDisplay")
     sigResolutionChanged = pyqtSignal(tuple)
@@ -117,7 +115,6 @@ class ImageDisplay(pg.GraphicsLayoutWidget):
         self.live_img.setImage(np.full((y_height, x_width), 0, np.uint8), rect = (0,0,x_width, y_height), autoLevels=False, autoHistogramRange=True)
         self.image_view.addItem(self.live_img)
         
-
         self.data = np.zeros(shape = (y_height, x_width))
 
         # Contrast/color control
@@ -149,7 +146,30 @@ class ImageDisplay(pg.GraphicsLayoutWidget):
             print(f"mapDeviceToView: {self.image_view.mapDeviceToView(point)}")
             print(f"mapViewToDevice: {self.image_view.mapViewToDevice(point)}")
             print("\n")
+    
+        #self.fitInView(QRectF(0,0,1,self.aspect), Qt.AspectRatioMode.KeepAspectRatio)
+        #self.ensureVisible(self.live_img, xMargin=10, yMargin=20)
+        
+        
+    @property
+    def aspect(self):
+        hint = super().sizeHint()
+        height, width = hint.height(), hint.width()
+        maxsize = max(height, width)
+        histsize = self.hist.size()
+        h_height, h_width = histsize.height(), histsize.width()
+        return width/(width-h_width)
 
+    def sizeHint(self):
+        hint = super().sizeHint()
+        height, width = hint.height(), hint.width()
+        maxsize = max(height, width)
+        print(f"{self.aspect=}")
+        return QtCore.QSize(int(maxsize*self.aspect), maxsize)
+    def sizePolicy(self):
+        policy = QSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Maximum)
+        policy.setWidthForHeight(True)
+        return policy
     def add_ROI(self):
         border = pg.mkPen(color = "#00ff00", width = 2)
         # Custom ROI for selecting an image region
@@ -172,12 +192,19 @@ class ImageDisplay(pg.GraphicsLayoutWidget):
         self.image_view.addItem(self.line)
         self.line.setZValue(10)  # make sure line is drawn above image
     
-    def add_double_line(self):
+    def add_double_lines(self):
         self.image_view.addItem(self.measure_lines)
         self.measure_lines.fn()
     
     def remove_double_lines(self):
         self.image_view.removeItem(self.measure_lines)
+    
+    @Slot(bool)
+    def toggle_double_lines(self, enable:bool):
+        if enable:
+            self.add_double_lines()
+        else:
+            self.remove_double_lines()
 
 
     def remove_line(self):
@@ -224,9 +251,9 @@ class ImageDisplay(pg.GraphicsLayoutWidget):
             self.sigResolutionChanged.emit((y_height,x_width))
     
     def showTest(self):
-        array = np.random.randint(0, 255,size = (self.y_height, self.x_width))
+        array = np.random.randint(0, 255,size = (2*self.y_height, 2*self.x_width))
         array = array.astype(np.uint8)
-        self.setImage(self.y_height, self.x_width, array)
+        self.setImage(array)
 
 
 
@@ -237,9 +264,10 @@ class ImageDisplay(pg.GraphicsLayoutWidget):
 if __name__ == "__main__":
     app = pg.mkQApp()
     image_display = ImageDisplay(512, 512)
-    # image_display.showTest()
+    image_display.showTest()
     #image_display.add_ROI()
     #image_display.remove_ROI()
     image_display.add_double_line()
     image_display.show()
+    
     pg.exec()
