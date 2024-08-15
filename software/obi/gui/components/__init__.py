@@ -8,3 +8,9 @@ __all__ += ["CombinedScanControls"]
 
 from .bmp2vector_controls import CombinedPatternControls
 __all__ += ["CombinedPatternControls"]
+
+from .beamcontrol import BeamControl
+__all__ += ["BeamControl"]
+
+from .mag_calibration import MagCalWidget
+__all__ += ["MagCalWidget"]
