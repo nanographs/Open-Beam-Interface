@@ -78,6 +78,10 @@ class SynchronizeCommand(LowLevelCommand):
         }})
     bytelayout = ByteLayout({"cookie": 2})
     #: Arbitrary value for synchronization. When received, returned as-is in an USB IN frame.
+    async def transfer(self, stream):
+        await stream.write(bytes(self))
+        # synchronize command is exempt from output mode
+        return await stream.readuntil(bytes(self.cookie))
 
 class AbortCommand(LowLevelCommand):
     '''
@@ -192,6 +196,10 @@ class VectorPixelCommand(LowLevelCommand):
             return VectorPixelMinDwellCommand(**vars(self)).as_dict()
         else:
             return super().as_dict()
+    async def transfer(self, stream, output_mode=OutputMode.SixteenBit):
+        await stream.write(bytes(self))
+        await stream.write(bytes(FlushCommand()))
+        return await self.recv_res(1, stream, output_mode)
         
 
 class VectorPixelMinDwellCommand(LowLevelCommand):
