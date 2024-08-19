@@ -9,6 +9,7 @@ import os
 
 from obi.macros import BitmapVectorPattern
 from .scan_parameters import SettingBoxWithDefaults, QHLine
+from .dose_calc import DoseCalcWidget
 
 
 class PatternWorker(QObject):
@@ -51,6 +52,8 @@ class PatternImport(QVBoxLayout):
             caption = "Select Pattern File",
             filter = f"{self.tr('Images')} (*.bmp *.png *.jpeg *.jpg *.webp *.tiff)"
         )
+        if not path:
+            return
         self.path_label.setText(os.path.basename(path))
         self.path = path
 
@@ -60,10 +63,19 @@ class PatternParameters(QVBoxLayout):
         self.invert_selected = QCheckBox("Invert")
         self.resolution_settings = SettingBoxWithDefaults("Resolution", 256, 16384, 4096, defaults=["512", "1024", "2048", "4096", "8192", "16384", "Custom"])
         self.dwell_time = SettingBoxWithDefaults("Dwell Time", 1, 65536, 8, defaults=["1", "2", "4", "8", "16", "32", "64", "Custom"])
+        self.calc = QPushButton("🧮")
+        self.dose = DoseCalcWidget()
+        self.calc.clicked.connect(self.dose_fn)
         
+        self.d = QHBoxLayout()
         self.addWidget(self.invert_selected)
         self.addLayout(self.resolution_settings)
-        self.addLayout(self.dwell_time)
+        self.d.addLayout(self.dwell_time)
+        self.d.addWidget(self.calc)
+        self.addLayout(self.d)
+    
+    def dose_fn(self):
+        self.dose.show()
 
     def getvals(self):
         dwell_time = self.dwell_time.getval()
@@ -96,6 +108,7 @@ class CombinedPatternControls(QWidget):
         self.importer = PatternImport()
         self.params = PatternParameters()
         self.controls = PatternControlButtons()
+
         self.importer.file_select_btn.clicked.connect(self.import_file)
         self.controls.convert_btn.clicked.connect(self.convert_pattern)
         self.controls.write_btn.clicked.connect(self.write_pattern)
@@ -147,6 +160,26 @@ class CombinedPatternControls(QWidget):
         self.controls.write_btn.setText("Write Pattern")
         self.controls.write_btn.setEnabled(True)
     
+
+if __name__ == "__main__":
+    import sys
+    import asyncio
+    from obi.transfer import TCPConnection
+    app = QApplication(sys.argv)
+
+    event_loop = QEventLoop(app)
+    asyncio.set_event_loop(event_loop)
+
+    app_close_event = asyncio.Event()
+    app.aboutToQuit.connect(app_close_event.set)
+
+    conn = TCPConnection('localhost', 2224)
+    
+    b = CombinedPatternControls(conn)
+    b.show()
+
+    with event_loop:
+        event_loop.run_until_complete(app_close_event.wait())
     
 
 
