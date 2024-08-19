@@ -140,7 +140,7 @@ class FrameBuffer():
         self.abort = cmd.abort
         #self.conn._synchronized = False
         async for chunk in self.conn.transfer_multiple(cmd, latency=latency):
-            #self._logger.debug(f"{len(res)} old pixels + {len(chunk)} new pixels -> {len(res)+len(chunk)} total in buffer. {latency=}")
+            self._logger.debug(f"{len(res)} old pixels + {len(chunk)} new pixels -> {len(res)+len(chunk)} total in buffer. {latency=}")
             res.extend(chunk)
 
             async def slice_chunk():
@@ -148,19 +148,19 @@ class FrameBuffer():
                 if len(res) >= pixels_per_chunk:
                     to_frame = res[:pixels_per_chunk]
                     res = res[pixels_per_chunk:]
-                    #self._logger.debug(f"slice to display: {pixels_per_chunk}, {len(res)} pixels left in buffer")
+                    self._logger.debug(f"slice to display: {pixels_per_chunk}, {len(res)} pixels left in buffer")
                     frame.fill_lines(to_frame)
                     yield frame
                     if len(res) > pixels_per_chunk:
                         yield slice_chunk()
                 else:
                     pass
-                    #self._logger.debug(f"have {len(res)} pixels in buffer, need minimum {pixels_per_chunk} pixels")
+                    self._logger.debug(f"have {len(res)} pixels in buffer, need minimum {pixels_per_chunk} pixels to complete this chunk")
 
             async for frame in slice_chunk():
                 yield frame
 
-        #self._logger.debug(f"end of scan: {len(res)} pixels in buffer")
+        self._logger.debug(f"end of scan: {len(res)} pixels in buffer")
         last_lines = len(res)//frame._x_count
         if last_lines > 0:
             frame.fill_lines(res[:frame._x_count*last_lines])
