@@ -1,6 +1,7 @@
 from PyQt6.QtWidgets import (QLabel, QGridLayout, QApplication, QWidget, QFrame, QFileDialog, QCheckBox,
                              QSpinBox, QComboBox, QHBoxLayout, QVBoxLayout, QPushButton, QLineEdit)
 from PyQt6.QtCore import Qt
+from PyQt6.QtCore import QThread, QObject, pyqtSignal, pyqtSlot as Slot
 
 import os
 
@@ -55,6 +56,7 @@ class SettingBoxWithDefaults(QHBoxLayout):
         else:
             return int(val)
 
+    @Slot(int)
     def setval(self, val:int):
         self.spinbox.setValue(val)
     
@@ -119,6 +121,8 @@ class PhotoFileSaver(QVBoxLayout):
         return os.path.join(filepath, filename)
     def browse(self):
         path = QFileDialog.getExistingDirectory()
+        if not path:
+            return
         self.path_str = path[0]
         self.path_box.setText(path)
 
