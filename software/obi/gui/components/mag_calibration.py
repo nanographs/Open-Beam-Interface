@@ -50,6 +50,7 @@ class MagCalibration(QHBoxLayout):
         self.fov_length.setOpts(siPrefix=True)
         self.fov_length.setReadOnly(True)
         self.measure_btn = QPushButton("📏")
+        self.measure_btn.setToolTip("Measure")
         self.measure_btn.setCheckable(True)
         self.measure_btn.clicked.connect(self.toggle_measure)
         self.update_btn = QPushButton("Update Calibration Curve 📍")
@@ -106,11 +107,18 @@ class MagCalibration(QHBoxLayout):
         right.addWidget(self.plot)
         self.addLayout(right)
 
+        self.reset()
+
+
+    def reset(self):
         self.scope_settings = None
         self.beam_name = None
         self.line_px = None
         self.resolution = None
         self.m_per_fov = None
+        self.sigToggleMeasureLines.emit(False)
+        self.measure_btn.setChecked(False)
+
 
     def table_fn(self, row, column):
         print(f"clicked {row=}, {column=}")
@@ -226,8 +234,7 @@ class MagCalWidget(QWidget):
         self.inner = MagCalibration()
         self.setLayout(self.inner)
     def closeEvent(self, event):
-        self.inner.sigToggleMeasureLines.emit(False)
-        self.inner.measure_btn.setChecked(False)
+        self.inner.reset()
         event.accept()
 
 if __name__ == "__main__":
