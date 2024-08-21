@@ -2,7 +2,7 @@ from PyQt6.QtWidgets import (QLabel, QGridLayout, QApplication, QWidget, QFrame,
                              QSpinBox, QComboBox, QHBoxLayout, QVBoxLayout, QPushButton, QLineEdit)
 from PyQt6.QtCore import Qt
 from PyQt6.QtCore import QThread, QObject, pyqtSignal, pyqtSlot as Slot
-
+from .file_io import BrowseDirectory
 import os
 
 class ToggleButton(QPushButton):
@@ -95,36 +95,7 @@ class LiveScanControls(ScanParameters):
         self.roi_btn.setEnabled(enabled)
 
 
-class PhotoFileSaver(QVBoxLayout):
-    def __init__(self):
-        super().__init__()
-        upper = QHBoxLayout()
-        lower = QHBoxLayout()
-        self.name_box = QLineEdit()
-        self.path_box = QLineEdit()
-        self.path_str = os.getcwd()
-        self.path_box.setText(self.path_str)
-        self.path_box.setReadOnly(True)
-        self.browse_btn = QPushButton("Browse")
-        self.browse_btn.clicked.connect(self.browse)
-        
-        self.addLayout(upper)
-        self.addLayout(lower)
 
-        upper.addWidget(QLabel("Name:"))
-        upper.addWidget(self.name_box)
-        lower.addWidget(self.browse_btn)
-        lower.addWidget(self.path_box)
-    def path(self):
-        filename = self.name_box.text()
-        filepath = self.path_str
-        return os.path.join(filepath, filename)
-    def browse(self):
-        path = QFileDialog.getExistingDirectory()
-        if not path:
-            return
-        self.path_str = path[0]
-        self.path_box.setText(path)
 
 
 
@@ -135,7 +106,7 @@ class PhotoScanControls(ScanParameters):
         self.dwell_time = SettingBoxWithDefaults("Dwell Time", 1, 65536, 8, defaults=["1", "2", "4", "8", "16", "32", "64", "Custom"])
         super().__init__("Photo")
         self.acq_btn = ToggleButton("Acquire Photo", "Abort Photo Scan")
-        self.file = PhotoFileSaver()
+        self.file = BrowseDirectory()
 
         self.addWidget(self.acq_btn)
         self.addLayout(self.file)
