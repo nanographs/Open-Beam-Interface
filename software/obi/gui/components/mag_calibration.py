@@ -1,7 +1,7 @@
 import datetime
 import os
 
-from PyQt6.QtWidgets import (QLabel, QGridLayout, QApplication, QWidget, QFrame, QFileDialog, QCheckBox, 
+from PyQt6.QtWidgets import (QLabel, QGridLayout, QApplication, QWidget, QFrame, QFileDialog, QCheckBox, QMessageBox,
                              QSpinBox, QComboBox, QHBoxLayout, QVBoxLayout, QPushButton, QLineEdit, QSizePolicy)
 from PyQt6.QtCore import Qt
 from PyQt6.QtCore import QThread, QObject, pyqtSignal, pyqtSlot as Slot
@@ -56,6 +56,7 @@ class MagCalibration(QHBoxLayout):
         self.update_btn = QPushButton("Update Calibration Curve 📍")
         self.to_file_btn = QPushButton("Save Calibration to File")
         self.from_file_btn = QPushButton("Load Calibration from File")
+        self.file_path_label = QLabel("")
 
         self.update_btn.clicked.connect(self.save_point)
         self.to_file_btn.clicked.connect(self.save_to_file)
@@ -97,6 +98,7 @@ class MagCalibration(QHBoxLayout):
         left.setAlignment(self, Qt.AlignmentFlag.AlignTop)
         left.addStretch(stretch=2)
         left.addWidget(self.table)
+        left.addWidget(self.file_path_label)
         left.addWidget(self.to_file_btn)
         left.addWidget(self.from_file_btn)
         left.setSpacing(1)
@@ -116,6 +118,7 @@ class MagCalibration(QHBoxLayout):
         self.line_px = None
         self.resolution = None
         self.m_per_fov = None
+        self.unsaved_changes = False
         self.sigToggleMeasureLines.emit(False)
         self.measure_btn.setChecked(False)
 
@@ -135,6 +138,7 @@ class MagCalibration(QHBoxLayout):
             beam_settings = self.scope_settings.beam_settings.get(self.beam_name)
             if beam_settings.mag_cal is not None:
                 self.m_per_fov = beam_settings.mag_cal.m_per_fov
+                self.file_path_label.setText(beam_settings.mag_cal.path)
             else:
                 self.m_per_fov = {}
         else:
@@ -156,12 +160,14 @@ class MagCalibration(QHBoxLayout):
             mag = self.mag.value()
             self.m_per_fov.update({mag:m_per_fov})
             self.m_per_fov = dict(sorted(self.m_per_fov.items()))
+            self.unsaved_changes = True
             self.display_data()
         
     def write_path_to_toml(self, path):
         self.scope_settings.beam_settings[f"{self.beam_name}"].mag_cal = mag_cal = MagCal.from_csv(path)
         self.m_per_fov = mag_cal.m_per_fov
         self.display_data()
+        self.file_path_label.setText(mag_cal.path)
         self.sigRequestUpdateToml.emit(self.scope_settings)
 
     def save_to_file(self):
@@ -170,7 +176,7 @@ class MagCalibration(QHBoxLayout):
             filter = f"{self.tr('Comma-separated values')} (*.csv)"
         )
         if not path:
-            return
+            return False
         mag_cal = MagCal(
             path = path,
             m_per_fov = self.table.to_dict()
@@ -178,9 +184,11 @@ class MagCalibration(QHBoxLayout):
         now = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
         header = f"Beam,{self.beam_name}\nDate,{now}\n"
         data = header + mag_cal.to_csv()
-        with open(fileName, 'w') as fd:
+        with open(path, 'w') as fd:
             fd.write(data)
         self.write_path_to_toml(path)
+        self.unsaved_changes = False
+        return True
 
     def load_from_file(self):
         path, _ = QFileDialog.getOpenFileName(
@@ -191,6 +199,7 @@ class MagCalibration(QHBoxLayout):
         if not path:
             return
         self.write_path_to_toml(path)
+        self.unsaved_changes = False
 
     def pass_toml(self, settings:ScopeSettings):
         self.scope_settings = settings
@@ -234,8 +243,25 @@ class MagCalWidget(QWidget):
         self.inner = MagCalibration()
         self.setLayout(self.inner)
     def closeEvent(self, event):
-        self.inner.reset()
-        event.accept()
+        if self.inner.unsaved_changes:
+            r = QMessageBox.question(self, "Confirm Exit", "Are sure?", 
+                                    QMessageBox.StandardButton.Close | 
+                                    QMessageBox.StandardButton.Save | 
+                                    QMessageBox.StandardButton.Discard)
+
+            if r == QMessageBox.StandardButton.Close:
+                event.ignore()
+            if r == QMessageBox.StandardButton.Save:
+                saved = self.inner.save_to_file()
+                if saved:
+                    event.accept()
+                else:
+                    event.ignore()
+            if r == QMessageBox.StandardButton.Discard:
+                event.accept()
+        else:
+            self.inner.reset()
+            event.accept()
 
 if __name__ == "__main__":
     import sys
