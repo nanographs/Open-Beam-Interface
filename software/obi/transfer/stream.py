@@ -18,6 +18,7 @@ class Stream(metaclass = ABCMeta):
         ...
     @abstractmethod
     async def flush(self):
+        ## if write buffer is full, wait until it is ready to receive more
         ...
     @abstractmethod
     async def read(self, length: int) -> memoryview:
