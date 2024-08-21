@@ -6,7 +6,6 @@ Gateware/open_beam_interface.bin
 .vscode/settings.json
 *.vcd
 *.zip
-*.png
 *.pyc
 *.tif
 *.kicad_prl
