@@ -19,7 +19,7 @@ class RasterScanCommand(BaseCommand):
     def __repr__(self):
         return f"RasterScanCommand: x_range={self._x_range}, y_range={self._y_range}, \
                 dwell={self._dwell}, cookie={self._cookie}, output_mode={self._output_mode}"
-    def _iter_chunks(self, latency=65536*65536):
+    def _iter_chunks(self, latency):
         commands = bytearray()
 
         def append_command(pixel_count):
@@ -46,7 +46,7 @@ class RasterScanCommand(BaseCommand):
             yield(commands, pixel_count)
 
     @BaseCommand.log_transfer
-    async def transfer(self, stream, *, latency: int):
+    async def transfer(self, stream, *, latency:int=65536*65536):
         print(f"transfer - {latency=}")
         MAX_PIPELINE = 32
 
