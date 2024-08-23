@@ -53,113 +53,38 @@ class ADCSettings(QHBoxLayout):
         self.addWidget(self.field)
 
 
-class XYDACSettings(QVBoxLayout):
+class ADCTest(QVBoxLayout):
     def __init__(self, conn):
         self.conn = conn
-        self.synced = False
         super().__init__()
-        self.addWidget(QLabel("✨✨✨welcome to the test and calibration interface✨✨✨"))
-
-        self.tabs = QTabWidget()
-        dac_tab = QWidget()
-        adc_tab = QWidget()
-        self.tabs.addTab(dac_tab, "DAC")
-        self.tabs.addTab(adc_tab, "ADC")
-        dac = QVBoxLayout()
-        adc = QVBoxLayout()
-        dac_tab.setLayout(dac)
-        adc_tab.setLayout(adc)
-        self.addWidget(self.tabs)
-
-        self.x_settings = DACSettings("X")
-        self.y_settings = DACSettings("Y")
-        self.adc_settings = ADCSettings()
-        self.start_btn = ToggleButton("Start", "Stop")
-        self.start_btn.clicked.connect(self.toggle_live)
 
         self.scan_btn = QPushButton("scan")
         self.exp_btn = QPushButton("copy to clipboard 📋")
         self.scan_btn.clicked.connect(self.scan)
         self.exp_btn.clicked.connect(self.exp)
 
-        self.pts = 1000
-        self.data = np.ndarray(self.pts)
-        #self.ptr = 0
+        self.data = np.ndarray(16384)
 
-        self.plot = pg.PlotWidget(enableMenu=False)
+        self.plot = pg.PlotWidget()
         self.plot.setYRange(0,16384)
-        self.plot.setXRange(0,1000)
-        
+        self.plot.setXRange(0,16384)
+
         self.plot_data = pg.PlotDataItem()
         self.plot.addItem(self.plot_data)
         self.plot_data.setData(self.data)
-        self.plot.setMouseEnabled(x=False, y=True)
-        self.plot.setLimits(xMin=0,xMax=self.pts, yMin=0,yMax=16383)
-
-        self.data2 = np.ndarray(16384)
-
-        self.plot2 = pg.PlotWidget()
-        self.plot2.setYRange(0,16384)
-        self.plot2.setXRange(0,16384)
-
-        self.plot2_data = pg.PlotDataItem()
-        self.plot2.addItem(self.plot2_data)
-        self.plot2_data.setData(self.data2)
-        self.plot2_data.setPen(width=2)
-        self.plot2.setLimits(xMin=0,xMax=16383, yMin=0,yMax=16383)
+        self.plot_data.setPen(width=2)
+        self.plot.setLimits(xMin=0,xMax=16383, yMin=0,yMax=16383)
 
         self.stop = None
         self.start = None
         self.text = pg.TextItem()
-        self.plot2.addItem(self.text)
+        self.plot.addItem(self.text)
         self.text.setPos(8000, 4000)
         self.text.setFont(QFont('Arial', 18)) 
 
-        dac.addWidget(self.plot)
-        dac.addLayout(self.x_settings)
-        dac.addLayout(self.y_settings)
-        dac.addLayout(self.adc_settings)
-        dac.addWidget(self.start_btn)
-
-        adc.addWidget(self.plot2)
-        adc.addWidget(self.scan_btn)
-        adc.addWidget(self.exp_btn)
-
-        
-    
-    def getvals(self):
-        x_coord = int(self.x_settings.field.cleanText())
-        y_coord = int(self.y_settings.field.cleanText())
-        return x_coord, y_coord
-    
-    @asyncSlot()
-    async def setvals(self):
-        x_coord, y_coord = self.getvals()
-        print(f"{x_coord=}, {y_coord=}")
-        data = await self.conn.transfer(VectorPixelCommand(
-            x_coord = x_coord, y_coord = y_coord, dwell_time=1))
-        self.adc_settings.field.setText(f"{data[0]}")
-        self.data[:self.pts-1] = self.data[1:self.pts]
-        self.data[self.pts-1] = data[0]
-        # if self.ptr+1 == self.pts:
-        #     self.ptr = 0
-        # else:
-        #     self.ptr += 1
-        self.plot_data.setData(self.data)
-    
-    @asyncSlot()
-    async def toggle_live(self):
-        stop = asyncio.Event()
-        self.start_btn.to_live_state(stop.set)
-
-        # cookie = await self.conn.transfer(SynchronizeCommand(raster=False, output=OutputMode.NoOutput, cookie=123))
-        # print(f"{cookie=}")
-        
-        while not stop.is_set():
-            await self.setvals()
-        
-        self.start_btn.to_paused_state(self.toggle_live)
-        print("done")
+        self.addWidget(self.plot)
+        self.addWidget(self.scan_btn)
+        self.addWidget(self.exp_btn)
     
     @asyncSlot()
     async def scan(self):
@@ -176,19 +101,19 @@ class XYDACSettings(QVBoxLayout):
         self.scan_btn.setEnabled(False)
         async for chunk in self.conn.transfer_multiple(cmd, latency=16384):
             l = len(chunk)
-            self.data2[ptr:ptr+l] = chunk
-            self.plot2_data.setData(self.data2)
+            self.data[ptr:ptr+l] = chunk
+            self.plot_data.setData(self.data)
             ptr += l
         
         x_start = 0
         x_stop = 16383
         for x in range(0, 16383):
-            if self.data2[x] > 0:
+            if self.data[x] > 0:
                 x_start = x
                 break
 
         for x in range(16383,0,-1):
-            if self.data2[x] < 16383:
+            if self.data[x] < 16383:
                 x_stop = x
                 break
         
@@ -197,19 +122,19 @@ class XYDACSettings(QVBoxLayout):
             text += f"linear region start: {x_start}\n"
             text += f"linear region stop: {x_stop}\n"
 
-            slope, intercept = np.polyfit(np.array(range(x_start, x_stop)), self.data2[x_start:x_stop], 1)
+            slope, intercept = np.polyfit(np.array(range(x_start, x_stop)), self.data[x_start:x_stop], 1)
             text += f"slope: {slope:0.05f}\n"
             text += f"y-intercept: {intercept:0.05f}\n"
 
-            correlation = np.corrcoef(np.array(range(x_start, x_stop)), self.data2[x_start:x_stop])[0,1]
+            correlation = np.corrcoef(np.array(range(x_start, x_stop)), self.data[x_start:x_stop])[0,1]
             text += f"R^2: {correlation}"
 
             self.start = pg.InfiniteLine(movable=False, angle=90)
             self.stop = pg.InfiniteLine(movable=False, angle=90)
             self.start.setPos([x_start,0])
             self.stop.setPos([x_stop,0])
-            self.plot2.addItem(self.start)
-            self.plot2.addItem(self.stop)
+            self.plot.addItem(self.start)
+            self.plot.addItem(self.stop)
             self.text.setText(text)
         except:
             print("Could not fit line")
@@ -219,6 +144,90 @@ class XYDACSettings(QVBoxLayout):
         exporter = pg.exporters.ImageExporter(self.plot2.plotItem)
         exporter.export("adc.png", copy=True)
     
+
+class DACTest(QVBoxLayout):
+    def __init__(self, conn):
+        self.conn = conn
+        super().__init__()
+        self.x_settings = DACSettings("X")
+        self.y_settings = DACSettings("Y")
+        self.adc_settings = ADCSettings()
+        self.start_btn = ToggleButton("Start", "Stop")
+        self.start_btn.clicked.connect(self.toggle_live)
+
+
+        self.pts = 1000
+        self.data = np.ndarray(self.pts)
+        #self.ptr = 0
+
+        self.plot = pg.PlotWidget(enableMenu=False)
+        self.plot.setYRange(0,16384)
+        self.plot.setXRange(0,1000)
+        
+        self.plot_data = pg.PlotDataItem()
+        self.plot.addItem(self.plot_data)
+        self.plot_data.setData(self.data)
+        self.plot.setMouseEnabled(x=False, y=True)
+        self.plot.setLimits(xMin=0,xMax=self.pts, yMin=0,yMax=16383)
+
+        mid = pg.InfiniteLine(movable=False, angle=0)
+        mid.setPos([0,8191])
+        self.plot.addItem(mid)
+
+        self.addWidget(self.plot)
+        self.addLayout(self.x_settings)
+        self.addLayout(self.y_settings)
+        self.addLayout(self.adc_settings)
+        self.addWidget(self.start_btn)
+    
+        
+    def getvals(self):
+        x_coord = int(self.x_settings.field.cleanText())
+        y_coord = int(self.y_settings.field.cleanText())
+        return x_coord, y_coord
+    
+    @asyncSlot()
+    async def setvals(self):
+        x_coord, y_coord = self.getvals()
+        print(f"{x_coord=}, {y_coord=}")
+        data = await self.conn.transfer(VectorPixelCommand(
+            x_coord = x_coord, y_coord = y_coord, dwell_time=1))
+        self.adc_settings.field.setText(f"{data[0]}")
+        self.data[:self.pts-1] = self.data[1:self.pts]
+        self.data[self.pts-1] = data[0]
+        self.plot_data.setData(self.data)
+    
+    @asyncSlot()
+    async def toggle_live(self):
+        stop = asyncio.Event()
+        self.start_btn.to_live_state(stop.set)
+        
+        while not stop.is_set():
+            await self.setvals()
+        
+        self.start_btn.to_paused_state(self.toggle_live)
+        print("done")
+
+
+
+class XYDACSettings(QVBoxLayout):
+    def __init__(self, conn):
+        self.conn = conn
+        super().__init__()
+        self.addWidget(QLabel("✨✨✨welcome to the test and calibration interface✨✨✨"))
+
+        self.tabs = QTabWidget()
+        dac_tab = QWidget()
+        adc_tab = QWidget()
+        self.tabs.addTab(dac_tab, "DAC")
+        self.tabs.addTab(adc_tab, "ADC")
+        dac = DACTest(self.conn)
+        adc = ADCTest(self.conn)
+        dac_tab.setLayout(dac)
+        adc_tab.setLayout(adc)
+        self.addWidget(self.tabs)
+    
+
 
 
 
