@@ -521,6 +521,10 @@ class RasterScanner(wiring.Component):
                     # AXI4-Stream §2.2.1
                     # > Once TVALID is asserted it must remain asserted until the handshake occurs.
 
+                    ## TODO: AC line sync 
+                    ## TODO: external trigger
+                    ## TODO: be flyback aware, line and frame
+
                     with m.If(x_count == 0):
                         with m.If(y_count == 0):
                             m.next = "Get-ROI"
@@ -533,7 +537,7 @@ class RasterScanner(wiring.Component):
                     with m.Else():
                         m.d.sync += x_accum.eq(x_accum + region.x_step)
                         m.d.sync += x_count.eq(x_count - 1)
-
+            
         return m
 
 #=========================================================================
@@ -727,7 +731,7 @@ class CommandExecutor(wiring.Component):
                         m.d.sync += self.flush.eq(1)
                         m.d.comb += sync_req.eq(1)
                         with m.If(sync_ack):
-                            m.d.sync += raster_mode.eq(command.payload.synchronize.mode.raster)
+                            #m.d.sync += raster_mode.eq(command.payload.synchronize.mode.raster)
                             m.d.sync += output_mode.eq(command.payload.synchronize.mode.output)
                             m.next = "Fetch"
 
@@ -785,6 +789,7 @@ class CommandExecutor(wiring.Component):
                                 m.next = "Fetch"
 
                     with m.Case(CmdType.RasterRegion):
+                        m.d.comb += raster_mode.eq(1)
                         m.d.sync += raster_region.eq(command.payload.raster_region.roi)
                         m.d.comb += [
                             self.raster_scanner.roi_stream.valid.eq(1),
@@ -796,6 +801,7 @@ class CommandExecutor(wiring.Component):
                             m.next = "Fetch"
 
                     with m.Case(CmdType.RasterPixel):
+                        m.d.comb += raster_mode.eq(1)
                         m.d.comb += [
                             self.raster_scanner.dwell_stream.valid.eq(1),
                             self.raster_scanner.dwell_stream.payload.dwell_time.eq(command.payload.raster_pixel.dwell_time),
@@ -806,6 +812,7 @@ class CommandExecutor(wiring.Component):
                             m.next = "Fetch"
 
                     with m.Case(CmdType.RasterPixelRun):
+                        m.d.comb += raster_mode.eq(1)
                         m.d.comb += [
                             self.raster_scanner.dwell_stream.valid.eq(1),
                             self.raster_scanner.dwell_stream.payload.dwell_time.eq(command.payload.raster_pixel_run.dwell_time),
@@ -820,6 +827,7 @@ class CommandExecutor(wiring.Component):
                                 m.d.sync += run_length.eq(run_length + 1)
 
                     with m.Case(CmdType.RasterPixelFreeRun):
+                        m.d.comb += raster_mode.eq(1)
                         m.d.comb += [
                             self.raster_scanner.roi_stream.payload.eq(raster_region),
                             self.raster_scanner.dwell_stream.payload.dwell_time.eq(command.payload.raster_pixel.dwell_time),
