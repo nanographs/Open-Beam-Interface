@@ -78,10 +78,10 @@ class SynchronizeCommand(LowLevelCommand):
         }})
     bytelayout = ByteLayout({"cookie": 2})
     #: Arbitrary value for synchronization. When received, returned as-is in an USB IN frame.
-    async def transfer(self, stream):
-        await stream.write(bytes(self))
-        # synchronize command is exempt from output mode
-        return await stream.readuntil(bytes(self.cookie))
+    # async def transfer(self, stream):
+    #     await stream.write(bytes(self))
+    #     # synchronize command is exempt from output mode
+    #     return await stream.readuntil(bytes(self.cookie))
 
 class AbortCommand(LowLevelCommand):
     '''
