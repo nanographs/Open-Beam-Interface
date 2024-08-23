@@ -47,8 +47,9 @@ class TCPStream(Stream):
         self._logger.debug(f"recv: done")
         return memoryview(buffer)
     
-    async def readuntil(self, separator=b'\n', *, flush=True, max_count=False) -> memoryview:
-        return await self._reader.readuntil(seperator, flush=flush, max_count=max_count)
+    #TODO: figure out if flush and max_count can be added back here
+    async def readuntil(self, separator=b'\n', *) -> memoryview:
+        return await self._reader.readuntil(separator)
 
     async def xchg(self, data: bytes | bytearray | memoryview, *, recv_length: int) -> bytes:
         await self.send(data)
@@ -104,14 +105,9 @@ class TCPConnection(Connection):
 
         cookie, self._next_cookie = self._next_cookie, (self._next_cookie + 2) & 0xffff # even cookie
         self._logger.debug(f'synchronizing with cookie {cookie:#06x}')
-
-        #seq = CommandSequence(cookie=cookie, output=OutputMode.SixteenBit, raster=False)
-        #seq.add(FlushCommand())
-        await SynchronizeCommand(cookie=cookie, output=OutputMode.SixteenBit, raster=False).transfer(self._stream)
-        await FlushCommand().transfer(self._stream)
-        #res = SynchronizeCommand(cookie=cookie, output=OutputMode.SixteenBit, raster=False).byte_response
+        
+        await self._stream.write(bytes(SynchronizeCommand(cookie=cookie, output=OutputMode.SixteenBit, raster=False)))
         res = struct.pack('>HH', 65535, cookie)
-        #await self._stream.write(bytes(seq))
         while True:
             self._logger.debug("trying to synchronize...")
             try:
