@@ -947,15 +947,15 @@ obi_resources  = [
 
 
 class OBISubtarget(wiring.Component):
-    def __init__(self, *, ports, out_fifo, in_fifo, led, control, data, 
+    def __init__(self, *, ports, out_fifo, in_fifo, #led, control, data, 
                         ext_switch_delay=0, xflip = False, yflip = False, rotate90 = False, 
                         benchmark_counters=None, loopback=False, out_only=False):
         self.ports            = ports
         self.out_fifo         = out_fifo
         self.in_fifo          = in_fifo
-        self.led              = led
-        self.control          = control
-        self.data             = data
+        # self.led              = led
+        # self.control          = control
+        # self.data             = data
 
         self.ext_switch_delay = ext_switch_delay
         self.xflip            = xflip
@@ -985,8 +985,13 @@ class OBISubtarget(wiring.Component):
         wiring.connect(m, parser.cmd_stream, executor.cmd_stream)
         wiring.connect(m, executor.img_stream, serializer.img_stream)
 
-        wiring.connect(m, self.out_fifo.stream, parser.usb_stream)
-        wiring.connect(m, self.in_fifo.stream, serializer.usb_stream)
+        from glasgow.access.direct.multiplexer import _FIFOReadPort, _FIFOWritePort
+        if isinstance(self.out_fifo, _FIFOReadPort):
+            self.out_fifo.r_stream = self.out_fifo.stream
+        if isinstance(self.in_fifo, _FIFOWritePort):
+            self.in_fifo.w_stream = self.in_fifo.stream
+        wiring.connect(m, self.out_fifo.r_stream, parser.usb_stream)
+        wiring.connect(m, self.in_fifo.w_stream, serializer.usb_stream)
 
         m.d.comb += [
             self.in_fifo.flush.eq(executor.flush),
@@ -1003,6 +1008,21 @@ class OBISubtarget(wiring.Component):
 
 
         ## Ports/resources ==========================================================
+        if platform is not None:
+            self.led            = platform.request("led", dir="-")
+            self.control        = platform.request("control", dir={pin.name:"-" for pin in obi_resources[0].ios})
+            self.data           = platform.request("data", dir="-")
+        else: 
+            self.led = io.SimulationPort("o",1)
+            self.control = io.SimulationPort("io",7)
+            self.control.x_latch  = io.SimulationPort("o",1,name="x_latch")
+            self.control.y_latch  = io.SimulationPort("o",1,name="y_latch")
+            self.control.a_latch  = io.SimulationPort("o",1,name="a_latch")
+            self.control.a_enable = io.SimulationPort("o",1,name="a_enable")
+            self.control.d_clock  = io.SimulationPort("o",1,name="d_clock")
+            self.control.a_clock  = io.SimulationPort("o",1,name="a_clock")
+            self.data = io.SimulationPort("io", 14)
+
         ### IO buffers
         m.submodules.led_buffer = led = io.Buffer("o", self.led)
 
@@ -1154,10 +1174,14 @@ class OBIApplet(GlasgowApplet):
 
 
     def build(self, target, args):
-        target.platform.add_resources(obi_resources)
-
-        self.mux_interface = iface = \
-            target.multiplexer.claim_interface(self, args, throttle="none")
+        from glasgow.target.simulation import GlasgowSimulationTarget
+        if isinstance(target, GlasgowSimulationTarget):
+            self.mux_interface = iface = \
+            target.multiplexer.claim_interface(self, args)
+        else:
+            target.platform.add_resources(obi_resources)
+            self.mux_interface = iface = \
+                target.multiplexer.claim_interface(self, args, throttle="none")
 
         ports = iface.get_port_group(
             ebeam_scan_enable = args.pin_set_ebeam_scan_enable,
@@ -1172,9 +1196,6 @@ class OBIApplet(GlasgowApplet):
             "ports": ports,
             "in_fifo": iface.get_in_fifo(depth=512, auto_flush=False),
             "out_fifo": iface.get_out_fifo(depth=512),
-            "led": target.platform.request("led", dir="-"),
-            "control": target.platform.request("control", dir={pin.name:"-" for pin in obi_resources[0].ios}),
-            "data": target.platform.request("data", dir="-"),
             "loopback": args.loopback,
             "xflip": args.xflip,
             "yflip": args.yflip,
@@ -1203,9 +1224,13 @@ class OBIApplet(GlasgowApplet):
     async def run(self, device, args):
         # await device.set_voltage("AB", 0)
         # await asyncio.sleep(5)
-        iface = await device.demultiplexer.claim_interface(self, self.mux_interface, args,
-            # read_buffer_size=131072*16, write_buffer_size=131072*16)
-            read_buffer_size=16384*16384, write_buffer_size=16384*16384)
+        from glasgow.device.simulation import GlasgowSimulationDevice
+        if isinstance(device, GlasgowSimulationDevice):
+            iface = await device.demultiplexer.claim_interface(self, self.mux_interface, args)
+        else:
+            iface = await device.demultiplexer.claim_interface(self, self.mux_interface, args,
+                # read_buffer_size=131072*16, write_buffer_size=131072*16)
+                read_buffer_size=16384*16384, write_buffer_size=16384*16384)
         
         if args.benchmark:
             output_mode = 2 #no output
