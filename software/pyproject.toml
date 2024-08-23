@@ -27,6 +27,10 @@ open_beam_interface = "obi.applet.open_beam_interface:OBIApplet"
     "PyQt6>=6.7.1",
     "qasync>=0.27.1",
 ]
+":docs" = [
+    "sphinx>=7.4.7",
+    "myst-parser>=3.0.1",
+]
 [build-system]
 requires = ["pdm-backend"]
 build-backend = "pdm.backend"
