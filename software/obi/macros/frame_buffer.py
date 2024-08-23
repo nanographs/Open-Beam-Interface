@@ -6,7 +6,7 @@ import os
 import numpy as np
 import tifffile
 
-from obi.commands import DACCodeRange
+from obi.commands import *
 from obi.transfer import Connection
 from .raster import RasterScanCommand
 logger = logging.getLogger()
@@ -136,6 +136,9 @@ class FrameBuffer():
         res = array.array('H')
         pixels_per_chunk = self.opt_chunk_size(frame)
         self._logger.debug(f"{pixels_per_chunk=}")
+
+        await self.conn.transfer(BlankCommand(enable=False, inline=True))
+
         cmd = RasterScanCommand(cookie=123,x_range=x_range, y_range=y_range, dwell_time=dwell_time)
         self.abort = cmd.abort
         #self.conn._synchronized = False
@@ -160,6 +163,7 @@ class FrameBuffer():
             async for frame in slice_chunk():
                 yield frame
 
+        await self.conn.transfer(BlankCommand(enable=True, inline=False))
         self._logger.debug(f"end of scan: {len(res)} pixels in buffer")
         last_lines = len(res)//frame._x_count
         if last_lines > 0:

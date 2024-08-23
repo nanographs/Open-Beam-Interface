@@ -83,6 +83,8 @@ class RasterScanCommand(BaseCommand):
                     break
             self._logger.debug(f"recver: tokens={tokens}")
             yield await self.recv_res(pixel_count, stream, self._output_mode)
+        await BlankCommand(enable=True, inline=False).transfer(stream)
+        await VectorPixelCommand(x_coord=self._x_range.start, y_coord=self._y_range.start, dwell_time=1).transfer(stream)
 
 
 
