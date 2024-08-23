@@ -593,7 +593,7 @@ class OBIAppletTestCase(unittest.TestCase):
         
         class TestCommandSequence:
             def __init__(self):
-                self.dut =  CommandExecutor()
+                self.dut =  CommandExecutor(ext_switch_delay=10)
                 self.put_testbenches = []
                 self.get_testbenches = []
         
@@ -625,9 +625,16 @@ class OBIAppletTestCase(unittest.TestCase):
         class TestExternalCtrlCommand(TestCommand, command = ExternalCtrlCommand):
             async def put_testbench(self, ctx, dut):
                 await super().put_testbench(ctx, dut)
+                for _ in range(dut.ext_switch_delay):
+                    await ctx.tick()
                 if not ctx.get(dut.is_executing) == 0:
                     await ctx.tick()
                 assert ctx.get(dut.ext_ctrl_enable) == self.command.enable
+            
+            async def get_testbench(self, ctx, dut):
+                for _ in range(dut.ext_switch_delay):
+                    await ctx.tick()
+                await super().get_testbench(ctx, dut)
             
         class TestBeamSelectCommand(TestCommand, command = BeamSelectCommand):
             async def put_testbench(self, ctx, dut):
@@ -668,7 +675,7 @@ class OBIAppletTestCase(unittest.TestCase):
         class TestRasterPixelRunCommand(TestCommand, command=RasterPixelRunCommand):
             @property
             def response(self):
-                return [0]*self.command.length
+                return [0]*(self.command.length+1)
             @property
             def exec_cycles(self):
                 return self.command.dwell_time*self.command.length*BUS_CYCLES
@@ -797,15 +804,16 @@ class OBIAppletTestCase(unittest.TestCase):
         test_exec_6()
 
     def test_all(self):
+        #TODO: Fix this simulation
         from amaranth import Module
-        from applet.open_beam_interface import OBIApplet
+        from obi.applet.open_beam_interface import OBIApplet
         from glasgow.applet import GlasgowAppletTestCase, synthesis_test, applet_simulation_test
         from .board_sim import OBI_Board
 
         class OBIApplet_TestCase(GlasgowAppletTestCase, applet = OBIApplet):
             @synthesis_test
             def test_build(self):
-                self.assertBuilds(args=["--pin-ext-ebeam-scan-enable", "1", "--xflip", "--yflip", "--rotate90"])
+                self.assertBuilds(args=["--pins-ebeam-scan-enable", "1", "--xflip", "--yflip", "--rotate90"])
             
             def setup_test(self):
                 self.build_simulated_applet()
@@ -813,6 +821,7 @@ class OBIAppletTestCase(unittest.TestCase):
             def setup_x_loopback(self):
                 self.build_simulated_applet()
                 obi_subtarget = self.applet.mux_interface._subtargets[0]
+                print(vars(obi_subtarget))
                 m = Module()
                 m.submodules["board"] = board = OBI_Board()
                 m.d.comb += [
