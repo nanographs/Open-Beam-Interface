@@ -14,31 +14,46 @@ from obi.config.meta import ScopeSettings, BeamSettings
 class BeamButton(QPushButton):
     def __init__(self, name, beam: BeamSettings):
         self.name = name
+        ## this name property is actually extremely load bearing...
+        ## it comes from the microscope.toml file...
+        ## it's broadcast to the mag calibration window via sigBeamTypeChanged
+        ## and then used to grab the magnification calibration
+        ## ... which is saved back into the toml file
         self.beam_type = beam.type
-        super().__init__(name)
+        super().__init__(name.title())
+        self.setCheckable(True)
 
 class BeamControl(QWidget):
     sigBeamTypeChanged = pyqtSignal(str)
     def __init__(self, conn, beams={}):
         super().__init__()
         self.conn = conn
-        layout = QHBoxLayout()
+        layout = QVBoxLayout()
+        layout.setSpacing(1)
         self.setLayout(layout)
 
+        beam_layout = QHBoxLayout()
+        ctrl_layout = QHBoxLayout()
+        layout.addLayout(beam_layout)
+        layout.addLayout(ctrl_layout)
+
         self.beams = QButtonGroup()
+        
+        ## create a blank BeamSettings object to represent "no beam selected"
         noBeam = BeamSettings(type=BeamType.NoBeam, pinout=None, mag_cal=None)
         beams.update({"All Off":noBeam})
         for beam_name, beam in beams.items():
             btn = BeamButton(beam_name, beam)
-            btn.setCheckable(True)
             self.beams.addButton(btn)
-            layout.addWidget(btn)
+            beam_layout.addWidget(btn)
+
         self.beams.idClicked.connect(self.beam_select)
 
-        self.ext = QPushButton("Lock External Control")
+        self.ext = QPushButton("Hold External Control")
         self.ext.setCheckable(True)
         self.ext.clicked.connect(self.toggle_ext)
-        # layout.addWidget(self.ext)
+
+        ctrl_layout.addWidget(self.ext)
     
     def get_current_beam(self):
         b_id = self.beams.checkedId()
@@ -52,7 +67,11 @@ class BeamControl(QWidget):
     async def beam_select(self, b_id):
         btn = self.beams.button(b_id)
         await self.conn.transfer(BeamSelectCommand(beam_type=btn.beam_type))
-        self.sigBeamTypeChanged.emit(btn.name)
+        if btn.beam_type is not BeamType.NoBeam:
+            # don't broadcast when noBeam is set,
+            # for all GUI purposes (which is currently just showing calibration)
+            # it makes sense to use whatever beam type was previously selected
+            self.sigBeamTypeChanged.emit(btn.name)
 
     @asyncSlot()
     async def toggle_ext(self):
@@ -60,7 +79,7 @@ class BeamControl(QWidget):
         if enable:
             self.ext.setText("Release External Control")
         else:
-            self.ext.setText("Lock External Control")
+            self.ext.setText("Hold External Control")
         await self.conn.transfer(ExternalCtrlCommand(enable=enable))
 
 

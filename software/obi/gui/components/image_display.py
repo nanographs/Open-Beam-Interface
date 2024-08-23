@@ -105,11 +105,8 @@ class ImageDisplay(pg.GraphicsLayoutWidget):
         self.x_width = x_width
 
         self.image_view = self.addViewBox(invertY = invertY, invertX=invertX)
-        # self.plot = self.addPlot(viewBox = self.image_view)
         ## lock the aspect ratio so pixels are always square
         self.image_view.setAspectLocked(True)
-        # self.image_view.setRange(QtCore.QRectF(0, 0, y_height, x_width))
-    
         
         self.live_img = pg.ImageItem(border='w',axisOrder="row-major")
         self.live_img.setImage(np.full((y_height, x_width), 0, np.uint8), rect = (0,0,x_width, y_height), autoLevels=False, autoHistogramRange=True)
@@ -164,7 +161,6 @@ class ImageDisplay(pg.GraphicsLayoutWidget):
         hint = super().sizeHint()
         height, width = hint.height(), hint.width()
         maxsize = max(height, width)
-        print(f"{self.aspect=}")
         return QtCore.QSize(int(maxsize*self.aspect), maxsize)
     def sizePolicy(self):
         policy = QSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Maximum)
@@ -267,7 +263,7 @@ if __name__ == "__main__":
     image_display.showTest()
     #image_display.add_ROI()
     #image_display.remove_ROI()
-    image_display.add_double_line()
+    #image_display.add_double_lines()
     image_display.show()
     
     pg.exec()

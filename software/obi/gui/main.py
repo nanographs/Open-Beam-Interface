@@ -36,7 +36,7 @@ class ScanControlWidget(QDockWidget):
         )
         self.inner = CombinedScanControls()
         self.setWidget(self.inner)
-
+        
 class BeamStateWidget(QDockWidget):
     def __init__(self, conn, beams):
         super().__init__(
@@ -188,10 +188,15 @@ class Window(QMainWindow):
     async def toggle_live_scan(self):
         self.scan_control.inner.live.start_btn.to_live_state(self.fb.abort_scan)
         self.ensure_unique_control(self.scan_control.inner.live)
+
+        await self.conn.transfer(ExternalCtrlCommand(enable=True))
         
         while not self.fb.is_aborted:
             resolution, dwell_time = self.scan_control.inner.live.getval()
             await self.capture_frame(resolution, dwell_time)
+        
+        # if locked:
+        await self.conn.transfer(ExternalCtrlCommand(enable=self.beam_control.inner.ext.isChecked()))
         
         self.scan_control.inner.live.start_btn.to_paused_state(self.toggle_live_scan)
         self.enable_all_controls()

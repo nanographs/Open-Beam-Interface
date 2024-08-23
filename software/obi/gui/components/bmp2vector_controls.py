@@ -114,6 +114,7 @@ class CombinedPatternControls(QWidget):
         self.controls.write_btn.clicked.connect(self.write_pattern)
 
         layout = QVBoxLayout()
+        layout.setSpacing(1)
         layout.addLayout(self.importer)
         layout.addWidget(QHLine())
         layout.addLayout(self.params)

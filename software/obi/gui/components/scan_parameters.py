@@ -117,6 +117,7 @@ class CombinedScanControls(QWidget):
     def __init__(self):
         super().__init__()
         layout = QVBoxLayout()
+        layout.setSpacing(1)
 
         self.live = LiveScanControls()
         self.photo = PhotoScanControls()
