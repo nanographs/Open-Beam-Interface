@@ -5,11 +5,34 @@ import os
 
 @dataclass
 class MagCal:
+    """
+    A collection of magnification calibration points
+
+    Properties
+        path (str): Path to .csv file containing calibration record
+        m_per_fov(dict): Map of magnifications and corresponding field of view measurements
+    """
     path:str
     m_per_fov: dict
 
     @classmethod
     def from_csv(cls, path:str):
+        """
+        Create a new MagCal object from a .csv file. 
+        The .csv file must be in the format saved by the Magnification Calibration GUI:
+        ```
+        Beam, {beam type}
+        Date, {datetime}
+        Magnification, FOV size
+        {magnification}, {fov size}
+        ```
+
+        Args:
+            path (str): Path to .csv file containing calibration record
+
+        Returns:
+            MagCal
+        """
         mag_cal_dict = {}
         with open(path,"r") as f:
             data = f.read().split('\n')
@@ -23,6 +46,13 @@ class MagCal:
         )
     
     def to_csv(self):
+        """
+        Format data suitably for saving for a csv file.
+        Data must be processed by adding a suitable header before saving.
+
+        Returns:
+            str
+        """
         s = "Magnification,FOV (m)"
         for k, v in self.m_per_fov.items():
             s += f"\n{k},{v}"
@@ -31,6 +61,14 @@ class MagCal:
 
 @dataclass
 class Pinout:
+    """
+    Pinout for the digital IO available in Glasgow ports A and B.
+
+    Properties:
+        scan_enable (list): Pins that when active cause the OBI scan signal to override a microscope's internal scan signal
+        blank_enable (list): Pins that when active cause the OBI blanking signal to override a microscope's internal blank signal
+        blank: (list): Pins that when active (and enabled by blank_enable) cause a beam to blank
+    """
     scan_enable: list[int]
     blank_enable: list[int]
     blank: list[int]
@@ -116,8 +154,11 @@ class ScopeSettings:
         from tomlkit.toml_file import TOMLFile
         toml_file = TOMLFile(path)
         toml = toml_file.read()
-        toml["beam"]["electron"].update({"type": BeamType.Electron})
-        toml["beam"]["ion"].update({"type": BeamType.Ion})
+        if "beam" in toml:
+            if "electron" in toml["beam"]:
+                toml["beam"]["electron"].update({"type": BeamType.Electron})
+            if "ion" in toml["beam"]:
+                toml["beam"]["ion"].update({"type": BeamType.Ion})
         return cls.from_dict(toml)
     
     def to_toml_file(self, path="microscope.toml"):
