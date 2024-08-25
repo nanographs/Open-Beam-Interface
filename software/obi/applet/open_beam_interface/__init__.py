@@ -363,6 +363,14 @@ class FastBusController(wiring.Component):
 #=========================================================================
 
 class Supersampler(wiring.Component):
+    """
+    In:
+        dac_stream: X and Y DAC codes and dwell time
+        super_adc_stream: ADC sample value and `last` signal
+    Out:
+        super_dac_stream: X and Y DAC codes and `last` signal
+        adc_stream: Averaged ADC sample value
+    """
     dac_stream: In(StreamSignature(DACStream))
 
     adc_stream: Out(StreamSignature(data.StructLayout({
@@ -468,6 +476,18 @@ class RasterRegion(data.Struct):
 
 
 class RasterScanner(wiring.Component):
+    """_summary_
+
+    Properties:
+        FRAC_BITS: number of fixed fractional bits in accumulators
+
+    In:
+        roi_stream: A RasterRegion provided by a RasterScanCommand
+        dwell_stream: A dwell time value provided by one of the RasterPixel commands
+        abort: Interrupt the scan in progress and fetch the next ROI from `roi_stream`
+    Out:
+        dac_stream: X and Y DAC codes and a dwell time
+    """
     FRAC_BITS = 8
 
     roi_stream: In(StreamSignature(RasterRegion))
