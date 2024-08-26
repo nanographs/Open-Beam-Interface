@@ -8,12 +8,13 @@ BIG_ENDIAN = (struct.pack('@H', 0x1234) == struct.pack('>H', 0x1234))
 
 class RasterScanCommand(BaseCommand):
     def __init__(self, x_range: DACCodeRange, y_range: DACCodeRange, dwell_time:int, cookie: int,
-        output_mode:OutputMode=OutputMode.SixteenBit):
+        output_mode:OutputMode=OutputMode.SixteenBit, frame_blank=True):
         self._x_range = x_range
         self._y_range = y_range
         self._dwell = dwell_time
         self._cookie = cookie
         self._output_mode = output_mode
+        self.frame_blank = frame_blank
         self.abort = asyncio.Event()
     
     def __repr__(self):
@@ -32,15 +33,19 @@ class RasterScanCommand(BaseCommand):
 
         pixel_count = 0
         total_dwell = 0
-        for _ in range(self._x_range.count * self._y_range.count):
+        for n in range(self._x_range.count * self._y_range.count):
             pixel_count += 1
             total_dwell += self._dwell
             if total_dwell >= latency:
                 append_command(pixel_count)
+                ## blank at the end of the last pixel
+                if self.frame_blank and n + 1 == self._x_range.count * self._y_range.count:
+                    commands.extend(bytes(BlankCommand(enable=True, inline=False)))
                 yield(commands, pixel_count)
                 commands = bytearray()
                 pixel_count = 0
                 total_dwell = 0
+
         if pixel_count > 0:
             append_command(pixel_count)
             yield(commands, pixel_count)
@@ -60,6 +65,9 @@ class RasterScanCommand(BaseCommand):
                 if tokens == 0:
                     await FlushCommand().transfer(stream)
                     await token_fut
+                if self.frame_blank and self.abort.is_set():
+                    ## go to a blanked state after an aborted frame
+                    commands.extend(bytes(BlankCommand(enable=True, inline=False)))
                 await stream.write(commands)
                 tokens -= 1
                 if self.abort.is_set():
@@ -83,7 +91,7 @@ class RasterScanCommand(BaseCommand):
                     break
             self._logger.debug(f"recver: tokens={tokens}")
             yield await self.recv_res(pixel_count, stream, self._output_mode)
-        await BlankCommand(enable=True, inline=False).transfer(stream)
+        ## fly back
         await VectorPixelCommand(x_coord=self._x_range.start, y_coord=self._y_range.start, dwell_time=1).transfer(stream)
 
 
