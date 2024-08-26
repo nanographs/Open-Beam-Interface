@@ -48,7 +48,7 @@ class TCPStream(Stream):
         return memoryview(buffer)
     
     #TODO: figure out if flush and max_count can be added back here
-    async def readuntil(self, separator=b'\n', *) -> memoryview:
+    async def readuntil(self, separator=b'\n') -> memoryview:
         return await self._reader.readuntil(separator)
 
     async def xchg(self, data: bytes | bytearray | memoryview, *, recv_length: int) -> bytes:
