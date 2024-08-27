@@ -165,8 +165,8 @@ class FrameBuffer():
     def _set_current_frame(self, x_res:int, y_res:int):
         """
         Called when scan settings have been changed. 
-        If the buffer contains an existing Frame as current_frame, and that \
-        frame has the same resolution as x_res and y_res, then keep the current frame \
+        If the buffer contains an existing Frame as current_frame, and that 
+        frame has the same resolution as x_res and y_res, then keep the current frame 
         but reset the Y pointer to the top of the frame.
         Otherwise, generate a new frame and assign to current_frame.
 
@@ -277,7 +277,7 @@ class FrameBuffer():
             pass
         return self.current_frame
 
-        async def capture_frame_roi(self, *, x_res:int, y_res:int, x_start:int, x_count:int, y_start:int, y_count:int, **kwargs):
+    async def capture_frame_roi(self, *, x_res:int, y_res:int, x_start:int, x_count:int, y_start:int, y_count:int, **kwargs):
         """Scan and capture data into a selected region of a frame
 
         Args:
