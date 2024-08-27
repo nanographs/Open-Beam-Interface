@@ -199,11 +199,11 @@ class OBIAppletTestCase(unittest.TestCase):
         # TODO: figure out why 16383 flips to 1 and not 0
         dut = Flippenator()
 
-        def test_xflip():
+        def test_xflip(xin:int, xout:int):
             async def put_testbench(ctx):
                 ctx.set(dut.transforms.xflip, 1)
                 await put_stream(ctx, dut.in_stream, {
-                    "dac_x_code": 1,
+                    "dac_x_code": xin,
                     "dac_y_code": 16383,
                     "last": 1,
                     "blank": {
@@ -213,7 +213,7 @@ class OBIAppletTestCase(unittest.TestCase):
                 })
             async def get_testbench(ctx):
                 await get_stream(ctx, dut.out_stream, {
-                    "dac_x_code": 16383,
+                    "dac_x_code": xout,
                     "dac_y_code": 16383,
                     "last": 1,
                     "blank": {
@@ -221,38 +221,14 @@ class OBIAppletTestCase(unittest.TestCase):
                         "request": 1
                     }
                 })
-            self.simulate(dut, [get_testbench,put_testbench], name="flippenator_xflip")  
+            self.simulate(dut, [get_testbench,put_testbench], name=f"flippenator_xflip_in_{str(xin)}_out_{str(xout)}")  
 
-        def test_xflip_2():
-            async def put_testbench(ctx):
-                ctx.set(dut.transforms.xflip, 1)
-                await put_stream(ctx, dut.in_stream, {
-                    "dac_x_code": 2,
-                    "dac_y_code": 16383,
-                    "last": 1,
-                    "blank": {
-                        "enable": 1,
-                        "request": 1
-                    }
-                })
-            async def get_testbench(ctx):
-                await get_stream(ctx, dut.out_stream, {
-                    "dac_x_code": 16382,
-                    "dac_y_code": 16383,
-                    "last": 1,
-                    "blank": {
-                        "enable": 1,
-                        "request": 1
-                    }
-                })
-            self.simulate(dut, [get_testbench,put_testbench], name="flippenator_xflip_2")  
-        
-        def test_yflip():
+        def test_yflip(yin:int, yout:int):
             async def put_testbench(ctx):
                 ctx.set(dut.transforms.yflip, 1)
                 await put_stream(ctx, dut.in_stream, {
                     "dac_x_code": 1,
-                    "dac_y_code": 16383,
+                    "dac_y_code": yin,
                     "last": 1,
                     "blank": {
                         "enable": 1,
@@ -262,37 +238,15 @@ class OBIAppletTestCase(unittest.TestCase):
             async def get_testbench(ctx):
                 await get_stream(ctx, dut.out_stream, {
                     "dac_x_code": 1,
-                    "dac_y_code": 1,
+                    "dac_y_code": yout,
                     "last": 1,
                     "blank": {
                         "enable": 1,
                         "request": 1
                     }
                 })
-            self.simulate(dut, [get_testbench,put_testbench], name="flippenator_yflip") 
-        def test_yflip_2():
-            async def put_testbench(ctx):
-                ctx.set(dut.transforms.yflip, 1)
-                await put_stream(ctx, dut.in_stream, {
-                    "dac_x_code": 1,
-                    "dac_y_code": 16382,
-                    "last": 1,
-                    "blank": {
-                        "enable": 1,
-                        "request": 1
-                    }
-                })
-            async def get_testbench(ctx):
-                await get_stream(ctx, dut.out_stream, {
-                    "dac_x_code": 1,
-                    "dac_y_code": 2,
-                    "last": 1,
-                    "blank": {
-                        "enable": 1,
-                        "request": 1
-                    }
-                })
-            self.simulate(dut, [get_testbench,put_testbench], name="flippenator_yflip_2") 
+            self.simulate(dut, [get_testbench,put_testbench], name=f"flippenator_yflip_in_{str(yin)}_out_{str(yout)}")  
+
         def test_rot90():
             async def put_testbench(ctx):
                 ctx.set(dut.transforms.rotate90, 1)
@@ -316,9 +270,14 @@ class OBIAppletTestCase(unittest.TestCase):
                     }
                 })
             self.simulate(dut, [get_testbench,put_testbench], name="flippenator_rot90")  
-        test_xflip()
-        test_xflip_2()
-        test_yflip()
+        test_xflip(16383, 0)
+        test_xflip(0, 16383)
+        test_xflip(16382, 1)
+        test_xflip(1, 16382)
+        test_yflip(16383, 0)
+        test_yflip(0, 16383)
+        test_yflip(16382, 1)
+        test_yflip(1, 16382)
         test_rot90()
 
     # Raster Scanner

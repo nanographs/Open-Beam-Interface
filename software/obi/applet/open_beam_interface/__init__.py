@@ -153,8 +153,8 @@ class Flippenator(wiring.Component):
         with m.If(~self.out_stream.valid | (self.out_stream.valid & self.out_stream.ready)):
             m.d.comb += a.eq(Mux(self.transforms.rotate90, self.in_stream.payload.dac_y_code, self.in_stream.payload.dac_x_code))
             m.d.comb += b.eq(Mux(self.transforms.rotate90, self.in_stream.payload.dac_x_code, self.in_stream.payload.dac_y_code))
-            m.d.sync += self.out_stream.payload.dac_x_code.eq(Mux(self.transforms.xflip, -a, a)) #>> xscale)
-            m.d.sync += self.out_stream.payload.dac_y_code.eq(Mux(self.transforms.yflip, -b, b)) #>> yscale)
+            m.d.sync += self.out_stream.payload.dac_x_code.eq(Mux(self.transforms.xflip, 16383-a, a)) #>> xscale)
+            m.d.sync += self.out_stream.payload.dac_y_code.eq(Mux(self.transforms.yflip, 16383-b, b)) #>> yscale)
             m.d.sync += self.out_stream.payload.last.eq(self.in_stream.payload.last)
             m.d.sync += self.out_stream.payload.blank.eq(self.in_stream.payload.blank)
             m.d.sync += self.out_stream.valid.eq(self.in_stream.valid)
