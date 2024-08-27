@@ -58,6 +58,8 @@ class ADCTest(QVBoxLayout):
         self.conn = conn
         super().__init__()
 
+        self.y_btn = QPushButton("Y")
+        self.y_btn.setCheckable(True)
         self.scan_btn = QPushButton("scan")
         self.exp_btn = QPushButton("copy to clipboard 📋")
         self.scan_btn.clicked.connect(self.scan)
@@ -82,6 +84,7 @@ class ADCTest(QVBoxLayout):
         self.text.setPos(8000, 4000)
         self.text.setFont(QFont('Arial', 18)) 
 
+        self.addWidget(self.y_btn)
         self.addWidget(self.plot)
         self.addWidget(self.scan_btn)
         self.addWidget(self.exp_btn)
@@ -89,14 +92,17 @@ class ADCTest(QVBoxLayout):
     @asyncSlot()
     async def scan(self):
         if not self.start == None:
-            self.plot2.removeItem(self.start)
+            self.plot.removeItem(self.start)
         if not self.stop == None:
-            self.plot2.removeItem(self.stop)
+            self.plot.removeItem(self.stop)
         self.text.setText("")
         x = DACCodeRange.from_resolution(16384)
         y = DACCodeRange(start=8192, count=1, step=1)
         print(f"{x, y}")
-        cmd = RasterScanCommand(cookie=123,x_range=x, y_range=y, dwell_time=500)
+        if self.y_btn.isChecked():
+            cmd = RasterScanCommand(cookie=123,x_range=y, y_range=x, dwell_time=500)
+        else:
+            cmd = RasterScanCommand(cookie=123,x_range=x, y_range=y, dwell_time=500)
         ptr = 0
         self.scan_btn.setEnabled(False)
         async for chunk in self.conn.transfer_multiple(cmd, latency=16384):
@@ -141,7 +147,7 @@ class ADCTest(QVBoxLayout):
         self.scan_btn.setEnabled(True)
     
     def exp(self):
-        exporter = pg.exporters.ImageExporter(self.plot2.plotItem)
+        exporter = pg.exporters.ImageExporter(self.plot.plotItem)
         exporter.export("adc.png", copy=True)
     
 
@@ -190,8 +196,12 @@ class DACTest(QVBoxLayout):
     async def setvals(self):
         x_coord, y_coord = self.getvals()
         print(f"{x_coord=}, {y_coord=}")
-        data = await self.conn.transfer(VectorPixelCommand(
-            x_coord = x_coord, y_coord = y_coord, dwell_time=1))
+        cmd = VectorPixelCommand(x_coord = x_coord, y_coord = y_coord, dwell_time=100)
+        carray = bytearray()
+        for _ in range(16384):
+            carray.extend(bytes(cmd))
+        data = await self.conn.transfer(cmd)
+        #await self.conn.transfer_bytes(carray)
         self.adc_settings.field.setText(f"{data[0]}")
         self.data[:self.pts-1] = self.data[1:self.pts]
         self.data[self.pts-1] = data[0]
