@@ -252,7 +252,9 @@ class FrameBuffer():
 
             async for frame in slice_chunk():
                 yield frame
-
+        # in case none of the chunking yielded anything, reassign frame here  
+        #TODO: increase elegance here      
+        frame = self.current_frame
         self._logger.debug(f"end of scan: {len(res)} pixels in buffer")
         last_lines = len(res)//frame._x_count
         if last_lines > 0:
@@ -272,8 +274,9 @@ class FrameBuffer():
         Returns:
             Frame
         """
-        async for frame in self._capture_iter_fill(x_range=x_range, y_range=y_range, dwell_time=dwell_time,
-        latency=x_range.count*y_range.count*dwell_time, **kwargs):
+        self.current_frame=Frame.from_DAC_ranges(x_range, y_range)
+        async for frame in self._capture_frame_iter_fill(frame=self.current_frame,
+        x_range=x_range, y_range=y_range, dwell_time=dwell_time, latency=x_range.count*y_range.count*dwell_time, **kwargs):
             pass
         return self.current_frame
 

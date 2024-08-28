@@ -80,7 +80,7 @@ class RasterScanCommand(BaseCommand):
         asyncio.create_task(sender())
 
         cookie = await stream.read(4) #just assume these are exactly FFFF + cookie, and discard them
-        print(f"{str(list(cookie))=}")
+        ## TODO: assert against synchronization result
         for commands, pixel_count in self._iter_chunks(latency):
             tokens += 1
             if tokens == 1:
