@@ -1,5 +1,10 @@
+import struct
+import logging
+logger = logging.getLogger()
 
 from .stream import Stream, Connection
+from obi.launch import OBILauncher
+from obi.commands import *
 
 class GlasgowStream(Stream):
     def __init__(self, iface):
@@ -9,6 +14,8 @@ class GlasgowStream(Stream):
     async def flush(self):
         await self.lower.flush()
     async def read(self, length):
+        return await self.lower.read(length)
+    async def readexactly(self, length):
         return await self.lower.read(length)
     async def readuntil(self, separator=b'\n', *, flush=True, max_count=False):
         def find_sep(buffer, separator=b'\n', offset=0):
@@ -45,7 +52,9 @@ class GlasgowStream(Stream):
                     # to retrieve the data.
                     break
             else:
-                await self.lower._in_tasks.wait_one()
+                while len(self.lower._in_buffer) < len(separator):
+                    self._logger.debug("FIFO: need %d bytes", len(separator) - len(self.lower._in_buffer))
+                    await self.lower._in_tasks.wait_one()
 
             async with self.lower._in_pushback:
                 chunk = self.lower._in_buffer.read()
@@ -63,30 +72,34 @@ class GlasgowStream(Stream):
         return result
     
 
-
 class GlasgowConnection(Connection):
+    _logger = logger.getChild("Connection")
     def connect(self, stream):
         self._stream = stream
-    async def _synchronize(self):
-        print("synchronizing")
-        if self.synchronized:
-            print("already synced")
-            return
 
-        print("not synced")
-        cookie, self._next_cookie = self._next_cookie, (self._next_cookie + 2) & 0xffff # even cookie
-        #self._logger.debug(f'synchronizing with cookie {cookie:#06x}')
-        print("synchronizing with cookie")
+    async def _connect(self):
+        assert not self.connected
+        self._stream = GlasgowStream(await OBILauncher.launch_direct())
 
-        cmd = bytearray()
-        cmd.extend(bytes(SynchronizeCommand(raster=True, output=OutputMode.SixteenBit, cookie=cookie)))
-        cmd.extend(bytes(FlushCommand()))
-        await self._stream.write(cmd)
-        await self._stream.flush()
-        res = struct.pack(">HH", 0xffff, cookie)
-        data = await self._stream.readuntil(res)
-        #data = await self.stream.read(4)
-        print(str(list(data)))
+    # async def _synchronize(self):
+    #     if not self.connected:
+    #         await self._connect()
+    #     if self.synchronized:
+    #         self._logger.debug("already synced")
+    #         return
+
+    #     cookie, self._next_cookie = self._next_cookie, (self._next_cookie + 2) & 0xffff # even cookie
+    #     self._logger.debug(f'synchronizing with cookie {cookie:#06x}')
+
+    #     cmd = bytearray()
+    #     cmd.extend(bytes(SynchronizeCommand(raster=True, output=OutputMode.SixteenBit, cookie=cookie)))
+    #     cmd.extend(bytes(FlushCommand()))
+    #     await self._stream.write(cmd)
+    #     #await self._stream.flush()
+    #     res = struct.pack(">HH", 0xffff, cookie)
+    #     data = await self._stream.readuntil(res)
+    #     #data = await self.stream.read(4)
+    #     print(str(list(data)))
 
     async def transfer(self, command, flush:bool = False, **kwargs):
         return await super().transfer(command, flush=flush, **kwargs)

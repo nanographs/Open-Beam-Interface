@@ -7,6 +7,7 @@ import logging
 logger = logging.getLogger()
 from . import *
 
+from obi.commands import *
 
 class TransferError(Exception):
     pass
@@ -48,18 +49,35 @@ class Connection(metaclass = ABCMeta):
         """`True` if the instrument is ready to accept commands, `False` otherwise."""
         return self._synchronized
     
-    # @abstractmethod
-    # async def _connect(self):
-    #     ...
-    
-    # def _disconnect(self):
-    #     assert self.connected
-    #     self._stream = None
-    #     self._synchronized = False
-    
     @abstractmethod
-    async def _synchronize(self):
+    async def _connect(self):
         ...
+    
+    def _disconnect(self):
+        assert self.connected
+        self._stream = None
+        self._synchronized = False
+    
+    # @abstractmethod
+    # async def _synchronize(self):
+    #     ...
+
+    async def _synchronize(self):
+        if not self.connected:
+            await self._connect()
+        if self.synchronized:
+            self._logger.debug("already synced")
+            return
+
+        cookie, self._next_cookie = self._next_cookie, (self._next_cookie + 2) & 0xffff # even cookie
+        self._logger.debug(f'synchronizing with cookie {cookie:#06x}')
+
+        cmd = bytearray()
+        cmd.extend(bytes(SynchronizeCommand(raster=True, output=OutputMode.SixteenBit, cookie=cookie)))
+        cmd.extend(bytes(FlushCommand()))
+        await self._stream.write(cmd)
+        res = struct.pack(">HH", 0xffff, cookie)
+        data = await self._stream.readuntil(res)
     
     def _handle_incomplete_read(self, exc):
         self._disconnect()
@@ -82,7 +100,8 @@ class Connection(metaclass = ABCMeta):
     async def transfer_multiple(self, command, **kwargs):
         self._logger.debug(f"transfer multiple {command!r}")
         try:
-            await self._synchronize() # may raise asyncio.IncompleteReadError
+            if not self.synchronized:
+                await self._synchronize() # may raise asyncio.IncompleteReadError
             self._logger.debug(f"synchronize transfer_multiple")
             async for value in command.transfer(self._stream, **kwargs):
                 yield value

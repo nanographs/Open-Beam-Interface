@@ -86,44 +86,9 @@ class TCPConnection(Connection):
         peername = self._stream._writer.get_extra_info('peername')
         self._logger.info(f"connected to server at {peername}")
 
-    def _disconnect(self):
-        assert self.connected
-        self._stream = None
-        self._synchronized = False
-
     def _interrupt_scan(self):
         print(f'Scan interrupted externally')
         self._interrupt.set()
-
-
-    async def _synchronize(self):
-        if not self.connected:
-            await self._connect()
-        if self.synchronized:
-            self._logger.debug("already synced")
-            return
-
-        cookie, self._next_cookie = self._next_cookie, (self._next_cookie + 2) & 0xffff # even cookie
-        self._logger.debug(f'synchronizing with cookie {cookie:#06x}')
-        
-        await self._stream.write(bytes(SynchronizeCommand(cookie=cookie, output=OutputMode.SixteenBit, raster=False)))
-        res = struct.pack('>HH', 65535, cookie)
-        while True:
-            self._logger.debug("trying to synchronize...")
-            try:
-                flushed = await self._stream._reader.readuntil(res)
-                self._logger.debug(f"synchronized after {len(flushed)} bytes")
-                self._synchronized = True
-                break
-            except asyncio.LimitOverrunError:
-                self._logger.debug("LimitOverrunError")
-                # If we're here, it means the read buffer has exactly `self.read_buffer_size` bytes
-                # in it (set by the `open_connection(limit=)` argument). A partial response could
-                # still be at the very end of the buffer, so read less than that.
-                await self._stream._reader.readexactly(self.read_buffer_size - len(res))
-            except Exception as e:
-                print(f"sync error: {e}")
-
 
     def _handle_incomplete_read(self, exc):
         self._disconnect()
