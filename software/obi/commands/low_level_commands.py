@@ -228,10 +228,23 @@ all_commands = [SynchronizeCommand,
                 VectorPixelCommand,
                 VectorPixelMinDwellCommand]
 
+
+
+
 class Command(data.Struct):
+    """
+    The layout of cmd_stream (which is producedby CommandParser and consumed by CommandExecutor)
+
+    Fields:
+        type: CmdType
+        payload: a Union Layout of all LowLevelCommands
+
+    Properties:
+        deserialized_states: A dictionary mapping each command type to a list of states corresponding to
+        each subsequent byte of the command.
+    """
     type: CmdType
     payload: data.UnionLayout({cmd.fieldstr: cmd.as_struct_layout() for cmd in all_commands})
-
     deserialized_states = {cmd.cmdtype : 
             {f"{cmd.fieldstr}_{state}":offset for state, offset in cmd.bytelayout.as_deserialized_states().items()} 
             for cmd in all_commands}
