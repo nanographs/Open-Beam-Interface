@@ -46,7 +46,7 @@ gui.cmd = "python -m obi.gui.main"
 build.cmd = "glasgow -vv build --rev C3 open_beam_interface --pins-ebeam-scan-enable 0 --pins-ebeam-blank-enable 1 --pins-ebeam-blank 2,3"
 build.env = {AMARANTH_verbose = "1"}
 ## unit tests
-test.cmd = "python -m unittest test"
+test.cmd = "python -m unittest"
 [tool.pdm.dev-dependencies]
 dev = [
     "rich>=13.7.1",
