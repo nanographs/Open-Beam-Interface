@@ -8,7 +8,7 @@ class MockStream(Stream):
     _logger = logger.getChild("Stream")
 
     async def write(self, data: bytes | bytearray | memoryview):
-        print(f"write {dump_hex(data)}")
+        self._logger.debug(f"write {dump_hex(data)}")
 
     async def flush(self):
         pass

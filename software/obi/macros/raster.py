@@ -52,7 +52,7 @@ class RasterScanCommand(BaseCommand):
 
     @BaseCommand.log_transfer
     async def transfer(self, stream, *, latency:int=65536*65536):
-        print(f"transfer - {latency=}")
+        self._logger.debug(f"transfer - {latency=}")
         MAX_PIPELINE = 32
 
         tokens = MAX_PIPELINE
