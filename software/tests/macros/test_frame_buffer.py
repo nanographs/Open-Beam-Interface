@@ -21,6 +21,17 @@ class FrameTest(unittest.TestCase):
         f = Frame.from_DAC_ranges(x_range=test_range, y_range=test_range)
         test_pixels = array.array('H', [x for x in range(2048)]*2048)
         f.fill(test_pixels)
+    def test_fill_lines(self):
+        test_range = DACCodeRange.from_resolution(2048)
+        f = Frame.from_DAC_ranges(x_range=test_range, y_range=test_range)
+        test_pixels = array.array('H', [x for x in range(2048)]*2000)
+        f.fill_lines(test_pixels)
+        self.assertEqual(f.y_ptr, 2000)
+        test_pixels = array.array('H', [x for x in range(2048)]*48)
+        f.fill_lines(test_pixels)
+        self.assertEqual(f.y_ptr, 2048)
+        f.fill_lines(test_pixels)
+        self.assertEqual(f.y_ptr, 48)
 
 class FrameBufferTest(unittest.TestCase):
     def test_something(self):
