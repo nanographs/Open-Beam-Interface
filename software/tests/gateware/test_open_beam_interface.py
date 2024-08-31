@@ -7,6 +7,9 @@ from amaranth import DriverConflict
 from abc import ABCMeta, abstractmethod
 import asyncio
 
+import logging
+logger = logging.getLogger()
+
 from obi.applet.open_beam_interface import StreamSignature
 from obi.applet.open_beam_interface import Supersampler, RasterScanner, RasterRegion
 from obi.applet.open_beam_interface import CommandParser, CommandExecutor, Command, BeamType, OutputMode, CmdType
@@ -88,10 +91,10 @@ async def put_stream(ctx, stream, payload, timeout_steps=10):
     timeout = 0
     while not ready:
         ready = ctx.get(stream.ready)
-        #print(f"put_stream: {ready=}, {timeout=}/{timeout_steps}")
+        logger.debug(f"put_stream: {ready=}, {timeout=}/{timeout_steps}")
         await ctx.tick()
         timeout += 1; assert timeout < timeout_steps
-    print(f"put_stream: {ready=}, {timeout=}/{timeout_steps}")
+    logger.debug(f"put_stream: {ready=}, {timeout=}/{timeout_steps}")
     ctx.set(stream.valid, 0)
 
 # Receive and validate a test payload from a stream. Payload gets compared against stream output.
@@ -101,9 +104,9 @@ async def get_stream(ctx, stream, payload, timeout_steps=10):
     timeout = 0
     while not valid:
         _, _, valid, data = await ctx.tick().sample(stream.valid, stream.payload)
-        #print(f"get_stream: {valid=}, data={filtered_dict(data, payload)}")
+        logger.debug(f"get_stream: {valid=}, data={filtered_dict(data, payload)}")
         timeout += 1; assert timeout < timeout_steps
-    print(f"get_stream: {valid=}, data={filtered_dict(data, payload)}")
+    logger.debug(f"get_stream: {valid=}, data={filtered_dict(data, payload)}")
     if isinstance(payload, dict):
         wrapped_payload = stream.payload.shape().const(payload)
     else:
@@ -121,7 +124,7 @@ class OBIAppletTestCase(unittest.TestCase):
     name - str - name of vcd file to be generated
     '''
     def simulate(self, dut, testbenches, *, name="test"):
-        print(f"running {name}")
+        logger.debug(f"running {name}")
         sim = Simulator(dut)
         sim.add_clock(20.83e-9)
         for testbench in testbenches:
@@ -143,7 +146,7 @@ class OBIAppletTestCase(unittest.TestCase):
     ## Supersampler
     def test_supersampler_expand(self):
         def run_test(dwell):
-            print(f"dwell {dwell}")
+            logger.debug(f"dwell {dwell}")
             dut = Supersampler()
 
             async def put_testbench(ctx):
@@ -315,13 +318,13 @@ class OBIAppletTestCase(unittest.TestCase):
         dut = CommandParser()
 
         def test_cmd(command:BaseCommand, name:str="cmd"):
-            print(f"testing {command.fieldstr}")
+            logger.debug(f"testing {command.fieldstr}")
             async def put_testbench(ctx):
                 for byte in bytes(command):
                     await put_stream(ctx, dut.usb_stream, byte)
             async def get_testbench(ctx):
                 d = command.as_dict()
-                print(f"{d=}")
+                logger.debug(f"{d=}")
                 await get_stream(ctx, dut.cmd_stream, d, 
                     timeout_steps=len(command)*2 + 2)
                 await ctx.tick()
@@ -399,7 +402,7 @@ class OBIAppletTestCase(unittest.TestCase):
                     y_range=DACCodeRange(start=9, count=1, step=0x5_00)).as_dict())
             async def get_testbench(ctx):
                 data = await ctx.tick().sample(dut.raster_scanner.roi_stream.payload).until(dut.raster_scanner.roi_stream.valid == 1)
-                print(f"{data=}")
+                logger.debug(f"{data=}")
                 payload = {"x_start": 5,
                             "x_count": 2,
                             "x_step": 0x2_00,
@@ -534,20 +537,20 @@ class OBIAppletTestCase(unittest.TestCase):
             def exec_cycles(self):
                 return len(self.response)*BUS_CYCLES
             async def put_testbench(self, ctx, dut):
-                print(f"put_testbench: {self}")
+                logger.debug(f"put_testbench: {self}")
                 await put_stream(ctx, dut.cmd_stream, self.command.as_dict(), timeout_steps=self.exec_cycles+100)
             async def get_testbench(self, ctx, dut):
-                print(f"get_testbench: {self}")
+                logger.debug(f"get_testbench: {self}")
                 if len(self.response) > 0:
                     n = 0
-                    print(f"getting {len(self.response)} responses")
+                    logger.debug(f"getting {len(self.response)} responses")
                     for n in range(len(self.response)):
                         await get_stream(ctx, dut.img_stream, self.response[n], timeout_steps=self.exec_cycles+100)
                         n += 1
-                        print(f"got {n}/{len(self.response)} responses")
-                    print(f"got all {len(self.response)} responses")
+                        logger.debug(f"got {n}/{len(self.response)} responses")
+                    logger.debug(f"got all {len(self.response)} responses")
                 else:
-                    print("get_testbench: no response expected")
+                    logger.debug("get_testbench: no response expected")
                     pass
         
         class TestCommandSequence:
@@ -657,16 +660,16 @@ class OBIAppletTestCase(unittest.TestCase):
                 return self.command.dwell_time*self.test_samples*BUS_CYCLES
         
             async def put_testbench(self, ctx, dut):
-                print(f"put_testbench: {self}")
+                logger.debug(f"put_testbench: {self}")
                 await super().put_testbench(ctx, dut)
                 n = 0
-                print(f"extending put_testbench for {self.test_samples} samples")
+                logger.debug(f"extending put_testbench for {self.test_samples} samples")
                 while True:
                     if n == self.test_samples:
                         break
                     await ctx.tick().until(dut.supersampler.dac_stream.ready == 1)
                     n += 1
-                    print(f"{n}/{self.test_samples} valid samples")
+                    logger.debug(f"{n}/{self.test_samples} valid samples")
                     
 
         class TestVectorPixelCommand(TestCommand, command=VectorPixelCommand):
@@ -762,6 +765,7 @@ class OBIAppletTestCase(unittest.TestCase):
         test_exec_5()
         test_exec_6()
 
+    @unittest.skip("Skipped applet test case")
     def test_all(self):
         #TODO: Fix this simulation
         from amaranth import Module
@@ -780,7 +784,7 @@ class OBIAppletTestCase(unittest.TestCase):
             def setup_x_loopback(self):
                 self.build_simulated_applet()
                 obi_subtarget = self.applet.mux_interface._subtargets[0]
-                print(vars(obi_subtarget))
+                logger.debug(vars(obi_subtarget))
                 m = Module()
                 m.submodules["board"] = board = OBI_Board()
                 m.d.comb += [

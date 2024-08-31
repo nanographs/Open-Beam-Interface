@@ -2,6 +2,9 @@ import unittest
 import array
 import asyncio
 
+import logging
+logger = logging.getLogger()
+
 from obi.macros import RasterScanCommand
 from obi.commands import DACCodeRange
 
@@ -18,7 +21,7 @@ class RasterScanTest(unittest.TestCase):
         conn = MockConnection()
         await conn._connect()
         async for chunk in conn.transfer_multiple(test_cmd, latency=65536):
-            print(f"{dump_hex(chunk)}")
+            logger.debug(f"{dump_hex(chunk)}")
     def test_scan(self):
         asyncio.run(self.scan())
 
