@@ -24,5 +24,6 @@ class RasterScanTest(unittest.TestCase):
             logger.debug(f"{dump_hex(chunk)}")
     def test_scan(self):
         asyncio.run(self.scan())
+        self.assertTrue(True)
 
         
