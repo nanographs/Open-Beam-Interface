@@ -79,6 +79,7 @@ class OBILauncher:
         if interact:
             await applet.interact(device, args, iface)
         else:
+            await iface.reset()
             return iface
 
 if __name__ == "__main__":
