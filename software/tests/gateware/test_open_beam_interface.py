@@ -436,33 +436,76 @@ class OBIAppletTestCase(unittest.TestCase):
 
             async def put_testbench(ctx):
                 await put_stream(ctx, dut.cmd_stream, 
+                    RasterRegionCommand(x_range=DACCodeRange(start=5, count=2, step=0x2_00),
+                    y_range=DACCodeRange(start=9, count=2, step=0x5_00)).as_dict())
+                await put_stream(ctx, dut.cmd_stream, 
                 RasterPixelRunCommand(length=2, dwell_time=1).as_dict())
 
             async def get_testbench(ctx):
+                data = await ctx.tick().sample(dut.raster_scanner.roi_stream.payload).until(dut.raster_scanner.roi_stream.valid == 1)
+                logger.debug(f"{data=}")
+                payload = {"x_start": 5,
+                            "x_count": 2,
+                            "x_step": 0x2_00,
+                            "y_start": 9,
+                            "y_count": 2,
+                            "y_step": 0x5_00}
+                wrapped_payload = dut.raster_scanner.roi_stream.payload.shape().const(payload)
+                assert data[0] == wrapped_payload,  f"{prettier_diff(data[0], payload)}"
                 async def get_stream(ctx, stream, payload):
-                    res = await ctx.tick().sample(stream.payload).until(dut.raster_scanner.dwell_stream.valid == 1)
+                    res = await ctx.tick().sample(stream.payload).until(dut.supersampler.dac_stream.ready & dut.supersampler.dac_stream.valid)
                     wrapped_payload = stream.payload.shape().const(payload)
-                    assert res[0] == wrapped_payload,  f"{res[0]} != {wrapped_payload}"
+                    assert res[0] == wrapped_payload,  f"{prettier_diff(res[0], payload)}"
 
-                await get_stream(ctx, dut.raster_scanner.dwell_stream,  {
-                    "dwell_time": 1,
-                    "blank": {
-                        "enable": 0,
-                        "request": 0
-                    }})
-                await get_stream(ctx, dut.raster_scanner.dwell_stream,  {
-                    "dwell_time": 1,
-                    "blank": {
-                        "enable": 0,
-                        "request": 0
-                    }})
+                for _ in range(2):
+                    await get_stream(ctx, dut.raster_scanner.dwell_stream,  {
+                        "dwell_time": 1,
+                        "blank": {
+                            "enable": 0,
+                            "request": 0
+                        }})
 
             self.simulate(dut, [get_testbench,put_testbench], name = "exec_rasterpixelrun")  
+        
+        from obi.commands.low_level_commands import RasterPixelFillCommand
+        def test_rasterpixelfill_exec():
+            async def put_testbench(ctx):
+                await put_stream(ctx, dut.cmd_stream, 
+                    RasterRegionCommand(x_range=DACCodeRange(start=5, count=2, step=0x2_00),
+                    y_range=DACCodeRange(start=9, count=2, step=0x5_00)).as_dict())
+                await put_stream(ctx, dut.cmd_stream, 
+                RasterPixelFillCommand(dwell_time=1).as_dict())
+
+            async def get_testbench(ctx):
+                data = await ctx.tick().sample(dut.raster_scanner.roi_stream.payload).until(dut.raster_scanner.roi_stream.valid == 1)
+                logger.debug(f"{data=}")
+                payload = {"x_start": 5,
+                            "x_count": 2,
+                            "x_step": 0x2_00,
+                            "y_start": 9,
+                            "y_count": 2,
+                            "y_step": 0x5_00}
+                wrapped_payload = dut.raster_scanner.roi_stream.payload.shape().const(payload)
+                assert data[0] == wrapped_payload,  f"{prettier_diff(data[0], payload)}"
+                async def get_stream(ctx, stream, payload):
+                    res = await ctx.tick().sample(stream.payload).until(dut.supersampler.dac_stream.ready & dut.supersampler.dac_stream.valid)
+                    wrapped_payload = stream.payload.shape().const(payload)
+                    assert res[0] == wrapped_payload,  f"{prettier_diff(res[0], payload)}"
+                for _ in range(2*2):
+                    await get_stream(ctx, dut.raster_scanner.dwell_stream,  {
+                        "dwell_time": 1,
+                        "blank": {
+                            "enable": 0,
+                            "request": 0
+                        }})
+            self.simulate(dut, [get_testbench,put_testbench], name = "exec_rasterpixelfill")  
+
 
         test_sync_exec()
         test_rasterregion_exec()
         test_rasterpixel_exec()
         test_rasterpixelrun_exec()
+        test_rasterpixelfill_exec()
 
     def test_blanking(self):
         dut = CommandExecutor()
