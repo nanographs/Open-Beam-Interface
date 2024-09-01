@@ -845,7 +845,21 @@ class CommandExecutor(wiring.Component):
                                 m.next = "Fetch"
                             with m.Else():
                                 m.d.sync += run_length.eq(run_length + 1)
+                    
+                    with m.Case(CmdType.RasterPixelFill):
+                        m.d.comb += raster_mode.eq(1)
+                        with m.If(self.raster_scanner.dwell_stream.ready):
+                            m.d.comb += submit_pixel.eq(1)
+                        with m.If(self.raster_scanner.roi_stream.ready):
+                            m.next = "Fetch"
+                        with m.Else():
+                            m.d.comb += [
+                                self.raster_scanner.dwell_stream.valid.eq(1),
+                                self.raster_scanner.dwell_stream.payload.dwell_time.eq(command.payload.raster_pixel_fill.dwell_time),
+                                self.raster_scanner.dwell_stream.payload.blank.eq(sync_blank)
+                            ]
 
+                            
                     with m.Case(CmdType.RasterPixelFreeRun):
                         m.d.comb += raster_mode.eq(1)
                         m.d.comb += [
