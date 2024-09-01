@@ -10,8 +10,6 @@ from amaranth import ShapeCastable, Shape
 from amaranth.lib import enum, data, wiring
 from amaranth.lib.wiring import In, Out, flipped
 
-#from .transfer2 import *
-
 import logging
 logger = logging.getLogger()
 
