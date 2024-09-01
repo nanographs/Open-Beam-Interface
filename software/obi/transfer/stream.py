@@ -76,6 +76,7 @@ class Connection(metaclass = ABCMeta):
         cmd.extend(bytes(SynchronizeCommand(raster=True, output=OutputMode.SixteenBit, cookie=cookie)))
         cmd.extend(bytes(FlushCommand()))
         await self._stream.write(cmd)
+        await self._stream.flush()
         res = struct.pack(">HH", 0xffff, cookie)
         data = await self._stream.readuntil(res)
     
