@@ -188,6 +188,7 @@ class ScopeSettings:
 
         new_toml = unpack(d, old_toml)
         print(new_toml.as_string())
+        ## FIXME: saving output back to the toml file to be enabled pending further testing
         #toml_file.write(doc)
 
 
