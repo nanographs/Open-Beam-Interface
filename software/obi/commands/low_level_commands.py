@@ -164,6 +164,12 @@ class ArrayCommand(LowLevelCommand):
     bitlayout = BitLayout({"cmdtype": CmdType})
     bytelayout = ByteLayout({"array_length": 2})
 
+class RasterPixelFillCommand(LowLevelCommand):
+    bytelayout = ByteLayout({"dwell_time" : 2})
+    def __init__(self, *, dwell_time):
+        dwell = DwellTimeVal(dwell_time)
+        super().__init__(dwell_time=dwell)
+
 class RasterPixelRunCommand(LowLevelCommand):
     '''
     One pixel dwell value, to be repeated for a specified length. 
@@ -186,7 +192,7 @@ class RasterPixelFreeRunCommand(LowLevelCommand):
         dwell = DwellTimeVal(dwell_time)
         super().__init__(dwell_time=dwell)
 
-class VectorPixelCommand(LowLevelCommand):
+class VectorPixelCommand(LowLevelCommand, PixelCommand):
     '''
     Sets DAC output to the coordinate X, Y for the specified dwell time.
     '''
@@ -224,6 +230,7 @@ all_commands = [SynchronizeCommand,
                 RasterRegionCommand,
                 RasterPixelCommand, 
                 RasterPixelRunCommand,
+                RasterPixelFillCommand,
                 RasterPixelFreeRunCommand,
                 VectorPixelCommand,
                 VectorPixelMinDwellCommand]
