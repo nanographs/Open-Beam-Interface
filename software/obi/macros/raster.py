@@ -1,5 +1,4 @@
 import asyncio
-import array
 import struct
 
 from obi.commands import *
