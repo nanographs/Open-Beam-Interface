@@ -192,7 +192,7 @@ class RasterPixelFreeRunCommand(LowLevelCommand):
         dwell = DwellTimeVal(dwell_time)
         super().__init__(dwell_time=dwell)
 
-class VectorPixelCommand(LowLevelCommand, PixelCommand):
+class VectorPixelCommand(LowLevelCommand):
     '''
     Sets DAC output to the coordinate X, Y for the specified dwell time.
     '''
