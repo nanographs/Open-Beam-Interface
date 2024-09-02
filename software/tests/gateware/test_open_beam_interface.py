@@ -328,7 +328,7 @@ class OBIAppletTestCase(unittest.TestCase):
                 await get_stream(ctx, dut.cmd_stream, d, 
                     timeout_steps=len(command)*2 + 2)
                 await ctx.tick()
-                assert ctx.get(dut.cmd_stream.valid) == 0
+                self.assertEqual(ctx.get(dut.cmd_stream.valid),0)
             self.simulate(dut, [get_testbench,put_testbench], name="parse_" + name)  
         
         test_cmd(SynchronizeCommand(cookie=1234, raster=True, output=OutputMode.NoOutput),"cmd_sync")
@@ -362,7 +362,7 @@ class OBIAppletTestCase(unittest.TestCase):
     
         def test_raster_pixels_cmd():
             command = ArrayCommand(cmdtype = CmdType.RasterPixel, array_length = 5)
-            dwells = [1,2,3,4,5]
+            dwells = [1,2,3,4,5,6]
             async def put_testbench(ctx):
                 for byte in bytes(command):
                     await put_stream(ctx, dut.usb_stream, byte)
@@ -372,7 +372,8 @@ class OBIAppletTestCase(unittest.TestCase):
             async def get_testbench(ctx):
                 for dwell in dwells:
                     await get_stream(ctx, dut.cmd_stream, RasterPixelCommand(dwell_time=dwell).as_dict(), timeout_steps=len(command)*2 + len(dwells)*2 + 2)
-                    assert ctx.get(dut.cmd_stream.valid) == 0
+                    self.assertEqual(ctx.get(dut.cmd_stream.valid),0)
+                self.assertEqual(ctx.get(dut.is_started),1)
             self.simulate(dut, [get_testbench,put_testbench], name="parse_cmd_rasterpixel")  
         
         test_raster_pixels_cmd()
