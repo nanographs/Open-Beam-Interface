@@ -14,5 +14,6 @@ Open Beam Interface documentation
    hardware
    installation
    config
+   gui
 
 
