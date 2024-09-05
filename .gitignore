@@ -13,3 +13,4 @@ Gateware/open_beam_interface.bin
 *.pdm-python
 software/microscope.toml
 software/*.csv
+software/docs/build/*
