@@ -48,3 +48,15 @@ class FrameBufferTest(unittest.TestCase):
                     fb.abort_scan()
         asyncio.run(test_fn())
 
+    def test_vector(self):
+        async def test_fn():
+            conn = MockConnection()
+            await conn._connect()
+            fb = FrameBuffer(conn)
+            frame = await fb.capture_vector_frame()
+            #print(frame.canvas)
+            # import dis
+            # print(dis.dis(fb.capture_vector_frame()))
+        asyncio.run(test_fn())
+        
+
