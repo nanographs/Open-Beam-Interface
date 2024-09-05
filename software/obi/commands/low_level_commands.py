@@ -111,16 +111,17 @@ class BeamSelectCommand(LowLevelCommand):
     bitlayout = BitLayout({"beam_type": BeamType})
 
 class BlankCommand(LowLevelCommand):
+    """
+    Triggers beam blanking
+
+    Args:
+        enable (bool): True if blanking, False if unblanking.
+        inline (bool, optional): True if blanking in sync with the next pixel, \
+            False if blanking immediately upon command execution. Defaults to False.
+    """
     bitlayout = BitLayout({"enable": 1, "inline": 1})
     def __init__(self, enable: bool, inline:bool = False):
-        """
-        Triggers beam blanking
 
-        Args:
-            enable (bool): True if blanking, False if unblanking.
-            inline (bool, optional): True if blanking in sync with the next pixel, \
-                False if blanking immediately upon command execution. Defaults to False.
-        """
         super().__init__(enable=enable, inline=inline)
 
 class DelayCommand(LowLevelCommand):
