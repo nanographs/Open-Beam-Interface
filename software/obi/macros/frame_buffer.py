@@ -3,12 +3,15 @@ import array
 import datetime
 import os
 
+import itertools
+
 import numpy as np
 import tifffile
 
 from obi.commands import *
 from obi.transfer import Connection
 from .raster import RasterScanCommand
+from .vector import VectorScanCommand, default_iter
 logger = logging.getLogger()
 
 class Frame:
@@ -104,7 +107,13 @@ class Frame:
             self.canvas[:rewrite_lines] = np.array(rewrite_pixels, dtype = np.uint16).reshape(rewrite_lines, self._x_count)
             self.y_ptr = rewrite_lines
         self._logger.debug(f"fill_lines: end at y = {self.y_ptr}")
-
+    
+    @staticmethod
+    def fill_vector(pixels: array.array, iterpoints, x_res:int=2048, y_res:int=2048):
+        newframe = np.zeros((x_res, y_res))
+        for (x, y, dwell), data in zip(iterpoints, pixels):
+            newframe[y,x] = data
+        return newframe
 
     def as_uint16(self):
         return np.left_shift(self.canvas, 2)
@@ -320,4 +329,25 @@ class FrameBuffer():
         async for frame in self._capture_frame_iter_fill(frame=self.current_frame, x_range=x_range, y_range=y_range, **kwargs):
             self.current_frame = frame
             yield frame
+    
+    async def capture_vector_frame(self, *, iter_points=default_iter()):
+        send_iter, recv_iter = itertools.tee(iter_points)
+        import time
+        cmd = VectorScanCommand(cookie=123, output_mode=OutputMode.SixteenBit, iter_points=send_iter)
+        start_proc = time.perf_counter()
+        cmd._pre_process_chunks(latency=65536)
+        end_proc = time.perf_counter()
+        res = array.array('H')
+        start_send = time.perf_counter()
+        async for chunk in self.conn.transfer_multiple(cmd):
+            res.extend(chunk)
+        stop_send = time.perf_counter()
+        print(f"{len(res)=}")
+        start_process = time.perf_counter()
+        newframe = Frame.fill_vector(res, recv_iter, 2048, 2048)
+        end_process = time.perf_counter()
+        print(f"pre-process time: {end_proc-start_proc:04f}, send time: {stop_send-start_send:04f}, process time: {end_process-start_process:04f}")
+        #self.current_frame.canvas = newframe
+        return newframe
+
 
