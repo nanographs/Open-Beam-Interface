@@ -22,16 +22,14 @@ open_beam_interface = "obi.applet.open_beam_interface:OBIApplet"
 
 
 [project.optional-dependencies]
-":gui" = [
+"gui" = [
     "pyqtgraph>=0.13.7",
     "PyQt6>=6.7.1",
     "qasync>=0.27.1",
 ]
-":docs" = [
+"docs" = [
     "sphinx>=7.4.7",
     "myst-parser>=3.0.1",
-]
-docs = [
     "furo>=2024.8.6",
 ]
 [build-system]
