@@ -15,5 +15,7 @@ documentation for details.
    :maxdepth: 2
    :caption: Index:
 
+   hardware
    config
+
 
