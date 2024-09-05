@@ -4,25 +4,24 @@ on: [push, pull_request, workflow_dispatch]
 
 permissions:
   contents: write
-
+defaults:
+  run:
+    working-directory: software
 jobs:
   docs:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-      - run: cd software
-      - name: Install dependencies
-        run: |
-          pip install sphinx sphinx_rtd_theme myst_parser
-      - name: Sphinx build
-        run: |
-          sphinx-build docs/source/ docs/build/
+      - name: Check out source code
+        uses: actions/checkout@v4
+      - name: Set up PDM
+        uses: pdm-project/setup-pdm@v3
+      - run: pdm install -G docs
+      - run: pdm run docs
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        #if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         with:
           publish_branch: gh-pages
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: software/docs/build/
+          publish_dir: software/docs/build/html
           force_orphan: true
