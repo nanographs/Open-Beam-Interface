@@ -139,48 +139,93 @@ class BeamType(enum.IntEnum, shape = 2):
     Ion                 = 2
 
 
+class u14(int):
+    """
+    An integer value in the range(0,16384), representable by a 14 bit register.
+    Valid input value for a 14 bit DAC.
+    Counters are 0-indexed so 0 = 1 count and 16383 = 16384 counts.
+    """
+    def __init__(self, val:int):
+        if val < 0:
+            raise ValueError(f"{val} < 0. Only positive integers are valid")
+        if val > 16383:
+            raise ValueError(f"{val} > 16383. Value overflows 14 bits")
+    def __new__(self, val:int):
+        self.__init__(self, val)
+        return val & 0b11111111111111
+
+class u16(int):
+    """
+    An integer value in the range(0,65536), representable by a 16 bit register.
+    Counters are 0-indexed so 0 = 1 count and 65535 = 65536 counts.
+    """
+    def __init__(self, val:int):
+        if val < 0:
+            raise ValueError(f"{val} < 0. Only positive integers are valid")
+        if val > 65535:
+            raise ValueError(f"{val} > 16383. Value overflows 14 bits")
+    def __new__(self, val:int):
+        self.__init__(self, val)
+        return val & 0b11111111111111
+
+class fp8_8(int):
+    """
+    A binary representation of a fractional value with 8 integer bits and 8 fractional bits.
+    """
+    def __new__(self, val:float):
+        return u16(int(val*256))
+
+class DwellTime(u16):
+    '''Dwell time is measured in units of ADC cycles.
+        One DwellTime = 125 ns'''
 
 @dataclass
 class DACCodeRange:
-    start: int # UQ(14,0)
-    count: int # UQ(14,0)
-    step:  int # UQ(8,8)
+    start: u14 # UQ(14,0)
+    count: u14 # UQ(14,0)
+    step:  fp8_8 # UQ(8,8)
     '''
-    A range of DAC codes
+    A range of DAC codes to be stepped through by internal FPGA counters.
 
-    Accepts:
-        start(int): The first DAC code to start on. UQ(14,0)
-        count(int): The number of steps to count up from the starting code. UQ(14,0)
-        step(int): The step size to increment by each step. UQ(8,8)
-    Returns:
-        DACCodeRange
+    Args:
+        start(u14): The first DAC code to start on. UQ(14,0)
+        count(u14): The number of steps to count up from the starting code. UQ(14,0)
+        step(fp8_8): The step size to increment by each step. UQ(8,8)
     '''
     def __post_init__(self):
         if self.start > 16383:
             raise ValueError(f"{self.start=} > max position: 16383")
-        if self.count > 16384:
+        if self.count > 16383:
             raise ValueError(f"{self.count=} > max resolution: 16384")
         if self.step > 65535:
             raise ValueError("Step size cannot be represented in 16 bits")
     def __repr__(self):
         return f"DACCodeRange(start={self.start}, count={self.count}, step={self.step} - step size {self.step/256:0.03f})"
     @classmethod
-    def from_resolution(cls, resolution: int):
+    def from_resolution(cls, resolution: u14):
         '''
-        Accepts:
-            resolution (int): Number of pixels to fill entire DAC range
+        Args:
+            resolution (u14): Number of pixels to fill entire DAC range
         Returns:
-            DACCodeRange
+            :class:`DACCodeRange`
         '''
         return cls(
                 start = 0,
-                count = resolution,
+                count = resolution-1,
                 step = int((16384/resolution)*256)
             )
     @classmethod
-    def from_roi(cls, resolution: int, start:int, count:int):
+    def from_roi(cls, resolution: u14, start: u14, count: u14):
+        '''
+        Args:
+            resolution (u14): Number of pixels to fill entire DAC range
+            start (u14): Starting position for ROI
+            count (u14): Length of ROI, in pixels
+        Returns:
+            :class:`DACCodeRange`
+        '''
         return cls(
                 start = start*int(16384/resolution),
-                count = count,
+                count = count-1,
                 step = int((16384/resolution)*256)
             )

@@ -1,4 +1,4 @@
-from .structs import BitLayout, ByteLayout, CmdType, OutputMode, BeamType, DACCodeRange
+from .structs import BitLayout, ByteLayout, CmdType, OutputMode, BeamType, u14, u16, DwellTime, DACCodeRange
 from . import BaseCommand
 
 from amaranth import *
@@ -58,18 +58,6 @@ class LowLevelCommand(BaseCommand):
         await stream.flush()
 
 
-class DwellTimeVal(int):
-    '''Dwell time is measured in units of ADC cycles.
-        One DwellTime = 125 ns'''
-    def __init__(self, value):
-        if value < 1:
-            raise ValueError(f"Pixel dwell time {value} is < 1")
-        if value >= 65536:
-            raise ValueError(f"Pixel dwell time {value} is higher than 65536. Dwell times are limited to 16 bit values")
-    def __new__(self, value):
-        self.__init__(self, value)
-        return value
-
 
 class SynchronizeCommand(LowLevelCommand):
     bitlayout = BitLayout({"mode": {
@@ -77,11 +65,20 @@ class SynchronizeCommand(LowLevelCommand):
             "output": OutputMode
         }})
     bytelayout = ByteLayout({"cookie": 2})
-    #: Arbitrary value for synchronization. When received, returned as-is in an USB IN frame.
+    """
+    Args: 
+        cookie(u16): Arbitrary value for synchronization. When received, returned as-is in an USB IN frame.
+        output(:class:OutputMode)
+        raster(bool)
+    """
+    def __init__(self, *, cookie:u16, output:OutputMode, raster:bool):
+        super().__init__(cookie=cookie, output=output, raster=raster)
+
     # async def transfer(self, stream):
     #     await stream.write(bytes(self))
     #     # synchronize command is exempt from output mode
     #     return await stream.readuntil(bytes(self.cookie))
+
 
 class AbortCommand(LowLevelCommand):
     '''
@@ -101,14 +98,19 @@ class ExternalCtrlCommand(LowLevelCommand):
     Enable or disable external control of the beam
     '''
     bitlayout = BitLayout({"enable": 1})
+    def __init__(self, enable: bool):
+        super().__init__(enable=enable)
 
 
 class BeamSelectCommand(LowLevelCommand):
     '''
     Set the beam type
-    :class:`BeamType`
+    Args:
+        beam_type(:class:`BeamType`)
     '''
     bitlayout = BitLayout({"beam_type": BeamType})
+    def __init__(self, *, beam_type: BeamType):
+        super().__init__(beam_type=beam_type)
 
 class BlankCommand(LowLevelCommand):
     """
@@ -121,7 +123,6 @@ class BlankCommand(LowLevelCommand):
     """
     bitlayout = BitLayout({"enable": 1, "inline": 1})
     def __init__(self, enable: bool, inline:bool = False):
-
         super().__init__(enable=enable, inline=inline)
 
 class DelayCommand(LowLevelCommand):
@@ -131,6 +132,8 @@ class DelayCommand(LowLevelCommand):
     One unit of delay is one 48MHz clock cycle, or 20.83 ns.
     '''
     bytelayout = ByteLayout({"delay": 2})
+    def __init__(self, delay: u16):
+        super().__init__(delay=delay)
 
 
 class RasterRegionCommand(LowLevelCommand):
@@ -157,19 +160,19 @@ class RasterPixelCommand(LowLevelCommand):
     depends on the current :class:`RasterRegionCommand`. 
     '''
     bytelayout = ByteLayout({"dwell_time" : 2})
-    def __init__(self, *, dwell_time):
-        dwell = DwellTimeVal(dwell_time)
-        super().__init__(dwell_time=dwell)
+    def __init__(self, *, dwell_time:DwellTime):
+        super().__init__(dwell_time=dwell_time)
 
 class ArrayCommand(LowLevelCommand):
     bitlayout = BitLayout({"cmdtype": CmdType})
     bytelayout = ByteLayout({"array_length": 2})
+    def __init__(self, cmdtype: CmdType, array_length: u16):
+        super().__init__(cmdtype=cmdtype, array_length=array_length)
 
 class RasterPixelFillCommand(LowLevelCommand):
     bytelayout = ByteLayout({"dwell_time" : 2})
-    def __init__(self, *, dwell_time):
-        dwell = DwellTimeVal(dwell_time)
-        super().__init__(dwell_time=dwell)
+    def __init__(self, *, dwell_time:DwellTime):
+        super().__init__(dwell_time=dwell_time)
 
 class RasterPixelRunCommand(LowLevelCommand):
     '''
@@ -178,9 +181,8 @@ class RasterPixelRunCommand(LowLevelCommand):
     depends on the current :class:`RasterRegionCommand`. 
     '''
     bytelayout = ByteLayout({"length": 2, "dwell_time" : 2})
-    def __init__(self, *, length, dwell_time):
-        dwell = DwellTimeVal(dwell_time)
-        super().__init__(length=length, dwell_time=dwell)
+    def __init__(self, *, length: u16, dwell_time: DwellTime):
+        super().__init__(length=length, dwell_time=dwell_time)
 
 class RasterPixelFreeRunCommand(LowLevelCommand):
     '''
@@ -189,18 +191,16 @@ class RasterPixelFreeRunCommand(LowLevelCommand):
     depends on the current :class:`RasterRegionCommand`.
     '''
     bytelayout = ByteLayout({"dwell_time": 2})
-    def __init__(self, *, dwell_time):
-        dwell = DwellTimeVal(dwell_time)
-        super().__init__(dwell_time=dwell)
+    def __init__(self, *, dwell_time:DwellTime):
+        super().__init__(dwell_time=dwell_time)
 
 class VectorPixelCommand(LowLevelCommand):
     '''
     Sets DAC output to the coordinate X, Y for the specified dwell time.
     '''
     bytelayout = ByteLayout({"x_coord": 2, "y_coord": 2, "dwell_time": 2})
-    def __init__(self, *, x_coord, y_coord, dwell_time):
-        dwell = DwellTimeVal(dwell_time)
-        super().__init__(x_coord=x_coord, y_coord=y_coord, dwell_time=dwell)
+    def __init__(self, *, x_coord:u14, y_coord:u14, dwell_time:u16):
+        super().__init__(x_coord=x_coord, y_coord=y_coord, dwell_time=dwell_time)
     def pack(self):
         if vars(self)["dwell_time"] <= 1:
             return VectorPixelMinDwellCommand(**vars(self)).pack()
@@ -216,7 +216,6 @@ class VectorPixelCommand(LowLevelCommand):
         await stream.write(bytes(FlushCommand()))
         return await self.recv_res(1, stream, output_mode)
         
-
 class VectorPixelMinDwellCommand(LowLevelCommand):
     bytelayout = ByteLayout({"dac_stream": {"x_coord": 2, "y_coord": 2}})
 
