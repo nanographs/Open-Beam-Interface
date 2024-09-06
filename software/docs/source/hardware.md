@@ -1,7 +1,9 @@
-# Hardware Adjustment Guide
+# Hardware
 
-## DAC Channels
-![DAC](_static/DAC_adjustment.png)
+```{eval-rst}
+.. toctree::
+   :maxdepth: 2
 
-## ADC Channels
-![ADC](_static/ADC_adjustment.png)
+   hardware/overview
+   hardware/adjustment_guide
+```

@@ -17,8 +17,16 @@ release = '0.0'
 extensions = [
     "myst_parser", 
     "sphinx.ext.autodoc",
-    "sphinx.ext.napoleon"
+    "sphinx.ext.napoleon",
+    "enum_tools.autoenum"
     ]
+
+autodoc_member_order = "bysource"
+autodoc_default_options = {
+    "members": True
+}
+autodoc_preserve_defaults = True
+autodoc_inherit_docstrings = False
 
 templates_path = ['_templates']
 exclude_patterns = []

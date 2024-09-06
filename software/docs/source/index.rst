@@ -15,6 +15,8 @@ Open Beam Interface documentation
    installation
    config
    gui
-   commands/low_level_commands
+   commands
+   macros
+
 
 
