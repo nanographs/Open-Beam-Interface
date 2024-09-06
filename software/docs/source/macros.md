@@ -7,4 +7,5 @@ The Macros module is a collection of workflows constructed out of [low-level-com
    :maxdepth: 2
 
    macros/frame_buffer
+   macros/bmp2vector
 ```
