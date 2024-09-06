@@ -2,7 +2,7 @@ import struct
 import logging
 logger = logging.getLogger()
 
-from .stream import Stream, Connection
+from .abc import Stream, Connection
 from obi.launch import OBILauncher
 from obi.commands import *
 from .support import dump_hex

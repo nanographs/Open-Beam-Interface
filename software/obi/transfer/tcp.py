@@ -10,7 +10,7 @@ from time import perf_counter
 import logging
 logger = logging.getLogger()
 
-from .stream import Stream, Connection, TransferError
+from .abc import Stream, Connection, TransferError
 from obi.commands import Command, SynchronizeCommand, FlushCommand, OutputMode
 from .support import dump_hex
 

@@ -1,6 +1,6 @@
 __all__ = []
 
-from .stream import Stream, Connection
+from .abc import Stream, Connection
 __all__ += ["Stream", "Connection"]
 
 from .support import setup_logging, dump_hex

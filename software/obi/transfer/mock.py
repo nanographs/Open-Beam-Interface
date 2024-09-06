@@ -1,7 +1,7 @@
 import logging
 logger = logging.getLogger()
 
-from .stream import Connection, Stream
+from .abc import Connection, Stream
 from .support import dump_hex
 
 class MockStream(Stream):
