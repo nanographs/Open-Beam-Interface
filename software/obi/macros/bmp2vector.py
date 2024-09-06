@@ -20,25 +20,35 @@ def line(xarray):
 
 class BitmapVectorPattern:
     """
-    Converts bitmap to vector points
-    Inputs:
-    - path to a image file
-    - resolution to scale the pattern to
-    - what the maximum dwell should be for the brightest pixel
-    - invert / dwell on black or white / 0 or 255
-    Final Outputs:
-    - a preview
-    - a scaled, intensity scaled, and maybe inverted version of the image, as an np.array
-    - a preview of the processed version of the image
-    - an array of bytes that is the vector stream
-    Intermediate outputs
-    - progress toward conversions
+    Converts an image to an array of vector points (as :class:`VectorPixelCommand`).\
+    For high resolution images, this process can be quite resource intensive.\
+    This class uses :py:mod:`multiprocessing.Pool` to speed up conversion by executing multiple threads.
+    
+    Attributes:
+        im (PIL.Image): See https://pillow.readthedocs.io/en/stable/reference/Image.html
+        processed_im (PIL.Image | None): Populated by :func:`rescale`
+        pattern_seq (bytearray | None): Populated by :func:`vector_convert`
+    
+    Args:
+        path: Path to a PIL-compatible image file
     """
     def __init__(self, path):
         self.im = Image.open(path)
         self.processed_im = None
+        self.pattern_seq = None
     
-    def rescale(self, resolution, max_dwell, invert):
+    def rescale(self, resolution:u16, max_dwell:DwellTime, invert:bool):
+        """
+        Rescale the image to specified resolution, upsampling or downsampling as necessary.
+        Rescale dwell times such that the brightest pixel has dwell time max_dwell.
+        By default, white pixels (brightness 255) correspond to the maximum dwell time,\
+            and black pixels (brightness 0) correspond to no dwell time.
+
+        Args:
+            resolution (u16): Resolution to scale pattern to.
+            max_dwell (DwellTime): Maximum dwell value
+            invert (bool): Invert grayscale levels
+        """
         im = self.im
         im = im.convert("L") #TODO: handle 16 bit grayscale
         ## scale dwell times 
@@ -61,6 +71,11 @@ class BitmapVectorPattern:
         self.processed_im = im
 
     def vector_convert(self, progress_fn=lambda p: print(p)): #progress fn input: int from 0 to 100
+        """
+        Args:
+            progress_fn (function, optional): Function that accepts a value from 0 to 100 \
+                and emits a progress indicator. Defaults to :code:`lambda p:print(p)`.
+        """
         pattern_array = np.asarray(self.processed_im)
         seq = bytearray()
 
