@@ -6,8 +6,19 @@ from obi.commands import *
 BIG_ENDIAN = (struct.pack('@H', 0x1234) == struct.pack('>H', 0x1234))
 
 class RasterScanCommand(BaseCommand):
-    def __init__(self, x_range: DACCodeRange, y_range: DACCodeRange, dwell_time:int, cookie: int,
+    def __init__(self, x_range: DACCodeRange, y_range: DACCodeRange, dwell_time:DwellTime, cookie: u16,
         output_mode:OutputMode=OutputMode.SixteenBit, frame_blank=True):
+        """
+        Scan a frame and return data using a combination of :class:`RasterRegionCommand` and :class:`RasterPixelRunCommand`.
+
+        Args:
+            x_range (DACCodeRange): 
+            y_range (DACCodeRange):
+            dwell_time (DwellTime): 
+            cookie (u16):
+            output_mode (OutputMode, optional): Defaults to OutputMode.SixteenBit.
+            frame_blank (bool, optional): Start frame from a blanked state and return to a blanked state. Defaults to True.
+        """
         self._x_range = x_range
         self._y_range = y_range
         self._dwell = dwell_time
