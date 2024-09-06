@@ -17,18 +17,19 @@ logger = logging.getLogger()
 __all__ = ["Frame", "FrameBuffer"]
 
 class Frame:
+    """
+    A Frame represents a 2D array of pixels.
+
+    Properties:
+        canvas: 2D np.array of uint16 representing an image
+
+    Args:
+        x_res (int): Number of pixels in X
+        y_res (int): Number of pixels in Y
+    """
     _logger = logger.getChild("Frame")
     def __init__(self, x_res:int, y_res:int):
-        """
-        A Frame represents a 2D array of pixels.
 
-        Properties:
-            canvas: 2D np.array of uint16 representing an image
-
-        Args:
-            x_res (int): Number of pixels in X
-            y_res (int): Number of pixels in Y
-        """
         self._x_count = x_res
         self._y_count = y_res
         self.canvas = np.zeros(shape = self.np_shape, dtype = np.uint16)
@@ -138,15 +139,15 @@ class Frame:
         print(f"saved: {img_name}")
 
 
-class FrameBuffer():
-    _logger = logger.getChild("FrameBuffer")
-    """
+class FrameBuffer:
+    '''
     The Frame Buffer executes raster scan commands and stores the results in a :class:Frame.
     It is suitable for a live graphical display, or for headless scripted capture.
 
     Args:
-        conn (:class:Connection)
-    """
+        conn (:class:`Connection`): A connection to an OBI device, via a Glasgow device
+    '''
+    _logger = logger.getChild("FrameBuffer")
     def __init__(self, conn: Connection):
         self.conn = conn
         self.current_frame = None
