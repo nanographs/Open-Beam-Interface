@@ -14,6 +14,8 @@ from .raster import RasterScanCommand
 from .vector import VectorScanCommand, default_iter
 logger = logging.getLogger()
 
+__all__ = ["Frame", "FrameBuffer"]
+
 class Frame:
     _logger = logger.getChild("Frame")
     def __init__(self, x_res:int, y_res:int):
@@ -34,16 +36,16 @@ class Frame:
     
     @classmethod
     def from_DAC_ranges(cls, x_range:DACCodeRange, y_range:DACCodeRange):
-        """Generate a frame from two instances of :class:DACCodeRange
+        '''
+        Generate a frame from two instances of :class:DACCodeRange
 
         Args:
             x_range (DACCodeRange)
             y_range (DACCodeRange)
-
         Returns:
-            Frame
-        """
-        return cls(x_range.count, y_range.count)
+            :class:`Frame`
+        '''
+        return cls(x_range.count+1, y_range.count+1)
 
     @property
     def pixels(self):
@@ -138,14 +140,14 @@ class Frame:
 
 class FrameBuffer():
     _logger = logger.getChild("FrameBuffer")
-    def __init__(self, conn: Connection):
-        """
-        The Frame Buffer executes raster scan commands and stores the results in a :class:Frame.
-        It is suitable for a live graphical display, or for headless scripted capture.
+    """
+    The Frame Buffer executes raster scan commands and stores the results in a :class:Frame.
+    It is suitable for a live graphical display, or for headless scripted capture.
 
-        Args:
-            conn (Connection)
-        """
+    Args:
+        conn (:class:Connection)
+    """
+    def __init__(self, conn: Connection):
         self.conn = conn
         self.current_frame = None
         self.abort = None
@@ -155,7 +157,7 @@ class FrameBuffer():
         Very rough frame rate control.
 
         Args:
-            frame (Frame)
+            frame (:class:`Frame`)
             ## TODO: take dwell time into account
 
         Returns:
@@ -180,8 +182,8 @@ class FrameBuffer():
         Otherwise, generate a new frame and assign to current_frame.
 
         Args:
-            x_res (_type_): Number of pixels in X
-            y_res (_type_): Number of pixels in Y
+            x_res (int): Number of pixels in X
+            y_res (int): Number of pixels in Y
         """
         # if resolution is exactly the same
         if (self.current_frame is not None):
@@ -202,12 +204,12 @@ class FrameBuffer():
     def is_aborted(self):
         """
         True if all of the following are true:
-            - An abort event exists
-            - The abort event has already been set
+        - An abort event exists
+        - The abort event has already been set
         If true, also clears the existing abort event by setting self.abort to None.
 
         Returns:
-            bool
+            True if scan was previously aborted mid-frame
         """
         if self.abort is not None:
             if self.abort.is_set():
@@ -223,14 +225,14 @@ class FrameBuffer():
         Core function for capturing image data produced by a raster scan into a 2D array.
 
         Args:
-            frame (Frame): Frame to capture into
+            frame (:class:`Frame`): Frame to capture into
             x_range (DACCodeRange)
             y_range (DACCodeRange)
             dwell_time (int)
             latency (int, optional): Send chunks of pixels that will take no longer \
                                     than this many dwell times to execute. Defaults to 65536.
         Yields:
-            Frame: A Frame object is yielded each time new pixels are added
+            :class:`Frame`: A :class:`Frame` object is yielded each time new pixels are added
         """
         res = array.array('H')
         pixels_per_chunk = self._opt_chunk_size(frame)
@@ -281,7 +283,7 @@ class FrameBuffer():
             dwell_time (int): Pixel dwell time
 
         Returns:
-            Frame
+            :class:`Frame`
         """
         self.current_frame=Frame.from_DAC_ranges(x_range, y_range)
         async for frame in self._capture_frame_iter_fill(frame=self.current_frame,
@@ -301,8 +303,8 @@ class FrameBuffer():
             y_count (int): Number of steps in Y in ROI
 
         Yields:
-            Frame: Full frame with new data filled into region of interest. \
-                A Frame object is yielded each time new pixels are added.
+            :class:`Frame`: Full frame with new data filled into region of interest. \
+                A :class:`Frame` object is yielded each time new pixels are added.
         """
         x_range = DACCodeRange.from_roi(x_res, x_start, x_count)
         y_range = DACCodeRange.from_roi(y_res, y_start, y_count)
@@ -321,7 +323,7 @@ class FrameBuffer():
             y_res (int): Number of pixels in Y
 
         Yields:
-            Frame: A Frame object is yielded each time new pixels are added
+            :class:`Frame`: A :class:`Frame` object is yielded each time new pixels are added
         """
         x_range = DACCodeRange.from_resolution(x_res)
         y_range = DACCodeRange.from_resolution(y_res)
