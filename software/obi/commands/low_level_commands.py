@@ -84,14 +84,16 @@ class AbortCommand(LowLevelCommand):
     '''
     End the current :class:`RasterRegionCommand`
     '''
-    pass
+    def __init__(self):
+        super().__init__()
 
 class FlushCommand(LowLevelCommand):
     '''
     Submits the data in the FPGA FIFO over USB,
     regardless of whether the FIFO is full.
     '''
-    pass
+    def __init__(self):
+        super().__init__()
 
 class ExternalCtrlCommand(LowLevelCommand):
     '''
@@ -109,7 +111,7 @@ class BeamSelectCommand(LowLevelCommand):
         beam_type(:class:`BeamType`)
     '''
     bitlayout = BitLayout({"beam_type": BeamType})
-    def __init__(self, *, beam_type: BeamType):
+    def __init__(self, beam_type: BeamType):
         super().__init__(beam_type=beam_type)
 
 class BlankCommand(LowLevelCommand):
@@ -171,7 +173,7 @@ class ArrayCommand(LowLevelCommand):
 
 class RasterPixelFillCommand(LowLevelCommand):
     bytelayout = ByteLayout({"dwell_time" : 2})
-    def __init__(self, *, dwell_time:DwellTime):
+    def __init__(self, dwell_time:DwellTime):
         super().__init__(dwell_time=dwell_time)
 
 class RasterPixelRunCommand(LowLevelCommand):
@@ -181,7 +183,7 @@ class RasterPixelRunCommand(LowLevelCommand):
     depends on the current :class:`RasterRegionCommand`. 
     '''
     bytelayout = ByteLayout({"length": 2, "dwell_time" : 2})
-    def __init__(self, *, length: u16, dwell_time: DwellTime):
+    def __init__(self, length: u16, dwell_time: DwellTime):
         super().__init__(length=length, dwell_time=dwell_time)
 
 class RasterPixelFreeRunCommand(LowLevelCommand):
@@ -191,7 +193,7 @@ class RasterPixelFreeRunCommand(LowLevelCommand):
     depends on the current :class:`RasterRegionCommand`.
     '''
     bytelayout = ByteLayout({"dwell_time": 2})
-    def __init__(self, *, dwell_time:DwellTime):
+    def __init__(self, dwell_time:DwellTime):
         super().__init__(dwell_time=dwell_time)
 
 class VectorPixelCommand(LowLevelCommand):
@@ -199,7 +201,7 @@ class VectorPixelCommand(LowLevelCommand):
     Sets DAC output to the coordinate X, Y for the specified dwell time.
     '''
     bytelayout = ByteLayout({"x_coord": 2, "y_coord": 2, "dwell_time": 2})
-    def __init__(self, *, x_coord:u14, y_coord:u14, dwell_time:u16):
+    def __init__(self, x_coord:u14, y_coord:u14, dwell_time:u16):
         super().__init__(x_coord=x_coord, y_coord=y_coord, dwell_time=dwell_time)
     def pack(self):
         if vars(self)["dwell_time"] <= 1:
