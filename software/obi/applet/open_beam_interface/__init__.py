@@ -476,8 +476,7 @@ class RasterRegion(data.Struct):
 
 
 class RasterScanner(wiring.Component):
-    """_summary_
-
+    """
     Properties:
         FRAC_BITS: number of fixed fractional bits in accumulators
 
@@ -525,9 +524,9 @@ class RasterScanner(wiring.Component):
                     m.d.sync += [
                         region.eq(self.roi_stream.payload),
                         x_accum.eq(self.roi_stream.payload.x_start << self.FRAC_BITS),
-                        x_count.eq(self.roi_stream.payload.x_count - 1),
+                        x_count.eq(self.roi_stream.payload.x_count),
                         y_accum.eq(self.roi_stream.payload.y_start << self.FRAC_BITS),
-                        y_count.eq(self.roi_stream.payload.y_count - 1),
+                        y_count.eq(self.roi_stream.payload.y_count),
                     ]
                     m.next = "Scan"
 
@@ -553,7 +552,7 @@ class RasterScanner(wiring.Component):
                             m.d.sync += y_count.eq(y_count - 1)
 
                         m.d.sync += x_accum.eq(region.x_start << self.FRAC_BITS)
-                        m.d.sync += x_count.eq(region.x_count - 1)
+                        m.d.sync += x_count.eq(region.x_count)
                     with m.Else():
                         m.d.sync += x_accum.eq(x_accum + region.x_step)
                         m.d.sync += x_count.eq(x_count - 1)
