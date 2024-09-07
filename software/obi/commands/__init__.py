@@ -10,8 +10,8 @@ import struct
 BIG_ENDIAN = (struct.pack('@H', 0x1234) == struct.pack('>H', 0x1234))
 
 __all__ = []
-from .structs import CmdType, OutputMode, BeamType, DACCodeRange
-__all__ += ["CmdType", "OutputMode", "BeamType", "DACCodeRange"]
+from .structs import CmdType, OutputMode, BeamType, u14, u16, fp8_8, DwellTime, DACCodeRange
+__all__ += ["CmdType", "OutputMode", "BeamType", "u14", "u16", "fp8_8", "DwellTime", "DACCodeRange"]
 
 class BaseCommand(metaclass = ABCMeta):
     def __init_subclass__(cls):
