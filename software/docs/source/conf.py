@@ -50,7 +50,8 @@ html_theme_options = {
     "dark_css_variables": {
         "color-brand-primary": "#FF4F00",
         "color-brand-content": "#2EA22A",
-        "color-brand-visited": "#1F7B1E"
+        "color-brand-visited": "#1F7B1E",
+        "color-highlight-on-target": "#0B2B0B",
     },
     "light_logo": "image_scan_drawing_black.svg",
     "dark_logo": "image_scan_drawing_white.svg"
