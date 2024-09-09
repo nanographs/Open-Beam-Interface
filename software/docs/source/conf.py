@@ -22,6 +22,8 @@ extensions = [
     "enum_tools.autoenum"
     ]
 
+myst_enable_extensions = ["attrs_inline"]
+
 autodoc_member_order = "bysource"
 autodoc_default_options = {
     "members": True
@@ -53,6 +55,10 @@ html_theme_options = {
     "light_logo": "image_scan_drawing_black.svg",
     "dark_logo": "image_scan_drawing_white.svg"
 }
+
+html_css_files = [
+    'css/custom.css',
+]
 
 def linkcode_resolve(domain, info):
     if domain != 'py':
