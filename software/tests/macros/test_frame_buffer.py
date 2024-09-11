@@ -48,6 +48,17 @@ class FrameBufferTest(unittest.TestCase):
                     fb.abort_scan()
         asyncio.run(test_fn())
     
+    def test_raster_full(self):
+        async def test_fn():
+            conn = MockConnection()
+            await conn._connect()
+            fb = FrameBuffer(conn)
+            start = time.time()
+            r = DACCodeRange.from_resolution(2048)
+            frame = await fb.capture_frame(x_range=r, y_range=r, dwell_time=215)
+            print(frame)
+        asyncio.run(test_fn())
+    
     def test_raster_roi(self):
         async def test_fn():
             conn = MockConnection()

@@ -259,17 +259,17 @@ class FrameBuffer:
                     self._logger.debug(f"slice to display: {pixels_per_chunk}, {len(res)} pixels left in buffer")
                     frame.fill_lines(to_frame)
                     yield frame
+
                     if len(res) > pixels_per_chunk:
-                        yield slice_chunk()
+                        async for frame_slice in slice_chunk():
+                            yield frame_slice
                 else:
                     pass
                     self._logger.debug(f"have {len(res)} pixels in buffer, need minimum {pixels_per_chunk} pixels to complete this chunk")
 
             async for frame in slice_chunk():
                 yield frame
-        # in case none of the chunking yielded anything, reassign frame here  
-        #TODO: increase elegance here      
-        #frame = self.current_frame #this breaks ROI mode
+                
         self._logger.debug(f"end of scan: {len(res)} pixels in buffer")
         last_lines = len(res)//frame._x_count
         if last_lines > 0:
