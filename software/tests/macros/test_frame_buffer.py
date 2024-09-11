@@ -34,7 +34,7 @@ class FrameTest(unittest.TestCase):
         self.assertEqual(f.y_ptr, 48)
 
 class FrameBufferTest(unittest.TestCase):
-    def test_something(self):
+    def test_raster_abort(self):
         async def test_fn():
             conn = MockConnection()
             await conn._connect()
@@ -46,6 +46,17 @@ class FrameBufferTest(unittest.TestCase):
                 logger.debug(f"{frame=}, {elapsed=:04f}")
                 if elapsed > .5:
                     fb.abort_scan()
+        asyncio.run(test_fn())
+    
+    def test_raster_roi(self):
+        async def test_fn():
+            conn = MockConnection()
+            await conn._connect()
+            fb = FrameBuffer(conn)
+            start = time.time()
+            async for frame in fb.capture_frame_roi(x_res=2048, y_res=2048, 
+                    x_start=100, x_count=100, y_start=100, y_count=100, dwell_time=200):
+                pass
         asyncio.run(test_fn())
 
     def test_vector(self):

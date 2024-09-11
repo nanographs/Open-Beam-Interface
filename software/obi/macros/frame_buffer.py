@@ -35,6 +35,9 @@ class Frame:
         self.canvas = np.zeros(shape = self.np_shape, dtype = np.uint16)
         self.y_ptr = 0
     
+    def __repr__(self):
+        return f"Frame: {self._x_count} x, {self._y_count} y"
+
     @classmethod
     def from_DAC_ranges(cls, x_range:DACCodeRange, y_range:DACCodeRange):
         '''
@@ -266,7 +269,7 @@ class FrameBuffer:
                 yield frame
         # in case none of the chunking yielded anything, reassign frame here  
         #TODO: increase elegance here      
-        frame = self.current_frame
+        #frame = self.current_frame #this breaks ROI mode
         self._logger.debug(f"end of scan: {len(res)} pixels in buffer")
         last_lines = len(res)//frame._x_count
         if last_lines > 0:
@@ -307,12 +310,14 @@ class FrameBuffer:
             :class:`Frame`: Full frame with new data filled into region of interest. \
                 A :class:`Frame` object is yielded each time new pixels are added.
         """
+        self._set_current_frame(x_res, y_res)
         x_range = DACCodeRange.from_roi(x_res, x_start, x_count)
         y_range = DACCodeRange.from_roi(y_res, y_start, y_count)
         roi_frame = Frame.from_DAC_ranges(x_range, y_range)
         roi_frame.canvas = self.current_frame.canvas[y_start:(y_start+y_count),x_start:(x_start+x_count)] #copy frame underneath
-        self._set_current_frame(x_res, y_res)
-        async for roi_frame in self.capture_frame_iter_fill(frame=roi_frame, x_range=x_range, y_range=y_range,**kwargs):
+        print(f"{y_start}:{y_start+y_count}, {x_start}:{x_start+x_count}")
+        async for roi_frame in self._capture_frame_iter_fill(frame=roi_frame, x_range=x_range, y_range=y_range,**kwargs):
+            print(f"{roi_frame=}")
             self.current_frame.canvas[y_start:(y_start+y_count),x_start:(x_start+x_count)] = roi_frame.canvas
             yield self.current_frame
 
