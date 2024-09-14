@@ -2,9 +2,13 @@ name: Run Unit Tests
 on: 
     push:
         paths:
-        - 'Gateware/*'
+        - 'software/*'
         - '.github/workflows/test.yml' # Trigger on changes to the workflow file
-  
+
+defaults:
+  run:
+    working-directory: software
+
 jobs:  
   build:  
     runs-on: ubuntu-latest  
@@ -20,13 +24,9 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Generate lockfile
-        working-directory: ./Gateware
         run: pdm lock --group :all ${{ matrix.dep-versions == 'minimal' && '--strategy direct_minimal_versions' || '' }}
       - name: Install dependencies
-        working-directory: ./Gateware
         run: pdm sync  
       - name: Run tests  
-        working-directory: ./Gateware
-        run: |  
-          pdm run test
+        run: pdm run test
         
