@@ -8,4 +8,5 @@ The low level commands form the basic "instruction set" supported by the OBI gat
 
    commands/structs
    commands/low_level_commands
+   commands/coordinate_system
 ```

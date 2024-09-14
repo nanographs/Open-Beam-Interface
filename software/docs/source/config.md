@@ -51,3 +51,12 @@ The delay between when the external control signal goes high and when the extern
 [timings]
 ext_switch_delay_ms = 20
 ```
+
+## Transforms
+The scan be flipped horizontally and vertically, as well as rotated 90°, to allow the [default coordinate system](./commands/coordinate_system.md) to be aligned with the microscope's internal scan pattern.
+```
+[transforms]
+xflip = true
+yflip = true
+rotate90 = true
+```
