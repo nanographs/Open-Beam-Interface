@@ -291,8 +291,8 @@ class OBIAppletTestCase(unittest.TestCase):
 
         async def put_testbench(ctx):
             await put_stream(ctx, dut.roi_stream, {
-                "x_start": 5, "x_count": 3-1, "x_step": 0x2_00,
-                "y_start": 9, "y_count": 2-1, "y_step": 0x5_00,
+                "x_start": 5, "x_count": 3, "x_step": 0x2_00,
+                "y_start": 9, "y_count": 2, "y_step": 0x5_00,
             })
             await put_stream(ctx, dut.dwell_stream, {"dwell_time": 1})
             await put_stream(ctx, dut.dwell_stream, {"dwell_time": 2})

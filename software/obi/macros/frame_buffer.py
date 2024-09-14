@@ -49,7 +49,7 @@ class Frame:
         Returns:
             :class:`Frame`
         '''
-        return cls(x_range.count+1, y_range.count+1)
+        return cls(x_range.count, y_range.count)
 
     @property
     def pixels(self):

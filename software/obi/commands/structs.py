@@ -196,7 +196,7 @@ class DACCodeRange:
         if self.start > 16383:
             raise ValueError(f"{self.start=} > max position: 16383")
         if self.count > 16383:
-            raise ValueError(f"{self.count=} > max resolution: 16384")
+            raise ValueError(f"{self.count=} > max resolution: 16383")
         if self.step > 65535:
             raise ValueError("Step size cannot be represented in 16 bits")
     def __repr__(self):
@@ -211,7 +211,7 @@ class DACCodeRange:
         '''
         return cls(
                 start = 0,
-                count = resolution-1,
+                count = resolution,
                 step = int((16384/resolution)*256)
             )
     @classmethod
@@ -226,6 +226,6 @@ class DACCodeRange:
         '''
         return cls(
                 start = start*int(16384/resolution),
-                count = count-1,
+                count = count,
                 step = int((16384/resolution)*256)
             )
