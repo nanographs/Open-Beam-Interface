@@ -21,11 +21,11 @@ class Frame:
     A Frame represents a 2D array of pixels.
 
     Properties:
-        canvas: 2D np.array of uint16 representing an image
+        canvas: 2D :class:`numpy.ndarray` of :class:`np.uint16` representing an image
 
     Args:
-        x_res (int): Number of pixels in X
-        y_res (int): Number of pixels in Y
+        x_res: Number of pixels in X
+        y_res: Number of pixels in Y
     """
     _logger = logger.getChild("Frame")
     def __init__(self, x_res:int, y_res:int):
@@ -44,27 +44,25 @@ class Frame:
         Generate a frame from two instances of :class:DACCodeRange
 
         Args:
-            x_range (DACCodeRange)
-            y_range (DACCodeRange)
+            x_range
+            y_range
         Returns:
             :class:`Frame`
         '''
         return cls(x_range.count, y_range.count)
 
     @property
-    def pixels(self):
+    def pixels(self) -> int:
         """
-        Returns:
-            int: Number of pixels in the frame
+        Number of pixels in the frame
         """
         return self._x_count * self._y_count
 
     @property
     def np_shape(self):
         """
-
         Returns:
-            tuple: Shape of the underlying array in the form (y, x)
+            :class:`tuple`: Shape of the underlying array in the form (y, x)
         """
         return self._y_count, self._x_count
 
@@ -73,7 +71,7 @@ class Frame:
         Fill the entire contents of the Frame at once.
 
         Args:
-            pixels (array.array): 1D array of pixel data
+            pixels: 1D array of pixel data
 
         Raises:
             ValueError: If the number of pixels isn't equal to the Frame's pixels
@@ -88,7 +86,7 @@ class Frame:
         Only whole lines will be accepted.
 
         Args:
-            pixels (array.array): 1D array of pixel data
+            pixels: 1D array of pixel data
         """
         assert len(pixels)%self._x_count == 0, f"invalid shape: {len(pixels)} is not a multiple of {self._x_count}"
         fill_y_count = int(len(pixels)/self._x_count)
@@ -121,10 +119,16 @@ class Frame:
             newframe[y,x] = data
         return newframe
 
-    def as_uint16(self):
+    def as_uint16(self) -> np.ndarray:
+        """
+        Get underlying frame data as an array of type :class:`np.uint16`
+        """
         return np.left_shift(self.canvas, 2)
 
-    def as_uint8(self):
+    def as_uint8(self) -> np.ndarray:
+        """
+        Get underlying frame data as an array of type :class:`np.uint8`
+        """
         return np.right_shift(self.canvas, 6).astype(np.uint8)
 
     def saveImage_tifffile(self, save_path, bit_depth_8=True, bit_depth_16=False,
@@ -186,8 +190,8 @@ class FrameBuffer:
         Otherwise, generate a new frame and assign to current_frame.
 
         Args:
-            x_res (int): Number of pixels in X
-            y_res (int): Number of pixels in Y
+            x_res: Number of pixels in X
+            y_res: Number of pixels in Y
         """
         # if resolution is exactly the same
         if (self.current_frame is not None):
@@ -229,11 +233,11 @@ class FrameBuffer:
         Core function for capturing image data produced by a raster scan into a 2D array.
 
         Args:
-            frame (:class:`Frame`): Frame to capture into
-            x_range (DACCodeRange)
-            y_range (DACCodeRange)
-            dwell_time (int)
-            latency (int, optional): Send chunks of pixels that will take no longer \
+            frame: Frame to capture into
+            x_range
+            y_range
+            dwell_time
+            latency (optional): Send chunks of pixels that will take no longer \
                                     than this many dwell times to execute. Defaults to 65536.
         Yields:
             :class:`Frame`: A :class:`Frame` object is yielded each time new pixels are added
@@ -299,12 +303,12 @@ class FrameBuffer:
         """Scan and capture data into a selected region of a frame
 
         Args:
-            x_res (int): X resolution of full frame
-            y_res (int): Y resolution of full frame
-            x_start (int): X coordinate of top left corner of ROI
-            x_count (int): Number of steps in X in ROI
-            y_start (int): Y coordinate of top left corner of ROI
-            y_count (int): Number of steps in Y in ROI
+            x_res: X resolution of full frame
+            y_res: Y resolution of full frame
+            x_start: X coordinate of top left corner of ROI
+            x_count: Number of steps in X in ROI
+            y_start: Y coordinate of top left corner of ROI
+            y_count: Number of steps in Y in ROI
 
         Yields:
             :class:`Frame`: Full frame with new data filled into region of interest. \
@@ -325,8 +329,8 @@ class FrameBuffer:
         """Scan and capture data into a frame that spans the entire DAC range.
 
         Args:
-            x_res (int): Number of pixels in X
-            y_res (int): Number of pixels in Y
+            x_res: Number of pixels in X
+            y_res: Number of pixels in Y
 
         Yields:
             :class:`Frame`: A :class:`Frame` object is yielded each time new pixels are added

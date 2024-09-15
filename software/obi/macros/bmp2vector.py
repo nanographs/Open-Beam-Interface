@@ -41,13 +41,15 @@ class BitmapVectorPattern:
         """
         Rescale the image to specified resolution, upsampling or downsampling as necessary.
         Rescale dwell times such that the brightest pixel has dwell time max_dwell.
-        By default, white pixels (brightness 255) correspond to the maximum dwell time,\
-            and black pixels (brightness 0) correspond to no dwell time.
+
+        Important:
+            By default, white pixels (brightness 255) correspond to the maximum dwell time,\
+            and black pixels (brightness 0) correspond to no dwell time and will be skipped.
 
         Args:
-            resolution (u16): Resolution to scale pattern to.
-            max_dwell (DwellTime): Maximum dwell value
-            invert (bool): Invert grayscale levels
+            resolution: Resolution to scale pattern to.
+            max_dwell (Dwe: Maximum dwell value
+            invert: Invert grayscale levels
         """
         im = self.im
         im = im.convert("L") #TODO: handle 16 bit grayscale

@@ -106,9 +106,10 @@ class ExternalCtrlCommand(LowLevelCommand):
 
 class BeamSelectCommand(LowLevelCommand):
     '''
-    Set the beam type
+    Select a beam type. Blanking will be enabled on all other beams if blanking IO is available.
+
     Args:
-        beam_type(:class:`BeamType`)
+        beam_type
     '''
     bitlayout = BitLayout({"beam_type": BeamType})
     def __init__(self, beam_type: BeamType):
@@ -119,8 +120,8 @@ class BlankCommand(LowLevelCommand):
     Triggers beam blanking
 
     Args:
-        enable (bool): True if blanking, False if unblanking.
-        inline (bool, optional): True if blanking in sync with the next pixel, \
+        enable: True if blanking, False if unblanking.
+        inline: True if blanking in sync with the next pixel, \
             False if blanking immediately upon command execution. Defaults to False.
     """
     bitlayout = BitLayout({"enable": 1, "inline": 1})

@@ -176,24 +176,27 @@ class fp8_8(int):
         return u16(int(val*256))
 
 class DwellTime(u16):
-    '''Dwell time is measured in units of ADC cycles.
-        One DwellTime = 125 ns'''
+    ''' DwellTime is a descriptive subclass of :class:`u16` used for type annotations. \
+        Dwell time is measured in units of ADC cycles.
+        
+        Important:
+            One DwellTime = 125 ns
+        '''
 
-@dataclass
 class DACCodeRange:
-    start: u14 # UQ(14,0)
-    count: u14 # UQ(14,0)
-    step:  fp8_8 # UQ(8,8)
     '''
     A range of DAC codes to be stepped through by internal FPGA counters.\
-    To allow the full DAC range to be subdivided into arbitrary resolutions, \
-    DAC step sizes are encoded with fractional bits (see :class:`fp8_8`). \
+    DAC step sizes are encoded with fractional bits.
 
     Args:
-        start(u14): The first DAC code to start on. UQ(14,0)
-        count(u14): The number of steps to count up from the starting code. UQ(14,0)
-        step(fp8_8): The step size to increment by each step. UQ(8,8)
+        start(u14): The first DAC code to start on.
+        count(u14): The number of steps to count up from the starting code.
+        step(fp8_8): The step size to increment by each step.
     '''
+    def __init__(self, start:u14, count:u14, step:fp8_8):
+        self.start = start
+        self.count = count
+        self.step = step
     def __post_init__(self):
         if self.start > 16383:
             raise ValueError(f"{self.start=} > max position: 16383")
@@ -207,9 +210,14 @@ class DACCodeRange:
     def from_resolution(cls, resolution: u14):
         '''
         Args:
-            resolution (u14): Number of pixels to fill entire DAC range
+            resolution: Number of pixels to fill entire DAC range
         Returns:
             :class:`DACCodeRange`
+        
+        As executed, the range of DAC codes will be equivalent to :code:`np.linspace(0,16383,resolution).astype(np.uint16)`
+
+        Example:
+            >>> DACCodeRange.from_resolution(2048)
         '''
         return cls(
                 start = 0,
@@ -220,9 +228,9 @@ class DACCodeRange:
     def from_roi(cls, resolution: u14, start: u14, count: u14):
         '''
         Args:
-            resolution (u14): Number of pixels to fill entire DAC range
-            start (u14): Starting position for ROI
-            count (u14): Length of ROI, in pixels
+            resolution: Number of pixels to fill entire DAC range
+            start: Starting position for ROI
+            count: Length of ROI, in pixels
         Returns:
             :class:`DACCodeRange`
         '''
