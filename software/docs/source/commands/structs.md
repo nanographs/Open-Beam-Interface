@@ -69,8 +69,6 @@ When used as type hints, they are only annotations and are not enforced.
 ```
 
 #### DAC Code Ranges
-To allow the full DAC range to be subdivided into arbitrary resolutions, DAC step sizes are
-
 ```{eval-rst}
 .. autoclass:: obi.commands.structs.DACCodeRange
 ```

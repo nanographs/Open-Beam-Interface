@@ -185,7 +185,9 @@ class DACCodeRange:
     count: u14 # UQ(14,0)
     step:  fp8_8 # UQ(8,8)
     '''
-    A range of DAC codes to be stepped through by internal FPGA counters.
+    A range of DAC codes to be stepped through by internal FPGA counters.\
+    To allow the full DAC range to be subdivided into arbitrary resolutions, \
+    DAC step sizes are encoded with fractional bits (see :class:`fp8_8`). \
 
     Args:
         start(u14): The first DAC code to start on. UQ(14,0)
