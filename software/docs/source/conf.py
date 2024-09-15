@@ -17,10 +17,16 @@ release = '0.0'
 extensions = [
     "myst_parser", 
     "sphinx.ext.autodoc",
+    "sphinx.ext.intersphinx",
     "sphinx.ext.napoleon",
     "sphinx.ext.linkcode",
-    "enum_tools.autoenum"
+    "enum_tools.autoenum",
+    "sphinxcontrib.yowasp_wavedrom"
     ]
+
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3", None),
+}
 
 myst_enable_extensions = ["attrs_inline"]
 

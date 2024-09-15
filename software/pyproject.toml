@@ -32,6 +32,7 @@ open_beam_interface = "obi.applet.open_beam_interface:OBIApplet"
     "myst-parser>=3.0.1",
     "furo>=2024.8.6",
     "enum-tools[sphinx]>=0.12.0",
+    "sphinxcontrib-yowasp-wavedrom>=1.8",
 ]
 [build-system]
 requires = ["pdm-backend"]
