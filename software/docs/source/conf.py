@@ -26,6 +26,7 @@ extensions = [
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
+    'numpy': ('http://docs.scipy.org/doc/numpy/', None),
 }
 
 myst_enable_extensions = ["attrs_inline"]
@@ -34,8 +35,11 @@ autodoc_member_order = "bysource"
 autodoc_default_options = {
     "members": True
 }
+autodoc_typehints = "description"
+#autodoc_typehints_description_target = "documented"
+
 autodoc_preserve_defaults = True
-autodoc_inherit_docstrings = False
+autodoc_inherit_docstrings = True
 
 templates_path = ['_templates']
 exclude_patterns = []
