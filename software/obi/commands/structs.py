@@ -183,20 +183,20 @@ class DwellTime(u16):
             One DwellTime = 125 ns
         '''
 
+@dataclass
 class DACCodeRange:
     '''
     A range of DAC codes to be stepped through by internal FPGA counters.\
     DAC step sizes are encoded with fractional bits.
 
     Args:
-        start(u14): The first DAC code to start on.
-        count(u14): The number of steps to count up from the starting code.
-        step(fp8_8): The step size to increment by each step.
+        start: The first DAC code to start on.
+        count: The number of steps to count up from the starting code.
+        step: The step size to increment by each step.
     '''
-    def __init__(self, start:u14, count:u14, step:fp8_8):
-        self.start = start
-        self.count = count
-        self.step = step
+    start: u14
+    count: u14
+    step: fp8_8
     def __post_init__(self):
         if self.start > 16383:
             raise ValueError(f"{self.start=} > max position: 16383")
