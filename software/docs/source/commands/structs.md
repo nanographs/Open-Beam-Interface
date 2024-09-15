@@ -35,7 +35,7 @@ When used as type hints, they are only annotations and are not enforced.
 ```
 #### 8,8 fractional fixed point values
 ```{eval-rst}
-.. wavedrom:: uart_rx_status
+.. wavedrom:: fp8_8
 
     {
         "reg": [
