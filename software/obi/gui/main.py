@@ -146,7 +146,7 @@ class Window(QMainWindow):
 
     async def capture_ROI(self, resolution, dwell_time):
         x_start, x_count, y_start, y_count = self.image_display.get_ROI()
-        print(f"{x_start=}, {x_count=}, {y_start=}, {y_count=}")
+        print(f"{resolution=}, {x_start=}, {x_count=}, {y_start=}, {y_count=}")
         async for frame in self.fb.capture_frame_roi(
             x_res=resolution, y_res=resolution,
             x_start = x_start, x_count = x_count, y_start = y_start, y_count = y_count,
@@ -158,7 +158,11 @@ class Window(QMainWindow):
 
     async def capture_frame(self, resolution, dwell_time):
         if self.image_display.roi is not None:
-            await self.capture_ROI(resolution, dwell_time)
+            if (self.fb.current_frame is not None) & (resolution != max(self.fb.current_frame._x_count, self.fb.current_frame._y_count)):
+                self.image_display.remove_ROI()
+                self.scan_control.inner.live.roi_btn.setChecked(False)
+            else:
+                await self.capture_ROI(resolution, dwell_time)
         else:
             async for frame in self.fb.capture_full_frame(
                 x_res=resolution, y_res=resolution, dwell_time=dwell_time, latency=65536
