@@ -5,7 +5,7 @@ Prerequisites:
 
 Clone the OBI repository at the `update-main` branch:
 ```
-git clone https://github.com/nanographs/Open-Beam-Interface -b update-main
+git clone https://github.com/nanographs/Open-Beam-Interface
 ```
 Navigate to `Open-Beam-Interface/software`:
 ```
