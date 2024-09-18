@@ -1,11 +1,11 @@
-name: Export KiCad
-on: 
-    push:
-        paths:
-        - '**.sch'
-        - '**.kicad_pcb'
-        - '.github/**.yml' # Trigger on changes to the workflow file
-        - '**.kibot.yml' # Trigger on changes to the KiBot config file used in the workflow
+# name: Export KiCad
+# on: 
+#     push:
+#         paths:
+#         - '**.sch'
+#         - '**.kicad_pcb'
+#         - '.github/**.yml' # Trigger on changes to the workflow file
+#         - '**.kibot.yml' # Trigger on changes to the KiBot config file used in the workflow
 
 # To allow for manual triggering from the Action console, add workflow_dispatch
     workflow_dispatch:
