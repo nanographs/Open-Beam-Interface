@@ -1,0 +1,36 @@
+name: Export KiCad
+on:
+  workflow_dispatch:
+  push:
+      paths:
+      - '**.sch'
+      - '**.kicad_pcb'
+      - '.github/**.yml' # Trigger on changes to the workflow file
+      - '**.kibot.yml' # Trigger on changes to the KiBot config file used in the workflow
+
+    
+jobs:
+  export-ecad:
+    name: Export ECAD
+    runs-on: ubuntu-latest
+    container: ghcr.io/inti-cmnb/kicad8_auto
+      
+    steps:
+    - name: Update system repositories, Install Required Libraries and Initialize git-lfs
+      run: |
+        apt update
+        apt -y install git git-lfs zip librsvg2-bin imagemagick
+        git lfs install
+
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+      with:
+        lfs: true
+    
+    #mobo
+
+    - name: Generate Export Files
+      run: |
+        cd "Hardware/PCBs/Open Beam Interface"
+        kibot -c ../../../.github/workflows/kibot/kibot.yml -e "Open Beam Interface.kicad_sch" -b "Open Beam Interface.kicad_pcb" -d "Open Beam Interface"
+        
