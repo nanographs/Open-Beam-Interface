@@ -1,0 +1,21 @@
+[instrument_info]
+manufacturer='FEI'
+model='DB'
+
+[beam.ion.pinout]
+scan_enable = [0,1]
+blank_enable = [2,3]
+blank = [-4, 5]
+
+[beam.electron.pinout]
+blank = [6,7]
+scan_enable = [8,9]
+
+[transforms]
+xflip = true
+rotate90 = true
+
+[timings]
+# Scan Selector board uses TE 1462051-2 Relay
+# Switching delay is 20 ms
+ext_switch_delay_ms = 20
