@@ -1,4 +1,0 @@
-# !/bin/sh
-
-pipx upgrade glasgow
-pipx upgrade obi_gui
