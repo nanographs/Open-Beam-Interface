@@ -25,15 +25,14 @@ jobs:
       uses: actions/checkout@v2
       with:
         lfs: true
-    
-    #mobo
 
     - name: Generate Export Files
       run: |
         cd "Hardware/PCBs/Open Beam Interface"
         kibot -c ../../../.github/workflows/kibot/kibot.yml -e "Open Beam Interface.kicad_sch" -b "Open Beam Interface.kicad_pcb" -d "Open Beam Interface"
+
     - name: Commit Files
-    - uses: EndBug/add-and-commit@v9 # You can change this to use a specific version.
+      uses: EndBug/add-and-commit@v9 # You can change this to use a specific version.
       with:
         # The arguments for the `git add` command (see the paragraph below for more info)
         # Default: '.'
