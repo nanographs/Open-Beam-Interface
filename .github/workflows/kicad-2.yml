@@ -13,6 +13,8 @@ jobs:
     name: Export ECAD
     runs-on: ubuntu-latest
     container: ghcr.io/inti-cmnb/kicad8_auto
+    permissions:
+      contents: write
       
     steps:
     - name: Update system repositories, Install Required Libraries and Initialize git-lfs
