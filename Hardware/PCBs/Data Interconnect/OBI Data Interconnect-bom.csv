@@ -1,0 +1,7 @@
+Row,Description,Part,References,Value,Footprint,Quantity Per PCB,Status,Datasheet,Digikey Part Number,Digikey Link
+1,,C,C1 C2 C5,0.1uF,C_0603_1608Metric,3, ,~,1276-1006-1-ND,https://www.digikey.com/en/products/detail/samsung-electro-mechanics/CL10B104KA8NNNC/3886664
+2,,C,C3 C4 C6,4.7uF,C_1206_3216Metric,3, ,~,1276-3178-1-ND,https://www.digikey.com/en/products/detail/samsung-electro-mechanics/CL31B475KAHNNWE/3888836
+3,,Conn_02x10_Odd_Even,J2 J3 J4,Conn_02x10_Odd_Even,IDC-Header_Receptacle_2x10_P2.54mm_Vertical_No_Pin_1_Mark,3, ,~,BCS-110-S-D-TE-ND,https://www.digikey.com/en/products/detail/samtec-inc/BCS-110-S-D-TE/6629089
+4,,Conn_02x22_Odd_Even,J1,Conn_02x22_Odd_Even,PinReceptacle_2x22_P1.27mm_Vertical_BackSide_SMD,1, ,~,CLP-125-02-G-D-P-ND,https://www.digikey.com/en/products/detail/samtec-inc/CLP-125-02-G-D-P/6706472
+5,,Jumper_2_Open,JP1,Jumper_2_Open,R_0603_1608Metric,1, ,~,A106051CT-ND,https://www.digikey.com/en/products/detail/te-connectivity-passive-product/CRG0603ZR/2380828
+6,,R_Pack08,RN1 RN2 RN3,R_Pack08,RES_EXB2HV,3, ,~,Y1330CT-ND,https://www.digikey.com/en/products/detail/panasonic-electronic-components/EXB-2HV471JV/285315 https://www.digikey.com/en/products/detail/panasonic-electronic-components/EXB-2HV330JV/285301
