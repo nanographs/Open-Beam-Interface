@@ -41,7 +41,7 @@ jobs:
 
     - name: Generate Export Files
       run: |
-        cd "Hardware/PCBs/Digital IO Breakout/reva1/Digital IO Breakout"
+        cd "Hardware/PCBs/Digital IO Breakout/revA1/Digital IO Breakout"
         kibot -c ../../../.github/workflows/kibot/kibot.yml -e "Digital IO Breakout.kicad_sch" -b "Digital IO Breakout.kicad_pcb"
 
     ## Interface selectors and drivers
