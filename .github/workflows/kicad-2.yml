@@ -28,10 +28,53 @@ jobs:
       with:
         lfs: true
 
+    ## Main OBI board
     - name: Generate Export Files
       run: |
         cd "Hardware/PCBs/Open Beam Interface"
         kibot -c ../../../.github/workflows/kibot/kibot.yml -e "Open Beam Interface.kicad_sch" -b "Open Beam Interface.kicad_pcb"
+
+    - name: Generate Export Files
+      run: |
+        cd "Hardware/PCBs/Data Interconnect"
+        kibot -c ../../../.github/workflows/kibot/kibot.yml -e "OBI Data Interconnect.kicad_sch" -b "OBI Data Interconnect.kicad_pcb"
+
+    - name: Generate Export Files
+      run: |
+        cd "Hardware/PCBs/Digital IO Breakout/reva1/Digital IO Breakout"
+        kibot -c ../../../.github/workflows/kibot/kibot.yml -e "Digital IO Breakout.kicad_sch" -b "Digital IO Breakout.kicad_pcb"
+
+    ## Interface selectors and drivers
+    - name: Generate Export Files
+      run: |
+        cd "Hardware/PCBs/Interface selectors and drivers/Beam Offset Switch"
+        kibot -c ../../../.github/workflows/kibot/kibot.yml -e "Beam Offset Switch.kicad_sch" -b "Beam Offset Switch.kicad_pcb"
+
+    - name: Generate Export Files
+      run: |
+        cd "Hardware/PCBs/Interface selectors and drivers/DB9 Differential Signal Selector"
+        kibot -c ../../../.github/workflows/kibot/kibot.yml -e "DB9 Differential Signal Selector.kicad_sch" -b "DB9 Differential Signal Selector.kicad_pcb"
+
+    - name: Generate Export Files
+      run: |
+        cd "Hardware/PCBs/Interface selectors and drivers/DB9 High-Low Signal Generator"
+        kibot -c ../../../.github/workflows/kibot/kibot.yml -e "DB9 High-Low Signal Generator.kicad_sch" -b "DB9 High-Low Signal Generator.kicad_pcb"
+
+    - name: Generate Export Files
+      run: |
+        cd "Hardware/PCBs/Interface selectors and drivers/DSC DB9 Splitter"
+        kibot -c ../../../.github/workflows/kibot/kibot.yml -e "DSC DB9 Splitter.kicad_sch" -b "DSC DB9 Splitter.kicad_pcb"
+
+    - name: Generate Export Files
+      run: |
+        cd "Hardware/PCBs/Interface selectors and drivers/DSC Scan Selector"
+        kibot -c ../../../.github/workflows/kibot/kibot.yml -e "DSC Scan Selector.kicad_sch" -b "DSC Scan Selector.kicad_pcb"
+
+    - name: Generate Export Files
+      run: |
+        cd "Hardware/PCBs/Interface selectors and drivers/Generic Scan Selector"
+        kibot -c ../../../.github/workflows/kibot/kibot.yml -e "Generic Scan Selector.kicad_sch" -b "Generic Scan Selector.kicad_pcb"
+
 
     - name: Commit Files
       uses: EndBug/add-and-commit@v9 # You can change this to use a specific version.
