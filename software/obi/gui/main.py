@@ -173,12 +173,16 @@ class Window(QMainWindow):
     @asyncSlot()
     async def acquire_photo(self):
         self.scan_control.inner.photo.acq_btn.to_live_state(self.fb.abort_scan)
-
         resolution, dwell_time = self.scan_control.inner.photo.getval()
+
+        await self.conn.transfer(ExternalCtrlCommand(enable=True))
+
         await self.capture_frame(resolution, dwell_time)
         self.scan_control.inner.photo.acq_btn.to_paused_state(self.acquire_photo)
         self.ensure_unique_control(self.scan_control.inner.photo)
         print(f"capture done! {self.fb.is_aborted=}")
+
+        await self.conn.transfer(ExternalCtrlCommand(enable=self.beam_control.inner.ext.isChecked()))
 
         # if not self.fb.is_aborted:
         print("time to save the image!")
@@ -199,7 +203,6 @@ class Window(QMainWindow):
             resolution, dwell_time = self.scan_control.inner.live.getval()
             await self.capture_frame(resolution, dwell_time)
         
-        # if locked:
         await self.conn.transfer(ExternalCtrlCommand(enable=self.beam_control.inner.ext.isChecked()))
         
         self.scan_control.inner.live.start_btn.to_paused_state(self.toggle_live_scan)
