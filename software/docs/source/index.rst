@@ -17,6 +17,7 @@ Open Beam Interface documentation
    gui
    commands
    macros
+   development
 
 
 
