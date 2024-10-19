@@ -15,3 +15,9 @@ Install virtual environment with PDM:
 ```
 pdm install
 ```
+
+## Using a preexisting Glasgow installation
+If you already have Glasgow installed, you can include it in the virtual environment:
+```
+pdm add /path/to/glasgow/software
+```
