@@ -39,7 +39,7 @@ class TCPStream(Stream):
         while remain > 0:
             data = await self._reader.read(remain)
             if len(data) == 0:
-                raise asyncio.IncompleteReadError
+                raise asyncio.IncompleteReadError(data, remain)
             remain -= len(data)
             self._logger.debug(f"recv: data=<{dump_hex(data)}> remain={remain}")
             buffer.extend(data)
