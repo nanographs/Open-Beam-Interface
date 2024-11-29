@@ -12,6 +12,8 @@ from amaranth.lib.wiring import In, Out, flipped
 from glasgow.applet import GlasgowApplet
 from glasgow.support.logging import dump_hex
 from glasgow.support.endpoint import ServerEndpoint
+from glasgow.device import GlasgowDeviceError
+from usb1 import USBErrorOther
 
 from obi.commands.structs import CmdType, BeamType, OutputMode
 from obi.commands.low_level_commands import Command, ExternalCtrlCommand
@@ -1307,7 +1309,6 @@ class OBIApplet(GlasgowApplet):
         ServerEndpoint.add_argument(parser, "endpoint")
 
     async def interact(self, device, args, iface):
-
         class ForwardProtocol(asyncio.Protocol):
             logger = self.logger
 
@@ -1337,19 +1338,22 @@ class OBIApplet(GlasgowApplet):
             async def send_data(self):
                 self.send_paused = False
                 self.logger.debug("awaiting read")
-                data = await iface.read(flush=False)
-                if self.transport:
-                    self.logger.debug(f"in-buffer size={len(iface._in_buffer)}")
-                    self.logger.debug("dev->net <%s>", dump_hex(data))
-                    self.transport.write(data)
-                    await asyncio.sleep(0)
-                    if self.backpressure:
-                        self.logger.debug("paused send due to backpressure")
-                        self.send_paused = True
+                try:
+                    data = await iface.read(flush=False)
+                    if self.transport:
+                        self.logger.debug(f"in-buffer size={len(iface._in_buffer)}")
+                        self.logger.debug("dev->net <%s>", dump_hex(data))
+                        self.transport.write(data)
+                        await asyncio.sleep(0)
+                        if self.backpressure:
+                            self.logger.debug("paused send due to backpressure")
+                            self.send_paused = True
+                        else:
+                            asyncio.create_task(self.send_data())
                     else:
-                        asyncio.create_task(self.send_data())
-                else:
-                    self.logger.debug("dev->🗑️ <%s>", dump_hex(data))
+                        self.logger.debug("dev->🗑️ <%s>", dump_hex(data))
+                except GlasgowDeviceError:
+                    self.transport.write_eof()
             
             def pause_writing(self):
                 self.backpressure = True
@@ -1370,9 +1374,16 @@ class OBIApplet(GlasgowApplet):
                         self.transport.resume_reading()
                         self.logger.debug("net->dev flush: done")
                     self.logger.debug("net->dev <%s>", dump_hex(data))
+                    try:
+                        await iface.write(data)
+                        self.logger.debug("net->dev write: done")
+                        self.flush_fut = asyncio.create_task(iface.flush(wait=True))
+                    except USBErrorOther:
+                        self.transport.write_eof()
                     await iface.write(data)
                     self.logger.debug("net->dev write: done")
                     self.flush_fut = asyncio.create_task(iface.flush(wait=True))
+
                 asyncio.create_task(recv_data())
 
             def connection_lost(self, exc):

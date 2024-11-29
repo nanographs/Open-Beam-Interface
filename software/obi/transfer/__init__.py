@@ -1,7 +1,7 @@
 __all__ = []
 
-from .abc import Stream, Connection
-__all__ += ["Stream", "Connection"]
+from .abc import Stream, Connection, TransferError
+__all__ += ["Stream", "Connection", "TransferError"]
 
 from .support import setup_logging, dump_hex
 __all__ += ["setup_logging", "dump_hex"]

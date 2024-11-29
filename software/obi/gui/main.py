@@ -19,13 +19,14 @@ from qasync import asyncSlot, asyncClose, QApplication, QEventLoop
 
 from obi.gui.components import ImageDisplay, CombinedScanControls, CombinedPatternControls, BeamControl, MagCalWidget
 
-from obi.transfer import TCPConnection, setup_logging
+from obi.transfer import TCPConnection, setup_logging, TransferError
 from obi.macros import FrameBuffer, BitmapVectorPattern
 from obi.config.meta import ScopeSettings
 
 from obi.commands import *
 
 setup_logging({"Stream": logging.DEBUG, "Command": logging.DEBUG, "Connection": logging.DEBUG})
+
 
 class ScanControlWidget(QDockWidget):
     def __init__(self):
@@ -122,6 +123,11 @@ class Window(QMainWindow):
     # def sizeHint(self):
     #     return self.screen().availableGeometry().size()
 
+    def init_ui(self):
+        self.scan_control.inner.photo.acq_btn.to_paused_state(self.acquire_photo)
+        self.scan_control.inner.live.start_btn.to_paused_state(self.toggle_live_scan)
+        self.enable_all_controls()
+
     @Slot(ScopeSettings)
     def update_toml(self, settings:ScopeSettings):
         self.scope_settings = settings
@@ -177,7 +183,12 @@ class Window(QMainWindow):
 
         await self.conn.transfer(ExternalCtrlCommand(enable=True))
 
-        await self.capture_frame(resolution, dwell_time)
+        try:  
+            await self.capture_frame(resolution, dwell_time)
+        except TransferError:
+            self.init_ui()
+            return
+
         self.scan_control.inner.photo.acq_btn.to_paused_state(self.acquire_photo)
         self.ensure_unique_control(self.scan_control.inner.photo)
         print(f"capture done! {self.fb.is_aborted=}")
@@ -199,9 +210,15 @@ class Window(QMainWindow):
 
         await self.conn.transfer(ExternalCtrlCommand(enable=True))
         
-        while not self.fb.is_aborted:
-            resolution, dwell_time = self.scan_control.inner.live.getval()
-            await self.capture_frame(resolution, dwell_time)
+        try:     
+            while not self.fb.is_aborted:
+                resolution, dwell_time = self.scan_control.inner.live.getval()
+                await self.capture_frame(resolution, dwell_time)
+        except TransferError:
+            print("error!")
+            self.init_ui()
+            return
+
         
         await self.conn.transfer(ExternalCtrlCommand(enable=self.beam_control.inner.ext.isChecked()))
         
@@ -215,9 +232,6 @@ class Window(QMainWindow):
         else: 
             self.image_display.remove_ROI()
 
-
-
-
 def run_gui():
     app = QApplication(sys.argv)
 
@@ -230,6 +244,7 @@ def run_gui():
     window = Window()
     # if not args.window_size == None:
     #     window.resize(args.window_size[0], args.window_size[1])
+    
     window.show()
 
     with event_loop:
