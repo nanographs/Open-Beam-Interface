@@ -1,10 +1,10 @@
 import asyncio
 import logging
 
-try:
-    from rich import print
-except:
-    pass
+# try:
+#     from rich import print
+# except:
+#     pass
 
 from glasgow.access.direct import DirectMultiplexer
 import glasgow.access.direct.demultiplexer as glasgow_access
@@ -48,10 +48,10 @@ class OBILauncher:
         from glasgow.target.hardware import GlasgowHardwareTarget
         from glasgow.device.hardware import GlasgowHardwareDevice
 
-        logging.getLogger().setLevel(logging.DEBUG)
-        logging.getLogger().addHandler(loggingHandler := logging.StreamHandler())
-        loggingHandler.setFormatter(
-            logging.Formatter(style="{", fmt="{levelname[0]:s}: {name:s}: {message:s}"))
+        # logging.getLogger().setLevel(logging.DEBUG)
+        # logging.getLogger().addHandler(loggingHandler := logging.StreamHandler())
+        # loggingHandler.setFormatter(
+        #     logging.Formatter(style="{", fmt="{levelname[0]:s}: {name:s}: {message:s}"))
         device = GlasgowHardwareDevice()
 
         from obi.applet.open_beam_interface import OBIApplet, obi_resources
@@ -63,25 +63,57 @@ class OBILauncher:
 
         applet.build(target, args)
         device.demultiplexer = OBIDemux(device, target.multiplexer.pipe_count)
-        print("preparing build plan...")
+        logging.info("main: preparing build plan...")
         plan = target.build_plan()
-        print("build plan done")
+        logging.info("main: build plan done")
         await device.download_target(plan)
-        print("bitstream loaded")
+        logging.info("main: bitstream loaded")
         voltage = 5.0
         ## TODO: only turn on voltage after gateware is loaded
         await device.set_voltage("AB", voltage)
-        print(f"port AB voltage set to {voltage} V")
+        logging.info(f"main: port AB voltage set to {voltage} V")
         #iface = await applet.run(device, args)
         iface = await device.demultiplexer.claim_interface(applet, applet.mux_interface, args,
                 # read_buffer_size=131072*16, write_buffer_size=131072*16)
                 read_buffer_size=16384*16384, write_buffer_size=16384*16384)
         if interact:
             await applet.interact(device, args, iface)
+
         else:
             await iface.reset()
             return iface
 
-if __name__ == "__main__":
+
+from .logsetup import safely_start_logger
+
+async def run_main():
     l = OBILauncher()
-    asyncio.run(l.launch_server())
+    await l.launch_server()
+
+async def main():
+    # initialize the logger
+    await safely_start_logger()
+    logging.info(f'Main is starting')
+
+    loop = asyncio.get_running_loop()
+    try:
+        await loop.create_task(run_main())
+    except Exception as err:
+        print(f"main done, {err=}")
+    finally:
+        print(f"main done, no err")
+    
+    # # log a message
+
+    
+    # print("starting")
+    # issue many tasks
+    # async with asyncio.TaskGroup() as group:
+    #     group.create_task(run_main())
+
+    #log a message
+    logging.info(f'Main is done')
+
+
+if __name__ == "__main__":
+    asyncio.run(main())

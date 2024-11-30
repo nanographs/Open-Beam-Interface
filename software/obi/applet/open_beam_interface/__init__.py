@@ -20,8 +20,6 @@ from obi.commands.low_level_commands import Command, ExternalCtrlCommand
 
 import logging
 
-from rich import print
-
 # Overview of (linear) processing pipeline:
 # 1. PC software (in: user input, out: bytes)
 # 2. Glasgow software/framework (in: bytes, out: same bytes; vendor-provided)
@@ -1340,6 +1338,13 @@ class OBIApplet(GlasgowApplet):
                 self.logger.debug("awaiting read")
                 try:
                     data = await iface.read(flush=False)
+                except GlasgowDeviceError:
+                    self.transport.write_eof()
+                    print("Wrote EOF")
+                except USBErrorOther:
+                    self.transport.write_eof()
+                    print("Wrote EOF")
+                else:
                     if self.transport:
                         self.logger.debug(f"in-buffer size={len(iface._in_buffer)}")
                         self.logger.debug("dev->net <%s>", dump_hex(data))
@@ -1352,8 +1357,6 @@ class OBIApplet(GlasgowApplet):
                             asyncio.create_task(self.send_data())
                     else:
                         self.logger.debug("dev->🗑️ <%s>", dump_hex(data))
-                except GlasgowDeviceError:
-                    self.transport.write_eof()
             
             def pause_writing(self):
                 self.backpressure = True
@@ -1370,19 +1373,30 @@ class OBIApplet(GlasgowApplet):
                     await self.init_fut
                     if not self.flush_fut == None:
                         self.transport.pause_reading()
-                        await self.flush_fut
+                        try:
+                            await self.flush_fut
+                        except USBErrorOther:
+                            self.transport.write_eof()
+                            print("Wrote EOF")
                         self.transport.resume_reading()
                         self.logger.debug("net->dev flush: done")
                     self.logger.debug("net->dev <%s>", dump_hex(data))
                     try:
                         await iface.write(data)
-                        self.logger.debug("net->dev write: done")
-                        self.flush_fut = asyncio.create_task(iface.flush(wait=True))
                     except USBErrorOther:
                         self.transport.write_eof()
-                    await iface.write(data)
+                        print("Wrote EOF")
                     self.logger.debug("net->dev write: done")
-                    self.flush_fut = asyncio.create_task(iface.flush(wait=True))
+
+                    async def try_flush():
+                        try:
+                            await iface.flush(wait=True)
+                        except USBErrorOther as err:
+                            print("cancelling pending USB transfers...")
+                            await iface._in_tasks.cancel()
+                            raise GlasgowDeviceError(err)
+
+                    self.flush_fut = asyncio.create_task(try_flush())
 
                 asyncio.create_task(recv_data())
 
@@ -1395,5 +1409,29 @@ class OBIApplet(GlasgowApplet):
                 
         proto, *proto_args = args.endpoint
         server = await asyncio.get_event_loop().create_server(ForwardProtocol, *proto_args, backlog=1)
-        await server.serve_forever()
+
+        def handler(loop, context):
+            print(f"handling exception {context=}")
+            if "exception" in context.keys():
+                if isinstance(context["exception"], GlasgowDeviceError):
+                    #TODO: in python 3.13, use server.close_clients()
+                    print("Glasgow Device Error detected.")
+                    server.close()
+                    print("Closing Down...")
+                if context["exception"].__module__ == "usb1":
+                    print("USB error detected")
+                    server.close()
+                    print("Closing Down...")
+                    
+
+        loop = asyncio.get_running_loop()
+        loop.set_exception_handler(handler)
         
+        try:
+            await server.serve_forever()
+        except asyncio.CancelledError:
+            print("Server shut down due to device error.\n Check device connection.")
+            # loop.stop()
+        finally:
+            print("OBI Server Closed.")
+
