@@ -61,5 +61,5 @@ class OBIAppletArguments:
                 setattr(self.args, transform, setting)
         if "timings" in config:
             timings = config["timings"]
-            print(f"ext_switch_delay = {timings.get("ext_switch_delay_ms")} ms")
+            print(f"ext_switch_delay = {timings.get('ext_switch_delay_ms')} ms")
             setattr(self.args, "ext_switch_delay", timings.get("ext_switch_delay_ms"))
