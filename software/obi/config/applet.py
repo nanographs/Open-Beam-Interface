@@ -44,7 +44,7 @@ class OBIAppletArguments:
                     pinout = beam_config["pinout"]
                     for pin_name in pinout:
                         pin_num = pinout.get(pin_name)
-                        pin_name = f"pin_set_{beam_prefixes.get(beam)}_{pin_name.replace("-","_")}"
+                        pin_name = f"pin_set_{beam_prefixes.get(beam)}_{pin_name.replace('-','_')}"
                         pins = [PinArgument(num) if num >= 0 else PinArgument(abs(num), invert=True) for num in pin_num ]
                         print(pins)
                         setattr(self.args, pin_name, pins)
