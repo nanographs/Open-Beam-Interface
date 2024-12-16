@@ -57,9 +57,9 @@ class DoseCalculator(QVBoxLayout):
             pixel_size = hfov/resolution
             pixel_area = pixel_size*pixel_size
             exposure = current*dwell/pixel_area
-            self.pix_size.setText(f"{pg.siFormat(pixel_size, suffix="m")}")
-            self.pix_area.setText(f"{pg.siFormat(pixel_area, suffix="m^2")}")
-            self.exposure.setText(f"{pg.siFormat(exposure/pow(10,6), suffix="C/cm^2")}") #1 GC/m^2 = 1 uC/cm^2
+            self.pix_size.setText(f"{pg.siFormat(pixel_size, suffix='m')}")
+            self.pix_area.setText(f"{pg.siFormat(pixel_area, suffix='m^2')}")
+            self.exposure.setText(f"{pg.siFormat(exposure/pow(10,6), suffix='C/cm^2')}") #1 GC/m^2 = 1 uC/cm^2
     
 
 class DoseCalcWidget(QWidget):
