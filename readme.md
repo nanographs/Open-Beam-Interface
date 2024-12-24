@@ -5,18 +5,18 @@
 Check out our docs at [https://nanographs.github.io/Open-Beam-Interface/index.html](https://nanographs.github.io/Open-Beam-Interface/index.html)
 
 ## About
-The Open Beam Interface project aims to make getting data into and out of scanning and patterning systems substantially more accessible. It is applicable to a varity of scanning and patterning system but is especially useful for Electron and Ion microscopes.
+The Open Beam Interface project aims to make getting data into and out of scanning and patterning systems substantially more accessible. It is applicable to a variety of scanning and patterning systems but is especially useful for Electron and Ion microscopes.
 
 
 ### Hardware
-2 high speed Digital to Analog converters to position the beam in X and Y and a high speed Analog to Digital converter to aquire the signal from a detector.
+2 high speed Digital to Analog converters to position the beam in X and Y and a high speed Analog to Digital converter to acquire the signal from a detector.
 
 Just what you need to control the beam and get an image.
 
 ### Gateware
 Built on [Glasgow](https://glasgow-embedded.org/), written in [Amaranth](https://amaranth-lang.org).
 
-Glasgow makes getting bytes in and out of the FPGA over USB radically more accessibe. We use that to make getting data into and out of your microscope radically more accessible.
+Glasgow makes getting bytes in and out of the FPGA over USB radically more accessible. We use that to make getting data into and out of your microscope radically more accessible.
 
 ### Software
 Glasgow handles getting the bytes in and out of your computer. Our software takes those bytes and forms an image, while simultaneously streaming bytes to Glasgow to support raster and vector patterning applications.
@@ -40,8 +40,8 @@ Glasgow handles getting the bytes in and out of your computer. Our software take
 - [x] Refactor gateware to support 16 bit grayscale vector and raster patterning (thanks Whitequark)
 - [x] Integrate refactored gateware with UI
 - [x] Make minor design-for-manufacturing and thermal changes to V1.1 PCBs (V1.1 uploaded in progress state)
-- [x] Order and test blanking and external/internal scan sellect PCBs
-- [ ] Implement integrated UI for new 16 bit grayscale imaging, vector and raster patterning modes.
+- [x] Order and test blanking and external/internal scan select PCBs
+- [ ] Implement integrated UI for new 16 bit grayscale imaging, vector, and raster patterning modes.
 - [ ] Integrate fine-grained dwell time control at the gateware level
 - [ ] Implement Metadata for saved images
 - [ ] Integrate repository into a single virtual environment and improve install instructions
@@ -54,10 +54,10 @@ Glasgow handles getting the bytes in and out of your computer. Our software take
 - How many bits are the DACs and ADCs
     - 14 bits
 - What are the range of dwell times?
-    - Minimumn dwell time is 125ns, with minimum temporal resolution of 20.83 ns
+    - Minimum dwell time is 125ns, with minimum temporal resolution of 20.83 ns
     - Hardware supports 50ns dwells when controlling both DACs and the ADC
     - Without sampling the ADC (no video signal), the hardware supports 25ns dwells
-    - The limitng factor in most modes is USB bandwidth
+    - The limiting factor in most modes is USB bandwidth
 
 
 ## Supported microscopes
@@ -95,7 +95,7 @@ Microscopes the board has been specifically integrated into, this is far from an
 
 
 ## Sponsors
-We would like to thank our sponsors' generous sustaining contributions. Without them we would not be here today.
+We would like to thank our sponsors' generous sustaining contributions. Without them, we would not be here today.
 
 ### Microscope Donations
 We are always open to potential microscope donations to use for hardware development, in order to expand the range of microscopes and capabilities we can support. Right now we are especially in search of FIBs, Dual Beams, and TEMs.
