@@ -9,7 +9,7 @@ The Open Beam Interface project aims to make getting data into and out of scanni
 
 
 ### Hardware
-Two high-speed digital-to-analog converters to position the beam in X and Y, and a high-speed analog-to-digital converter to acquire the signal from a detector.
+Two high-speed digital-to-analog converters position the beam in X and Y and a high-speed analog-to-digital converter acquires the signal from a detector.
 
 Just what you need to control the beam and get an image.
 
