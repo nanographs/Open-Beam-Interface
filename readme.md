@@ -5,18 +5,18 @@
 Check out our docs at [https://nanographs.github.io/Open-Beam-Interface/index.html](https://nanographs.github.io/Open-Beam-Interface/index.html)
 
 ## About
-The Open Beam Interface project aims to make getting data into and out of scanning and patterning systems substantially more accessible. It is applicable to a varity of scanning and patterning system but is especially useful for Electron and Ion microscopes.
+The Open Beam Interface project aims to make getting data into and out of scanning and patterning systems substantially more accessible. It is applicable to a variety of scanning and patterning systems but is especially useful for electron and ion microscopes.
 
 
 ### Hardware
-2 high speed Digital to Analog converters to position the beam in X and Y and a high speed Analog to Digital converter to aquire the signal from a detector.
+Two high-speed digital-to-analog converters position the beam in X and Y and a high-speed analog-to-digital converter acquires the signal from a detector.
 
 Just what you need to control the beam and get an image.
 
 ### Gateware
 Built on [Glasgow](https://glasgow-embedded.org/), written in [Amaranth](https://amaranth-lang.org).
 
-Glasgow makes getting bytes in and out of the FPGA over USB radically more accessibe. We use that to make getting data into and out of your microscope radically more accessible.
+Glasgow makes getting bytes in and out of the FPGA over USB radically more accessible. We use that to make getting data into and out of your microscope radically more accessible.
 
 ### Software
 Glasgow handles getting the bytes in and out of your computer. Our software takes those bytes and forms an image, while simultaneously streaming bytes to Glasgow to support raster and vector patterning applications.
@@ -35,13 +35,13 @@ Glasgow handles getting the bytes in and out of your computer. Our software take
 - [X] Order and test rev 1 PCBs (Design not uploaded, required significant rework)
 - [X] Capture 16,384 x 16,384 images
 - [X] Live viewer fast enough to focus and stigmate with
-- [X] Raster pattern mode at 16,384 x 16,384 image resolution, with 8 bit grayscale dwelltimes
+- [X] Raster pattern mode at 16,384 x 16,384 image resolution, with 8-bit grayscale dwell times
 - [X] Order and test V1.0 PCBs 
-- [x] Refactor gateware to support 16 bit grayscale vector and raster patterning (thanks Whitequark)
+- [x] Refactor gateware to support 16-bit grayscale vector and raster patterning (thanks Whitequark)
 - [x] Integrate refactored gateware with UI
 - [x] Make minor design-for-manufacturing and thermal changes to V1.1 PCBs (V1.1 uploaded in progress state)
-- [x] Order and test blanking and external/internal scan sellect PCBs
-- [ ] Implement integrated UI for new 16 bit grayscale imaging, vector and raster patterning modes.
+- [x] Order and test blanking and external/internal scan select PCBs
+- [ ] Implement integrated UI for new 16-bit grayscale imaging, vector, and raster patterning modes.
 - [ ] Integrate fine-grained dwell time control at the gateware level
 - [ ] Implement Metadata for saved images
 - [ ] Integrate repository into a single virtual environment and improve install instructions
@@ -54,27 +54,27 @@ Glasgow handles getting the bytes in and out of your computer. Our software take
 - How many bits are the DACs and ADCs
     - 14 bits
 - What are the range of dwell times?
-    - Minimumn dwell time is 125ns, with minimum temporal resolution of 20.83 ns
+    - Minimum dwell time is 125ns, with a minimum temporal resolution of 20.83 ns
     - Hardware supports 50ns dwells when controlling both DACs and the ADC
     - Without sampling the ADC (no video signal), the hardware supports 25ns dwells
-    - The limitng factor in most modes is USB bandwidth
+    - The limiting factor in most modes is USB bandwidth
 
 
 ## Supported microscopes
 We have crafted this board to support as many microscopes as possible. We do not know of a SEM or FIB that specifically does not have these signals ***somewhere*** inside that can be tapped.
 
-Many microscopes have an existing dedicated connector for external scan inputs. This was in general originally for external beam control coming from EDS or other X-Ray mapping systems.
+Many microscopes have an existing dedicated connector for external scan inputs. Originally, this was generally for external beam control coming from EDS or other X-Ray mapping systems.
 
-For microscopes that do not have a dedicated external scan connector, the X and Y ramps that drive the scan coils exist ***somewhere***. A relay can be installed to flip between internal and external scan. Sometimes even when microscopes have a dedicated connector it is better to tap the X and Y signals somewhere else.
+For microscopes that do not have a dedicated external scan connector, the X and Y ramps that drive the scan coils exist ***somewhere***. A relay can be installed to flip between internal and external scan. Sometimes, even when microscopes have a dedicated connector, it is better to tap the X and Y signals somewhere else.
 
 
 ### General
 - Has a XY scan input that is either:
     - ±1-10V differential
-    - ±1-10V single ended
+    - ±1-10V single-ended
 
 - Has a video output that is:
-    - ±1-10V single ended
+    - ±1-10V single-ended
 
 Tapping into the signal path may require fabricating a custom cable.
 
@@ -95,7 +95,7 @@ Microscopes the board has been specifically integrated into, this is far from an
 
 
 ## Sponsors
-We would like to thank our sponsors' generous sustaining contributions. Without them we would not be here today.
+We would like to thank our sponsors' generous sustaining contributions. Without them, we would not be here today.
 
 ### Microscope Donations
 We are always open to potential microscope donations to use for hardware development, in order to expand the range of microscopes and capabilities we can support. Right now we are especially in search of FIBs, Dual Beams, and TEMs.
@@ -104,7 +104,7 @@ We are always open to potential microscope donations to use for hardware develop
 - JEOL 1200 Mrk II on loan from Joe Bricker https://www.emqso.com
 
 ### Financial Supporters
-Thanks to the generous support of our financial sponsors we have been able to dedicate almost all of our time and facility resources to developing the project this far. We are looking for more sponsors in order to continue our work, involve more enginers, and take this project to the next level.
+Thanks to the generous support of our financial sponsors, we have been able to dedicate almost all of our time and facility resources to developing the project this far. We are looking for more sponsors in order to continue our work, involve more engineers, and take this project to the next level.
 
 - Superior Technical Services
     - http://superior-technical.com
