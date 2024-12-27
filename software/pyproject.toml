@@ -3,7 +3,7 @@ name = "obi"
 version = "0"
 description = "Electron microscope image capture with Glasgow and Open Beam Interface hardware"
 authors = [
-    {name = "nanographs"},
+    {name = "nanographs", email = "adam@nanographs.io"},
     {name = "isabelburgos", email = "isabel@nanographs.io"},
 ]
 dependencies = [
