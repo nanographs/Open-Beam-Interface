@@ -7,5 +7,5 @@
    hardware/overview
    hardware/power
    hardware/adjustment_guide
-   hardware/io_bus
+   hardware/main_digital_io
 ```

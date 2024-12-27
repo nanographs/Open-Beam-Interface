@@ -43,7 +43,7 @@
 | 20  | NC   | 19  | NC   |
 
 ## Bus
-The OBI data bus is multiplexer and bidirectional, sharing 14 data lines between the X and Y DAC and the ADC. One "bus cycle" consists of latching data for the X DAC, latching data for the Y DAC, and reading data from the ADC latch.
+The OBI data bus is multiplexed and bidirectional, sharing 14 data lines between the X and Y DAC and the ADC. One "bus cycle" consists of latching data for the X DAC, latching data for the Y DAC, and reading data from the ADC latch.
 
 ```{eval-rst}
 .. wavedrom:: data_bus
