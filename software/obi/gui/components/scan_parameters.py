@@ -48,11 +48,16 @@ class SettingBoxWithDefaults(QHBoxLayout):
         self.addWidget(self.label)
         self.addWidget(self.dropdown)
         self.addWidget(self.spinbox)
+
+        self.last_custom_val = initial_val
     
     def getval(self) -> int:
         val = self.dropdown.currentText()
         if val == "Custom":
-            return int(self.spinbox.cleanText())
+            custom_field = self.spinbox.cleanText()
+            if custom_field != "":
+                self.last_custom_val = int(custom_field)
+            return self.last_custom_val
         else:
             return int(val)
 
