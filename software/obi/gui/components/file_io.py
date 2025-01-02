@@ -30,5 +30,5 @@ class BrowseDirectory(QVBoxLayout):
         path = QFileDialog.getExistingDirectory()
         if not path:
             return
-        self.path_str = path[0]
+        self.path_str = path
         self.path_box.setText(path)
