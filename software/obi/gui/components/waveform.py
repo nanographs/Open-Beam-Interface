@@ -4,10 +4,12 @@ import numpy as np
 
 from PyQt6.QtWidgets import (QLabel, QGridLayout, QApplication, QWidget, QProgressBar, QTabWidget,
                              QSpinBox, QComboBox, QHBoxLayout, QVBoxLayout, QPushButton)
+from PyQt6.QtCore import pyqtSignal
 import pyqtgraph as pg
 
 
 class WaveformViewer(QVBoxLayout):
+    sigNewDataPoint = pyqtSignal(int)
     def __init__(self, pts: int = 1000):
         super().__init__()
 
@@ -29,6 +31,7 @@ class WaveformViewer(QVBoxLayout):
         self.plot.addItem(mid)
 
         self.addWidget(self.plot)
+        self.sigNewDataPoint.connect(self.display_point)
     
     def display_point(self, data: int):
         self.data[:self.pts-1] = self.data[1:self.pts]
