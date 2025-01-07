@@ -7,5 +7,6 @@
    hardware/overview
    hardware/power
    hardware/adjustment_guide
+   hardware/io_bus
    hardware/accessory
 ```

@@ -4,3 +4,10 @@
 
 body[data-theme="light"] { img.wavedrom { color-scheme: light; } }
 body[data-theme="dark"] { img.wavedrom { filter:invert(1)} }
+body[data-theme="auto"] {
+    @media (prefers-color-scheme: dark) { img.wavedrom { filter:invert(1)} }
+    @media (prefers-color-scheme: light) { img.wavedrom { color-scheme: light; } }
+}
+
+
+
