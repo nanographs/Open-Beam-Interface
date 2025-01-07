@@ -30,6 +30,8 @@ intersphinx_mapping = {
 }
 
 myst_enable_extensions = ["attrs_inline"]
+#enables turning markdown headings into links
+myst_heading_anchors = 6 
 
 autodoc_member_order = "bysource"
 autodoc_default_options = {

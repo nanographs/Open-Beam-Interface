@@ -1,6 +1,6 @@
 # OBI Digital Domain
 
-The Open Beam Interface uses a 14-bit bidirectional parallel data bus to get data in and out of the DACs and ADC. The control signals for the data bus, DACs, and ADC are on connector J2, and connectors J3 and J4 are used to carry the 14 bits of data. The data bus and all control signals operate using 3.3V TTL and are intended to be driven directly by the iCE40 FPGA on Glasgow via Glasgow's LVDS connector. 
+The Open Beam Interface uses a 14-bit bidirectional parallel data bus to get data in and out of the DACs and ADC. The control signals for the data bus, DACs, and ADC are on connector [J2](#j2---control), and connectors [J3](#j3---data-lsb) and [J4](#j4---data-msb) are used to carry the 14 bits of data. The data bus and all control signals operate using 3.3V TTL and are intended to be driven directly by the iCE40 FPGA on Glasgow via Glasgow's LVDS connector. 
 
 An interconnect board (LVDS I/O Breakout) is used to break out the 2x22 0.5mm pitch LVDS connector into 3 2x10 2.54mm pitch connectors which mate to J2, J3, and J4 on the main OBI board. Connectors J2, J3, and J4 follow the same convention as Glasgow Ports A/B with 8 data and ground pins.
 
