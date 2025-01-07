@@ -238,9 +238,6 @@ class XYDACSettings(QVBoxLayout):
         self.addWidget(self.tabs)
     
 
-
-
-
 def run_gui():
     app = QApplication(sys.argv)
 

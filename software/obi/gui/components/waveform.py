@@ -1,6 +1,7 @@
 import sys
 import asyncio
 import numpy as np
+import array
 
 from PyQt6.QtWidgets import (QLabel, QGridLayout, QApplication, QWidget, QProgressBar, QTabWidget,
                              QSpinBox, QComboBox, QHBoxLayout, QVBoxLayout, QPushButton)
@@ -9,16 +10,14 @@ import pyqtgraph as pg
 
 
 class WaveformViewer(QVBoxLayout):
-    sigNewDataPoint = pyqtSignal(int)
     def __init__(self, pts: int = 1000):
         super().__init__()
 
-        self.pts = pts
-        self.data = np.zeros(self.pts)
+        self.initialize_points(pts)
 
         self.plot = pg.PlotWidget(enableMenu=False)
         self.plot.setYRange(0,16384)
-        self.plot.setXRange(0,1000)
+        self.plot.setXRange(0,pts)
         
         self.plot_data = pg.PlotDataItem()
         self.plot.addItem(self.plot_data)
@@ -30,18 +29,32 @@ class WaveformViewer(QVBoxLayout):
         mid.setPos([0,8191])
         self.plot.addItem(mid)
 
+        self.exp_btn = QPushButton("copy to clipboard 📋")
+
         self.addWidget(self.plot)
-        self.sigNewDataPoint.connect(self.display_point)
+        self.addWidget(self.exp_btn)
+
+    def initialize_points(self, pts: int):
+        self.pts = pts
+        self.data = np.zeros(self.pts)
     
-    def display_point(self, data: int):
-        self.data[:self.pts-1] = self.data[1:self.pts]
-        self.data[self.pts-1] = data
+    def display_data(self, data: array.array):
+        # if more data shows up than fits on the display, throw it out
+        d_pts = min(len(data), self.pts) 
+        d = np.asarray(data, np.uint8)
+        # print(f"self.data[:{self.pts-d_pts}] = self.data[{d_pts}:{self.pts}]")
+        self.data[:self.pts-d_pts] = self.data[d_pts:self.pts]
+        # print(f"self.data[{self.pts-d_pts}:] = d[:{d_pts}]")
+        self.data[self.pts-d_pts:] = d[:d_pts]
         self.plot_data.setData(self.data)
 
     def showTest(self):
         points = np.linspace(0, 16384, self.pts)
-        for n in points:
-            self.display_point(n)
+        self.display_data(array.array('B', points))
+    
+    def to_clipboard(self):
+        exporter = pg.exporters.ImageExporter(self.plot.plotItem)
+        exporter.export("wfm.png", copy=True)
 
 
 if __name__ == "__main__":
