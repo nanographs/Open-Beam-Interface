@@ -657,7 +657,7 @@
           "group_by": false,
           "label": "Order Link",
           "name": "Order Link",
-          "show": false
+          "show": true
         },
         {
           "group_by": false,

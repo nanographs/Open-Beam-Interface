@@ -31297,7 +31297,7 @@
 				)
 			)
 		)
-		(property "Value" "74ALVCH16373DGG:11"
+		(property "Value" "SN74ALVCH16374DGGR"
 			(at 266.7 87.63 90)
 			(effects
 				(font
@@ -31332,7 +31332,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "https://www.digikey.com/en/products/detail/nexperia-usa-inc/74ALVCH16373DGG-11/2228810"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/texas-instruments/SN74ALVCH16374DGGR/276787"
 			(at 266.7 83.82 0)
 			(effects
 				(font
@@ -31341,7 +31341,7 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" "1727-8378-1-ND"
+		(property "DK Part Number" "296-1144-1-ND"
 			(at 266.7 83.82 0)
 			(effects
 				(font
@@ -53305,7 +53305,7 @@
 				)
 			)
 		)
-		(property "Value" "74ALVCH16373DGG:11"
+		(property "Value" "SN74ALVCH16374DGGR"
 			(at 266.7 212.09 90)
 			(effects
 				(font
@@ -53340,7 +53340,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "https://www.digikey.com/en/products/detail/nexperia-usa-inc/74ALVCH16373DGG-11/2228810"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/texas-instruments/SN74ALVCH16374DGGR/276787"
 			(at 266.7 209.55 0)
 			(effects
 				(font
@@ -53349,7 +53349,7 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" "1727-8378-1-ND"
+		(property "DK Part Number" "296-1144-1-ND"
 			(at 266.7 209.55 0)
 			(effects
 				(font
@@ -70369,7 +70369,7 @@
 				)
 			)
 		)
-		(property "Value" "74ALVCH16373DGG:11"
+		(property "Value" "SN74ALVCH16374DGGR"
 			(at 266.7 330.2 90)
 			(effects
 				(font
@@ -70404,7 +70404,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "https://www.digikey.com/en/products/detail/nexperia-usa-inc/74ALVCH16373DGG-11/2228810"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/texas-instruments/SN74ALVCH16374DGGR/276787"
 			(at 266.7 336.55 0)
 			(effects
 				(font
@@ -70413,7 +70413,7 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" "1727-8378-1-ND"
+		(property "DK Part Number" "296-1144-1-ND"
 			(at 266.7 336.55 0)
 			(effects
 				(font
