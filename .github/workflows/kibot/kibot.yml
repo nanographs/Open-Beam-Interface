@@ -1,0 +1,26 @@
+kibot:
+  version: 1
+
+outputs:
+  - name: 'ibom'
+    comment: 'Interactive Bill of Materials'
+    type: ibom
+    dir: .
+    options:
+      layer-view: 'F'
+      dark-mode: true
+
+  - name: 'bom'
+    comment: 'Bill of Materials'
+    type: bom
+    dir: .
+    options:
+      csv:
+        hide_pcb_info: true
+        hide_stats_info: true
+      format: CSV
+
+  - name: 'print_sch'
+    comment: "Print schematic (PDF)"
+    type: pdf_sch_print
+    dir: .
