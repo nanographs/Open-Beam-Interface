@@ -1,0 +1,4 @@
+Row,Description,Part,References,Value,Footprint,Quantity Per PCB,Status,Datasheet,Sim.Device,Sim.Pins
+1,"9-pin female receptacle socket D-SUB connector, Mounting Hole",DE9_Receptacle_MountingHoles,J1,DE9_Receptacle_MountingHoles,DSUB-9_Female_Horizontal_P2.77x2.84mm_EdgePinOffset4.94mm_Housed_MountingHolesOffset7.48mm,1, , ~,,
+2,"Generic shielded connector, single row, 01x03, script generated (kicad-library-utils/schlib/autogen/connector/)",M8_conn_01x03_Pin_Shielded,J2,M8_conn_01x03_Pin_Shielded,M8_conn_01x03_Pin_Shielded_Right_Angle,1, ,~,,
+3,"Jumper, 3-pole, both open",Jumper_3_Open,JP1 JP2 JP3 JP4 JP5 JP6 JP7 JP8 JP9,Jumper_3_Open,PinHeader_1x03_P2.54mm_Vertical,9, ,~,,

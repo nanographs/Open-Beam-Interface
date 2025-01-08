@@ -1,0 +1,6 @@
+Row,Description,Part,References,Value,Footprint,Quantity Per PCB,Status,Datasheet,DK Part Number,Sim.Device,Sim.Pins
+1,"1000V 1A General Purpose Rectifier Diode, DO-41",1N4007,D1 D2,1N4007,D_DO-41_SOD81_P10.16mm_Horizontal,2, ,http://www.vishay.com/docs/88503/1n4001.pdf,1N4007GP-E3/73GICT-ND,D,1=K 2=A
+2,"9-pin male plug pin D-SUB connector, Mounting Hole",DE9_Plug_MountingHoles,J1 J2,DE9_Plug_MountingHoles,DSUB-9_Male_Horizontal_P2.77x2.84mm_EdgePinOffset4.94mm_Housed_MountingHolesOffset7.48mm,2, , ~,A32094-ND,,
+3,"9-pin female receptacle socket D-SUB connector, Mounting Hole",DE9_Receptacle_MountingHoles,J3,DE9_Receptacle_MountingHoles,DSUB-9_Female_Horizontal_P2.77x2.84mm_EdgePinOffset4.94mm_Housed_MountingHolesOffset7.48mm,1, , ~,A32119-ND,,
+4,"Generic shielded connector, single row, 01x03, script generated (kicad-library-utils/schlib/autogen/connector/)",M8_conn_01x03_Pin_Shielded,J4,M8_conn_01x03_Pin_Shielded,M8_conn_01x03_Pin_Shielded_Right_Angle,1, ,~,,,
+5,,TE_IM_Axicom_Relay_DPDT,RY1 RY2 RY3 RY4,TE IM23TS DPDT,TE IM23TS DPDT Relay,4, ,,PB1169-ND,,
