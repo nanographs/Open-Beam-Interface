@@ -4,20 +4,13 @@ import math
 import numpy as np
 import pyqtgraph as pg
 from pyqtgraph.exporters import Exporter
-from pyqtgraph.Qt import QtCore
+# from pyqtgraph.Qt import QtCore
 from pyqtgraph.graphicsItems.TextItem import TextItem
 
-from PyQt6.QtWidgets import (QHBoxLayout, QMainWindow,
-                             QMessageBox, QPushButton,
-                             QVBoxLayout, QWidget, QLabel, QGridLayout,
-                             QSpinBox, QSizePolicy)
-from PyQt6.QtCore import QThread, QObject, pyqtSignal, pyqtSlot as Slot, Qt, QRectF
+from PyQt6.QtWidgets import QSizePolicy
+from PyQt6.QtCore import pyqtSignal, pyqtSlot as Slot, QRectF, QPointF, QSize
 
 logger = logging.getLogger()
-
-from PyQt6.QtCore import QPointF
-
-from rich import print
 
 class ALine(pg.LineSegmentROI):
     def __init__(self, *args, **kwargs):
@@ -161,7 +154,7 @@ class ImageDisplay(pg.GraphicsLayoutWidget):
         hint = super().sizeHint()
         height, width = hint.height(), hint.width()
         maxsize = max(height, width)
-        return QtCore.QSize(int(maxsize*self.aspect), maxsize)
+        return QSize(int(maxsize*self.aspect), maxsize) #QtCore
     def sizePolicy(self):
         policy = QSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Maximum)
         policy.setWidthForHeight(True)
@@ -174,7 +167,7 @@ class ImageDisplay(pg.GraphicsLayoutWidget):
         self.roi.addScaleHandle([1, 1], [0, 0])
         self.roi.addScaleHandle([0, 0], [1, 1])
         self.image_view.addItem(self.roi)
-        self.roi.maxBounds = QtCore.QRectF(0, 0, self.x_width, self.y_height)
+        self.roi.maxBounds = QRectF(0, 0, self.x_width, self.y_height) #QtCore
         self.roi.setZValue(10)  # make sure ROI is drawn above image
     
     def add_line(self, start=None, end=None):
@@ -235,7 +228,7 @@ class ImageDisplay(pg.GraphicsLayoutWidget):
     def setRange(self, y_height, x_width):
         if (x_width != self.x_width) | (y_height != self.y_height):
             if not self.roi == None:
-                self.roi.maxBounds = QtCore.QRectF(0, 0, x_width, y_height)
+                self.roi.maxBounds = QRectF(0, 0, x_width, y_height) #QtCore
             #self.image_view.setRange(QtCore.QRectF(0, 0, x_width, y_height))
             self.x_width = x_width
             self.y_height = y_height

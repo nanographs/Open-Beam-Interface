@@ -1,7 +1,6 @@
-from PyQt6.QtWidgets import (QLabel, QGridLayout, QApplication, QWidget, QFrame, QFileDialog, QCheckBox,
-                             QSpinBox, QComboBox, QHBoxLayout, QVBoxLayout, QPushButton, QLineEdit)
-from PyQt6.QtCore import Qt
-from PyQt6.QtCore import QThread, QObject, pyqtSignal, pyqtSlot as Slot
+from PyQt6.QtWidgets import (QLabel, QApplication, QWidget, QFrame,
+                            QSpinBox, QComboBox, QHBoxLayout, QVBoxLayout, QPushButton)
+from PyQt6.QtCore import pyqtSlot as Slot
 from .file_io import BrowseDirectory
 import os
 

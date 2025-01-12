@@ -1,5 +1,4 @@
-from PyQt6.QtWidgets import (QLabel, QGridLayout, QApplication, QWidget, QFrame, QFileDialog, QCheckBox,
-                             QSpinBox, QComboBox, QHBoxLayout, QVBoxLayout, QPushButton, QLineEdit)
+from PyQt6.QtWidgets import (QLabel, QApplication, QWidget, QHBoxLayout, QVBoxLayout)
 import pyqtgraph as pg
 
 

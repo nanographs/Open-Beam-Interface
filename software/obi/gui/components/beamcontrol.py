@@ -1,14 +1,11 @@
-from PyQt6.QtWidgets import (QLabel, QGridLayout,  QWidget, QFrame, QFileDialog, QCheckBox,
-                             QSpinBox, QComboBox, QHBoxLayout, QVBoxLayout, QPushButton, QLineEdit, QButtonGroup)
-from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QButtonGroup)
 import qasync
-from qasync import asyncSlot, asyncClose, QApplication, QEventLoop
-from PyQt6.QtCore import QThread, QObject, pyqtSignal, pyqtSlot as Slot
+from qasync import asyncSlot, QApplication, QEventLoop
+from PyQt6.QtCore import pyqtSignal
 
 
 from obi.commands import BeamSelectCommand, BeamType, ExternalCtrlCommand
 from obi.transfer import TCPConnection
-#from obi.config.scope import OBIScope, OBIBeam
 from obi.config.meta import ScopeSettings, BeamSettings
 
 class BeamButton(QPushButton):
