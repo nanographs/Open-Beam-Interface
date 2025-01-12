@@ -8,11 +8,8 @@ pdm install -G gui
 ```
 
 ## Running the GUI
-Launch the OBI server:
+Open the launcher:
 ```
 pdm run launch
 ```
-In a separate thread (open another terminal window), launch the GUI:
-```
-pdm run gui
-```
+Click the "Start" buttons for both the server and the GUI. You can launch these in either order, but the GUI controls won't do anything until the server is up and running.
