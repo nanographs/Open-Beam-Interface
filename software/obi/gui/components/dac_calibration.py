@@ -2,11 +2,11 @@ import sys
 import asyncio
 import numpy as np
 
-from PyQt6.QtWidgets import (QLabel, QGridLayout, QApplication, QWidget, QProgressBar, QTabWidget,
-                             QSpinBox, QComboBox, QHBoxLayout, QVBoxLayout, QPushButton)
+from PyQt6.QtWidgets import (QLabel, QWidget, QTabWidget,
+                             QSpinBox, QHBoxLayout, QVBoxLayout, QPushButton)
 from PyQt6.QtGui import QFont
 import qasync
-from qasync import asyncSlot, asyncClose, QApplication, QEventLoop
+from qasync import asyncSlot, QApplication, QEventLoop
 import pyqtgraph as pg
 
 from obi.transfer import TCPConnection

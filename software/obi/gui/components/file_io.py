@@ -1,5 +1,5 @@
-from PyQt6.QtWidgets import (QLabel, QGridLayout, QApplication, QWidget, QFrame, QFileDialog, QCheckBox,
-                             QSpinBox, QComboBox, QHBoxLayout, QVBoxLayout, QPushButton, QLineEdit)
+from PyQt6.QtWidgets import (QLabel, QApplication, QWidget, QFileDialog, 
+                            QHBoxLayout, QVBoxLayout, QPushButton, QLineEdit)
 import os
 
 class BrowseDirectory(QVBoxLayout):

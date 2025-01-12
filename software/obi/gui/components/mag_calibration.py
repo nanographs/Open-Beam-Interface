@@ -1,12 +1,11 @@
 import datetime
 import os
 
-from PyQt6.QtWidgets import (QLabel, QGridLayout, QApplication, QWidget, QFrame, QFileDialog, QCheckBox, QMessageBox,
-                             QSpinBox, QComboBox, QHBoxLayout, QVBoxLayout, QPushButton, QLineEdit, QSizePolicy)
+from PyQt6.QtWidgets import (QLabel, QApplication, QWidget, QFileDialog, QMessageBox,
+                            QHBoxLayout, QVBoxLayout, QPushButton, QSizePolicy)
 from PyQt6.QtCore import Qt
-from PyQt6.QtCore import QThread, QObject, pyqtSignal, pyqtSlot as Slot
+from PyQt6.QtCore import pyqtSignal, pyqtSlot as Slot
 from PyQt6.QtGui import QFont
-from PyQt6 import QtCore
 
 import pyqtgraph as pg
 import numpy as np
