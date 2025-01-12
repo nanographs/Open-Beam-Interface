@@ -13,6 +13,7 @@ from glasgow.applet import GlasgowApplet
 from glasgow.support.logging import dump_hex
 from glasgow.support.endpoint import ServerEndpoint
 from glasgow.device import GlasgowDeviceError
+
 from usb1 import USBError
 
 from obi.commands.structs import CmdType, BeamType, OutputMode
@@ -1305,6 +1306,7 @@ class OBIApplet(GlasgowApplet):
         ServerEndpoint.add_argument(parser, "endpoint")
 
     async def interact(self, device, args, iface):
+
         class InterceptedError(Exception):
             """
             An error that is only raised in response to GlasgowDeviceError or USBError.
@@ -1361,6 +1363,7 @@ class OBIApplet(GlasgowApplet):
                 @self.intercept_err
                 async def read_send_data():
                     data = await iface.read(flush=False)
+
                     if self.transport:
                         self.logger.debug(f"in-buffer size={len(iface._in_buffer)}")
                         self.logger.debug("dev->net <%s>", dump_hex(data))
@@ -1373,8 +1376,9 @@ class OBIApplet(GlasgowApplet):
                             asyncio.create_task(self.send_data())
                     else:
                         self.logger.debug("dev->🗑️ <%s>", dump_hex(data))
-                
+
                 await read_send_data()
+
             
             def pause_writing(self):
                 self.backpressure = True
@@ -1393,12 +1397,15 @@ class OBIApplet(GlasgowApplet):
                     await self.init_fut
                     if not self.flush_fut == None:
                         self.transport.pause_reading()
-                        await self.flush_fut
+                        try:
+                            await self.flush_fut
+                        except USBErrorOther:
+                            self.transport.write_eof()
+                            print("Wrote EOF")
                         self.transport.resume_reading()
                         self.logger.debug("net->dev flush: done")
                     self.logger.debug("net->dev <%s>", dump_hex(data))
                     await iface.write(data)
-
                     self.logger.debug("net->dev write: done")
 
                     @self.intercept_err
@@ -1406,6 +1413,7 @@ class OBIApplet(GlasgowApplet):
                         await iface.flush(wait=True)
                             
                     self.flush_fut = asyncio.create_task(flush())
+
 
                 asyncio.create_task(recv_data())
 
@@ -1427,6 +1435,7 @@ class OBIApplet(GlasgowApplet):
                     server.close()
                     self.logger.warning("Forcing Server To Close...")            
 
+
         loop = asyncio.get_running_loop()
         loop.set_exception_handler(handler)
         
@@ -1437,4 +1446,3 @@ class OBIApplet(GlasgowApplet):
             self.logger.warning("Server shut down due to device error.\n Check device connection.")
         finally:
             self.logger.info("OBI Server Closed.")
-

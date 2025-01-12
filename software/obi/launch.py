@@ -79,7 +79,6 @@ class OBILauncher:
             await iface.reset()
             return iface
 
-
 from obi.support import stream_logs
 
 @stream_logs

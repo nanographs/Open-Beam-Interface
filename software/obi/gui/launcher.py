@@ -3,6 +3,7 @@ import sys
 from PyQt6.QtWidgets import (QHBoxLayout, QMainWindow, QPushButton, QSizePolicy,
                             QVBoxLayout, QWidget, QLabel, QApplication)
 
+
 from obi.gui.components.console import ProcessConsole
 
 

@@ -6,6 +6,7 @@ from PyQt6.QtWidgets import (QHBoxLayout, QGroupBox,QPushButton, QTextEdit,
 from PyQt6.QtCore import pyqtSignal, pyqtSlot as Slot, QProcess, QTimer
 from PyQt6.QtGui import QTextCursor, QFont
 
+
 import sys
 import shlex
 
