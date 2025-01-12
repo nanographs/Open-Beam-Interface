@@ -43,7 +43,8 @@ includes = ["applet"]
 
 [tool.pdm.scripts]
 _.env = {GLASGOW_OUT_OF_TREE_APPLETS = "I-am-okay-with-breaking-changes"}
-launch.cmd = "python -m obi.launch"
+launch.cmd = "python -m obi.gui.launcher"
+server.cmd = "python -m obi.launch"
 gui.cmd = "python -m obi.gui.main"
 ## build gateware with verbose toolchain output
 build.cmd = "glasgow -vv build --rev C3 open_beam_interface --pins-ebeam-scan-enable 0 --pins-ebeam-blank-enable 1 --pins-ebeam-blank 2,3"

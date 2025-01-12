@@ -1,14 +1,11 @@
 
 import pyqtgraph as pg
 
-from PyQt6.QtWidgets import (QHBoxLayout, QMainWindow, QDialog, QProgressBar, QGroupBox,
-                             QMessageBox, QPushButton, QComboBox, QCheckBox,
-                             QVBoxLayout, QWidget, QLabel, QGridLayout, QTextEdit, QPlainTextEdit,
-                             QSpinBox, QFileDialog, QLineEdit, QDialogButtonBox, QToolBar,
-                             QDockWidget, QSizePolicy, QApplication)
-from PyQt6.QtCore import QThread, QObject, pyqtSignal, pyqtSlot as Slot, QProcess, QStringDecoder, QTimer
+from PyQt6.QtWidgets import (QHBoxLayout, QGroupBox,QPushButton, QTextEdit,
+                             QVBoxLayout, QWidget, QLabel, QSizePolicy, QApplication)
+from PyQt6.QtCore import pyqtSignal, pyqtSlot as Slot, QProcess, QTimer
 from PyQt6.QtGui import QTextCursor, QFont
-from PyQt6 import QtGui
+
 
 import sys
 import shlex
@@ -40,7 +37,7 @@ class ProcessConsole(QGroupBox):
         self.output.setReadOnly(True)
         self.output.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
         # self.output.setFixedWidth(800)
-        font = QtGui.QFont("Courier")
+        font = QFont("Courier")
         self.output.setFont(font)
         self.output.hide()
 

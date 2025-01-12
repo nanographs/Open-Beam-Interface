@@ -1,10 +1,8 @@
 import sys
 
-from PyQt6.QtWidgets import (QHBoxLayout, QMainWindow, QDialog, QProgressBar,
-                             QMessageBox, QPushButton, QComboBox, QCheckBox,
-                             QVBoxLayout, QWidget, QLabel, QGridLayout, QTextEdit, QPlainTextEdit,
-                             QSpinBox, QFileDialog, QLineEdit, QDialogButtonBox, QToolBar,
-                             QDockWidget, QSizePolicy, QApplication)
+from PyQt6.QtWidgets import (QHBoxLayout, QMainWindow, QPushButton, QSizePolicy,
+                            QVBoxLayout, QWidget, QLabel, QApplication)
+
 
 from obi.gui.components.console import ProcessConsole
 
@@ -14,7 +12,7 @@ class Base(QMainWindow):
         super().__init__(*args, **kwargs)
         self.setWindowTitle("OBI Launcher")
 
-        self.servcon = ProcessConsole("pdm run launch", "Server")
+        self.servcon = ProcessConsole("pdm run server", "Server")
         self.guicon = ProcessConsole("pdm run gui", "GUI")
 
         layout = QVBoxLayout()

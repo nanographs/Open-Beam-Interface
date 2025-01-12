@@ -1,10 +1,6 @@
 import asyncio
 import logging
 
-# try:
-#     from rich import print
-# except:
-#     pass
 
 from glasgow.access.direct import DirectMultiplexer
 import glasgow.access.direct.demultiplexer as glasgow_access
@@ -83,37 +79,12 @@ class OBILauncher:
             await iface.reset()
             return iface
 
+from obi.support import stream_logs
 
-from .logsetup import safely_start_logger
-
-async def run_main():
+@stream_logs
+async def run_server():
     l = OBILauncher()
     await l.launch_server()
 
-async def main():
-    # initialize the logger
-    await safely_start_logger()
-    logging.info(f'Main is starting')
-
-    loop = asyncio.get_running_loop()
-    try:
-        await loop.create_task(run_main())
-    except Exception as err:
-        print(f"main done, {err=}")
-    finally:
-        print(f"main done, no err")
-    
-    # # log a message
-
-    
-    # print("starting")
-    # issue many tasks
-    # async with asyncio.TaskGroup() as group:
-    #     group.create_task(run_main())
-
-    #log a message
-    logging.info(f'Main is done')
-
-
 if __name__ == "__main__":
-    asyncio.run(main())
+    asyncio.run(run_server())
