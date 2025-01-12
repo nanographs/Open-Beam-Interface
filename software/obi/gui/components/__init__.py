@@ -14,3 +14,6 @@ __all__ += ["BeamControl"]
 
 from .mag_calibration import MagCalWidget
 __all__ += ["MagCalWidget"]
+
+from .console import ProcessConsole
+__all__ += ["ProcessConsole"]
