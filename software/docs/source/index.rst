@@ -14,7 +14,7 @@ Open Beam Interface documentation
    hardware
    installation
    config
-   gui
+   usage
    commands
    macros
    development

@@ -29,7 +29,7 @@ intersphinx_mapping = {
     'numpy': ('http://docs.scipy.org/doc/numpy/', None),
 }
 
-myst_enable_extensions = ["attrs_inline"]
+myst_enable_extensions = ["attrs_inline", "colon_fence"]
 
 autodoc_member_order = "bysource"
 autodoc_default_options = {
