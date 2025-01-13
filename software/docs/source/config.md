@@ -2,6 +2,16 @@
 
 All configuration is stored in the file `software/microscope.toml`. This file is not version controlled and is intended to be modified by individual users. Example configuration files can be found in `/configs`
 
+## Server Endpoint
+The endpoint to use for the OBI server can be customized. If no hostname is provided, the default is "localhost". If no port is provided, the default is 2222.
+Using OBI over a remote network connection is possible but has not been extensively tested.
+
+```
+[server]
+host = "hostname"
+port = 1234
+```
+
 ## Beams
 Currently, we can support up to 1 electron beam and up to 1 ion beam.
 

@@ -1,6 +1,7 @@
 import argparse
 
 from glasgow.access.direct.arguments import PinArgument
+from glasgow.support.endpoint import endpoint
 
 try:
     from rich import print
@@ -10,7 +11,7 @@ try:
 except:
     has_rich = False
 
-
+# TODO: generate this from ScopeSettings
 class OBIAppletArguments:
     def __init__(self, path="microscope.toml"):
         self.path = path
@@ -35,6 +36,16 @@ class OBIAppletArguments:
         if self.toml is None:
             self.load_toml()
         config = self.toml
+        if "server" in config:
+            ep = config["server"]
+            ep_str = "tcp:"
+            if "host" in ep:
+                ep_str += str(ep["host"]) 
+            ep_str += ":"
+            if "port" in ep:
+                ep_str += str(ep["port"])
+            ep = endpoint(ep_str) #using input spec from Glasgow
+            setattr(self.args, "endpoint", ep)
         if "beam" in config:
             beam_types = config["beam"]
             print(f"beam types: {[x for x in beam_types.keys()]}")

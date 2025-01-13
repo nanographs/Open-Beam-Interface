@@ -1,6 +1,7 @@
 from obi.commands import BeamType
 
 from dataclasses import dataclass
+from typing import Union
 import os
 
 @dataclass
@@ -137,15 +138,48 @@ class BeamSettings:
         return d
 
 @dataclass
+class Endpoint:
+    host: str
+    port: int
+
+    @classmethod
+    def from_dict(cls, d: dict):
+        host = None
+        port = None
+        if "host" in d:
+            host = str(d["host"])
+        if "port" in d:
+            port = int(d["port"])
+        return cls(
+            host=host,
+            port=port,
+        )
+
+    def to_dict(self):
+        d = {}
+        if self.host is not None:
+            d.update({"host":self.host})
+        if self.port is not None:
+            d.update({"port":self.port})
+        return d
+
+
+@dataclass
 class ScopeSettings:
+    endpoint: Union[Endpoint, None]
     beam_settings: dict({str: BeamSettings})
 
     @classmethod
     def from_dict(cls, d:dict):
         beams = {}
-        for beam_name, beam_dict in d["beam"].items():
-            beams.update({beam_name: BeamSettings.from_dict(beam_dict)})
+        endpoint = None
+        if "beam" in d:
+            for beam_name, beam_dict in d["beam"].items():
+                beams.update({beam_name: BeamSettings.from_dict(beam_dict)})
+        if "server" in d:
+            endpoint = Endpoint.from_dict(d["server"])
         return cls(
+            endpoint = endpoint,
             beam_settings = beams
         )
     
@@ -194,13 +228,20 @@ class ScopeSettings:
 
     def to_dict(self):
         d = {}
+        if self.endpoint is not None:
+            d.update({"server":self.endpoint.to_dict()})
+        b = {}
         for beam_name, beam_settings in self.beam_settings.items():
-            d.update({beam_name:beam_settings.to_dict()})
-        return {"beam":d}
+            b_s = beam_settings.to_dict()
+            if not b_s == {}:
+                b.update({beam_name:b_s})
+        if not b == {}:
+            d.update({"beam":b})
+        return d
         
 
 if __name__ == "__main__":
     scope = ScopeSettings.from_toml_file()
-    scope.beam_settings["electron"].mag_cal = MagCal.from_csv("/Users/isabelburgos/Open-Beam-Interface/software/magelectron.csv")
-    scope.beam_settings["electron"].pinout.scan_enable = [8]
+    # scope.beam_settings["electron"].mag_cal = MagCal.from_csv("/Users/isabelburgos/Open-Beam-Interface/software/magelectron.csv")
+    # scope.beam_settings["electron"].pinout.scan_enable = [8]
     scope.to_toml_file()
