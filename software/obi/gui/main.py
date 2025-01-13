@@ -72,8 +72,18 @@ class Window(QMainWindow):
     beam_enum = {"electron": BeamType.Electron, "ion": BeamType.Ion}
     def __init__(self):
         super().__init__()
-        self.conn = TCPConnection("localhost", 2224)
         self.scope_settings = ScopeSettings.from_toml_file()
+        ep = self.scope_settings.endpoint
+        print(ep)
+        if ep == None:
+            self.conn = TCPConnection("localhost", 2224)
+        else:
+            host = ep.host
+            if host == None:
+                host = "localhost"
+            port = ep.port
+            self.conn = TCPConnection(host, port)
+
         self.fb = FrameBuffer(self.conn)
 
         self.image_display = ImageDisplay(511, 511)
