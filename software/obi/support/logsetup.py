@@ -54,10 +54,6 @@ def stream_logs(func):
         logging.info('Begin streaming logs...')
 
         loop = asyncio.get_running_loop()
-        try:
-            await loop.create_task(func(*args, **kwargs))
-        except Exception as err:
-            print(f"Logging stream closed due to error: {err=}")
-        finally:
-            print("Logging stream shut down. Goodbye")
+        await loop.create_task(func(*args, **kwargs))
+
     return wrapper
