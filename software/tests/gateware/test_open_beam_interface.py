@@ -197,6 +197,31 @@ class OBIAppletTestCase(unittest.TestCase):
 
         self.simulate(dut, [put_testbench, get_testbench], name = "ss_avg2")
     
+    def test_supersampler_average4(self):
+        dut = Supersampler()
+
+        async def put_testbench(ctx):
+            ctx.set(dut.dwell_counter, 4)
+            await put_stream(ctx, dut.super_adc_stream,
+                {"adc_code": 456, "adc_ovf": 0, "last": 0})
+            await put_stream(ctx, dut.super_adc_stream,
+                {"adc_code": 123, "adc_ovf": 0, "last": 0})
+            await put_stream(ctx, dut.super_adc_stream,
+                {"adc_code": 234, "adc_ovf": 0, "last": 0})
+            await put_stream(ctx, dut.super_adc_stream,
+                {"adc_code": 345, "adc_ovf": 0, "last": 1})
+            await put_stream(ctx, dut.super_adc_stream,
+                {"adc_code": 999, "adc_ovf": 0, "last": 0})
+
+        async def get_testbench(ctx):
+            await get_stream(ctx, dut.adc_stream,
+                {"adc_code": (456+123+234+345)//4})
+            assert ctx.get(dut.adc_stream.valid) == 0
+
+        self.simulate(dut, [put_testbench, get_testbench], name = "ss_avg4")
+    
+
+
     ## Flippenator
     def test_flippenator(self):
         # TODO: figure out why 16383 flips to 1 and not 0
