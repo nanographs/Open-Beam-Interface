@@ -437,14 +437,14 @@ class Supersampler(wiring.Component):
         m = Module()
         m.submodules["encoder"] = self.encoder
 
-        self.dwell_counter = Signal.like(self.dac_stream_data.dwell_time)
+        dwell_counter = Signal.like(self.dac_stream_data.dwell_time)
         last = Signal()
         m.d.comb += [
             self.super_dac_stream.payload.dac_x_code.eq(self.dac_stream_data.dac_x_code),
             self.super_dac_stream.payload.dac_y_code.eq(self.dac_stream_data.dac_y_code),
             self.super_dac_stream.payload.blank.eq(self.dac_stream_data.blank),
             self.super_dac_stream.payload.delay.eq(self.dac_stream_data.delay),
-            last.eq(self.dwell_counter == self.dac_stream_data.dwell_time)
+            last.eq(dwell_counter == self.dac_stream_data.dwell_time)
             #self.super_dac_stream.payload.last.eq(dwell_counter == self.dac_stream_data.dwell_time),
         ]
         with m.If(self.stall_count_reset):
@@ -456,7 +456,7 @@ class Supersampler(wiring.Component):
                 m.d.comb += self.dac_stream.ready.eq(1)
                 with m.If(self.dac_stream.valid):
                     m.d.sync += self.dac_stream_data.eq(self.dac_stream.payload)
-                    m.d.sync += self.dwell_counter.eq(0)
+                    m.d.sync += dwell_counter.eq(0)
                     # m.d.sync += delay_counter.eq(0)
                     m.next = "Generate"
                 
@@ -468,10 +468,10 @@ class Supersampler(wiring.Component):
                         m.d.comb += self.super_dac_stream.payload.last.eq(last)
                         m.next = "Wait"
                     with m.Else():
-                        m.d.sync += self.dwell_counter.eq(self.dwell_counter + 1)
+                        m.d.sync += dwell_counter.eq(dwell_counter + 1)
 
         
-        m.d.comb += self.encoder.i.eq(self.dwell_counter)
+        m.d.comb += self.encoder.i.eq(self.dac_stream_data.dwell_time)
 
         running_sum = Signal(30)
         average = Signal.like(self.super_adc_stream.payload.adc_code)
