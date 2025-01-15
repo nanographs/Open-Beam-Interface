@@ -4,7 +4,7 @@ import pyqtgraph as pg
 from PyQt6.QtWidgets import (QHBoxLayout, QGroupBox,QPushButton, QTextEdit,
                              QVBoxLayout, QWidget, QLabel, QSizePolicy, QApplication)
 from PyQt6.QtCore import pyqtSignal, pyqtSlot as Slot, QProcess, QTimer
-from PyQt6.QtGui import QTextCursor, QFont
+from PyQt6.QtGui import QTextCursor, QFont, QTextDocument
 
 
 import sys
@@ -33,20 +33,23 @@ class ProcessConsole(QGroupBox):
         self.showButton.setCheckable(True)
         self.showButton.clicked.connect(self.showLogs)
     
-        self.output = QTextEdit()
-        self.output.setReadOnly(True)
-        self.output.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
+        self.output_edit = QTextEdit()
+        self.output_doc = QTextDocument()
+        self.output_doc.setMaximumBlockCount(100)
+        self.output_edit.setDocument(self.output_doc)
+        self.output_edit.setReadOnly(True)
+        self.output_edit.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
         # self.output.setFixedWidth(800)
         font = QFont("Courier")
-        self.output.setFont(font)
-        self.output.hide()
+        self.output_edit.setFont(font)
+        self.output_edit.hide()
 
         buttons = QHBoxLayout()
         buttons.addWidget(self.runButton)
         buttons.addWidget(self.killButton)
         buttons.addWidget(self.showButton)
         layout.addLayout(buttons)
-        layout.addWidget(self.output)
+        layout.addWidget(self.output_edit)
         
         self.setLayout(layout)
 
@@ -73,34 +76,29 @@ class ProcessConsole(QGroupBox):
 
     def showLogs(self):
         if self.showButton.isChecked():
-            self.output.show()
-            self.output.setMinimumSize(400, 200)
+            self.output_edit.show()
+            self.output_edit.setMinimumSize(400, 200)
             self.showButton.setText("Hide Logs")
         else:
-            self.output.setMinimumSize(0,0)
-            self.output.resize(0,0)
-            self.output.hide()
+            self.output_edit.setMinimumSize(0,0)
+            self.output_edit.resize(0,0)
+            self.output_edit.hide()
             self.showButton.setText("Show Logs")   
         #https://stackoverflow.com/questions/28660960/resize-qmainwindow-to-minimal-size-after-content-of-layout-changes
         QTimer.singleShot(10, lambda: self.window().adjustSize())    
 
+    def writeText(self, data: bytes):
+        cursor = self.output_edit.textCursor()
+        cursor.insertText(">" + data.decode())
+        self.output_edit.ensureCursorVisible()
 
     def dataReady(self):
-        cursor = self.output.textCursor()
-
-        # data is a QByteArray
         data = self.process.readAllStandardOutput().data()
-        # print(f"\nSTDOUT: \n{data.decode()}\n")
-        cursor.insertText(">" + data.decode())
-        self.output.ensureCursorVisible()
+        self.writeText(data)
     
     def errorReady(self):
-        cursor = self.output.textCursor()
-
         data = self.process.readAllStandardError().data()
-        # print(f"\nSTDERR: \n{data.decode()}\n")
-        cursor.insertText("❌" + data.decode())
-        self.output.ensureCursorVisible()
+        self.writeText(data)
 
     def callProgram(self):
         # run the process
