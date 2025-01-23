@@ -1,0 +1,84 @@
+[*]
+[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
+[*] Wed Aug 14 20:23:22 2024
+[*]
+[dumpfile] "average.vcd"
+[dumpfile_mtime] "Wed Aug 14 20:04:01 2024"
+[dumpfile_size] 74416
+[savefile] "/Users/isabelburgos/Open-Beam-Interface/average.gtkw"
+[timestart] 0
+[size] 1440 790
+[pos] 59 110
+*-39.000000 116500000000 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+[treeopen] bench.
+[sst_width] 368
+[signals_width] 357
+[sst_expanded] 1
+[sst_vpaned_height] 225
+@24
+bench.top.\i_stream__data.values[0][13:0]
+bench.top.\i_stream__data.values[1][13:0]
+bench.top.\i_stream__data.values[2][13:0]
+bench.top.\i_stream__data.values[3][13:0]
+bench.top.\i_stream__data.values[4][13:0]
+bench.top.\i_stream__data.values[5][13:0]
+bench.top.\i_stream__data.values[6][13:0]
+bench.top.\i_stream__data.values[7][13:0]
+bench.top.\i_stream__data.values[8][13:0]
+bench.top.\i_stream__data.values[9][13:0]
+bench.top.\i_stream__data.values[10][13:0]
+bench.top.\i_stream__data.values[11][13:0]
+bench.top.\i_stream__data.values[12][13:0]
+bench.top.\i_stream__data.values[13][13:0]
+bench.top.\i_stream__data.values[14][13:0]
+bench.top.\i_stream__data.values[15][13:0]
+@22
+[color] 6
+bench.top.l1_last_n[3:0]
+@24
+[color] 3
+bench.top.l1_value0[14:0]
+[color] 3
+bench.top.l1_value1[14:0]
+[color] 3
+bench.top.l1_value2[14:0]
+[color] 3
+bench.top.l1_value3[14:0]
+[color] 3
+bench.top.l1_value4[14:0]
+[color] 3
+bench.top.l1_value5[14:0]
+[color] 3
+bench.top.l1_value6[14:0]
+[color] 3
+bench.top.l1_value7[14:0]
+@22
+[color] 6
+bench.top.l2_last_n[3:0]
+@24
+[color] 3
+bench.top.l2_value0[14:0]
+[color] 3
+bench.top.l2_value1[14:0]
+[color] 3
+bench.top.l2_value2[14:0]
+[color] 3
+bench.top.l2_value3[14:0]
+@22
+[color] 6
+bench.top.l3_last_n[3:0]
+@24
+[color] 3
+bench.top.l3_value0[14:0]
+[color] 3
+bench.top.l3_value1[14:0]
+@22
+[color] 6
+bench.top.l4_last_n[3:0]
+@25
+[color] 3
+bench.top.l4_value0[14:0]
+@24
+bench.top.o_stream__data[13:0]
+[pattern_trace] 1
+[pattern_trace] 0

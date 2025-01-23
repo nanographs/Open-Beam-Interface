@@ -1,0 +1,54 @@
+[*]
+[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
+[*] Fri Jul 19 01:50:27 2024
+[*]
+[dumpfile] "test_loopback_raster.vcd"
+[dumpfile_mtime] "Fri Jul 19 01:47:55 2024"
+[dumpfile_size] 256723
+[savefile] "/Users/isabelburgos/Open-Beam-Interface/exec_streams.gtkw"
+[timestart] 0
+[size] 1440 711
+[pos] 3 28
+*-25.000000 3738985000 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+[markername] AA
+[markername] BB
+[markername] CC
+[markername] DD
+[markername] EE
+[markername] FF
+[markername] GG
+[markername] HH
+[markername] II
+[markername] JJ
+[markername] KK
+[markername] LL
+[markername] MM
+[markername] NN
+[markername] OO
+[markername] PP
+[markername] QQ
+[markername] RR
+[markername] SS
+[markername] TT
+[markername] UU
+[markername] VV
+[markername] WW
+[markername] XX
+[markername] YY
+[markername] ZZ
+[treeopen] bench.
+[treeopen] bench.top.
+[treeopen] bench.top.multiplexer.
+[treeopen] bench.top.multiplexer.U$0.
+[treeopen] bench.top.U$2.
+[sst_width] 348
+[signals_width] 408
+[sst_expanded] 1
+[sst_vpaned_height] 246
+@28
++{out fifo r_en} bench.top.multiplexer.U$0.out_fifo.r_en
++{out fifo r_rdy} bench.top.multiplexer.U$0.out_fifo.r_rdy
++{out fifo w_en} bench.top.multiplexer.U$0.out_fifo.w_en
++{out fifo w_rdy} bench.top.multiplexer.U$0.out_fifo.w_rdy
+[pattern_trace] 1
+[pattern_trace] 0

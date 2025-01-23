@@ -9,7 +9,6 @@ Gateware/open_beam_interface.bin
 *.pyc
 *.tif
 *.kicad_prl
-*.gtkw
 *.pdm-python
 software/microscope.toml
 software/*.csv

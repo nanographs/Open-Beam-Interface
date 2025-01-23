@@ -1,0 +1,66 @@
+[*]
+[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
+[*] Fri Jul 19 00:14:52 2024
+[*]
+[dumpfile] "blank_seq_1.vcd"
+[dumpfile_mtime] "Fri Jul 19 00:02:03 2024"
+[dumpfile_size] 40559
+[savefile] "/Users/isabelburgos/Open-Beam-Interface/blanking.gtkw"
+[timestart] 842000000
+[size] 1288 600
+[pos] -1 -1
+*-27.000000 968595000 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+[markername] AA
+[markername] BB
+[markername] CC
+[markername] DD
+[markername] EE
+[markername] FF
+[markername] GG
+[markername] HH
+[markername] II
+[markername] JJ
+[markername] KK
+[markername] LL
+[markername] MM
+[markername] NN
+[markername] OO
+[markername] PP
+[markername] QQ
+[markername] RR
+[markername] SS
+[markername] TT
+[markername] UU
+[markername] VV
+[markername] WW
+[markername] XX
+[markername] YY
+[markername] ZZ
+[treeopen] bench.
+[treeopen] bench.top.
+[sst_width] 356
+[signals_width] 408
+[sst_expanded] 1
+[sst_vpaned_height] 159
+@28
+bench.top.blank_enable
+bench.top.\async_blank.enable
+bench.top.\async_blank.request
+bench.top.\sync_blank.enable
+bench.top.\sync_blank.request
+bench.top.\inline_blank.enable
+@29
+bench.top.\inline_blank.request
+@22
+bench.top.supersampler.\dac_stream__payload.dwell_time[15:0]
+bench.top.supersampler.dwell_counter[15:0]
+@24
+bench.top.bus_controller.bus__data_o[14:0]
+@28
+bench.top.\vector_stream__payload.blank.enable
+bench.top.\vector_stream__payload.blank.request
+bench.top.bus_controller.\dac_stream__payload.blank.request
+bench.top.bus_controller.dac_stream__valid
+bench.top.bus_controller.\dac_stream_data.last
+[pattern_trace] 1
+[pattern_trace] 0

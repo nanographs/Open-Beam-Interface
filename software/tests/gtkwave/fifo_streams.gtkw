@@ -1,0 +1,65 @@
+[*]
+[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
+[*] Fri Jul 19 02:28:08 2024
+[*]
+[dumpfile] "test_loopback_raster.vcd"
+[dumpfile_mtime] "Fri Jul 19 02:07:49 2024"
+[dumpfile_size] 257345
+[savefile] "/Users/isabelburgos/Open-Beam-Interface/fifo_streams.gtkw"
+[timestart] 113200000
+[size] 1440 711
+[pos] 12 -30
+*-25.000000 59900000 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+[markername] AA
+[markername] BB
+[markername] CC
+[markername] DD
+[markername] EE
+[markername] FF
+[markername] GG
+[markername] HH
+[markername] II
+[markername] JJ
+[markername] KK
+[markername] LL
+[markername] MM
+[markername] NN
+[markername] OO
+[markername] PP
+[markername] QQ
+[markername] RR
+[markername] SS
+[markername] TT
+[markername] UU
+[markername] VV
+[markername] WW
+[markername] XX
+[markername] YY
+[markername] ZZ
+[treeopen] bench.
+[treeopen] bench.top.
+[treeopen] bench.top.multiplexer.
+[treeopen] bench.top.multiplexer.U$0.
+[treeopen] bench.top.multiplexer.U$0.U$3.
+[treeopen] bench.top.multiplexer.U$0.U$3.executor.
+[treeopen] bench.top.U$2.
+[treeopen] bench.top.U$2.board.
+[sst_width] 348
+[signals_width] 408
+[sst_expanded] 1
+[sst_vpaned_height] 246
+@28
++{out fifo r_en} bench.top.multiplexer.U$0.out_fifo.r_en
++{out fifo r_rdy} bench.top.multiplexer.U$0.out_fifo.r_rdy
++{out fifo w_en} bench.top.multiplexer.U$0.out_fifo.w_en
++{out fifo w_rdy} bench.top.multiplexer.U$0.out_fifo.w_rdy
+@22
++{usb stream payload - o} bench.top.multiplexer.U$0.U$3.parser.usb_stream__payload[7:0]
++{usb stream payload - i} bench.top.multiplexer.U$0.U$3.serializer.usb_stream__payload[7:0]
+bench.top.multiplexer.U$0.U$3.executor.supersampler.\dac_stream__payload.dwell_time[15:0]
+@28
+bench.top.multiplexer.U$0.U$3.executor.bus_controller.dac_stream__ready
+@22
++{adc sample} bench.top.U$2.board.adc.d[13:0]
+[pattern_trace] 1
+[pattern_trace] 0
