@@ -1,0 +1,64 @@
+[*]
+[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
+[*] Sun Sep  1 19:56:18 2024
+[*]
+[dumpfile] "exec_rasterpixelfill.vcd"
+[dumpfile_mtime] "Sun Sep  1 19:51:51 2024"
+[dumpfile_size] 38426
+[savefile] "/Users/isabelburgos/Open-Beam-Interface/software/tests/gtkwave/raster_pixels.gtkw"
+[timestart] 510400000
+[size] 1288 600
+[pos] -1 -1
+*-27.000000 864445000 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+[markername] AA
+[markername] BB
+[markername] CC
+[markername] DD
+[markername] EE
+[markername] FF
+[markername] GG
+[markername] HH
+[markername] II
+[markername] JJ
+[markername] KK
+[markername] LL
+[markername] MM
+[markername] NN
+[markername] OO
+[markername] PP
+[markername] QQ
+[markername] RR
+[markername] SS
+[markername] TT
+[markername] UU
+[markername] VV
+[markername] WW
+[markername] XX
+[markername] YY
+[markername] ZZ
+[treeopen] bench.
+[treeopen] bench.top.
+[treeopen] bench.top.bus_controller.
+[sst_width] 435
+[signals_width] 265
+[sst_expanded] 1
+[sst_vpaned_height] 159
+@28
+bench.top.raster_scanner.fsm_state
+bench.top.raster_scanner.roi_stream__ready
+bench.top.raster_scanner.roi_stream__valid
+bench.top.raster_scanner.dwell_stream__ready
+bench.top.raster_scanner.dwell_stream__valid
+bench.top.raster_scanner.dac_stream__ready
+bench.top.raster_scanner.dac_stream__valid
+bench.top.\command.type
+@22
+bench.top.raster_scanner.x_count[13:0]
+bench.top.raster_scanner.y_count[13:0]
+@28
+bench.top.supersampler.fsm_state
+bench.top.supersampler.super_dac_stream__ready
+@29
+bench.top.bus_controller.fsm_state
+[pattern_trace] 1
+[pattern_trace] 0
