@@ -228,7 +228,8 @@ class FrameBuffer:
         else:
             return False
 
-    async def _capture_frame_iter_fill(self, *, frame: Frame, x_range:DACCodeRange, y_range:DACCodeRange, dwell_time: int, latency:int=65536):
+    async def _capture_frame_iter_fill(self, *, frame: Frame, x_range:DACCodeRange, y_range:DACCodeRange, 
+            dwell_time: int, latency:int=65536, output_mode:OutputMode=OutputMode.EightBit):
         """
         Core function for capturing image data produced by a raster scan into a 2D array.
 
