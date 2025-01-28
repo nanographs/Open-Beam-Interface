@@ -364,6 +364,43 @@ class FastBusController(wiring.Component):
 
 #=========================================================================
 
+class PriorityEncoder(Elaboratable):
+    """Priority encode requests to binary.
+
+    If any bit in ``i`` is asserted, ``n`` is low and ``o`` indicates the least significant
+    asserted bit.
+    Otherwise, ``n`` is high and ``o`` is ``0``.
+
+    Parameters
+    ----------
+    width : int
+        Bit width of the input.
+
+    Attributes
+    ----------
+    i : Signal(width), in
+        Input requests.
+    o : Signal(range(width)), out
+        Encoded natural binary.
+    n : Signal, out
+        Invalid: no input bits are asserted.
+    """
+    def __init__(self, width):
+        self.width = width
+
+        self.i = Signal(width)
+        self.o = Signal(range(width))
+        self.n = Signal()
+
+    def elaborate(self, platform):
+        m = Module()
+        for j in reversed(range(self.width)):
+            with m.If(self.i[j]):
+                m.d.comb += self.o.eq(j)
+        m.d.comb += self.n.eq(self.i == 0)
+        return m
+
+
 class Supersampler(wiring.Component):
     """
     In:
@@ -395,11 +432,14 @@ class Supersampler(wiring.Component):
         super().__init__()
 
         self.dac_stream_data = Signal.like(self.dac_stream.payload)
+        self.encoder = PriorityEncoder(16)
 
     def elaborate(self, platform):
         m = Module()
+        m.submodules["encoder"] = self.encoder
 
         dwell_counter = Signal.like(self.dac_stream_data.dwell_time)
+        sample_counter = Signal.like(self.dac_stream_data.dwell_time)
         last = Signal()
         m.d.comb += [
             self.super_dac_stream.payload.dac_x_code.eq(self.dac_stream_data.dac_x_code),
@@ -432,15 +472,20 @@ class Supersampler(wiring.Component):
                     with m.Else():
                         m.d.sync += dwell_counter.eq(dwell_counter + 1)
 
-                        
+        m.d.comb += self.encoder.i.eq(sample_counter)
+        running_sum = Signal(30)
+        average = Signal.like(self.super_adc_stream.payload.adc_code)
+        shifted_sum = Signal(30)
+        m.d.comb += shifted_sum.eq(running_sum >> self.encoder.o)
+        
+        m.d.comb += self.adc_stream.payload.adc_code.eq(shifted_sum)
 
-        running_average = Signal.like(self.super_adc_stream.payload.adc_code)
-        m.d.comb += self.adc_stream.payload.adc_code.eq(running_average)
         with m.FSM():
             with m.State("Start"):
                 m.d.comb += self.super_adc_stream.ready.eq(1)
                 with m.If(self.super_adc_stream.valid):
-                    m.d.sync += running_average.eq(self.super_adc_stream.payload.adc_code)
+                    m.d.sync += sample_counter.eq(1)
+                    m.d.sync += running_sum.eq(self.super_adc_stream.payload.adc_code)
                     with m.If(self.super_adc_stream.payload.last):
                         m.next = "Wait"
                     with m.Else():
@@ -449,11 +494,13 @@ class Supersampler(wiring.Component):
             with m.State("Average"):
                 m.d.comb += self.super_adc_stream.ready.eq(1)
                 with m.If(self.super_adc_stream.valid):
-                    m.d.sync += running_average.eq((running_average + self.super_adc_stream.payload.adc_code) >> 1)
+                    m.d.sync += sample_counter.eq(sample_counter + 1)
+                    m.d.sync += running_sum.eq(running_sum + self.super_adc_stream.payload.adc_code)
                     with m.If(self.super_adc_stream.payload.last):
                         m.next = "Wait"
                     with m.Else():
                         m.next = "Average"
+
 
             with m.State("Wait"):
                 m.d.comb += self.adc_stream.valid.eq(1)

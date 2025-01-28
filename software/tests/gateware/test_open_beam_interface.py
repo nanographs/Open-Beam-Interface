@@ -271,6 +271,31 @@ class OBIAppletTestCase(unittest.TestCase):
 
         self.simulate(dut, [put_testbench, get_testbench], name = "ss_avg2")
     
+    def test_supersampler_average_rand(self):
+        def check_avg_random_samples(nvals:int):
+            dut = Supersampler()
+            vals = np.random.randint(0,16383, nvals)
+
+            async def put_testbench(ctx):
+                ctx.set(dut.dac_stream_data.dwell_time, nvals)
+                for n in range(len(vals)):
+                    last = 0
+                    if n + 1 == len(vals):
+                        last = 1
+                    await put_stream(ctx, dut.super_adc_stream,
+                        {"adc_code": vals[n], "adc_ovf": 0, "last": last})
+                await put_stream(ctx, dut.super_adc_stream,
+                    {"adc_code": 999, "adc_ovf": 0, "last": 0})
+
+            async def get_testbench(ctx):
+                await get_stream(ctx, dut.adc_stream,
+                    {"adc_code": (sum(list(vals)))//nvals}, timeout_steps = nvals*3)
+                assert ctx.get(dut.adc_stream.valid) == 0
+
+            self.simulate(dut, [put_testbench, get_testbench], name = f"ss_avg_rand_{nvals}")
+        
+        for n in [1,2,4,8,16,32,64,128]:
+            check_avg_random_samples(n)
     
     # Raster Scanner
     def test_raster_scanner(self):
