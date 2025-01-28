@@ -14,6 +14,8 @@ async def main():
     arange = DACCodeRange.from_resolution(2048)
     # Capture frame with parameters
     frame = await fb.capture_frame(x_range=arange, y_range=arange, dwell_time=10)
+    # Save image to specified path
+    frame.saveImage_tifffile("test_tiff")
 
 
 if __name__ == "__main__":
