@@ -1,0 +1,74 @@
+[*]
+[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
+[*] Mon Jan 27 20:19:26 2025
+[*]
+[dumpfile] "avg_ovf.vcd"
+[dumpfile_mtime] "Mon Jan 27 20:18:12 2025"
+[dumpfile_size] 456841
+[savefile] "/Users/isabelburgos/Open-Beam-Interface/software/tests/gtkwave/avgovg2.gtkw"
+[timestart] 1178200000
+[size] 1288 600
+[pos] -1 -1
+*-26.000000 218715000 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+[markername] AA
+[markername] BB
+[markername] CC
+[markername] DD
+[markername] EE
+[markername] FF
+[markername] GG
+[markername] HH
+[markername] II
+[markername] JJ
+[markername] KK
+[markername] LL
+[markername] MM
+[markername] NN
+[markername] OO
+[markername] PP
+[markername] QQ
+[markername] RR
+[markername] SS
+[markername] TT
+[markername] UU
+[markername] VV
+[markername] WW
+[markername] XX
+[markername] YY
+[markername] ZZ
+[treeopen] bench.
+[treeopen] bench.top.
+[treeopen] bench.top.exec.
+[treeopen] bench.top.exec.bus_controller.
+[treeopen] bench.top.exec.supersampler.
+[sst_width] 344
+[signals_width] 286
+[sst_expanded] 1
+[sst_vpaned_height] 159
+@22
++{Super DAC X} bench.top.exec.supersampler.\super_dac_stream__payload.dac_x_code[13:0]
++{Bus DAC X} bench.top.exec.bus_controller.\dac_stream_data.dac_x_code[13:0]
+@28
++{Super DAC Last} bench.top.exec.supersampler.\super_dac_stream__payload.last
++{Bus DAC Last} bench.top.exec.bus_controller.\dac_stream_data.last
++{Super DAC Valid} bench.top.exec.supersampler.super_dac_stream__valid
+@24
++{DAC dwell} bench.top.exec.supersampler.dwell_counter[15:0]
+@25
++{ADC Code} bench.top.exec.bus_controller.\adc_stream__payload.adc_code[13:0]
+@28
++{ADC Last} bench.top.exec.bus_controller.\adc_stream__payload.last
++{ADC Valid} bench.top.exec.bus_controller.adc_stream__valid
+@24
++{ADC count} bench.top.exec.supersampler.sample_counter[15:0]
+@22
++{ADC avg} bench.top.exec.supersampler.adc_stream__payload[13:0]
+@28
++{ADC avg valid} bench.top.exec.supersampler.adc_stream__valid
+@24
+bench.top.exec.supersampler.running_sum[29:0]
+@28
++{ADC sample state} bench.top.exec.supersampler.fsm_state$14
+bench.top.exec.bus_controller.fsm_state
+[pattern_trace] 1
+[pattern_trace] 0

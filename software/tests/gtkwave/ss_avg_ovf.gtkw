@@ -1,0 +1,37 @@
+[*]
+[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
+[*] Mon Jan 27 21:50:27 2025
+[*]
+[dumpfile] "ss_avg_ovf.vcd"
+[dumpfile_mtime] "Mon Jan 27 21:41:51 2025"
+[dumpfile_size] 3953
+[savefile] "/Users/isabelburgos/Open-Beam-Interface/software/tests/gtkwave/ss_avg_ovf.gtkw"
+[timestart] 0
+[size] 1288 787
+[pos] -1 -1
+*-26.000000 187400000 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+[treeopen] bench.
+[treeopen] bench.top.
+[sst_width] 306
+[signals_width] 234
+[sst_expanded] 1
+[sst_vpaned_height] 224
+@24
++{Super ADC code} bench.top.\super_adc_stream__payload.adc_code[13:0]
+@28
++{Super ADC Last} bench.top.\super_adc_stream__payload.last
++{Super ADC valid} bench.top.super_adc_stream__valid
+@24
++{Avg ADC code} bench.top.adc_stream__payload[13:0]
+@28
++{Avg ADC valid} bench.top.adc_stream__valid
+@24
+bench.top.running_sum[29:0]
+bench.top.shifted_sum[29:0]
+bench.top.sample_counter[15:0]
+@28
+bench.top.fsm_state$16
+@24
++{shift amt} bench.top.encoder.o[3:0]
+[pattern_trace] 1
+[pattern_trace] 0

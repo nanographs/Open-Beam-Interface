@@ -1,0 +1,82 @@
+[*]
+[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
+[*] Sat Jan 25 03:43:39 2025
+[*]
+[dumpfile] "avg_ovf.vcd"
+[dumpfile_mtime] "Sat Jan 25 03:40:33 2025"
+[dumpfile_size] 215202
+[savefile] "/Users/isabelburgos/Open-Beam-Interface/software/tests/gtkwave/avgovf.gtkw"
+[timestart] 1755000000
+[size] 1640 568
+[pos] -1 -1
+*-28.000000 2489185000 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+[markername] AA
+[markername] BB
+[markername] CC
+[markername] DD
+[markername] EE
+[markername] FF
+[markername] GG
+[markername] HH
+[markername] II
+[markername] JJ
+[markername] KK
+[markername] LL
+[markername] MM
+[markername] NN
+[markername] OO
+[markername] PP
+[markername] QQ
+[markername] RR
+[markername] SS
+[markername] TT
+[markername] UU
+[markername] VV
+[markername] WW
+[markername] XX
+[markername] YY
+[markername] ZZ
+[treeopen] bench.
+[treeopen] bench.top.
+[treeopen] bench.top.exec.
+[treeopen] bench.top.exec.bus_controller.
+[treeopen] bench.top.exec.supersampler.
+[sst_width] 291
+[signals_width] 388
+[sst_expanded] 1
+[sst_vpaned_height] 146
+@28
++{Latch ADC} bench.top.board.bus__adc_le_clk
++{Latch X} bench.top.board.bus__dac_x_le_clk
++{Latch Y} bench.top.board.bus__dac_y_le_clk
+bench.top.board.bus__dac_clk
+@24
++{ADC analog input} bench.top.board.adc_input[13:0]
+@22
++{X} bench.top.board.x_dac.a[13:0]
++{Y} bench.top.board.y_dac.a[13:0]
+@24
++{ADC digital output} bench.top.board.adc.d[13:0]
++{Latched ADC value} bench.top.board.a_latch.d[15:0]
+@28
+bench.top.exec.bus_controller.dac_stream__valid
+bench.top.exec.bus_controller.skid_buffer.i__valid
+@24
++{raw adc code} bench.top.exec.supersampler.\super_adc_stream__payload.adc_code[13:0]
+@28
+bench.top.exec.supersampler.\super_adc_stream__payload.last
+@24
+bench.top.exec.supersampler.running_sum[29:0]
+@22
++{shift amount} bench.top.exec.supersampler.encoder.o[3:0]
+@24
+bench.top.exec.supersampler.shifted_sum[29:0]
+bench.top.exec.supersampler.\adc_stream__payload.adc_code[13:0]
+bench.top.exec.supersampler.sample_counter[15:0]
+@22
+bench.top.exec.bus_controller.\dac_stream_data.dac_x_code[13:0]
+bench.top.exec.bus_controller.\dac_stream_data.dac_y_code[13:0]
+@28
+bench.top.exec.bus_controller.\dac_stream_data.last
+[pattern_trace] 1
+[pattern_trace] 0

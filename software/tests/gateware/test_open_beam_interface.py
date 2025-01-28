@@ -20,6 +20,10 @@ from obi.applet.open_beam_interface import BusController
 from obi.commands import *
 from obi.commands.structs import Transforms
 
+import numpy as np
+import matplotlib.pyplot as plt
+
+
 
 ## support functions for prettier output
 def unpack_const(data):
@@ -391,6 +395,88 @@ class OBIAppletTestCase(unittest.TestCase):
             self.simulate(dut, [get_testbench,put_testbench], name="parse_cmd_rasterpixel")  
         
         test_raster_pixels_cmd()
+
+    def test_average_overflow(self):
+        steps = 8 #x and y ranges are (0,4)
+        dwells = 8
+        randomize = False
+
+
+        if randomize:
+            image = np.random.randint(0, 16384, (steps, steps))
+        else: 
+            image = np.asarray([[x+y for x in range(steps)] for y in range(steps)])
+            #image = np.full(shape=(steps, steps), fill_value=1)
+        
+        
+
+        class ImgTest(Elaboratable):
+            def __init__(self):
+                self.exec = CommandExecutor(adc_latency=8)
+                self.board = OBI_Board()
+            def elaborate(self, platform):
+                m = Module()
+                m.submodules["exec"] = self.exec
+                m.submodules["board"] = self.board
+                wiring.connect(m, self.exec.bus, self.board.bus)
+                # m.d.comb += self.board.adc_input.eq(self.board.x_dac_chip.a + self.board.y_dac_chip.a)
+                # m.d.comb += self.board.adc_input.eq(8)
+                return m
+
+        dut = ImgTest()
+
+        async def image_process(ctx):
+            for _y in range(steps):
+                for _x in range(steps):
+                    for d in range(dwells):
+                        await ctx.posedge(dut.exec.bus.dac_x_le_clk)
+                        x = ctx.get(dut.exec.bus.data_o)
+                        await ctx.posedge(dut.exec.bus.dac_y_le_clk)
+                        y = ctx.get(dut.exec.bus.data_o)
+                        a = int(image[y][x])
+                        d += 1
+                        print(f"{x}, {y} - {d}: {a}")
+                        await ctx.posedge(dut.board.bus.dac_clk)
+                        ctx.set(dut.board.adc_input, a)
+
+
+        async def put_testbench(ctx):
+            arange = DACCodeRange(start=0, count=steps, step=256)
+            await put_stream(ctx, dut.exec.cmd_stream, 
+                RasterRegionCommand(x_range=arange,
+                y_range=arange).as_dict())
+            await put_stream(ctx, dut.exec.cmd_stream, 
+                RasterPixelRunCommand(length=steps*steps, dwell_time=dwells-1).as_dict())
+
+        result_image = np.zeros(shape=(steps, steps))
+        async def get_testbench(ctx):
+            
+            for y in range(steps):
+                for x in range(steps):
+                    expected = image[y][x]
+                    # print(f"check at: {y=}, {x=}  , expecting {expected}")
+                    await get_stream(ctx, dut.exec.img_stream, expected, timeout_steps=1000)
+                    result = ctx.get(dut.exec.img_stream.payload)
+                    # print(type(result))
+                    result_image[y][x] = result
+            
+        
+            
+        self.simulate(dut, [image_process, put_testbench, get_testbench], name = "avg_ovf") 
+        print(result_image)
+        fig, _axs = plt.subplots(nrows=2, ncols=2, figsize=(8, 8))
+        axs = _axs.flatten()
+        axs[0].imshow(image, cmap='gray', vmin=0, vmax=255)
+        axs[0].set_title("Expected - Full Scale")
+        axs[1].imshow(result_image, cmap='gray', vmin=0, vmax=255)
+        axs[1].set_title("Actual - Full Scale")
+        axs[2].imshow(image, cmap='gray')
+        axs[2].set_title("Expected - Scaled")
+        axs[3].imshow(result_image, cmap='gray')
+        axs[3].set_title("Actual - Scaled")
+        fig.tight_layout()
+        plt.show()
+
 
     # Command Executor
     def test_command_executor_individual(self):
@@ -846,9 +932,8 @@ class OBIAppletTestCase(unittest.TestCase):
                 m = Module()
                 m.submodules["board"] = board = OBI_Board()
                 m.d.comb += [
-                            obi_subtarget.data.i.eq(board.a_latch_chip.q),
+                            obi_subtarget.data.i.eq(board.bus.data_i),
                             board.x_latch_chip.d.eq(obi_subtarget.data.o),
-                            board.y_latch_chip.d.eq(obi_subtarget.data.o),
                             board.a_adc_chip.a.eq(board.x_dac_chip.a),
                             board.bus.dac_x_le_clk.eq(obi_subtarget.control.x_latch.o),
                             board.bus.dac_y_le_clk.eq(obi_subtarget.control.y_latch.o),

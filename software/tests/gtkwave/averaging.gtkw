@@ -1,0 +1,27 @@
+[*]
+[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
+[*] Thu Jan 23 20:08:22 2025
+[*]
+[dumpfile] "ss_avg_rand_8.vcd"
+[dumpfile_mtime] "Thu Jan 23 20:04:58 2025"
+[dumpfile_size] 4767
+[savefile] "/Users/isabelburgos/Open-Beam-Interface/software/tests/gtkwave/averaging.gtkw"
+[timestart] 0
+[size] 1288 600
+[pos] -1 -1
+*-26.000000 45900000 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+[treeopen] bench.
+[treeopen] bench.top.
+[sst_width] 409
+[signals_width] 234
+[sst_expanded] 1
+[sst_vpaned_height] 159
+@25
++{raw adc code} bench.top.\super_adc_stream__payload.adc_code[13:0]
++{last} bench.top.\super_dac_stream__payload.last
+bench.top.running_sum[29:0]
+bench.top.shifted_sum[29:0]
+bench.top.sample_counter[15:0]
++{shift length} bench.top.encoder.o[3:0]
+[pattern_trace] 1
+[pattern_trace] 0

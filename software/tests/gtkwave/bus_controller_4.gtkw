@@ -1,0 +1,58 @@
+[*]
+[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
+[*] Mon Jan 27 22:53:25 2025
+[*]
+[dumpfile] "bus_controller_4.vcd"
+[dumpfile_mtime] "Mon Jan 27 22:53:16 2025"
+[dumpfile_size] 9874
+[savefile] "/Users/isabelburgos/Open-Beam-Interface/software/tests/gtkwave/bus_controller_4.gtkw"
+[timestart] 0
+[size] 1288 600
+[pos] -1 -1
+*-29.000000 636000000 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+[markername] AA
+[markername] BB
+[markername] CC
+[markername] DD
+[markername] EE
+[markername] FF
+[markername] GG
+[markername] HH
+[markername] II
+[markername] JJ
+[markername] KK
+[markername] LL
+[markername] MM
+[markername] NN
+[markername] OO
+[markername] PP
+[markername] QQ
+[markername] RR
+[markername] SS
+[markername] TT
+[markername] UU
+[markername] VV
+[markername] WW
+[markername] XX
+[markername] YY
+[markername] ZZ
+[treeopen] bench.
+[treeopen] bench.top.
+[sst_width] 253
+[signals_width] 204
+[sst_expanded] 1
+[sst_vpaned_height] 159
+@22
++{DAC X} bench.top.\dac_stream__payload.dac_x_code[13:0]
+@28
++{LAST} bench.top.\dac_stream__payload.last
+@22
++{ADC} bench.top.\adc_stream__payload.adc_code[13:0]
+@28
++{ADC Last} bench.top.\adc_stream__payload.last
+@29
+bench.top.dac_stream__valid
+@28
+bench.top.adc_stream__valid
+[pattern_trace] 1
+[pattern_trace] 0
