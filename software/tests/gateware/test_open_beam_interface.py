@@ -2,10 +2,13 @@ import unittest
 import struct
 import array
 from amaranth.sim import Simulator, Tick
-from amaranth import Signal, ShapeCastable, Const
+from amaranth import *
 from amaranth import DriverConflict
+from amaranth.lib import wiring
 from abc import ABCMeta, abstractmethod
 import asyncio
+
+from .board_sim import OBI_Board
 
 import logging
 logger = logging.getLogger()
@@ -818,12 +821,12 @@ class OBIAppletTestCase(unittest.TestCase):
                             board.x_latch_chip.d.eq(obi_subtarget.data.o),
                             board.y_latch_chip.d.eq(obi_subtarget.data.o),
                             board.a_adc_chip.a.eq(board.x_dac_chip.a),
-                            board.x_latch.eq(obi_subtarget.control.x_latch.o),
-                            board.y_latch.eq(obi_subtarget.control.y_latch.o),
-                            board.a_latch.eq(obi_subtarget.control.a_latch.o),
-                            board.a_enable.eq(obi_subtarget.control.a_enable.o),
-                            board.a_clock.eq(obi_subtarget.control.a_clock.o),
-                            board.d_clock.eq(obi_subtarget.control.d_clock.o),
+                            board.bus.dac_x_le_clk.eq(obi_subtarget.control.x_latch.o),
+                            board.bus.dac_y_le_clk.eq(obi_subtarget.control.y_latch.o),
+                            board.bus.adc_le_clk.eq(obi_subtarget.control.a_latch.o),
+                            board.bus.adc_oe.eq(obi_subtarget.control.a_enable.o),
+                            board.bus.adc_clk.eq(obi_subtarget.control.a_clock.o),
+                            board.bus.dac_clk.eq(obi_subtarget.control.d_clock.o),
                             board.adc_input.eq(board.x_dac_chip.a)
                             ]
                 self.target.add_submodule(m)
