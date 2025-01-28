@@ -133,8 +133,12 @@ class OBIAppletTestCase(unittest.TestCase):
         sim.add_clock(20.83e-9)
         for testbench in testbenches:
             sim.add_testbench(testbench)
-        with sim.write_vcd(f"{name}.vcd"), sim.write_vcd(f"{name}+d.vcd", fs_per_delta=250_000):
+        try:
             sim.run()
+        except:
+            sim.reset()
+            with sim.write_vcd(f"{name}.vcd"), sim.write_vcd(f"{name}+d.vcd", fs_per_delta=250_000):
+                sim.run()
 
     ## Bus Controller
     def test_bus_controller_streams(self):
