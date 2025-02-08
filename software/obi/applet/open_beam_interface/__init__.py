@@ -364,6 +364,48 @@ class FastBusController(wiring.Component):
 
 #=========================================================================
 
+class PowerOfTwoDetector(Elaboratable):
+    """Priority encode requests to binary.
+
+    If any bit in ``i`` is asserted, ``n`` is low and ``o`` indicates the least significant
+    asserted bit.
+    Otherwise, ``n`` is high and ``o`` is ``0``.
+
+    Parameters
+    ----------
+    width : int
+        Bit width of the input.
+
+    Attributes
+    ----------
+    i : Signal(width), in
+        Input requests.
+    o : Signal(range(width)), out
+        Encoded natural binary.
+    n : Signal, out
+        Invalid: no input bits are asserted.
+    """
+    def __init__(self, width):
+        self.width = width
+
+        self.i = Signal(width)
+        self.o = Signal(range(width))
+        self.n = Signal()
+        self.p = Signal()
+
+    def elaborate(self, platform):
+        m = Module()
+        p = Signal()
+        for power in range(self.width):
+            with m.If(self.i[power]):
+                m.d.comb += self.o.eq(power)
+            with m.If(self.i == 1 << power):
+                m.d.comb += p.eq(1)
+        m.d.comb += self.n.eq(self.i == 0)
+        m.d.comb += self.p.eq(p & ~self.n)
+        return m
+
+
 class Supersampler(wiring.Component):
     """
     In:
@@ -395,11 +437,14 @@ class Supersampler(wiring.Component):
         super().__init__()
 
         self.dac_stream_data = Signal.like(self.dac_stream.payload)
+        self.encoder = PowerOfTwoDetector(16)
 
     def elaborate(self, platform):
         m = Module()
+        m.submodules["encoder"] = self.encoder
 
         dwell_counter = Signal.like(self.dac_stream_data.dwell_time)
+        sample_counter = Signal.like(self.dac_stream_data.dwell_time)
         last = Signal()
         m.d.comb += [
             self.super_dac_stream.payload.dac_x_code.eq(self.dac_stream_data.dac_x_code),
@@ -432,15 +477,24 @@ class Supersampler(wiring.Component):
                     with m.Else():
                         m.d.sync += dwell_counter.eq(dwell_counter + 1)
 
-                        
+        m.d.comb += self.encoder.i.eq(sample_counter)
+        running_sum = Signal(30)
+        last_p2_sum = Signal(30)
+        selected_sum = Signal(30)
+        shifted_sum = Signal(30)
+        with m.If(self.encoder.p): #if the current sample counter is a power of 2, use all samples
+            m.d.comb += selected_sum.eq(running_sum)
+            m.d.sync += last_p2_sum.eq(running_sum)
+        with m.Else(): # else, only average up to the last power of 2 samples
+            m.d.comb += selected_sum.eq(last_p2_sum)
+        m.d.comb += self.adc_stream.payload.adc_code.eq(selected_sum >> self.encoder.o)
 
-        running_average = Signal.like(self.super_adc_stream.payload.adc_code)
-        m.d.comb += self.adc_stream.payload.adc_code.eq(running_average)
         with m.FSM():
             with m.State("Start"):
                 m.d.comb += self.super_adc_stream.ready.eq(1)
                 with m.If(self.super_adc_stream.valid):
-                    m.d.sync += running_average.eq(self.super_adc_stream.payload.adc_code)
+                    m.d.sync += sample_counter.eq(1)
+                    m.d.sync += running_sum.eq(self.super_adc_stream.payload.adc_code)
                     with m.If(self.super_adc_stream.payload.last):
                         m.next = "Wait"
                     with m.Else():
@@ -449,11 +503,13 @@ class Supersampler(wiring.Component):
             with m.State("Average"):
                 m.d.comb += self.super_adc_stream.ready.eq(1)
                 with m.If(self.super_adc_stream.valid):
-                    m.d.sync += running_average.eq((running_average + self.super_adc_stream.payload.adc_code) >> 1)
+                    m.d.sync += sample_counter.eq(sample_counter + 1)
+                    m.d.sync += running_sum.eq(running_sum + self.super_adc_stream.payload.adc_code)
                     with m.If(self.super_adc_stream.payload.last):
                         m.next = "Wait"
                     with m.Else():
                         m.next = "Average"
+
 
             with m.State("Wait"):
                 m.d.comb += self.adc_stream.valid.eq(1)
