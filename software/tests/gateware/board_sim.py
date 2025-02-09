@@ -1,6 +1,11 @@
 import amaranth
 from amaranth import *
 from amaranth.sim import Simulator, Tick
+from amaranth.lib import wiring
+from amaranth.lib.wiring import In, Out, flipped
+
+
+from obi.applet.open_beam_interface import BusSignature
 
 class SN74ALVCH16374(Elaboratable):
     def __init__(self):
@@ -56,16 +61,11 @@ class LTC2246H(Elaboratable):
         return m
 
 
-class OBI_Board(Elaboratable):
+class OBI_Board(wiring.Component):
+    # simulated digital inputs/output
+    bus: In(BusSignature)
     def __init__(self, loopback=True):
         self.loopback=loopback
-        ## digital inputs
-        self.x_latch = Signal()
-        self.y_latch = Signal()
-        self.a_latch = Signal()
-        self.a_enable = Signal()
-        self.d_clock = Signal()
-        self.a_clock = Signal()
         ## simulated analog input
         self.adc_input = Signal(14)
         ## simulated hardware
@@ -75,6 +75,8 @@ class OBI_Board(Elaboratable):
         self.x_dac_chip = AD9744()
         self.y_dac_chip = AD9744()
         self.a_adc_chip = LTC2246H()
+
+        super().__init__()
     def elaborate(self, platform):
         m = Module()
         m.submodules["x_latch"] = self.x_latch_chip
@@ -84,19 +86,22 @@ class OBI_Board(Elaboratable):
         m.submodules["y_dac"] = self.y_dac_chip
         m.submodules["adc"] = self.a_adc_chip
 
-        m.d.comb += self.x_latch_chip.le_clk.eq(self.x_latch)
-        m.d.comb += self.y_latch_chip.le_clk.eq(self.y_latch)
-        m.d.comb += self.a_latch_chip.le_clk.eq(self.a_latch)
+        m.d.comb += self.x_latch_chip.le_clk.eq(self.bus.dac_x_le_clk)
+        m.d.comb += self.y_latch_chip.le_clk.eq(self.bus.dac_y_le_clk)
+        m.d.comb += self.a_latch_chip.le_clk.eq(self.bus.adc_le_clk)
         m.d.comb += self.x_latch_chip.oe.eq(1)
         m.d.comb += self.y_latch_chip.oe.eq(1)
-        m.d.comb += self.a_latch_chip.oe.eq(self.a_enable)
-        m.d.comb += self.x_dac_chip.clock.eq(self.d_clock)
-        m.d.comb += self.y_dac_chip.clock.eq(self.d_clock)
-        m.d.comb += self.a_adc_chip.clock.eq(self.a_clock)
+        m.d.comb += self.a_latch_chip.oe.eq(self.bus.adc_oe)
+        m.d.comb += self.x_dac_chip.clock.eq(self.bus.dac_clk)
+        m.d.comb += self.y_dac_chip.clock.eq(self.bus.dac_clk)
+        m.d.comb += self.a_adc_chip.clock.eq(self.bus.adc_clk)
         m.d.comb += self.x_dac_chip.d.eq(self.x_latch_chip.q)
         m.d.comb += self.y_dac_chip.d.eq(self.y_latch_chip.q)
         m.d.comb += self.a_latch_chip.d.eq(self.a_adc_chip.d)
         m.d.comb += self.a_adc_chip.a.eq(self.adc_input)
+        m.d.comb += self.x_latch_chip.d.eq(self.bus.data_o)
+        m.d.comb += self.y_latch_chip.d.eq(self.bus.data_o)
+        m.d.comb += self.bus.data_i.eq(self.a_latch_chip.q)
 
         return m
 

@@ -2,16 +2,20 @@ import unittest
 import struct
 import array
 from amaranth.sim import Simulator, Tick
-from amaranth import Signal, ShapeCastable, Const
+from amaranth import *
 from amaranth import DriverConflict
+from amaranth.lib import wiring
 from abc import ABCMeta, abstractmethod
 import asyncio
+import numpy as np
+
+from .board_sim import OBI_Board
 
 import logging
 logger = logging.getLogger()
 
 from obi.applet.open_beam_interface import StreamSignature
-from obi.applet.open_beam_interface import Supersampler, RasterScanner, RasterRegion
+from obi.applet.open_beam_interface import Supersampler, PowerOfTwoDetector, RasterScanner, RasterRegion
 from obi.applet.open_beam_interface import CommandParser, CommandExecutor, Command, BeamType, OutputMode, CmdType
 from obi.applet.open_beam_interface import BusController
 from obi.commands import *
@@ -130,8 +134,12 @@ class OBIAppletTestCase(unittest.TestCase):
         sim.add_clock(20.83e-9)
         for testbench in testbenches:
             sim.add_testbench(testbench)
-        with sim.write_vcd(f"{name}.vcd"), sim.write_vcd(f"{name}+d.vcd", fs_per_delta=250_000):
+        try:
             sim.run()
+        except:
+            sim.reset()
+            with sim.write_vcd(f"{name}.vcd"), sim.write_vcd(f"{name}+d.vcd", fs_per_delta=250_000):
+                sim.run()
 
     ## Bus Controller
     def test_bus_controller_streams(self):
@@ -264,6 +272,61 @@ class OBIAppletTestCase(unittest.TestCase):
 
         self.simulate(dut, [put_testbench, get_testbench], name = "ss_avg2")
     
+    def test_p2_detector(self):
+        dut = PowerOfTwoDetector(4)
+        def testcase(i, o_exp, p_exp):
+            async def testbench(ctx):
+                ctx.set(dut.i, i)
+                o = ctx.get(dut.o)
+                p = ctx.get(dut.p)
+                assert (o,p) == (o_exp, p_exp), f"input: {i}, expected: o={o_exp}, p={p_exp}, actual: {o=}, {p=}"
+
+            sim = Simulator(dut)
+            sim.add_testbench(testbench)
+            sim.run()
+        
+        testcase(1, 0, 1)
+        testcase(2, 1, 1)
+        testcase(3, 1, 0)
+        testcase(4, 2, 1)
+        testcase(6, 2, 0)
+        testcase(8, 3, 1)
+
+    def test_supersampler_average_rand(self):
+        def check_avg_random_samples(nvals:int):
+            dut = Supersampler()
+            vals = np.random.randint(0,16383, nvals)
+
+            async def put_testbench(ctx):
+                ctx.set(dut.dac_stream_data.dwell_time, nvals)
+                for n in range(len(vals)):
+                    last = 0
+                    if n + 1 == len(vals):
+                        last = 1
+                    await put_stream(ctx, dut.super_adc_stream,
+                        {"adc_code": vals[n], "adc_ovf": 0, "last": last})
+                await put_stream(ctx, dut.super_adc_stream,
+                    {"adc_code": 999, "adc_ovf": 0, "last": 0})
+
+            def get_closest_p2(n):
+                i = 1
+                while pow(2,i) < n:
+                    i += 1
+                if n != pow(2,i):
+                    i -= 1
+                return max(1, pow(2,i))
+
+            async def get_testbench(ctx):
+                closest_p2 = get_closest_p2(nvals)
+                print(f"for {nvals} values, average first {closest_p2}")
+                await get_stream(ctx, dut.adc_stream,
+                    {"adc_code": (sum(list(vals)[:closest_p2]))//closest_p2}, timeout_steps = nvals*3)
+                assert ctx.get(dut.adc_stream.valid) == 0
+
+            self.simulate(dut, [put_testbench, get_testbench], name = f"ss_avg_rand_{nvals}")
+        
+        for n in [1,2,4,5,8,16,24, 32,64,128]:
+            check_avg_random_samples(n)
     
     # Raster Scanner
     def test_raster_scanner(self):
@@ -818,12 +881,12 @@ class OBIAppletTestCase(unittest.TestCase):
                             board.x_latch_chip.d.eq(obi_subtarget.data.o),
                             board.y_latch_chip.d.eq(obi_subtarget.data.o),
                             board.a_adc_chip.a.eq(board.x_dac_chip.a),
-                            board.x_latch.eq(obi_subtarget.control.x_latch.o),
-                            board.y_latch.eq(obi_subtarget.control.y_latch.o),
-                            board.a_latch.eq(obi_subtarget.control.a_latch.o),
-                            board.a_enable.eq(obi_subtarget.control.a_enable.o),
-                            board.a_clock.eq(obi_subtarget.control.a_clock.o),
-                            board.d_clock.eq(obi_subtarget.control.d_clock.o),
+                            board.bus.dac_x_le_clk.eq(obi_subtarget.control.x_latch.o),
+                            board.bus.dac_y_le_clk.eq(obi_subtarget.control.y_latch.o),
+                            board.bus.adc_le_clk.eq(obi_subtarget.control.a_latch.o),
+                            board.bus.adc_oe.eq(obi_subtarget.control.a_enable.o),
+                            board.bus.adc_clk.eq(obi_subtarget.control.a_clock.o),
+                            board.bus.dac_clk.eq(obi_subtarget.control.d_clock.o),
                             board.adc_input.eq(board.x_dac_chip.a)
                             ]
                 self.target.add_submodule(m)
