@@ -1,6 +1,6 @@
 from multiprocessing import Pool, Value
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageOps
 
 from obi.commands import *
 
@@ -53,6 +53,8 @@ class BitmapVectorPattern:
         """
         im = self.im
         im = im.convert("L") #TODO: handle 16 bit grayscale
+        if invert:
+            im = ImageOps.invert(im)
         ## scale dwell times 
         def level_adjust(pixel_value):
             return int((pixel_value/255)*max_dwell)
