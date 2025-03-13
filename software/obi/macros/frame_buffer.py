@@ -246,6 +246,7 @@ class FrameBuffer:
         pixels_per_chunk = self._opt_chunk_size(frame)
         self._logger.debug(f"{pixels_per_chunk=}")
 
+        # unblank at beginning of frame
         await self.conn.transfer(BlankCommand(enable=False, inline=True))
 
         cmd = RasterScanCommand(cookie=123,x_range=x_range, y_range=y_range, dwell_time=dwell_time)
