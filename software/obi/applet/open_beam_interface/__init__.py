@@ -1068,7 +1068,7 @@ class OBISubtarget(wiring.Component):
         wiring.connect(m, parser.cmd_stream, executor.cmd_stream)
         wiring.connect(m, executor.img_stream, serializer.img_stream)
 
-        from glasgow.access.direct.multiplexer import _FIFOReadPort, _FIFOWritePort
+        from glasgow.hardware.multiplexer import _FIFOReadPort, _FIFOWritePort
         if isinstance(self.out_fifo, _FIFOReadPort):
             self.out_fifo.r_stream = self.out_fifo.stream
         if isinstance(self.in_fifo, _FIFOWritePort):
@@ -1083,6 +1083,8 @@ class OBISubtarget(wiring.Component):
 
 
         ## Ports/resources ==========================================================
+        platform.add_resources(obi_resources)
+
         if platform is not None:
             self.led            = platform.request("led", dir="-")
             self.control        = platform.request("control", dir={pin.name:"-" for pin in obi_resources[0].ios})
@@ -1249,14 +1251,8 @@ class OBIApplet(GlasgowApplet):
 
 
     def build(self, target, args):
-        from glasgow.target.simulation import GlasgowSimulationTarget
-        if isinstance(target, GlasgowSimulationTarget):
-            self.mux_interface = iface = \
-            target.multiplexer.claim_interface(self, args)
-        else:
-            target.platform.add_resources(obi_resources)
-            self.mux_interface = iface = \
-                target.multiplexer.claim_interface(self, args, throttle="none")
+        self.mux_interface = iface = \
+                target.multiplexer.claim_interface(self, args)
 
         ports = iface.get_port_group(
             ebeam_scan_enable = args.pin_set_ebeam_scan_enable,

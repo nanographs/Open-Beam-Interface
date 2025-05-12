@@ -1,6 +1,6 @@
 import argparse
 
-from glasgow.access.direct.arguments import PinArgument
+from glasgow.applet import PinArgument
 from glasgow.support.endpoint import endpoint
 
 try:

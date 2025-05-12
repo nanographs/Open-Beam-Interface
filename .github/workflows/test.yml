@@ -16,10 +16,20 @@ defaults:
 
 jobs:  
   build:  
-    runs-on: ubuntu-latest  
     strategy:  
       matrix:  
-        python-version: ["3.12"]  
+        python-version: 
+        - '3.12.x' 
+        os-version:
+        - ubuntu-24.04
+        - ubuntu-latest
+        - macos-latest
+        dep-versions:
+        - minimal
+        - latest
+    runs-on: ${{ matrix.os-version }}
+    name: 'test (${{ matrix.os-version }}, ${{ matrix.python-version }}, deps: ${{ matrix.dep-versions }})'
+
   
     steps:  
       - name: Check out source code
