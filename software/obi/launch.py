@@ -86,5 +86,8 @@ async def run_server():
     l = OBILauncher()
     await l.launch_server()
 
-if __name__ == "__main__":
+def main_server():
     asyncio.run(run_server())
+
+if __name__ == "__main__":
+    main_server()
