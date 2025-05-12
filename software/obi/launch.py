@@ -2,8 +2,8 @@ import asyncio
 import logging
 
 
-from glasgow.access.direct import DirectMultiplexer
-import glasgow.access.direct.demultiplexer as glasgow_access
+from glasgow.hardware.multiplexer import DirectMultiplexer
+import glasgow.hardware.demultiplexer as glasgow_access
 glasgow_access._xfers_per_queue = 16
 glasgow_access._packets_per_xfer = 128
 
@@ -42,8 +42,8 @@ class OBILauncher:
         args.parse_toml()
         args = args.args #smh
 
-        from glasgow.target.hardware import GlasgowHardwareTarget
-        from glasgow.device.hardware import GlasgowHardwareDevice
+        from glasgow.hardware.target import GlasgowHardwareTarget
+        from glasgow.hardware.device import GlasgowHardwareDevice
 
         # logging.getLogger().setLevel(logging.DEBUG)
         # logging.getLogger().addHandler(loggingHandler := logging.StreamHandler())
