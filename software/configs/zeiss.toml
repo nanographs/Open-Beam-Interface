@@ -1,0 +1,16 @@
+[instrument_info]
+manufacturer='Zeiss'
+model='Sigma'
+
+[beam.electron.pinout]
+scan_enable = [0]
+
+
+
+[transforms]
+
+
+[timings]
+# Scan Selector board uses TE 1462051-2 Relay
+# Switching delay is 20 ms
+ext_switch_delay_ms = 20
