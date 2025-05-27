@@ -266,11 +266,16 @@ class OBIInterface:
 
                 @self.intercept_err
                 async def recv_data():
+                    print("RECV_DATA")
                     await self.init_fut
+                    print("initialized OK")
                     if not self.flush_fut == None:
+                        print("pausing to flush")
                         self.transport.pause_reading()
                         try:
+                            print("waiting to flush")
                             await self.flush_fut
+                            print("flushed")
                         except USBErrorOther:
                             self.transport.write_eof()
                             print("Wrote EOF")
