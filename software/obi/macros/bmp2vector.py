@@ -86,7 +86,8 @@ class BitmapVectorPattern:
         ## Prepare to unblank with beam at the first vector pixel
         seq.extend(bytes(SynchronizeCommand(raster=False, output=OutputMode.NoOutput, cookie=123)))
         seq.extend(bytes(FlushCommand()))
-        seq.extend(bytes(BeamSelectCommand(beam_type = BeamType.Ion)))
+        seq.extend(bytes(BlankCommand(enable=True)))
+        #seq.extend(bytes(BeamSelectCommand(beam_type = BeamType.Ion)))
         seq.extend(bytes(BlankCommand(enable=False, inline=True)))
 
         y_pixels, x_pixels = pattern_array.shape
