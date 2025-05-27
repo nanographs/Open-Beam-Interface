@@ -3,7 +3,7 @@ import logging
 logger = logging.getLogger()
 
 from .abc import Stream, Connection
-from obi.launch import OBILauncher
+# from obi.launch import OBILauncher
 from obi.commands import *
 from .support import dump_hex
 
@@ -85,7 +85,7 @@ class GlasgowConnection(Connection):
 
     async def _connect(self):
         assert not self.connected
-        self._stream = GlasgowStream(await OBILauncher.launch_direct())
+        # self._stream = GlasgowStream(await OBILauncher.launch_direct())
 
     # async def transfer(self, command, flush:bool = False, **kwargs):
     #     return await super().transfer(command, flush=flush, **kwargs)

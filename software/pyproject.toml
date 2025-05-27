@@ -58,5 +58,5 @@ test.cmd = "python -m unittest"
 [tool.pdm.dev-dependencies]
 dev = [
     "rich>=13.7.1",
-    "-e file:///Users/isabelburgos/glasgow/software#egg=glasgow",
+    "-e glasgow[builtin-toolchain] @ file:///Users/isabelburgos/glasgow/software#egg=glasgow",
 ]

@@ -1,5 +1,7 @@
 {
     "python.analysis.ignore": [
         "**"
-    ]
+    ],
+    "python.autoComplete.extraPaths": ["__pypackages__/<major.minor>/lib"],
+    "python.analysis.extraPaths": ["__pypackages__/<major.minor>/lib"]
 }
