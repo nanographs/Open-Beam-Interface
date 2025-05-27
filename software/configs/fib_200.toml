@@ -1,0 +1,17 @@
+[instrument_info]
+manufacturer='FEI'
+model='FIB 200'
+
+
+[beam.ion.pinout]
+scan_enable = [0,1]
+blank_enable = [4,5]
+blank = [-2,3]
+
+[transforms]
+yflip = true
+
+[timings]
+# Scan Selector board uses TE 1462051-2 Relay
+# Switching delay is 20 ms
+ext_switch_delay_ms = 20
