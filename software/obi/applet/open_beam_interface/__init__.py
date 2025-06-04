@@ -410,6 +410,7 @@ obi_resources  = [
 class OBIComponent(wiring.Component):
     i_stream: In(stream.Signature(8))
     o_stream: Out(stream.Signature(8))
+    o_flush:  Out(1)
 
     def __init__(self, *, ports,  
                         ext_switch_delay=0, transforms: Transforms, 
@@ -441,7 +442,7 @@ class OBIComponent(wiring.Component):
             parser.usb_stream.valid.eq(self.i_stream.valid),
             parser.usb_stream.payload.eq(self.i_stream.payload),
             self.i_stream.ready.eq(parser.usb_stream.ready),
-            # self.i_stream.flush.eq(executor.flush),
+            self.o_flush.eq(executor.flush),
             serializer.output_mode.eq(executor.output_mode)
         ]
 
@@ -610,7 +611,7 @@ class OBIApplet(GlasgowAppletV2):
                 component_args.update({"ext_switch_delay": ext_delay_cycles})
 
             component = self.assembly.add_submodule(OBIComponent(**component_args))
-            self.__pipe = self.assembly.add_inout_pipe(component.o_stream, component.i_stream)
+            self.__pipe = self.assembly.add_inout_pipe(component.o_stream, component.i_stream, in_flush=component.o_flush)
 
 
     async def run(self, args):
