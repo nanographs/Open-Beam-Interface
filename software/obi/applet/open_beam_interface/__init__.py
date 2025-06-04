@@ -9,8 +9,10 @@ from amaranth.lib import enum, data, io, stream, wiring
 from amaranth.lib.wiring import In, Out, flipped
 
 from glasgow.applet import GlasgowAppletV2
+from glasgow.support.endpoint import ServerEndpoint
 
-from obi.commands.structs import CmdType, BeamType, OutputMode, Transforms
+from obi.applet.open_beam_interface.args import Transforms, BeamStateIO
+from obi.commands.structs import CmdType, BeamType, OutputMode
 from obi.commands.low_level_commands import Command, ExternalCtrlCommand
 
 import logging
@@ -442,9 +444,9 @@ class OBIComponent(wiring.Component):
 
 
         ## Ports/resources ==========================================================
-        platform.add_resources(obi_resources)
 
         if platform is not None:
+            platform.add_resources(obi_resources)
             self.led            = platform.request("led", dir="-")
             self.control        = platform.request("control", dir={pin.name:"-" for pin in obi_resources[0].ios})
             self.data           = platform.request("data", dir="-")
@@ -542,6 +544,13 @@ class OBIComponent(wiring.Component):
         return m
 
 
+
+class OBIInterface: #not Open Beam Interface interface.....
+    def __init__(self, logger, assembly):
+        self._logger = logger
+        self.assembly = assembly
+
+
 class OBIApplet(GlasgowAppletV2):
     required_revision = "C3"
     logger = logging.getLogger(__name__)
@@ -554,26 +563,15 @@ class OBIApplet(GlasgowAppletV2):
     def add_build_arguments(cls, parser, access):
         super().add_build_arguments(parser, access)
 
-        access.add_pins_argument(parser, "ebeam_scan_enable", range(1,3))
-        access.add_pins_argument(parser, "ibeam_scan_enable", range(1,3))
-        access.add_pins_argument(parser, "ebeam_blank_enable", range(1,3))
-        access.add_pins_argument(parser, "ibeam_blank_enable", range(1,3))
-        access.add_pins_argument(parser, "ibeam_blank", range(1,3))
-        access.add_pins_argument(parser, "ebeam_blank", range(1,3))
-
+        ebeam_io = BeamStateIO("ebeam")
+        ibeam_io = BeamStateIO("ibeam")
+        ebeam_io.add_pin_arguments(parser,access)
+        ibeam_io.add_pin_arguments(parser,access)
+        Transforms.add_transform_arguments(parser),
 
         parser.add_argument("--loopback",
             dest = "loopback", action = 'store_true',
             help = "connect output and input streams internally")
-        parser.add_argument("--xflip",
-            dest = "xflip", action = 'store_true',
-            help = "flip x axis")
-        parser.add_argument("--yflip",
-            dest = "yflip", action = 'store_true',
-            help = "flip y axis")
-        parser.add_argument("--rotate90",
-            dest = "rotate90", action = 'store_true',
-            help = "switch x and y axes")
         parser.add_argument("--out_only",
             dest = "out_only", action = 'store_true',
             help = "use FastBusController instead of BusController; don't use ADC")

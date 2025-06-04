@@ -240,8 +240,3 @@ class DACCodeRange:
                 step = int((16384/resolution)*256)
             )
 
-@dataclass
-class Transforms:
-    xflip: bool
-    yflip: bool
-    rotate90: bool

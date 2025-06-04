@@ -3,7 +3,7 @@ from amaranth.lib import data, stream, wiring
 from amaranth.lib.wiring import In, Out, flipped
 from amaranth.lib.fifo import SyncFIFOBuffered
 
-from obi.commands.structs import Transforms
+from obi.applet.open_beam_interface.args import Transforms
 from obi.applet.open_beam_interface.modules.structs import SuperDACStream, BusSignature, BlankRequest
 
 class SkidBuffer(wiring.Component):
