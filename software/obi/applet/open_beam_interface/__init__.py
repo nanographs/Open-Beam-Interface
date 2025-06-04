@@ -413,7 +413,7 @@ class OBIComponent(wiring.Component):
 
     def __init__(self, *, ports,  
                         ext_switch_delay=0, transforms: Transforms, 
-                        benchmark_counters=None, loopback=False, out_only=False):
+                        loopback=False, out_only=False):
         self.ports            = ports
 
         self.ext_switch_delay = ext_switch_delay
@@ -421,14 +421,6 @@ class OBIComponent(wiring.Component):
         self.loopback         = loopback
         self.out_only         = out_only
 
-        if not benchmark_counters == None:
-            self.benchmark = True
-            out_stall_events, out_stall_cycles, stall_count_reset = benchmark_counters
-            self.out_stall_events = out_stall_events
-            self.out_stall_cycles = out_stall_cycles
-            self.stall_count_reset = stall_count_reset
-        else:
-            self.benchmark = False
 
         super().__init__()
 
@@ -551,31 +543,6 @@ class OBIComponent(wiring.Component):
                 m.d.comb += loopback_adapter.loopback_stream.eq(executor.supersampler.super_dac_stream.payload.dac_x_code)
         else: ## if not in loopback, connect input to external input
             m.d.comb += executor.bus.data_i.eq(data.i)
-            
-
-        if self.benchmark:
-            m.d.comb += self.out_stall_cycles.eq(executor.supersampler.stall_cycles)
-            m.d.comb += executor.supersampler.stall_count_reset.eq(self.stall_count_reset)
-            out_stall_event = Signal()
-            begin_write = Signal()
-            with m.If(self.stall_count_reset):
-                # m.d.sync += self.out_stall_cycles.eq(0)
-                m.d.sync += self.out_stall_events.eq(0)
-                m.d.sync += out_stall_event.eq(0)
-                m.d.sync += begin_write.eq(0)
-            with m.Else():
-                with m.If(self.out_fifo.r_rdy):
-                    m.d.sync += begin_write.eq(1)
-                with m.If(begin_write):
-                    with m.If(~self.out_fifo.r_rdy):
-                        # with m.If(~(self.out_stall_cycles >= 65536)):
-                        #     m.d.sync += self.out_stall_cycles.eq(self.out_stall_cycles + 1)
-                        with m.If(~out_stall_event):
-                            m.d.sync += out_stall_event.eq(1)
-                            with m.If(~(self.out_stall_events >= 65536)):
-                                m.d.sync += self.out_stall_events.eq(self.out_stall_events + 1)
-                    with m.Else():
-                        m.d.sync += out_stall_event.eq(0)
 
         return m
 
@@ -603,9 +570,6 @@ class OBIApplet(GlasgowAppletV2):
         parser.add_argument("--loopback",
             dest = "loopback", action = 'store_true',
             help = "connect output and input streams internally")
-        parser.add_argument("--benchmark",
-            dest = "benchmark", action = 'store_true',
-            help = "run benchmark test")
         parser.add_argument("--xflip",
             dest = "xflip", action = 'store_true',
             help = "flip x axis")
