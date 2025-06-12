@@ -29953,6 +29953,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 149.86 278.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "cf13e2c4-2dc5-4bf1-abef-41b60b965340")
 		)
@@ -30060,6 +30069,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 158.75 194.31 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 158.75 194.31 0)
 			(effects
 				(font
@@ -30233,6 +30251,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 74.93 199.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "5ec1e0cb-2612-4b08-9ca9-188f5eec2c13")
 		)
@@ -30338,6 +30365,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 490.22 101.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 490.22 101.6 0)
 			(effects
 				(font
@@ -30805,6 +30841,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 408.94 394.97 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "862b3f0a-30eb-4cca-a2a5-56364f4140b8")
 		)
@@ -30908,6 +30953,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 568.96 332.74 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 568.96 332.74 0)
 			(effects
 				(font
@@ -31225,6 +31279,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 359.41 218.44 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "d3adf637-f2b2-4fb5-89ac-831582024870")
 		)
@@ -31395,6 +31458,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 266.7 83.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 266.7 83.82 0)
 			(effects
 				(font
@@ -31777,6 +31849,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 458.47 195.58 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "92153c6a-6da3-4b16-a1ce-29d8f6474842")
 		)
@@ -31959,6 +32040,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 101.6 217.17 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "26cebc25-5eee-4433-b4ed-00782417da7d")
 		)
@@ -32074,6 +32164,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 386.08 320.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "eea14b0e-55c6-4e39-8b9f-6ec9af2c737d")
 		)
@@ -32161,6 +32260,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 63.5 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 63.5 30.48 0)
 			(effects
 				(font
@@ -32311,7 +32419,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/te-connectivity-passive-product/RQ73C1J4K99BTD/9479768"
 			(at 427.99 210.82 0)
 			(effects
 				(font
@@ -32330,6 +32438,24 @@
 			)
 		)
 		(property "Context" "Differential gain resistor, sets ratio between single ended and differential output range"
+			(at 427.99 210.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" "0.15"
+			(at 427.99 210.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" "A139820CT-ND"
 			(at 427.99 210.82 0)
 			(effects
 				(font
@@ -32781,6 +32907,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 83.82 307.34 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "7f9fd719-6cd0-425f-b68b-f2b617654be4")
 		)
@@ -32879,6 +33014,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 497.84 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 497.84 63.5 0)
 			(effects
 				(font
@@ -33064,6 +33208,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 314.96 299.72 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "04edbc32-6971-4eb8-a7dd-a648eab2b2e2")
 		)
@@ -33176,6 +33329,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 538.48 151.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "6258d239-5d54-4ca0-b2cb-01ef94526599")
 		)
@@ -33243,7 +33405,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERJ-PB3B1302V/6212881"
 			(at 510.54 107.95 0)
 			(effects
 				(font
@@ -33252,7 +33414,7 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" "541-3167-1-ND"
+		(property "DK Part Number" "P20098CT-ND"
 			(at 510.54 107.95 0)
 			(effects
 				(font
@@ -33270,7 +33432,7 @@
 				(hide yes)
 			)
 		)
-		(property "Tolerance" "0.05%"
+		(property "Tolerance" "0.1%"
 			(at 510.54 107.95 0)
 			(effects
 				(font
@@ -33280,6 +33442,15 @@
 			)
 		)
 		(property "Context" "DAC offset preset"
+			(at 510.54 107.95 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" "0.2"
 			(at 510.54 107.95 0)
 			(effects
 				(font
@@ -33402,6 +33573,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 554.99 320.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "db228cdb-9280-4516-8a8c-252954b4132b")
 		)
@@ -33504,6 +33684,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 467.36 218.44 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 467.36 218.44 0)
 			(effects
 				(font
@@ -33711,6 +33900,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 379.73 302.26 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "530facdf-8a17-4c7c-81d3-03c319e3bbf0")
 		)
@@ -33817,6 +34015,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 247.65 240.03 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 247.65 240.03 0)
 			(effects
 				(font
@@ -34068,6 +34275,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 85.09 199.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 85.09 199.39 0)
 			(effects
 				(font
@@ -34329,6 +34545,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 97.79 194.31 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "a0e31fdf-8863-4d6e-ad94-44cb5e5c9597")
 		)
@@ -34430,6 +34655,15 @@
 			)
 		)
 		(property "Context" "Sets differential output voltage range"
+			(at 411.48 60.96 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 411.48 60.96 0)
 			(effects
 				(font
@@ -34544,6 +34778,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 63.5 213.36 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 63.5 213.36 0)
 			(effects
 				(font
@@ -34702,6 +34945,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 82.55 347.98 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "400aeaf0-7cbd-4a0f-9865-fe90ec70d943")
 		)
@@ -34820,6 +35072,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 41.91 163.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "ecc59bf9-631a-4f89-8c00-ab4cb6e63649")
 		)
@@ -34923,6 +35184,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 419.1 144.78 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 419.1 144.78 0)
 			(effects
 				(font
@@ -35045,6 +35315,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 328.93 41.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "9a6a4a8f-1b61-4fb7-b901-9771bdc0ffab")
 		)
@@ -35077,7 +35356,7 @@
 				)
 			)
 		)
-		(property "Value" "3.3K"
+		(property "Value" "3.3k"
 			(at 67.31 87.63 90)
 			(effects
 				(font
@@ -35112,7 +35391,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERJ-3GEYJ332V/135886"
 			(at 67.31 87.63 0)
 			(effects
 				(font
@@ -35121,7 +35400,7 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" ""
+		(property "DK Part Number" "P3.3KGCT-ND"
 			(at 67.31 87.63 0)
 			(effects
 				(font
@@ -35149,6 +35428,15 @@
 			)
 		)
 		(property "Context" "Sets LED brightness"
+			(at 67.31 87.63 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 67.31 87.63 0)
 			(effects
 				(font
@@ -35244,7 +35532,7 @@
 				(hide yes)
 			)
 		)
-		(property "Tolerance" "0.1%"
+		(property "Tolerance" "1%"
 			(at 58.42 306.07 0)
 			(effects
 				(font
@@ -35254,6 +35542,15 @@
 			)
 		)
 		(property "Context" "Sets power regulator current limit"
+			(at 58.42 306.07 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 58.42 306.07 0)
 			(effects
 				(font
@@ -35443,6 +35740,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 452.12 60.96 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "dc30506f-2132-4d06-bd07-97909f644ed3")
 		)
@@ -35555,6 +35861,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 452.12 195.58 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "aa4cdec1-33b5-485f-abf7-bb0a72de3df7")
 		)
@@ -35658,6 +35973,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 327.66 265.43 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 327.66 265.43 0)
 			(effects
 				(font
@@ -35783,6 +36107,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 185.42 347.98 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "846da2f9-0684-4a38-beec-ad4d0ba1fdde")
 		)
@@ -35862,7 +36195,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/te-connectivity-passive-product/RQ73C1J4K99BTD/9479768"
 			(at 430.53 45.72 0)
 			(effects
 				(font
@@ -35881,6 +36214,24 @@
 			)
 		)
 		(property "Context" "Differential gain resistor, sets ratio between single ended and differential output range"
+			(at 430.53 45.72 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" "0.15"
+			(at 430.53 45.72 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" "A139820CT-ND"
 			(at 430.53 45.72 0)
 			(effects
 				(font
@@ -36041,7 +36392,7 @@
 				(hide yes)
 			)
 		)
-		(property "Tolerance" ""
+		(property "Tolerance" "0.1%"
 			(at 458.47 66.04 0)
 			(effects
 				(font
@@ -36051,6 +36402,15 @@
 			)
 		)
 		(property "Context" "Input summing to single-ended stage"
+			(at 458.47 66.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 458.47 66.04 0)
 			(effects
 				(font
@@ -36167,6 +36527,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 201.93 299.72 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 201.93 299.72 0)
 			(effects
 				(font
@@ -36478,6 +36847,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 83.82 382.27 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "493be418-a017-43d4-aace-89093c1a79d9")
 		)
@@ -36611,7 +36989,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERJ-PB3B2002V/6212901"
 			(at 510.54 227.33 0)
 			(effects
 				(font
@@ -36620,7 +36998,7 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" "TNP20.0KAACT-ND"
+		(property "DK Part Number" "P20118CT-ND "
 			(at 510.54 227.33 0)
 			(effects
 				(font
@@ -36638,7 +37016,7 @@
 				(hide yes)
 			)
 		)
-		(property "Tolerance" "0.05%"
+		(property "Tolerance" "0.1%"
 			(at 510.54 227.33 0)
 			(effects
 				(font
@@ -36648,6 +37026,15 @@
 			)
 		)
 		(property "Context" "DAC offset preset"
+			(at 510.54 227.33 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" "0.2"
 			(at 510.54 227.33 0)
 			(effects
 				(font
@@ -36762,6 +37149,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 39.37 220.98 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 39.37 220.98 0)
 			(effects
 				(font
@@ -36885,6 +37281,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 527.05 24.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "877cc1ce-bbb2-4e3c-accc-f08904cbb6d3")
 		)
@@ -36989,6 +37394,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 85.09 339.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 85.09 339.09 0)
 			(effects
 				(font
@@ -37245,6 +37659,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 297.18 62.23 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "3197379e-d912-454a-a300-f9be27ce2688")
 		)
@@ -37346,6 +37769,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 398.78 359.41 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 398.78 359.41 0)
 			(effects
 				(font
@@ -37468,6 +37900,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 48.26 137.16 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "3e19694e-427d-42dc-9db0-1ffe40e1f12c")
 		)
@@ -37573,6 +38014,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 48.26 152.4 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 48.26 152.4 0)
 			(effects
 				(font
@@ -37688,6 +38138,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 370.84 179.07 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 370.84 179.07 0)
 			(effects
 				(font
@@ -37941,6 +38400,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 88.9 25.4 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "789068f8-ca23-42df-a557-df6b7a7e0b9e")
 		)
@@ -38055,6 +38523,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 191.77 365.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "9921dc46-9919-492c-8d20-9d4ed8f31826")
 		)
@@ -38122,7 +38599,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERA-3AEB2321V/2026779"
 			(at 391.16 223.52 0)
 			(effects
 				(font
@@ -38131,7 +38608,7 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" "TNP2.32KAACT-ND"
+		(property "DK Part Number" "P2.32KDBCT-ND "
 			(at 391.16 223.52 0)
 			(effects
 				(font
@@ -38149,7 +38626,7 @@
 				(hide yes)
 			)
 		)
-		(property "Tolerance" "0.05%"
+		(property "Tolerance" "0.1%"
 			(at 391.16 223.52 0)
 			(effects
 				(font
@@ -38159,6 +38636,15 @@
 			)
 		)
 		(property "Context" "DAC gain preset"
+			(at 391.16 223.52 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" "0.1"
 			(at 391.16 223.52 0)
 			(effects
 				(font
@@ -38271,6 +38757,15 @@
 			)
 		)
 		(property "Context" "Differential output current limiting (or not)"
+			(at 452.12 184.15 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 452.12 184.15 0)
 			(effects
 				(font
@@ -38583,6 +39078,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 185.42 372.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "2ff6da39-d12c-4b91-8362-123ba2dfd1ef")
 		)
@@ -38687,6 +39191,15 @@
 			)
 		)
 		(property "Context" "Power Good load"
+			(at 149.86 273.05 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 149.86 273.05 0)
 			(effects
 				(font
@@ -38802,6 +39315,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 190.5 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 190.5 110.49 0)
 			(effects
 				(font
@@ -38976,6 +39498,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 149.86 267.97 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "a78eb972-e197-47ef-b563-81079db2ce60")
 		)
@@ -39082,6 +39613,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 39.37 369.57 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 39.37 369.57 0)
 			(effects
 				(font
@@ -39235,7 +39775,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERA-3AEB8252V/2026921"
 			(at 83.82 297.18 0)
 			(effects
 				(font
@@ -39254,6 +39794,24 @@
 			)
 		)
 		(property "Context" "Sets Power Good level"
+			(at 83.82 297.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" "0.1"
+			(at 83.82 297.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" "P82.5KDBCT-ND"
 			(at 83.82 297.18 0)
 			(effects
 				(font
@@ -39442,6 +40000,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" "0.1"
+			(at 379.73 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "fb64a2a9-1002-4759-aa00-26671bfc112a")
 		)
@@ -39548,6 +40115,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 411.48 265.43 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 411.48 265.43 0)
 			(effects
 				(font
@@ -39804,6 +40380,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 90.17 71.12 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "8215abac-0bf9-46fd-ab87-54bcf9eb0b83")
 		)
@@ -40029,6 +40614,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 76.2 27.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "786ba82a-e1aa-4e0d-bf2d-c15df624ecb4")
 		)
@@ -40135,6 +40729,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 88.9 148.59 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 88.9 148.59 0)
 			(effects
 				(font
@@ -40250,6 +40853,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 447.04 66.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 447.04 66.04 0)
 			(effects
 				(font
@@ -40428,6 +41040,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 77.47 74.93 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 77.47 74.93 0)
 			(effects
 				(font
@@ -40617,6 +41238,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 340.36 76.2 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "e21d5aeb-f952-4225-9e85-926b517c7b8f")
 		)
@@ -40796,6 +41426,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 349.25 41.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 349.25 41.91 0)
 			(effects
 				(font
@@ -41118,6 +41757,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 543.56 332.74 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "ed89e32c-ca8f-47f1-9123-8d6f64259c3a")
 		)
@@ -41362,6 +42010,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 255.27 124.46 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "8f76c84d-567d-4072-90f2-ed9cdd94f89b")
 		)
@@ -41523,7 +42180,7 @@
 				(hide yes)
 			)
 		)
-		(property "Tolerance" "0.05%"
+		(property "Tolerance" "0.1%"
 			(at 393.7 104.14 0)
 			(effects
 				(font
@@ -41533,6 +42190,15 @@
 			)
 		)
 		(property "Context" "DAC gain preset"
+			(at 393.7 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" "0.1"
 			(at 393.7 104.14 0)
 			(effects
 				(font
@@ -41649,6 +42315,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 360.68 195.58 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 360.68 195.58 0)
 			(effects
 				(font
@@ -41967,6 +42642,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 411.48 66.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "4fc3af2a-730f-45bd-9e33-16cb1b05d73b")
 		)
@@ -42074,6 +42758,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 463.55 295.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 463.55 295.91 0)
 			(effects
 				(font
@@ -42329,6 +43022,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 250.19 124.46 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "f086ac5b-a981-449a-b278-fd67fd918449")
 		)
@@ -42444,6 +43146,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 414.02 316.23 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "bb84f21b-b4d9-475c-8c6e-451bf56f1b44")
 		)
@@ -42548,6 +43259,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 447.04 190.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 447.04 190.5 0)
 			(effects
 				(font
@@ -42993,6 +43713,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 137.16 194.31 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(instances
 			(project "Open Beam Interface"
 				(path "/39dd4815-2a60-44cf-8871-b7872a24db88"
@@ -43065,7 +43794,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERA-3ARB333V/3073660"
 			(at 53.34 306.07 0)
 			(effects
 				(font
@@ -43074,7 +43803,7 @@
 				(hide yes)
 			)
 		)
-		(property "Tolerance" "0.05%"
+		(property "Tolerance" "0.1%"
 			(at 53.34 306.07 0)
 			(effects
 				(font
@@ -43083,7 +43812,25 @@
 				(hide yes)
 			)
 		)
-		(property "Context" "Precision resistor sets voltage reference for 3.3V lines"
+		(property "Context" "Sets voltage reference"
+			(at 53.34 306.07 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" "P33KBDCT-ND"
+			(at 53.34 306.07 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 53.34 306.07 0)
 			(effects
 				(font
@@ -43371,7 +44118,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERA-3AEB1821V/2026770"
 			(at 477.52 48.26 0)
 			(effects
 				(font
@@ -43390,6 +44137,24 @@
 			)
 		)
 		(property "Context" "DAC single ended gain resistor"
+			(at 477.52 48.26 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" "0.1"
+			(at 477.52 48.26 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" "P1.82KDBCT-ND "
 			(at 477.52 48.26 0)
 			(effects
 				(font
@@ -43505,6 +44270,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 180.34 50.8 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 180.34 50.8 0)
 			(effects
 				(font
@@ -43749,6 +44523,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 378.46 337.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "f6b69d19-1ee2-4344-b346-be76bbf62c0e")
 		)
@@ -43931,6 +44714,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 218.44 194.31 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "b6e15a89-b84d-4013-861c-7477c82dbf08")
 		)
@@ -44034,6 +44826,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 63.5 361.95 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 63.5 361.95 0)
 			(effects
 				(font
@@ -44181,6 +44982,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 332.74 168.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 332.74 168.91 0)
 			(effects
 				(font
@@ -44436,6 +45246,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" "0.1"
+			(at 394.97 207.01 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "d12e12ba-79ef-431e-86dd-06f7ebc898bd")
 		)
@@ -44682,6 +45501,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 63.5 130.81 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "17e246ea-06f7-4bba-b0bc-b49619c904b2")
 		)
@@ -44864,6 +45692,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 411.48 295.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "38e12d6e-df76-4721-9649-710bf17c2346")
 		)
@@ -44970,6 +45807,15 @@
 			)
 		)
 		(property "Context" "DAC output load"
+			(at 377.19 207.01 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" "0.1"
 			(at 377.19 207.01 0)
 			(effects
 				(font
@@ -45086,6 +45932,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 115.57 213.36 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 115.57 213.36 0)
 			(effects
 				(font
@@ -45318,6 +46173,15 @@
 			)
 		)
 		(property "Context" "Feedback on ADC buffer"
+			(at 429.26 358.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 429.26 358.14 0)
 			(effects
 				(font
@@ -45564,6 +46428,15 @@
 			)
 		)
 		(property "Context" "ADC input load"
+			(at 396.24 342.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" "0.1"
 			(at 396.24 342.9 0)
 			(effects
 				(font
@@ -45819,6 +46692,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 554.99 309.88 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "6a4e7702-af73-47ff-9543-d247650c838c")
 		)
@@ -45949,6 +46831,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 468.63 335.28 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "eaa2fb5f-1b25-44d9-93e7-84084dbdc575")
 		)
@@ -46064,6 +46955,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 35.56 105.41 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "4c853c15-026a-4506-b591-681f8688064e")
 		)
@@ -46168,6 +47068,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 284.48 171.45 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 284.48 171.45 0)
 			(effects
 				(font
@@ -46354,6 +47263,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 41.91 71.12 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "a6bf2f13-4be1-44b1-9721-2cd9232dbae7")
 		)
@@ -46458,6 +47376,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 477.52 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 477.52 63.5 0)
 			(effects
 				(font
@@ -46656,6 +47583,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 185.42 382.27 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "ef2e6dcd-df96-461e-92f6-067f6a9eb064")
 		)
@@ -46761,6 +47697,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 398.78 351.79 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 398.78 351.79 0)
 			(effects
 				(font
@@ -46875,6 +47820,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 425.45 193.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 425.45 193.04 0)
 			(effects
 				(font
@@ -47116,7 +48070,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/te-connectivity-passive-product/RN73C1J140KBTD/6557649"
 			(at 53.34 381 0)
 			(effects
 				(font
@@ -47125,7 +48079,7 @@
 				(hide yes)
 			)
 		)
-		(property "Tolerance" "0.05%"
+		(property "Tolerance" "0.1%"
 			(at 53.34 381 0)
 			(effects
 				(font
@@ -47134,7 +48088,25 @@
 				(hide yes)
 			)
 		)
-		(property "Context" "Prescision resistor sets voltage reference for +14V lines"
+		(property "Context" "Sets voltage reference"
+			(at 53.34 381 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" "A124703CT-ND"
+			(at 53.34 381 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 53.34 381 0)
 			(effects
 				(font
@@ -47221,7 +48193,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERA-3ARB333V/3073660"
 			(at 53.34 232.41 0)
 			(effects
 				(font
@@ -47230,7 +48202,7 @@
 				(hide yes)
 			)
 		)
-		(property "Tolerance" "0.05%"
+		(property "Tolerance" "0.1%"
 			(at 50.546 234.95 90)
 			(effects
 				(font
@@ -47239,7 +48211,25 @@
 				(hide yes)
 			)
 		)
-		(property "Context" "Precision resistor sets voltage reference for 3.3V lines"
+		(property "Context" "Sets voltage reference"
+			(at 53.34 232.41 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" "P33KBDCT-ND"
+			(at 53.34 232.41 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 53.34 232.41 0)
 			(effects
 				(font
@@ -47432,6 +48422,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 85.09 273.05 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "9c6da722-07b0-4bca-bf72-21a90aa895ec")
 		)
@@ -47539,6 +48538,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 382.27 101.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 382.27 101.6 0)
 			(effects
 				(font
@@ -47670,6 +48678,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 387.35 355.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "e681f811-2ecc-482e-8dcd-ba40472eb710")
 		)
@@ -47784,6 +48801,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 335.28 41.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "bca0b39a-234e-4404-b3cf-132e7c428c8b")
 		)
@@ -47889,6 +48915,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 467.36 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 467.36 88.9 0)
 			(effects
 				(font
@@ -48030,6 +49065,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 354.33 285.75 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "bceb594c-8c00-43b8-870a-c6a8e976a5d1")
 		)
@@ -48134,6 +49178,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 175.26 285.75 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 175.26 285.75 0)
 			(effects
 				(font
@@ -48275,6 +49328,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 342.9 337.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 342.9 337.82 0)
 			(effects
 				(font
@@ -48536,6 +49598,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 213.36 273.05 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "1854efc6-6f05-4f6e-b245-74654bab602b")
 		)
@@ -48649,6 +49720,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 510.54 213.36 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "61291df7-7873-432c-94ba-9f0627daea36")
 		)
@@ -48749,6 +49829,15 @@
 			)
 		)
 		(property "Context" "Power Good pullup"
+			(at 63.5 339.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 63.5 339.09 0)
 			(effects
 				(font
@@ -48939,6 +50028,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 101.6 341.63 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "afe27021-f12e-430a-b88f-308680068a69")
 		)
@@ -49111,6 +50209,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 575.31 332.74 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 575.31 332.74 0)
 			(effects
 				(font
@@ -49560,6 +50667,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 302.26 342.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "b901714b-05cc-425a-8c15-df8242632ed2")
 		)
@@ -49663,6 +50779,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 105.41 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 105.41 36.83 0)
 			(effects
 				(font
@@ -49783,6 +50908,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 505.46 193.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "36b2e9ef-dde7-4a45-83e8-c45c7e931428")
 		)
@@ -49877,7 +51011,7 @@
 				(hide yes)
 			)
 		)
-		(property "Tolerance" "0.05%"
+		(property "Tolerance" "0.1%"
 			(at 547.37 275.59 0)
 			(effects
 				(font
@@ -49887,6 +51021,15 @@
 			)
 		)
 		(property "Context" "ADC offset preset"
+			(at 547.37 275.59 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 547.37 275.59 0)
 			(effects
 				(font
@@ -50003,6 +51146,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 218.44 361.95 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 218.44 361.95 0)
 			(effects
 				(font
@@ -50181,6 +51333,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 426.72 144.78 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 426.72 144.78 0)
 			(effects
 				(font
@@ -50434,6 +51595,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 407.67 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "2f8bcff1-9702-4c78-bf40-2198eded1b8a")
 		)
@@ -50543,6 +51713,15 @@
 			)
 		)
 		(property "Context" "DAC output load"
+			(at 397.51 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" "0.1"
 			(at 397.51 77.47 0)
 			(effects
 				(font
@@ -50798,6 +51977,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 101.6 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "abb87256-0754-4d57-9a8a-164b155ecaf8")
 		)
@@ -51044,6 +52232,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 408.94 195.58 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "2fc55c16-d438-4a32-bdb0-7b4c1322721f")
 		)
@@ -51131,6 +52328,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 88.9 25.4 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 88.9 25.4 0)
 			(effects
 				(font
@@ -51245,6 +52451,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 196.85 26.67 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 196.85 26.67 0)
 			(effects
 				(font
@@ -51555,6 +52770,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 429.26 320.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "e097551d-a0dc-49e2-8175-1ecb859d2a73")
 		)
@@ -51661,6 +52885,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 515.62 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 515.62 63.5 0)
 			(effects
 				(font
@@ -51852,6 +53085,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 346.71 168.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "e2485542-eba1-4dca-9148-cedfa4a14952")
 		)
@@ -52030,6 +53272,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 63.5 158.75 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "c7b046f5-63d3-497e-8929-edd4335f7df1")
 		)
@@ -52191,6 +53442,15 @@
 			)
 		)
 		(property "Context" "Part of ADC gain circuit responsible for Vcom"
+			(at 448.31 340.36 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 448.31 340.36 0)
 			(effects
 				(font
@@ -52368,7 +53628,16 @@
 				(hide yes)
 			)
 		)
-		(property "Context" "Part of gain circuit on ADC buffer op amp responsible for video signal in"
+		(property "Context" "Pre-clamping part of gain circuit on ADC buffer op amp responsible for video signal in"
+			(at 483.87 335.28 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" "a problem"
 			(at 483.87 335.28 0)
 			(effects
 				(font
@@ -52491,6 +53760,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 90.17 290.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "aaf98265-9a7b-44b2-bdd2-d706daa0d8e8")
 		)
@@ -52588,6 +53866,15 @@
 			)
 		)
 		(property "Context" "Sets Power Good level"
+			(at 83.82 233.68 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 83.82 233.68 0)
 			(effects
 				(font
@@ -52971,6 +54258,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 467.36 78.74 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "7dc832b8-6108-4ef6-b18e-b0e4ef3d819c")
 		)
@@ -53208,6 +54504,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 205.74 193.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 205.74 193.04 0)
 			(effects
 				(font
@@ -53523,6 +54828,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 67.31 140.97 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 67.31 140.97 0)
 			(effects
 				(font
@@ -53913,6 +55227,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 76.2 27.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "9703781d-2c47-42da-8390-bcd3ce920dc8")
 		)
@@ -54020,6 +55343,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 490.22 151.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 490.22 151.13 0)
 			(effects
 				(font
@@ -54201,6 +55533,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 189.23 26.67 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 189.23 26.67 0)
 			(effects
 				(font
@@ -54391,6 +55732,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 326.39 168.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "0ebadf4e-8214-45ad-9e8c-f9aa802e2143")
 		)
@@ -54564,6 +55914,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 46.99 232.41 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 46.99 232.41 0)
 			(effects
 				(font
@@ -54754,6 +56113,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 67.31 74.93 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "38a0b2d0-41bf-4e38-98b9-bed637325442")
 		)
@@ -54867,6 +56235,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 41.91 93.98 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "29d9b712-ea4e-4d68-8ffb-99ffe1c445e0")
 		)
@@ -54965,6 +56342,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 495.3 193.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 495.3 193.04 0)
 			(effects
 				(font
@@ -55355,6 +56741,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 95.25 137.16 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "c5a1721c-5f5c-4a7f-b673-971a3975854f")
 		)
@@ -55456,6 +56851,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 57.15 87.63 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 57.15 87.63 0)
 			(effects
 				(font
@@ -55712,6 +57116,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 477.52 335.28 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "cdca14c1-b6d5-45b9-aee4-5ee3a2291ce7")
 		)
@@ -55890,6 +57303,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 405.13 238.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "630964ae-8582-49fc-b724-5898865a9e2a")
 		)
@@ -55997,6 +57419,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 266.7 209.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 266.7 209.55 0)
 			(effects
 				(font
@@ -56278,7 +57709,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/te-connectivity-passive-product/RQ73C1J1K82BTD/9480388"
 			(at 391.16 238.76 0)
 			(effects
 				(font
@@ -56287,7 +57718,7 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" ""
+		(property "DK Part Number" "A140440CT-ND "
 			(at 391.16 238.76 0)
 			(effects
 				(font
@@ -56305,7 +57736,7 @@
 				(hide yes)
 			)
 		)
-		(property "Tolerance" "0.05%"
+		(property "Tolerance" "0.1%"
 			(at 391.16 238.76 0)
 			(effects
 				(font
@@ -56315,6 +57746,15 @@
 			)
 		)
 		(property "Context" "DAC gain adjustable preset"
+			(at 391.16 238.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" "0.15"
 			(at 391.16 238.76 0)
 			(effects
 				(font
@@ -56505,6 +57945,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 482.6 24.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "101b2cbc-ee1b-4ca9-a6c4-71123314cf61")
 		)
@@ -56680,6 +58129,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 115.57 287.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 115.57 287.02 0)
 			(effects
 				(font
@@ -56931,6 +58389,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 361.95 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "e8a1e0ee-384f-481f-ad05-4cdf190778c7")
 		)
@@ -57046,6 +58513,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 405.13 342.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "66b91a3b-944e-48c8-8656-c220a3f3135a")
 		)
@@ -57075,7 +58551,7 @@
 				)
 			)
 		)
-		(property "Value" "3.3K"
+		(property "Value" "3.3k"
 			(at 67.31 110.49 90)
 			(effects
 				(font
@@ -57110,7 +58586,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERJ-3GEYJ332V/135886"
 			(at 67.31 110.49 0)
 			(effects
 				(font
@@ -57119,7 +58595,7 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" ""
+		(property "DK Part Number" "P3.3KGCT-ND"
 			(at 67.31 110.49 0)
 			(effects
 				(font
@@ -57147,6 +58623,15 @@
 			)
 		)
 		(property "Context" "Sets LED brightness"
+			(at 67.31 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 67.31 110.49 0)
 			(effects
 				(font
@@ -57327,6 +58812,15 @@
 			)
 		)
 		(property "Context" "Differential output current limiting (or not)"
+			(at 447.04 184.15 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 447.04 184.15 0)
 			(effects
 				(font
@@ -57564,6 +59058,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 313.69 220.98 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 313.69 220.98 0)
 			(effects
 				(font
@@ -57815,6 +59318,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 363.22 199.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "6dec0f60-b248-4f3b-a367-0e778df25f14")
 		)
@@ -57982,6 +59494,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 521.97 133.35 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 521.97 133.35 0)
 			(effects
 				(font
@@ -58181,6 +59702,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 388.62 50.8 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "ac0daadb-828f-4f26-9b9d-a1608c3a9861")
 		)
@@ -58293,6 +59823,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 364.49 60.96 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "58425a23-2998-4715-9d54-56f58320a3f7")
 		)
@@ -58396,6 +59935,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 384.81 144.78 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 384.81 144.78 0)
 			(effects
 				(font
@@ -58711,6 +60259,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 554.99 326.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "851800ce-5295-478b-9bde-bcf9941f21e9")
 		)
@@ -58787,7 +60344,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/te-connectivity-passive-product/RQ73C1J4K99BTD/9479768"
 			(at 427.99 175.26 0)
 			(effects
 				(font
@@ -58806,6 +60363,24 @@
 			)
 		)
 		(property "Context" "Differential gain resistor, sets ratio between single ended and differential output range"
+			(at 427.99 175.26 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" "0.15"
+			(at 427.99 175.26 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" "A139820CT-ND"
 			(at 427.99 175.26 0)
 			(effects
 				(font
@@ -58890,7 +60465,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERA-3AEB1821V/2026770"
 			(at 477.52 177.8 0)
 			(effects
 				(font
@@ -58909,6 +60484,24 @@
 			)
 		)
 		(property "Context" "DAC single ended gain resistor"
+			(at 477.52 177.8 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" "0.1"
+			(at 477.52 177.8 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" "P1.82KDBCT-ND "
 			(at 477.52 177.8 0)
 			(effects
 				(font
@@ -58993,7 +60586,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/te-connectivity-passive-product/RQ73C1J4K99BTD/9479768"
 			(at 430.53 81.28 0)
 			(effects
 				(font
@@ -59012,6 +60605,24 @@
 			)
 		)
 		(property "Context" "Differential gain resistor, sets ratio between single ended and differential output range"
+			(at 430.53 81.28 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" "0.15"
+			(at 430.53 81.28 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" "A139820CT-ND"
 			(at 430.53 81.28 0)
 			(effects
 				(font
@@ -59117,6 +60728,15 @@
 			)
 		)
 		(property "Context" "Sets Power Good level"
+			(at 83.82 372.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 83.82 372.11 0)
 			(effects
 				(font
@@ -59305,6 +60925,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 452.12 72.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "08a95c9e-0b7f-4925-8815-71304ccbbdf6")
 		)
@@ -59400,6 +61029,15 @@
 			)
 		)
 		(property "Context" "Input summing to single-ended stage"
+			(at 458.47 60.96 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 458.47 60.96 0)
 			(effects
 				(font
@@ -59582,6 +61220,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 529.59 151.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 529.59 151.13 0)
 			(effects
 				(font
@@ -59791,7 +61438,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERJ-PB3B2202V/6212905"
 			(at 504.19 105.41 0)
 			(effects
 				(font
@@ -59800,7 +61447,7 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" "541-2006-1-ND"
+		(property "DK Part Number" "P20122CT-ND"
 			(at 504.19 105.41 0)
 			(effects
 				(font
@@ -59818,7 +61465,7 @@
 				(hide yes)
 			)
 		)
-		(property "Tolerance" "0.05%"
+		(property "Tolerance" "0.1%"
 			(at 504.19 105.41 0)
 			(effects
 				(font
@@ -59828,6 +61475,15 @@
 			)
 		)
 		(property "Context" "DAC offset preset"
+			(at 504.19 105.41 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" "0.2"
 			(at 504.19 105.41 0)
 			(effects
 				(font
@@ -59931,6 +61587,15 @@
 			)
 		)
 		(property "Context" "Optional axial resistor"
+			(at 477.52 41.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 477.52 41.91 0)
 			(effects
 				(font
@@ -60112,6 +61777,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 137.16 189.23 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(instances
 			(project "Open Beam Interface"
 				(path "/39dd4815-2a60-44cf-8871-b7872a24db88"
@@ -60211,6 +61885,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 510.54 83.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 510.54 83.82 0)
 			(effects
 				(font
@@ -60423,7 +62106,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERJ-PB3B2002V/6212901"
 			(at 510.54 97.79 0)
 			(effects
 				(font
@@ -60432,7 +62115,7 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" "TNP20.0KAACT-ND"
+		(property "DK Part Number" "P20118CT-ND "
 			(at 510.54 97.79 0)
 			(effects
 				(font
@@ -60450,7 +62133,7 @@
 				(hide yes)
 			)
 		)
-		(property "Tolerance" "0.05%"
+		(property "Tolerance" "0.1%"
 			(at 510.54 97.79 0)
 			(effects
 				(font
@@ -60460,6 +62143,15 @@
 			)
 		)
 		(property "Context" "DAC offset preset"
+			(at 510.54 97.79 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" "0.2"
 			(at 510.54 97.79 0)
 			(effects
 				(font
@@ -60783,6 +62475,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 63.5 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "0a5d3370-049a-4c89-9a75-201357a0b2ef")
 		)
@@ -60891,6 +62592,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 556.26 350.52 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 556.26 350.52 0)
 			(effects
 				(font
@@ -61066,6 +62776,15 @@
 			)
 		)
 		(property "Context" "ADC input load"
+			(at 396.24 332.74 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" "0.1"
 			(at 396.24 332.74 0)
 			(effects
 				(font
@@ -61256,6 +62975,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 490.22 231.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "eefce150-d028-4293-ba8c-82d887edfa76")
 		)
@@ -61372,6 +63100,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 424.18 295.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 424.18 295.91 0)
 			(effects
 				(font
@@ -61563,6 +63300,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 407.67 46.99 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "a27c974e-7abb-4a36-9263-0fa235cc5511")
 		)
@@ -61664,6 +63410,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 87.63 264.16 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 87.63 264.16 0)
 			(effects
 				(font
@@ -61851,6 +63606,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 71.12 347.98 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "c8b6346a-0f90-4525-b0eb-a2bba70e9f73")
 		)
@@ -61918,7 +63682,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERJ-3GEYJ332V/135886"
 			(at 71.12 184.15 0)
 			(effects
 				(font
@@ -61927,7 +63691,7 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" ""
+		(property "DK Part Number" "P3.3KGCT-ND"
 			(at 71.12 184.15 0)
 			(effects
 				(font
@@ -61955,6 +63719,15 @@
 			)
 		)
 		(property "Context" "Sets LED brightness"
+			(at 71.12 184.15 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 71.12 184.15 0)
 			(effects
 				(font
@@ -62136,6 +63909,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 427.99 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 427.99 63.5 0)
 			(effects
 				(font
@@ -62480,6 +64262,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 523.24 168.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "6b041098-2842-4f75-8378-137064772daa")
 		)
@@ -62651,6 +64442,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 539.75 24.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 539.75 24.13 0)
 			(effects
 				(font
@@ -62841,6 +64641,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 203.2 365.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "96fd3004-d6b2-4fe6-8680-12a4db4dde07")
 		)
@@ -62947,6 +64756,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 109.22 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 109.22 36.83 0)
 			(effects
 				(font
@@ -63135,6 +64953,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 388.62 72.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "3d8a08f5-9eaa-4d21-90dd-6a538dbfc6a1")
 		)
@@ -63232,6 +65059,15 @@
 			)
 		)
 		(property "Context" "Power Good pullup"
+			(at 63.5 264.16 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 63.5 264.16 0)
 			(effects
 				(font
@@ -63347,6 +65183,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 466.09 151.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 466.09 151.13 0)
 			(effects
 				(font
@@ -63537,6 +65382,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 450.85 295.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "64a87e68-869d-4f31-aba0-67c304020981")
 		)
@@ -63631,7 +65485,7 @@
 				(hide yes)
 			)
 		)
-		(property "Tolerance" "0.05%"
+		(property "Tolerance" "0.1%"
 			(at 544.83 281.94 0)
 			(effects
 				(font
@@ -63641,6 +65495,15 @@
 			)
 		)
 		(property "Context" "ADC offset preset"
+			(at 544.83 281.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 544.83 281.94 0)
 			(effects
 				(font
@@ -63765,6 +65628,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 116.84 361.95 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "f1713e1b-7279-4ce0-8ef0-c47de57e1bab")
 		)
@@ -63860,6 +65732,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 467.36 208.28 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 467.36 208.28 0)
 			(effects
 				(font
@@ -63980,6 +65861,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 485.14 295.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "84ae6d30-f327-4c6d-91c7-349307565ef1")
 		)
@@ -64045,7 +65935,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/te-connectivity-passive-product/RQ73C1J1K82BTD/9480388"
 			(at 393.7 109.22 0)
 			(effects
 				(font
@@ -64054,7 +65944,7 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" ""
+		(property "DK Part Number" "A140440CT-ND "
 			(at 393.7 109.22 0)
 			(effects
 				(font
@@ -64072,7 +65962,7 @@
 				(hide yes)
 			)
 		)
-		(property "Tolerance" "0.05%"
+		(property "Tolerance" "0.1%"
 			(at 393.7 109.22 0)
 			(effects
 				(font
@@ -64082,6 +65972,15 @@
 			)
 		)
 		(property "Context" "DAC gain adjustable preset"
+			(at 393.7 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" "0.15"
 			(at 393.7 109.22 0)
 			(effects
 				(font
@@ -64195,6 +66094,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 504.19 335.28 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 504.19 335.28 0)
 			(effects
 				(font
@@ -64403,6 +66311,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 46.99 381 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "2f55c5aa-b7cb-4f14-a7e3-63e78296206b")
 		)
@@ -64509,6 +66426,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 39.37 294.64 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 39.37 294.64 0)
 			(effects
 				(font
@@ -64679,6 +66605,15 @@
 			)
 		)
 		(property "Context" "Input summing to single-ended stage"
+			(at 458.47 190.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 458.47 190.5 0)
 			(effects
 				(font
@@ -64868,6 +66803,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 478.79 151.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "c4e91510-eb8c-432d-a6de-a08c1f899e1a")
 		)
@@ -64963,6 +66907,15 @@
 			)
 		)
 		(property "Context" "Input summing to single-ended stage"
+			(at 467.36 72.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 467.36 72.39 0)
 			(effects
 				(font
@@ -65086,6 +67039,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 158.75 199.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(instances
 			(project "Open Beam Interface"
 				(path "/39dd4815-2a60-44cf-8871-b7872a24db88"
@@ -65186,6 +67148,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 88.9 140.97 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 88.9 140.97 0)
 			(effects
 				(font
@@ -65328,7 +67299,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERJ-PB3B1202V/6212877"
 			(at 504.19 224.79 0)
 			(effects
 				(font
@@ -65337,7 +67308,7 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" "TNP12.0KAACT-ND"
+		(property "DK Part Number" "P20094CT-ND"
 			(at 504.19 224.79 0)
 			(effects
 				(font
@@ -65355,7 +67326,7 @@
 				(hide yes)
 			)
 		)
-		(property "Tolerance" "0.05%"
+		(property "Tolerance" "0.1%"
 			(at 504.19 224.79 0)
 			(effects
 				(font
@@ -65365,6 +67336,15 @@
 			)
 		)
 		(property "Context" "DAC offset preset"
+			(at 504.19 224.79 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" "0.2"
 			(at 504.19 224.79 0)
 			(effects
 				(font
@@ -65472,6 +67452,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 50.8 25.4 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 50.8 25.4 0)
 			(effects
 				(font
@@ -65594,6 +67583,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 416.56 337.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 416.56 337.82 0)
 			(effects
 				(font
@@ -65780,7 +67778,7 @@
 				(hide yes)
 			)
 		)
-		(property "Tolerance" "0.05%"
+		(property "Tolerance" "0.1%"
 			(at 391.16 233.68 0)
 			(effects
 				(font
@@ -65790,6 +67788,15 @@
 			)
 		)
 		(property "Context" "DAC gain preset"
+			(at 391.16 233.68 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" "0.1"
 			(at 391.16 233.68 0)
 			(effects
 				(font
@@ -65905,6 +67912,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 285.75 367.03 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 285.75 367.03 0)
 			(effects
 				(font
@@ -66126,7 +68142,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERA-3AEB8252V/2026921"
 			(at 83.82 223.52 0)
 			(effects
 				(font
@@ -66145,6 +68161,24 @@
 			)
 		)
 		(property "Context" "Sets Power Good level"
+			(at 83.82 223.52 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" "0.1"
+			(at 83.82 223.52 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" "P82.5KDBCT-ND"
 			(at 83.82 223.52 0)
 			(effects
 				(font
@@ -66332,6 +68366,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 90.17 217.17 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "2a70eab6-b94a-4d1d-befc-8cb31475bbea")
 		)
@@ -66427,6 +68470,15 @@
 			)
 		)
 		(property "Context" "ADC offset summing"
+			(at 561.34 332.74 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 561.34 332.74 0)
 			(effects
 				(font
@@ -66818,6 +68870,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 148.59 381 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "3ccd11ec-ef40-4eda-aef7-39c5449cccb3")
 		)
@@ -66932,6 +68993,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 337.82 265.43 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "28788cee-b6a3-4a8a-bbda-72f420129a4b")
 		)
@@ -67038,6 +69108,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 377.19 144.78 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 377.19 144.78 0)
 			(effects
 				(font
@@ -67219,6 +69298,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 158.75 189.23 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 158.75 189.23 0)
 			(effects
 				(font
@@ -67533,6 +69621,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 386.08 201.93 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "74dfb19e-c4af-4451-859b-a479a66ebe7f")
 		)
@@ -67667,7 +69764,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERJ-PB3B1202V/6212877"
 			(at 504.19 95.25 0)
 			(effects
 				(font
@@ -67676,7 +69773,7 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" "TNP12.0KAACT-ND"
+		(property "DK Part Number" "P20094CT-ND"
 			(at 504.19 95.25 0)
 			(effects
 				(font
@@ -67694,7 +69791,7 @@
 				(hide yes)
 			)
 		)
-		(property "Tolerance" "0.05%"
+		(property "Tolerance" "0.1%"
 			(at 504.19 95.25 0)
 			(effects
 				(font
@@ -67704,6 +69801,15 @@
 			)
 		)
 		(property "Context" "DAC offset preset"
+			(at 504.19 95.25 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" "0.2"
 			(at 504.19 95.25 0)
 			(effects
 				(font
@@ -67885,6 +69991,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 190.5 153.67 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 190.5 153.67 0)
 			(effects
 				(font
@@ -68130,6 +70245,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 389.89 298.45 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "7882a54e-f997-49ae-9a03-34d395fd6070")
 		)
@@ -68242,6 +70366,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 158.75 184.15 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(instances
 			(project "Open Beam Interface"
 				(path "/39dd4815-2a60-44cf-8871-b7872a24db88"
@@ -68331,6 +70464,15 @@
 			)
 		)
 		(property "Context" "ADC Gain preset"
+			(at 513.08 316.23 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" "0.1"
 			(at 513.08 316.23 0)
 			(effects
 				(font
@@ -68508,6 +70650,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 467.36 201.93 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "7f3df53b-fb74-48e1-acda-c52731b595e8")
 		)
@@ -68624,6 +70775,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 388.62 374.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "6a192ad7-c32f-413e-b709-00787b53caab")
 		)
@@ -68727,6 +70887,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 391.16 265.43 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 391.16 265.43 0)
 			(effects
 				(font
@@ -68847,6 +71016,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 175.26 347.98 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "cff2a123-9e80-49af-bd78-e20c546b4d36")
 		)
@@ -68945,6 +71123,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 316.23 91.44 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 316.23 91.44 0)
 			(effects
 				(font
@@ -69333,6 +71520,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 293.37 360.68 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "7d037a67-685c-4e4e-87bf-386c168b8a7b")
 		)
@@ -69450,6 +71646,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 375.92 355.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "f5aa6020-8aff-4c54-9b58-a463d67e9929")
 		)
@@ -69557,6 +71762,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 280.67 290.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 280.67 290.83 0)
 			(effects
 				(font
@@ -69743,6 +71957,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 90.17 365.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "57ec3c64-a581-467e-b8b7-a44b50db9eff")
 		)
@@ -69859,6 +72082,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 237.49 394.97 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "594d53f3-48a3-43ae-a173-83ab197405b5")
 		)
@@ -69963,6 +72195,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 314.96 378.46 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 314.96 378.46 0)
 			(effects
 				(font
@@ -70086,6 +72327,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 469.9 24.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "182f65ec-19bb-4c21-8202-20293071589c")
 		)
@@ -70184,6 +72434,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 506.73 292.1 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 506.73 292.1 0)
 			(effects
 				(font
@@ -70307,6 +72566,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 207.01 341.63 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "3cd7a46e-ad01-4cbd-a9f1-2eacf885e98d")
 		)
@@ -70412,6 +72680,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 388.62 394.97 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 388.62 394.97 0)
 			(effects
 				(font
@@ -70532,6 +72809,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 364.49 66.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "908779b0-680e-40e9-aed8-553a3d8fd4f9")
 		)
@@ -70635,6 +72921,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 313.69 144.78 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 313.69 144.78 0)
 			(effects
 				(font
@@ -70747,6 +73042,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 379.73 231.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 379.73 231.14 0)
 			(effects
 				(font
@@ -70944,6 +73248,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 67.31 148.59 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "598451ea-1bc3-4d02-aa83-70e94b738251")
 		)
@@ -71059,6 +73372,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 87.63 93.98 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "665e4318-61c6-4d49-8280-f24ead250f67")
 		)
@@ -71162,6 +73484,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 397.51 144.78 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 397.51 144.78 0)
 			(effects
 				(font
@@ -71350,6 +73681,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 165.1 361.95 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "57da6432-f188-4b7a-8fc9-4a917c64b714")
 		)
@@ -71488,6 +73828,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 63.5 190.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "c6918547-850f-472e-8d00-c414767460a7")
 		)
@@ -71575,7 +73924,7 @@
 				(hide yes)
 			)
 		)
-		(property "Tolerance" "0.1%"
+		(property "Tolerance" "1%"
 			(at 58.42 381 0)
 			(effects
 				(font
@@ -71585,6 +73934,15 @@
 			)
 		)
 		(property "Context" "Sets power regulator current limit"
+			(at 58.42 381 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 58.42 381 0)
 			(effects
 				(font
@@ -71906,6 +74264,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 187.96 339.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "48009881-a4be-4bb5-8624-a800424249a9")
 		)
@@ -72084,6 +74451,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 505.46 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "38b994d8-c649-4c2e-949e-03df8045d49a")
 		)
@@ -72191,6 +74567,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 405.13 332.74 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 405.13 332.74 0)
 			(effects
 				(font
@@ -72397,7 +74782,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/te-connectivity-passive-product/RQ73C1J10K5BTD/9479928"
 			(at 554.99 275.59 0)
 			(effects
 				(font
@@ -72406,7 +74791,7 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" ""
+		(property "DK Part Number" "A139980CT-ND"
 			(at 554.99 275.59 0)
 			(effects
 				(font
@@ -72424,7 +74809,7 @@
 				(hide yes)
 			)
 		)
-		(property "Tolerance" "0.05%"
+		(property "Tolerance" "0.1%"
 			(at 554.99 275.59 0)
 			(effects
 				(font
@@ -72434,6 +74819,15 @@
 			)
 		)
 		(property "Context" "ADC offset preset"
+			(at 554.99 275.59 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" "0.15"
 			(at 554.99 275.59 0)
 			(effects
 				(font
@@ -72550,6 +74944,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 360.68 190.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 360.68 190.5 0)
 			(effects
 				(font
@@ -72733,6 +75136,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 557.53 293.37 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "10100b8e-c4bc-404a-92f5-5363bd7af541")
 		)
@@ -72809,7 +75221,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERA-3AEB2321V/2026779"
 			(at 393.7 93.98 0)
 			(effects
 				(font
@@ -72818,7 +75230,7 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" "TNP2.32KAACT-ND"
+		(property "DK Part Number" "P2.32KDBCT-ND "
 			(at 393.7 93.98 0)
 			(effects
 				(font
@@ -72836,7 +75248,7 @@
 				(hide yes)
 			)
 		)
-		(property "Tolerance" "0.05%"
+		(property "Tolerance" "0.1%"
 			(at 393.7 93.98 0)
 			(effects
 				(font
@@ -72846,6 +75258,15 @@
 			)
 		)
 		(property "Context" "DAC gain preset"
+			(at 393.7 93.98 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" "0.1"
 			(at 393.7 93.98 0)
 			(effects
 				(font
@@ -72921,7 +75342,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERA-3ARB1402V/6049053"
 			(at 552.45 281.94 0)
 			(effects
 				(font
@@ -72930,7 +75351,7 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" ""
+		(property "DK Part Number" "10-ERA-3ARB1402VCT-ND"
 			(at 552.45 281.94 0)
 			(effects
 				(font
@@ -72948,7 +75369,7 @@
 				(hide yes)
 			)
 		)
-		(property "Tolerance" "0.05%"
+		(property "Tolerance" "0.1%"
 			(at 552.45 281.94 0)
 			(effects
 				(font
@@ -72958,6 +75379,15 @@
 			)
 		)
 		(property "Context" "ADC offset preset"
+			(at 552.45 281.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" "0.1"
 			(at 552.45 281.94 0)
 			(effects
 				(font
@@ -73070,6 +75500,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 87.63 190.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 87.63 190.5 0)
 			(effects
 				(font
@@ -73258,6 +75697,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 419.1 265.43 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "1cdb1d2e-594e-4985-998a-031e52d87691")
 		)
@@ -73373,6 +75821,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 552.45 24.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "1309f364-e8d0-4cc5-977f-41ba0ea7f515")
 		)
@@ -73478,6 +75935,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 513.08 306.07 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 513.08 306.07 0)
 			(effects
 				(font
@@ -73606,6 +76072,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 474.98 318.77 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "f262ceff-b453-4215-9089-e3ef7244a71f")
 		)
@@ -73724,6 +76199,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 101.6 365.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "059e1bb2-d6ee-440b-b59d-b6b06916456e")
 		)
@@ -73811,7 +76295,7 @@
 				(hide yes)
 			)
 		)
-		(property "Tolerance" "0.1%"
+		(property "Tolerance" "1%"
 			(at 160.02 381 0)
 			(effects
 				(font
@@ -73821,6 +76305,15 @@
 			)
 		)
 		(property "Context" "Sets power regulator current limit"
+			(at 160.02 381 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 160.02 381 0)
 			(effects
 				(font
@@ -73933,6 +76426,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 57.15 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 57.15 110.49 0)
 			(effects
 				(font
@@ -74057,6 +76559,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 194.31 331.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "e00c64b1-5fd1-4b53-ab9f-f0e039ad6318")
 		)
@@ -74151,6 +76662,15 @@
 			)
 		)
 		(property "Context" "Sets power regulator current limit"
+			(at 58.42 232.41 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 58.42 232.41 0)
 			(effects
 				(font
@@ -74274,6 +76794,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 342.9 41.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "e9dd73b3-0cc5-4a20-9359-576602a9849b")
 		)
@@ -74382,6 +76911,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 125.73 212.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 125.73 212.09 0)
 			(effects
 				(font
@@ -74558,6 +77096,15 @@
 			)
 		)
 		(property "Context" "Sets differential output voltage range"
+			(at 408.94 190.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 408.94 190.5 0)
 			(effects
 				(font
@@ -74744,6 +77291,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 172.72 334.01 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "d9b26e4f-03d5-484e-b3fc-c94271b40a54")
 		)
@@ -74839,6 +77395,15 @@
 			)
 		)
 		(property "Context" "ADC Gain preset"
+			(at 513.08 311.15 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" "0.1"
 			(at 513.08 311.15 0)
 			(effects
 				(font
@@ -75027,6 +77592,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 255.27 292.1 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "d37d09a9-5ec5-47b4-a1a2-a782e4577a9f")
 		)
@@ -75133,6 +77707,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 405.13 144.78 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 405.13 144.78 0)
 			(effects
 				(font
@@ -75313,6 +77896,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 266.7 336.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 266.7 336.55 0)
 			(effects
 				(font
@@ -75769,6 +78361,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 499.11 313.69 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "51e269aa-3089-49f2-add9-a1ada8107805")
 		)
@@ -75893,6 +78494,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 454.66 354.33 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "8722fe3e-9b58-4da9-a102-63672e60cb8a")
 		)
@@ -75988,6 +78598,15 @@
 			)
 		)
 		(property "Context" "Optional axial resistor"
+			(at 477.52 171.45 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 477.52 171.45 0)
 			(effects
 				(font
@@ -76104,6 +78723,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 135.89 229.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 135.89 229.87 0)
 			(effects
 				(font
@@ -76280,6 +78908,15 @@
 			)
 		)
 		(property "Context" "Sets LED brightness"
+			(at 71.12 332.74 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 71.12 332.74 0)
 			(effects
 				(font
@@ -76553,7 +79190,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERJ-PB3B2202V/6212905"
 			(at 504.19 234.95 0)
 			(effects
 				(font
@@ -76562,7 +79199,7 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" "541-2006-1-ND"
+		(property "DK Part Number" "P20122CT-ND"
 			(at 504.19 234.95 0)
 			(effects
 				(font
@@ -76580,7 +79217,7 @@
 				(hide yes)
 			)
 		)
-		(property "Tolerance" "0.05%"
+		(property "Tolerance" "0.1%"
 			(at 504.19 234.95 0)
 			(effects
 				(font
@@ -76590,6 +79227,15 @@
 			)
 		)
 		(property "Context" "DAC offset preset"
+			(at 504.19 234.95 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" "0.2"
 			(at 504.19 234.95 0)
 			(effects
 				(font
@@ -76779,6 +79425,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 340.36 168.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "48eea7c8-3f69-46d9-a43e-d21e0b071eb1")
 		)
@@ -76894,6 +79549,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 101.6 290.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "a8e93da2-f09d-4ba5-9e5d-c346b145a45a")
 		)
@@ -76961,7 +79625,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERJ-3GEYJ332V/135886"
 			(at 71.12 257.81 0)
 			(effects
 				(font
@@ -76970,7 +79634,7 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" ""
+		(property "DK Part Number" "P3.3KGCT-ND"
 			(at 71.12 257.81 0)
 			(effects
 				(font
@@ -76998,6 +79662,15 @@
 			)
 		)
 		(property "Context" "Sets LED brightness"
+			(at 71.12 257.81 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 71.12 257.81 0)
 			(effects
 				(font
@@ -77073,7 +79746,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERA-3AEB4751V/2026809"
 			(at 393.7 99.06 0)
 			(effects
 				(font
@@ -77082,7 +79755,7 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" "TNP4.75KAACT-ND"
+		(property "DK Part Number" "P4.75KDBCT-ND"
 			(at 393.7 99.06 0)
 			(effects
 				(font
@@ -77100,7 +79773,7 @@
 				(hide yes)
 			)
 		)
-		(property "Tolerance" "0.05%"
+		(property "Tolerance" "0.1%"
 			(at 393.7 99.06 0)
 			(effects
 				(font
@@ -77110,6 +79783,15 @@
 			)
 		)
 		(property "Context" "DAC gain preset"
+			(at 393.7 99.06 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" "0.1"
 			(at 393.7 99.06 0)
 			(effects
 				(font
@@ -77366,6 +80048,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 519.43 151.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "3b9fef57-b17b-4fbc-95b8-5cb958989778")
 		)
@@ -77464,6 +80155,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 137.16 184.15 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 137.16 184.15 0)
 			(effects
 				(font
@@ -77572,6 +80272,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 433.07 265.43 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 433.07 265.43 0)
 			(effects
 				(font
@@ -77752,6 +80461,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 440.69 265.43 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 440.69 265.43 0)
 			(effects
 				(font
@@ -77943,6 +80661,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 200.66 285.75 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "e0f6f646-d391-4eb0-bb7b-ebe3fc1e6b23")
 		)
@@ -78056,6 +80783,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 140.97 212.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "17279c7f-f139-4bd3-b083-3694123bbb47")
 		)
@@ -78159,6 +80895,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 67.31 97.79 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 67.31 97.79 0)
 			(effects
 				(font
@@ -78444,7 +81189,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/te-connectivity-passive-product/RN73C1J140KBTD/6557649"
 			(at 154.94 381 0)
 			(effects
 				(font
@@ -78453,7 +81198,7 @@
 				(hide yes)
 			)
 		)
-		(property "Tolerance" "0.05%"
+		(property "Tolerance" "0.1%"
 			(at 154.94 381 0)
 			(effects
 				(font
@@ -78462,7 +81207,25 @@
 				(hide yes)
 			)
 		)
-		(property "Context" "Prescision resistor sets voltage reference for -14V lines"
+		(property "Context" "Sets voltage reference"
+			(at 154.94 381 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" "A124703CT-ND"
+			(at 154.94 381 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 154.94 381 0)
 			(effects
 				(font
@@ -78585,6 +81348,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 398.78 265.43 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "90243965-d30c-4255-a227-d6f6801ec9cb")
 		)
@@ -78691,6 +81463,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 46.99 306.07 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 46.99 306.07 0)
 			(effects
 				(font
@@ -78870,6 +81651,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 165.1 339.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "c3e5f051-1d62-4ef6-88f1-f2958595fade")
 		)
@@ -78973,6 +81763,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 506.73 298.45 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "6fb96e3a-6cc4-4afc-9d98-03a983c2e35e")
 		)
@@ -79040,7 +81839,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERA-3AEB1212V/2026845"
 			(at 560.07 281.94 0)
 			(effects
 				(font
@@ -79049,7 +81848,7 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" ""
+		(property "DK Part Number" "P12.1KDBCT-ND"
 			(at 560.07 281.94 0)
 			(effects
 				(font
@@ -79067,7 +81866,7 @@
 				(hide yes)
 			)
 		)
-		(property "Tolerance" "0.05%"
+		(property "Tolerance" "0.1%"
 			(at 560.07 281.94 0)
 			(effects
 				(font
@@ -79077,6 +81876,15 @@
 			)
 		)
 		(property "Context" "ADC offset preset"
+			(at 560.07 281.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" "0.1"
 			(at 560.07 281.94 0)
 			(effects
 				(font
@@ -79397,6 +82205,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 447.04 72.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "22c72af1-dfe4-4fae-ba38-159053846b25")
 		)
@@ -79503,6 +82320,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 323.85 144.78 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 323.85 144.78 0)
 			(effects
 				(font
@@ -79626,6 +82452,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 494.03 335.28 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "98b3143d-d88b-42fc-a756-60338140d58b")
 		)
@@ -79730,6 +82565,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 312.42 54.61 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 312.42 54.61 0)
 			(effects
 				(font
@@ -79906,6 +82750,15 @@
 			)
 		)
 		(property "Context" "Sets LED brightness"
+			(at 73.66 158.75 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 73.66 158.75 0)
 			(effects
 				(font
@@ -80161,6 +83014,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 515.62 193.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "5dd00441-3463-454a-93a7-42fba0e0f321")
 		)
@@ -80334,6 +83196,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 337.82 205.74 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 337.82 205.74 0)
 			(effects
 				(font
@@ -80659,6 +83530,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 354.33 292.1 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "06bc8751-e36f-49f4-a743-fcd9668b92b4")
 		)
@@ -80832,6 +83712,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 140.97 369.57 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 140.97 369.57 0)
 			(effects
 				(font
@@ -81088,6 +83977,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 495.3 24.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "cf6cf508-0a9f-4e30-a41f-8d6b998453c5")
 		)
@@ -81192,6 +84090,15 @@
 			)
 		)
 		(property "Context" "Power Good load"
+			(at 149.86 283.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 149.86 283.21 0)
 			(effects
 				(font
@@ -81305,6 +84212,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 365.76 69.85 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 365.76 69.85 0)
 			(effects
 				(font
@@ -81428,6 +84344,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 73.66 130.81 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "9ea289e6-d9e0-4d59-ba7f-690ec6766787")
 		)
@@ -81525,6 +84450,15 @@
 			)
 		)
 		(property "Context" "Power Good LED driver"
+			(at 74.93 273.05 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 74.93 273.05 0)
 			(effects
 				(font
@@ -81849,6 +84783,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 63.5 287.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "03948f3b-ef46-419e-8176-d23ed2be7eef")
 		)
@@ -81994,6 +84937,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 477.52 193.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "5f2810df-b2c0-48cf-a69c-4f6641025d9a")
 		)
@@ -82118,6 +85070,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 77.47 97.79 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 77.47 97.79 0)
 			(effects
 				(font
@@ -82300,6 +85261,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 109.22 194.31 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 109.22 194.31 0)
 			(effects
 				(font
@@ -82505,7 +85475,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERA-3AEB4751V/2026809"
 			(at 391.16 228.6 0)
 			(effects
 				(font
@@ -82514,7 +85484,7 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" "TNP4.75KAACT-ND"
+		(property "DK Part Number" "P4.75KDBCT-ND"
 			(at 391.16 228.6 0)
 			(effects
 				(font
@@ -82532,7 +85502,7 @@
 				(hide yes)
 			)
 		)
-		(property "Tolerance" "0.05%"
+		(property "Tolerance" "0.1%"
 			(at 391.16 228.6 0)
 			(effects
 				(font
@@ -82542,6 +85512,15 @@
 			)
 		)
 		(property "Context" "DAC gain preset"
+			(at 391.16 228.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" "0.1"
 			(at 391.16 228.6 0)
 			(effects
 				(font
@@ -82733,6 +85712,15 @@
 				(hide yes)
 			)
 		)
+		(property "Power" ""
+			(at 95.25 152.4 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "04abaaaa-6858-417f-8c15-aecbd9105f16")
 		)
@@ -82797,7 +85785,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERA-3AEB1872V/2026861"
 			(at 562.61 275.59 0)
 			(effects
 				(font
@@ -82806,7 +85794,7 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" ""
+		(property "DK Part Number" "P18.7KDBCT-ND"
 			(at 562.61 275.59 0)
 			(effects
 				(font
@@ -82824,7 +85812,7 @@
 				(hide yes)
 			)
 		)
-		(property "Tolerance" "0.05%"
+		(property "Tolerance" "0.1%"
 			(at 562.61 275.59 0)
 			(effects
 				(font
@@ -82834,6 +85822,15 @@
 			)
 		)
 		(property "Context" "ADC offset preset"
+			(at 562.61 275.59 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" "0.1"
 			(at 562.61 275.59 0)
 			(effects
 				(font
@@ -82909,7 +85906,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERJ-PB3B1302V/6212881"
 			(at 510.54 237.49 0)
 			(effects
 				(font
@@ -82918,7 +85915,7 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" "541-3167-1-ND"
+		(property "DK Part Number" "P20098CT-ND"
 			(at 510.54 237.49 0)
 			(effects
 				(font
@@ -82936,7 +85933,7 @@
 				(hide yes)
 			)
 		)
-		(property "Tolerance" "0.05%"
+		(property "Tolerance" "0.1%"
 			(at 510.54 237.49 0)
 			(effects
 				(font
@@ -82946,6 +85943,15 @@
 			)
 		)
 		(property "Context" "DAC offset preset"
+			(at 510.54 237.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" "0.2"
 			(at 510.54 237.49 0)
 			(effects
 				(font
@@ -83059,6 +86065,15 @@
 			)
 		)
 		(property "Context" ""
+			(at 572.77 276.86 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" ""
 			(at 572.77 276.86 0)
 			(effects
 				(font
@@ -83214,7 +86229,7 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" "541-3301-1-ND "
+		(property "DK Part Number" "P20KBECT-ND "
 			(at 513.08 321.31 0)
 			(effects
 				(font
@@ -83223,7 +86238,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "https://www.digikey.com/en/products/detail/vishay-dale/TNPU0603500RAZEN00/6615936"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERA-3ARW203V/3073699"
 			(at 513.08 321.31 0)
 			(effects
 				(font
@@ -83242,6 +86257,15 @@
 			)
 		)
 		(property "Context" "ADC Gain preset"
+			(at 513.08 321.31 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Power" "0.1"
 			(at 513.08 321.31 0)
 			(effects
 				(font
