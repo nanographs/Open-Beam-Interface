@@ -1,6 +1,6 @@
 Row,Description,Part,References,Value,Footprint,Quantity Per PCB,Status,Datasheet,DK Part Number,Sim.Device,Sim.Pins
 1,Unpolarized capacitor,C,C1 C2 C3 C4,C,C_0603_1608Metric,4, ,~,,,
-2,,Littel Fuse TVS Diode SMF20A,D1 D2,Littel Fuse TVS Diode SMF20A,D_SMF,2, ,https://www.littelfuse.com/~/media/electronics/datasheets/tvs_diodes/littelfuse_tvs_diode_smf4l_datasheet.pdf.pdf,18-SMF4L20AT1GCT-ND ,,
+2,,Littel Fuse TVS Diode SMF20A,D1 D2,Littel Fuse TVS Diode SMF20A,D_SMF,2, ,https://www.littelfuse.com/~/media/electronics/datasheets/tvs_diodes/littelfuse_tvs_diode_smf4l_datasheet.pdf.pdf,18-SMF4L20AT1GCT-ND,,
 3,"Fuse, small symbol",Fuse_Small,F1 F2,Fuse_Small,,2, ,~,F3135CT-ND,,
 4,,Fuse_Holder,FH1 FH2,~,Littel Fuse Holder 01550900M,2, ,https://www.littelfuse.com/~/media/electronics/datasheets/fuses/littelfuse_fuse_154_154t_154l_154tl_datasheet.pdf.pdf,F1889-ND,,
 5,"Generic connector, single row, 01x03, script generated (kicad-library-utils/schlib/autogen/connector/)",Conn_01x03,J3,Conn_01x03,PinSocket_1x03_P2.54mm_Vertical,1, ,~,,,
