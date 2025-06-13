@@ -123,13 +123,13 @@ class Frame:
         """
         Get underlying frame data as an array of type :class:`np.uint16`
         """
-        return np.left_shift(self.canvas, 2)
+        return self.canvas
 
     def as_uint8(self) -> np.ndarray:
         """
         Get underlying frame data as an array of type :class:`np.uint8`
         """
-        return np.right_shift(self.canvas, 6).astype(np.uint8)
+        return np.right_shift(self.canvas, 8).astype(np.uint8)
 
     def saveImage_tifffile(self, save_path, bit_depth_8=True, bit_depth_16=False,
                             scalebar_HFOV=None):
