@@ -944,7 +944,7 @@ class CommandExecutor(wiring.Component):
         with m.FSM():
             with m.State("Imaging"):
                 m.d.comb += [
-                    self.img_stream.payload.eq(self.supersampler.adc_stream.payload.adc_code),
+                    self.img_stream.payload.eq(self.supersampler.adc_stream.payload.adc_code << 2),
                     self.img_stream.valid.eq(self.supersampler.adc_stream.valid),
                     self.supersampler.adc_stream.ready.eq(self.img_stream.ready),
                     self.output_mode.eq(output_mode) #input to Serializer
