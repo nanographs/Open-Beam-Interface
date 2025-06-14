@@ -29881,7 +29881,7 @@
 				)
 			)
 		)
-		(property "Value" "10K"
+		(property "Value" "10k"
 			(at 149.86 278.13 90)
 			(effects
 				(font
@@ -31830,7 +31830,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/te-connectivity-passive-product/RQ73C1J4K99BTD/9479768"
 			(at 458.47 195.58 0)
 			(effects
 				(font
@@ -31857,7 +31857,16 @@
 				(hide yes)
 			)
 		)
-		(property "Power" ""
+		(property "Power" "0.15"
+			(at 458.47 195.58 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" "A139971CT-ND"
 			(at 458.47 195.58 0)
 			(effects
 				(font
@@ -32427,7 +32436,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "https://www.digikey.com/en/products/detail/te-connectivity-passive-product/RQ73C1J4K99BTD/9479768"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/vishay-dale/TNPW12064K99BYEN/9562428"
 			(at 427.99 210.82 0)
 			(effects
 				(font
@@ -32454,7 +32463,7 @@
 				(hide yes)
 			)
 		)
-		(property "Power" "0.15"
+		(property "Power" "0.52"
 			(at 427.99 210.82 0)
 			(effects
 				(font
@@ -32463,7 +32472,7 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" "A139820CT-ND"
+		(property "DK Part Number" "541-9840-1-ND"
 			(at 427.99 210.82 0)
 			(effects
 				(font
@@ -32888,7 +32897,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERA-3ARB103V/3073635"
 			(at 83.82 307.34 0)
 			(effects
 				(font
@@ -32915,7 +32924,16 @@
 				(hide yes)
 			)
 		)
-		(property "Power" ""
+		(property "Power" "0.1"
+			(at 83.82 307.34 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" "P10KBDCT-ND"
 			(at 83.82 307.34 0)
 			(effects
 				(font
@@ -34737,7 +34755,7 @@
 				(hide yes)
 			)
 		)
-		(property "Power" ""
+		(property "Power" "0.15"
 			(at 411.48 60.96 0)
 			(effects
 				(font
@@ -36336,7 +36354,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "https://www.digikey.com/en/products/detail/te-connectivity-passive-product/RQ73C1J4K99BTD/9479768"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/vishay-dale/TNPW12064K99BYEN/9562428"
 			(at 430.53 45.72 0)
 			(effects
 				(font
@@ -36363,7 +36381,7 @@
 				(hide yes)
 			)
 		)
-		(property "Power" "0.15"
+		(property "Power" "0.52"
 			(at 430.53 45.72 0)
 			(effects
 				(font
@@ -36372,7 +36390,7 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" "A139820CT-ND"
+		(property "DK Part Number" "541-9840-1-ND"
 			(at 430.53 45.72 0)
 			(effects
 				(font
@@ -36524,7 +36542,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/te-connectivity-passive-product/RQ73C1J4K99BTD/9479768"
 			(at 458.47 66.04 0)
 			(effects
 				(font
@@ -36551,7 +36569,16 @@
 				(hide yes)
 			)
 		)
-		(property "Power" ""
+		(property "Power" "0.15"
+			(at 458.47 66.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" "A139971CT-ND"
 			(at 458.47 66.04 0)
 			(effects
 				(font
@@ -36961,7 +36988,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERA-3ARB103V/3073635"
 			(at 83.82 382.27 0)
 			(effects
 				(font
@@ -36988,7 +37015,16 @@
 				(hide yes)
 			)
 		)
-		(property "Power" ""
+		(property "Power" "0.1"
+			(at 83.82 382.27 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" "P10KBDCT-ND"
 			(at 83.82 382.27 0)
 			(effects
 				(font
@@ -38063,7 +38099,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/laird-signal-integrity-products/LI0603G221R-10/710125"
 			(at 48.26 137.16 0)
 			(effects
 				(font
@@ -38185,7 +38221,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/laird-signal-integrity-products/LI0603G221R-10/710125"
 			(at 48.26 152.4 0)
 			(effects
 				(font
@@ -39259,7 +39295,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERJ-3EKF3923V/196332"
 			(at 185.42 372.11 0)
 			(effects
 				(font
@@ -39286,7 +39322,16 @@
 				(hide yes)
 			)
 		)
-		(property "Power" ""
+		(property "Power" "0.1"
+			(at 185.42 372.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" "P392KHCT-ND"
 			(at 185.42 372.11 0)
 			(effects
 				(font
@@ -39327,7 +39372,7 @@
 				)
 			)
 		)
-		(property "Value" "10K"
+		(property "Value" "10k"
 			(at 149.86 273.05 90)
 			(effects
 				(font
@@ -39626,7 +39671,7 @@
 				)
 			)
 		)
-		(property "Value" "10K"
+		(property "Value" "10k"
 			(at 149.86 267.97 90)
 			(effects
 				(font
@@ -42850,7 +42895,7 @@
 				(hide yes)
 			)
 		)
-		(property "Power" ""
+		(property "Power" "0.15"
 			(at 411.48 66.04 0)
 			(effects
 				(font
@@ -44686,7 +44731,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/samsung-electro-mechanics/CL10C471JB8NNNC/3886826"
 			(at 378.46 337.82 0)
 			(effects
 				(font
@@ -44722,7 +44767,7 @@
 				(hide yes)
 			)
 		)
-		(property "Context" ""
+		(property "Context" "ADC input bandwidth"
 			(at 378.46 337.82 0)
 			(effects
 				(font
@@ -46477,7 +46522,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/te-connectivity-passive-product/RQ73C1J1K0BTD/9479919"
 			(at 429.26 358.14 0)
 			(effects
 				(font
@@ -46504,7 +46549,16 @@
 				(hide yes)
 			)
 		)
-		(property "Power" ""
+		(property "Power" "0.15"
+			(at 429.26 358.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" "A139971CT-ND"
 			(at 429.26 358.14 0)
 			(effects
 				(font
@@ -47541,7 +47595,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" ""
+		(property "Order Link" "https://www.digikey.com/en/products/detail/laird-signal-integrity-products/LI0603G221R-10/710125"
 			(at 41.91 71.12 0)
 			(effects
 				(font
@@ -47879,7 +47933,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERA-3ARB103V/3073635"
 			(at 185.42 382.27 0)
 			(effects
 				(font
@@ -47906,7 +47960,16 @@
 				(hide yes)
 			)
 		)
-		(property "Power" ""
+		(property "Power" "0.1"
+			(at 185.42 382.27 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" "P10KBDCT-ND"
 			(at 185.42 382.27 0)
 			(effects
 				(font
@@ -52407,7 +52470,7 @@
 				(hide yes)
 			)
 		)
-		(property "Power" ""
+		(property "Power" "0.15"
 			(at 408.94 195.58 0)
 			(effects
 				(font
@@ -52918,7 +52981,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/te-connectivity-passive-product/RQ73C1J1K0BTD/9479919"
 			(at 429.26 320.04 0)
 			(effects
 				(font
@@ -52945,7 +53008,16 @@
 				(hide yes)
 			)
 		)
-		(property "Power" ""
+		(property "Power" "0.15"
+			(at 429.26 320.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" "A139971CT-ND"
 			(at 429.26 320.04 0)
 			(effects
 				(font
@@ -53598,7 +53670,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/te-connectivity-passive-product/RQ73C1J4K99BTD/9479768"
 			(at 448.31 340.36 0)
 			(effects
 				(font
@@ -53625,7 +53697,16 @@
 				(hide yes)
 			)
 		)
-		(property "Power" ""
+		(property "Power" "0.15"
+			(at 448.31 340.36 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" "A139971CT-ND"
 			(at 448.31 340.36 0)
 			(effects
 				(font
@@ -53956,7 +54037,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERA-3ARB103V/3073635"
 			(at 83.82 233.68 0)
 			(effects
 				(font
@@ -53983,7 +54064,16 @@
 				(hide yes)
 			)
 		)
-		(property "Power" ""
+		(property "Power" "0.1"
+			(at 83.82 233.68 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" "P10KBDCT-ND"
 			(at 83.82 233.68 0)
 			(effects
 				(font
@@ -56299,7 +56389,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/laird-signal-integrity-products/LI0603G221R-10/710125"
 			(at 41.91 93.98 0)
 			(effects
 				(font
@@ -60296,7 +60386,7 @@
 				(justify right)
 			)
 		)
-		(property "Value" "5K"
+		(property "Value" "4.99K"
 			(at 554.99 327.66 90)
 			(effects
 				(font
@@ -60341,7 +60431,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/te-connectivity-passive-product/RQ73C1J4K99BTD/9479768"
 			(at 554.99 326.39 0)
 			(effects
 				(font
@@ -60368,7 +60458,16 @@
 				(hide yes)
 			)
 		)
-		(property "Power" ""
+		(property "Power" "0.15"
+			(at 554.99 326.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" "A139820CT-ND"
 			(at 554.99 326.39 0)
 			(effects
 				(font
@@ -60453,7 +60552,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "https://www.digikey.com/en/products/detail/te-connectivity-passive-product/RQ73C1J4K99BTD/9479768"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/vishay-dale/TNPW12064K99BYEN/9562428"
 			(at 427.99 175.26 0)
 			(effects
 				(font
@@ -60480,7 +60579,7 @@
 				(hide yes)
 			)
 		)
-		(property "Power" "0.15"
+		(property "Power" "0.52"
 			(at 427.99 175.26 0)
 			(effects
 				(font
@@ -60489,7 +60588,7 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" "A139820CT-ND"
+		(property "DK Part Number" "541-9840-1-ND"
 			(at 427.99 175.26 0)
 			(effects
 				(font
@@ -60695,7 +60794,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "https://www.digikey.com/en/products/detail/te-connectivity-passive-product/RQ73C1J4K99BTD/9479768"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/vishay-dale/TNPW12064K99BYEN/9562428"
 			(at 430.53 81.28 0)
 			(effects
 				(font
@@ -60722,7 +60821,7 @@
 				(hide yes)
 			)
 		)
-		(property "Power" "0.15"
+		(property "Power" "0.52"
 			(at 430.53 81.28 0)
 			(effects
 				(font
@@ -60731,7 +60830,7 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" "A139820CT-ND"
+		(property "DK Part Number" "541-9840-1-ND"
 			(at 430.53 81.28 0)
 			(effects
 				(font
@@ -60818,7 +60917,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERJ-3EKF3923V/196332"
 			(at 83.82 372.11 0)
 			(effects
 				(font
@@ -60845,7 +60944,16 @@
 				(hide yes)
 			)
 		)
-		(property "Power" ""
+		(property "Power" "0.1"
+			(at 83.82 372.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" "P392KHCT-ND"
 			(at 83.82 372.11 0)
 			(effects
 				(font
@@ -61119,7 +61227,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/te-connectivity-passive-product/RQ73C1J4K99BTD/9479768"
 			(at 458.47 60.96 0)
 			(effects
 				(font
@@ -61146,7 +61254,16 @@
 				(hide yes)
 			)
 		)
-		(property "Power" ""
+		(property "Power" "0.15"
+			(at 458.47 60.96 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" "A139971CT-ND"
 			(at 458.47 60.96 0)
 			(effects
 				(font
@@ -63635,7 +63752,7 @@
 				)
 			)
 		)
-		(property "Value" "10K"
+		(property "Value" "10k"
 			(at 71.12 347.98 90)
 			(effects
 				(font
@@ -65053,7 +65170,7 @@
 				(hide yes)
 			)
 		)
-		(property "Context" ""
+		(property "Context" "DAC ouptut bandwidth"
 			(at 388.62 72.39 0)
 			(effects
 				(font
@@ -65567,7 +65684,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/te-connectivity-passive-product/RQ73C1J10K2BTD/9479927"
 			(at 544.83 281.94 0)
 			(effects
 				(font
@@ -65576,7 +65693,7 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" ""
+		(property "DK Part Number" "A139979CT-ND"
 			(at 544.83 281.94 0)
 			(effects
 				(font
@@ -65612,7 +65729,7 @@
 				(hide yes)
 			)
 		)
-		(property "Power" ""
+		(property "Power" "0.15"
 			(at 544.83 281.94 0)
 			(effects
 				(font
@@ -66695,7 +66812,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/te-connectivity-passive-product/RQ73C1J4K99BTD/9479768"
 			(at 458.47 190.5 0)
 			(effects
 				(font
@@ -66722,7 +66839,16 @@
 				(hide yes)
 			)
 		)
-		(property "Power" ""
+		(property "Power" "0.15"
+			(at 458.47 190.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" "A139971CT-ND"
 			(at 458.47 190.5 0)
 			(effects
 				(font
@@ -66997,7 +67123,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/te-connectivity-passive-product/RQ73C1J4K99BTD/9479768"
 			(at 467.36 72.39 0)
 			(effects
 				(font
@@ -67024,7 +67150,16 @@
 				(hide yes)
 			)
 		)
-		(property "Power" ""
+		(property "Power" "0.15"
+			(at 467.36 72.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" "A139971CT-ND"
 			(at 467.36 72.39 0)
 			(effects
 				(font
@@ -68516,7 +68651,7 @@
 				)
 			)
 		)
-		(property "Value" "5K"
+		(property "Value" "4.99K"
 			(at 561.34 332.74 90)
 			(effects
 				(font
@@ -68560,7 +68695,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/te-connectivity-passive-product/RQ73C1J4K99BTD/9479768"
 			(at 561.34 332.74 0)
 			(effects
 				(font
@@ -68587,7 +68722,16 @@
 				(hide yes)
 			)
 		)
-		(property "Power" ""
+		(property "Power" "0.15"
+			(at 561.34 332.74 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" "A139820CT-ND"
 			(at 561.34 332.74 0)
 			(effects
 				(font
@@ -69721,7 +69865,7 @@
 				(hide yes)
 			)
 		)
-		(property "Context" ""
+		(property "Context" "DAC ouptut bandwidth"
 			(at 386.08 201.93 0)
 			(effects
 				(font
@@ -70554,7 +70698,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" ""
 			(at 513.08 316.23 0)
 			(effects
 				(font
@@ -70582,6 +70726,15 @@
 			)
 		)
 		(property "Power" "0.1"
+			(at 513.08 316.23 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" ""
 			(at 513.08 316.23 0)
 			(effects
 				(font
@@ -70732,7 +70885,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/te-connectivity-passive-product/RQ73C1J4K99BTD/9479768"
 			(at 467.36 201.93 0)
 			(effects
 				(font
@@ -70759,7 +70912,16 @@
 				(hide yes)
 			)
 		)
-		(property "Power" ""
+		(property "Power" "0.15"
+			(at 467.36 201.93 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" "A139971CT-ND"
 			(at 467.36 201.93 0)
 			(effects
 				(font
@@ -71045,7 +71207,7 @@
 				)
 			)
 		)
-		(property "Value" "10K"
+		(property "Value" "10k"
 			(at 175.26 347.98 90)
 			(effects
 				(font
@@ -73764,40 +73926,40 @@
 			)
 		)
 		(pin "5"
-			(uuid "b0dcb519-ca50-4728-8e0f-55dda799f9da")
+			(uuid "b0dcb519-ca50-4728-8e0f-55dda799f9db")
 		)
 		(pin "1"
-			(uuid "a8629758-dba1-4bcb-a528-ca07016ea655")
+			(uuid "a8629758-dba1-4bcb-a528-ca07016ea656")
 		)
 		(pin "2"
-			(uuid "a4ad5d7b-442e-4c65-bb7e-91efc3e17df8")
+			(uuid "a4ad5d7b-442e-4c65-bb7e-91efc3e17df9")
 		)
 		(pin "10"
-			(uuid "f017469c-9641-4522-b736-36f093b368a0")
+			(uuid "f017469c-9641-4522-b736-36f093b368a1")
 		)
 		(pin "6"
-			(uuid "c5adf6fc-5678-4a8f-a290-33e610392173")
+			(uuid "c5adf6fc-5678-4a8f-a290-33e610392174")
 		)
 		(pin "13"
-			(uuid "de21c8ee-339d-498f-9d79-dd81a505ff8b")
+			(uuid "de21c8ee-339d-498f-9d79-dd81a505ff8c")
 		)
 		(pin "4"
-			(uuid "ce744215-1da9-45b9-ab79-67b3885bf8d5")
+			(uuid "ce744215-1da9-45b9-ab79-67b3885bf8d6")
 		)
 		(pin "12"
-			(uuid "63294098-f58f-4fc4-9468-145cd4c69255")
+			(uuid "63294098-f58f-4fc4-9468-145cd4c69256")
 		)
 		(pin "8"
-			(uuid "df395604-f348-4974-ac4a-987705de8e5a")
+			(uuid "df395604-f348-4974-ac4a-987705de8e5b")
 		)
 		(pin "14"
-			(uuid "3fff5c15-2972-4b39-a9a2-cc637676844d")
+			(uuid "3fff5c15-2972-4b39-a9a2-cc637676844e")
 		)
 		(pin "9"
-			(uuid "915c9734-c312-4eb3-aa8c-71c5c87388fb")
+			(uuid "915c9734-c312-4eb3-aa8c-71c5c87388fc")
 		)
 		(pin "7"
-			(uuid "49e2b465-b264-4fa7-806f-a2ae1972ddbf")
+			(uuid "49e2b465-b264-4fa7-806f-a2ae1972ddc0")
 		)
 		(instances
 			(project "Open Beam Interface"
@@ -74139,7 +74301,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/te-connectivity-passive-product/RQ73C1J1K0BTD/9479919"
 			(at 58.42 381 0)
 			(effects
 				(font
@@ -74166,7 +74328,16 @@
 				(hide yes)
 			)
 		)
-		(property "Power" ""
+		(property "Power" "0.15"
+			(at 58.42 381 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" "A139971CT-ND "
 			(at 58.42 381 0)
 			(effects
 				(font
@@ -76510,7 +76681,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/te-connectivity-passive-product/RQ73C1J1K0BTD/9479919"
 			(at 160.02 381 0)
 			(effects
 				(font
@@ -76537,7 +76708,16 @@
 				(hide yes)
 			)
 		)
-		(property "Power" ""
+		(property "Power" "0.15"
+			(at 160.02 381 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" "A139971CT-ND "
 			(at 160.02 381 0)
 			(effects
 				(font
@@ -76867,7 +77047,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERA-3AEB152V/1465858"
 			(at 58.42 232.41 0)
 			(effects
 				(font
@@ -76894,7 +77074,16 @@
 				(hide yes)
 			)
 		)
-		(property "Power" ""
+		(property "Power" "0.1"
+			(at 58.42 232.41 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" "P1.5KDBCT-ND"
 			(at 58.42 232.41 0)
 			(effects
 				(font
@@ -77328,7 +77517,7 @@
 				(hide yes)
 			)
 		)
-		(property "Power" ""
+		(property "Power" "0.15"
 			(at 408.94 190.5 0)
 			(effects
 				(font
@@ -77600,7 +77789,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/te-connectivity-passive-product/RQ73C1J2K0BTD/9480392"
 			(at 513.08 311.15 0)
 			(effects
 				(font
@@ -77609,7 +77798,7 @@
 				(hide yes)
 			)
 		)
-		(property "Tolerance" "0.05%"
+		(property "Tolerance" "0.1%"
 			(at 513.08 311.15 0)
 			(effects
 				(font
@@ -77627,7 +77816,16 @@
 				(hide yes)
 			)
 		)
-		(property "Power" "0.1"
+		(property "Power" "0.15"
+			(at 513.08 311.15 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" "A140444CT-ND"
 			(at 513.08 311.15 0)
 			(effects
 				(font
@@ -84242,7 +84440,7 @@
 				)
 			)
 		)
-		(property "Value" "10K"
+		(property "Value" "10k"
 			(at 149.86 283.21 90)
 			(effects
 				(font
