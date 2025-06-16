@@ -29922,7 +29922,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERJ-PA3J103V/5035971"
 			(at 149.86 278.13 0)
 			(effects
 				(font
@@ -29931,7 +29931,7 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" ""
+		(property "DK Part Number" "P10KBZCT-ND"
 			(at 149.86 278.13 0)
 			(effects
 				(font
@@ -29949,7 +29949,7 @@
 				(hide yes)
 			)
 		)
-		(property "Tolerance" "meh"
+		(property "Tolerance" "meh - 5%"
 			(at 149.86 278.13 0)
 			(effects
 				(font
@@ -29967,7 +29967,7 @@
 				(hide yes)
 			)
 		)
-		(property "Power" ""
+		(property "Power" "0.33	"
 			(at 149.86 278.13 0)
 			(effects
 				(font
@@ -30238,7 +30238,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERJ-PA3J103V/5035971"
 			(at 74.93 199.39 0)
 			(effects
 				(font
@@ -30247,7 +30247,7 @@
 				(hide yes)
 			)
 		)
-		(property "Tolerance" "meh"
+		(property "Tolerance" "meh - 5%"
 			(at 74.93 199.39 0)
 			(effects
 				(font
@@ -30265,7 +30265,16 @@
 				(hide yes)
 			)
 		)
-		(property "Power" ""
+		(property "Power" "0.33	"
+			(at 74.93 199.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" "P10KBZCT-ND"
 			(at 74.93 199.39 0)
 			(effects
 				(font
@@ -35556,7 +35565,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERJ-3GEYJ332V/135886"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERJ-3GEYJ332V/135886?s=N4IgTCBcDaIAoGYB0CDSBxAwgFQLQDkAREAXQF8g"
 			(at 67.31 87.63 0)
 			(effects
 				(font
@@ -35583,7 +35592,7 @@
 				(hide yes)
 			)
 		)
-		(property "Tolerance" "meh"
+		(property "Tolerance" "5%"
 			(at 67.31 87.63 0)
 			(effects
 				(font
@@ -35601,7 +35610,7 @@
 				(hide yes)
 			)
 		)
-		(property "Power" ""
+		(property "Power" "0.1"
 			(at 67.31 87.63 0)
 			(effects
 				(font
@@ -35688,7 +35697,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERJ-3EKF7500V/196472"
 			(at 58.42 306.07 0)
 			(effects
 				(font
@@ -35715,7 +35724,16 @@
 				(hide yes)
 			)
 		)
-		(property "Power" ""
+		(property "Power" "0.1"
+			(at 58.42 306.07 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" "P750HCT-ND"
 			(at 58.42 306.07 0)
 			(effects
 				(font
@@ -39412,7 +39430,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERJ-PA3J103V/5035971"
 			(at 149.86 273.05 0)
 			(effects
 				(font
@@ -39421,7 +39439,7 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" ""
+		(property "DK Part Number" "P10KBZCT-ND"
 			(at 149.86 273.05 0)
 			(effects
 				(font
@@ -39439,7 +39457,7 @@
 				(hide yes)
 			)
 		)
-		(property "Tolerance" "meh"
+		(property "Tolerance" "meh - 5%"
 			(at 149.86 273.05 0)
 			(effects
 				(font
@@ -39457,7 +39475,7 @@
 				(hide yes)
 			)
 		)
-		(property "Power" ""
+		(property "Power" "0.33	"
 			(at 149.86 273.05 0)
 			(effects
 				(font
@@ -39711,7 +39729,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERJ-PA3J103V/5035971"
 			(at 149.86 267.97 0)
 			(effects
 				(font
@@ -39720,7 +39738,7 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" ""
+		(property "DK Part Number" "P10KBZCT-ND"
 			(at 149.86 267.97 0)
 			(effects
 				(font
@@ -39738,7 +39756,7 @@
 				(hide yes)
 			)
 		)
-		(property "Tolerance" "meh"
+		(property "Tolerance" "meh - 5%"
 			(at 149.86 267.97 0)
 			(effects
 				(font
@@ -39756,7 +39774,7 @@
 				(hide yes)
 			)
 		)
-		(property "Power" ""
+		(property "Power" "0.33	"
 			(at 149.86 267.97 0)
 			(effects
 				(font
@@ -44088,7 +44106,7 @@
 				(hide yes)
 			)
 		)
-		(property "Power" ""
+		(property "Power" "0.1"
 			(at 53.34 306.07 0)
 			(effects
 				(font
@@ -48497,7 +48515,7 @@
 				(hide yes)
 			)
 		)
-		(property "Power" ""
+		(property "Power" ".0625"
 			(at 53.34 381 0)
 			(effects
 				(font
@@ -48620,7 +48638,7 @@
 				(hide yes)
 			)
 		)
-		(property "Power" ""
+		(property "Power" "0.1"
 			(at 53.34 232.41 0)
 			(effects
 				(font
@@ -50053,7 +50071,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERJ-PA3J103V/5035971"
 			(at 63.5 339.09 0)
 			(effects
 				(font
@@ -50062,7 +50080,7 @@
 				(hide yes)
 			)
 		)
-		(property "Tolerance" "meh"
+		(property "Tolerance" "meh - 5%"
 			(at 63.5 339.09 0)
 			(effects
 				(font
@@ -50080,7 +50098,16 @@
 				(hide yes)
 			)
 		)
-		(property "Power" ""
+		(property "Power" "0.33"
+			(at 63.5 339.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" "P10KBZCT-ND"
 			(at 63.5 339.09 0)
 			(effects
 				(font
@@ -51227,7 +51254,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERJ-PB3B3742V/6212933"
 			(at 547.37 275.59 0)
 			(effects
 				(font
@@ -51236,7 +51263,7 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" ""
+		(property "DK Part Number" "P20150CT-ND"
 			(at 547.37 275.59 0)
 			(effects
 				(font
@@ -51272,7 +51299,7 @@
 				(hide yes)
 			)
 		)
-		(property "Power" ""
+		(property "Power" "0.2"
 			(at 547.37 275.59 0)
 			(effects
 				(font
@@ -58790,7 +58817,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERJ-3GEYJ332V/135886"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERJ-3GEYJ332V/135886?s=N4IgTCBcDaIAoGYB0CDSBxAwgFQLQDkAREAXQF8g"
 			(at 67.31 110.49 0)
 			(effects
 				(font
@@ -58817,7 +58844,7 @@
 				(hide yes)
 			)
 		)
-		(property "Tolerance" "meh"
+		(property "Tolerance" "5%"
 			(at 67.31 110.49 0)
 			(effects
 				(font
@@ -58835,7 +58862,7 @@
 				(hide yes)
 			)
 		)
-		(property "Power" ""
+		(property "Power" "0.1"
 			(at 67.31 110.49 0)
 			(effects
 				(font
@@ -63792,7 +63819,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERJ-PA3J103V/5035971"
 			(at 71.12 347.98 0)
 			(effects
 				(font
@@ -63801,7 +63828,7 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" ""
+		(property "DK Part Number" "P10KBZCT-ND"
 			(at 71.12 347.98 0)
 			(effects
 				(font
@@ -63819,7 +63846,7 @@
 				(hide yes)
 			)
 		)
-		(property "Tolerance" "meh"
+		(property "Tolerance" "meh - 5%"
 			(at 71.12 347.98 0)
 			(effects
 				(font
@@ -63837,7 +63864,7 @@
 				(hide yes)
 			)
 		)
-		(property "Power" ""
+		(property "Power" "0.33	"
 			(at 71.12 347.98 0)
 			(effects
 				(font
@@ -63913,7 +63940,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERJ-3GEYJ332V/135886"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERJ-3GEYJ332V/135886?s=N4IgTCBcDaIAoGYB0CDSBxAwgFQLQDkAREAXQF8g"
 			(at 71.12 184.15 0)
 			(effects
 				(font
@@ -63940,7 +63967,7 @@
 				(hide yes)
 			)
 		)
-		(property "Tolerance" "meh"
+		(property "Tolerance" "5%"
 			(at 71.12 184.15 0)
 			(effects
 				(font
@@ -63958,7 +63985,7 @@
 				(hide yes)
 			)
 		)
-		(property "Power" ""
+		(property "Power" "0.1"
 			(at 71.12 184.15 0)
 			(effects
 				(font
@@ -65175,7 +65202,7 @@
 				(hide yes)
 			)
 		)
-		(property "Context" "DAC ouptut bandwidth"
+		(property "Context" "DAC output bandwidth"
 			(at 388.62 72.39 0)
 			(effects
 				(font
@@ -65226,7 +65253,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "5k"
+		(property "Value" "4.99k"
 			(at 63.5 266.065 90)
 			(effects
 				(font
@@ -65271,7 +65298,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERJ-3EKF4991V/196341"
 			(at 63.5 264.16 0)
 			(effects
 				(font
@@ -65280,7 +65307,7 @@
 				(hide yes)
 			)
 		)
-		(property "Tolerance" "meh"
+		(property "Tolerance" "meh - 1%"
 			(at 63.5 264.16 0)
 			(effects
 				(font
@@ -65298,7 +65325,16 @@
 				(hide yes)
 			)
 		)
-		(property "Power" ""
+		(property "Power" "0.1"
+			(at 63.5 264.16 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" "P4.99KHCT-ND"
 			(at 63.5 264.16 0)
 			(effects
 				(font
@@ -69870,7 +69906,7 @@
 				(hide yes)
 			)
 		)
-		(property "Context" "DAC ouptut bandwidth"
+		(property "Context" "DAC output bandwidth"
 			(at 386.08 201.93 0)
 			(effects
 				(font
@@ -70703,7 +70739,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" ""
+		(property "Order Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERJ-3EKF1001V/196032"
 			(at 513.08 316.23 0)
 			(effects
 				(font
@@ -70712,7 +70748,7 @@
 				(hide yes)
 			)
 		)
-		(property "Tolerance" "0.05%"
+		(property "Tolerance" "0.1%"
 			(at 513.08 316.23 0)
 			(effects
 				(font
@@ -70739,7 +70775,7 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" ""
+		(property "DK Part Number" "P1.00KHCT-ND"
 			(at 513.08 316.23 0)
 			(effects
 				(font
@@ -71247,7 +71283,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERJ-PA3J103V/5035971"
 			(at 175.26 347.98 0)
 			(effects
 				(font
@@ -71256,7 +71292,7 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" ""
+		(property "DK Part Number" "P10KBZCT-ND"
 			(at 175.26 347.98 0)
 			(effects
 				(font
@@ -71274,7 +71310,7 @@
 				(hide yes)
 			)
 		)
-		(property "Tolerance" "meh"
+		(property "Tolerance" "meh - 5%"
 			(at 175.26 347.98 0)
 			(effects
 				(font
@@ -71292,7 +71328,7 @@
 				(hide yes)
 			)
 		)
-		(property "Power" ""
+		(property "Power" "0.33	"
 			(at 175.26 347.98 0)
 			(effects
 				(font
@@ -74147,7 +74183,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "5k"
+		(property "Value" "4.99k"
 			(at 63.5 192.405 90)
 			(effects
 				(font
@@ -74192,7 +74228,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERJ-3EKF4991V/196341"
 			(at 63.5 190.5 0)
 			(effects
 				(font
@@ -74201,7 +74237,7 @@
 				(hide yes)
 			)
 		)
-		(property "Tolerance" "meh"
+		(property "Tolerance" "meh - 1%"
 			(at 63.5 190.5 0)
 			(effects
 				(font
@@ -74219,7 +74255,16 @@
 				(hide yes)
 			)
 		)
-		(property "Power" ""
+		(property "Power" "0.1"
+			(at 63.5 190.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" "P4.99KHCT-ND"
 			(at 63.5 190.5 0)
 			(effects
 				(font
@@ -77629,7 +77674,7 @@
 				)
 			)
 		)
-		(property "Value" "13.1k"
+		(property "Value" "13k"
 			(at 172.72 334.01 90)
 			(effects
 				(font
@@ -77664,7 +77709,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERJ-3GEYJ133V/135680"
 			(at 172.72 334.01 0)
 			(effects
 				(font
@@ -77673,7 +77718,7 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" ""
+		(property "DK Part Number" "P13KGCT-ND"
 			(at 172.72 334.01 0)
 			(effects
 				(font
@@ -77691,7 +77736,7 @@
 				(hide yes)
 			)
 		)
-		(property "Tolerance" "meh"
+		(property "Tolerance" "meh - 5%"
 			(at 172.72 334.01 0)
 			(effects
 				(font
@@ -77709,7 +77754,7 @@
 				(hide yes)
 			)
 		)
-		(property "Power" ""
+		(property "Power" "0.1"
 			(at 172.72 334.01 0)
 			(effects
 				(font
@@ -77974,7 +78019,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERJ-PA3J103V/5035971"
 			(at 255.27 292.1 0)
 			(effects
 				(font
@@ -77983,7 +78028,7 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" ""
+		(property "DK Part Number" "P10KBZCT-ND"
 			(at 255.27 292.1 0)
 			(effects
 				(font
@@ -78001,7 +78046,7 @@
 				(hide yes)
 			)
 		)
-		(property "Tolerance" "meh"
+		(property "Tolerance" "meh - 5%"
 			(at 255.27 292.1 0)
 			(effects
 				(font
@@ -78019,7 +78064,7 @@
 				(hide yes)
 			)
 		)
-		(property "Power" ""
+		(property "Power" "0.33"
 			(at 255.27 292.1 0)
 			(effects
 				(font
@@ -79263,7 +79308,7 @@
 				)
 			)
 		)
-		(property "Value" "13.1k"
+		(property "Value" "13k"
 			(at 71.12 332.74 90)
 			(effects
 				(font
@@ -79298,7 +79343,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERJ-3GEYJ133V/135680"
 			(at 71.12 332.74 0)
 			(effects
 				(font
@@ -79307,7 +79352,7 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" ""
+		(property "DK Part Number" "P13KGCT-ND"
 			(at 71.12 332.74 0)
 			(effects
 				(font
@@ -79325,7 +79370,7 @@
 				(hide yes)
 			)
 		)
-		(property "Tolerance" "meh"
+		(property "Tolerance" "meh - 5%"
 			(at 71.12 332.74 0)
 			(effects
 				(font
@@ -79343,7 +79388,7 @@
 				(hide yes)
 			)
 		)
-		(property "Power" ""
+		(property "Power" "0.1"
 			(at 71.12 332.74 0)
 			(effects
 				(font
@@ -80052,7 +80097,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERJ-3GEYJ332V/135886"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERJ-3GEYJ332V/135886?s=N4IgTCBcDaIAoGYB0CDSBxAwgFQLQDkAREAXQF8g"
 			(at 71.12 257.81 0)
 			(effects
 				(font
@@ -80079,7 +80124,7 @@
 				(hide yes)
 			)
 		)
-		(property "Tolerance" "meh"
+		(property "Tolerance" "5%"
 			(at 71.12 257.81 0)
 			(effects
 				(font
@@ -80097,7 +80142,7 @@
 				(hide yes)
 			)
 		)
-		(property "Power" ""
+		(property "Power" "0.1"
 			(at 71.12 257.81 0)
 			(effects
 				(font
@@ -81652,7 +81697,7 @@
 				(hide yes)
 			)
 		)
-		(property "Power" ""
+		(property "Power" ".0625"
 			(at 154.94 381 0)
 			(effects
 				(font
@@ -82051,7 +82096,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERJ-PA3J103V/5035971"
 			(at 165.1 339.09 0)
 			(effects
 				(font
@@ -82060,7 +82105,7 @@
 				(hide yes)
 			)
 		)
-		(property "Tolerance" "meh"
+		(property "Tolerance" "meh - 5%"
 			(at 165.1 339.09 0)
 			(effects
 				(font
@@ -82078,7 +82123,16 @@
 				(hide yes)
 			)
 		)
-		(property "Power" ""
+		(property "Power" "0.33"
+			(at 165.1 339.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" "P10KBZCT-ND"
 			(at 165.1 339.09 0)
 			(effects
 				(font
@@ -83105,7 +83159,7 @@
 				)
 			)
 		)
-		(property "Value" "13.1k"
+		(property "Value" "13k"
 			(at 73.66 158.75 90)
 			(effects
 				(font
@@ -83140,7 +83194,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERJ-3GEYJ133V/135680"
 			(at 73.66 158.75 0)
 			(effects
 				(font
@@ -83149,7 +83203,7 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" ""
+		(property "DK Part Number" "P13KGCT-ND"
 			(at 73.66 158.75 0)
 			(effects
 				(font
@@ -83167,7 +83221,7 @@
 				(hide yes)
 			)
 		)
-		(property "Tolerance" "meh"
+		(property "Tolerance" "meh - 5%"
 			(at 73.66 158.75 0)
 			(effects
 				(font
@@ -83185,7 +83239,7 @@
 				(hide yes)
 			)
 		)
-		(property "Power" ""
+		(property "Power" "0.1"
 			(at 73.66 158.75 0)
 			(effects
 				(font
@@ -84480,7 +84534,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERJ-PA3J103V/5035971"
 			(at 149.86 283.21 0)
 			(effects
 				(font
@@ -84489,7 +84543,7 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" ""
+		(property "DK Part Number" "P10KBZCT-ND"
 			(at 149.86 283.21 0)
 			(effects
 				(font
@@ -84507,7 +84561,7 @@
 				(hide yes)
 			)
 		)
-		(property "Tolerance" "meh"
+		(property "Tolerance" "meh - 5%"
 			(at 149.86 283.21 0)
 			(effects
 				(font
@@ -84525,7 +84579,7 @@
 				(hide yes)
 			)
 		)
-		(property "Power" ""
+		(property "Power" "0.33	"
 			(at 149.86 283.21 0)
 			(effects
 				(font
@@ -84691,7 +84745,7 @@
 				)
 			)
 		)
-		(property "Value" "13.1k"
+		(property "Value" "13k"
 			(at 73.66 130.81 90)
 			(effects
 				(font
@@ -84726,7 +84780,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERJ-3GEYJ133V/135680"
 			(at 73.66 130.81 0)
 			(effects
 				(font
@@ -84735,7 +84789,7 @@
 				(hide yes)
 			)
 		)
-		(property "DK Part Number" ""
+		(property "DK Part Number" "P13KGCT-ND"
 			(at 73.66 130.81 0)
 			(effects
 				(font
@@ -84753,7 +84807,7 @@
 				(hide yes)
 			)
 		)
-		(property "Tolerance" "meh"
+		(property "Tolerance" "meh - 5%"
 			(at 73.66 130.81 0)
 			(effects
 				(font
@@ -84771,7 +84825,7 @@
 				(hide yes)
 			)
 		)
-		(property "Power" ""
+		(property "Power" "0.1"
 			(at 73.66 130.81 0)
 			(effects
 				(font
@@ -84858,7 +84912,7 @@
 				(hide yes)
 			)
 		)
-		(property "Order Link" "Assortment"
+		(property "Order Link" "https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERJ-PA3J103V/5035971"
 			(at 74.93 273.05 0)
 			(effects
 				(font
@@ -84867,7 +84921,7 @@
 				(hide yes)
 			)
 		)
-		(property "Tolerance" "meh"
+		(property "Tolerance" "meh - 5%"
 			(at 74.93 273.05 0)
 			(effects
 				(font
@@ -84885,7 +84939,16 @@
 				(hide yes)
 			)
 		)
-		(property "Power" ""
+		(property "Power" "0.33	"
+			(at 74.93 273.05 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" "P10KBZCT-ND"
 			(at 74.93 273.05 0)
 			(effects
 				(font
