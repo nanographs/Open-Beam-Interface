@@ -11034,6 +11034,12 @@
 		(uuid "d5c312dc-b3e5-41dc-9a58-3d7632f07e40")
 	)
 	(junction
+		(at 200.66 275.59)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "d5dae8af-905b-4255-96ae-bd07f7496664")
+	)
+	(junction
 		(at 170.18 48.26)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -13001,16 +13007,6 @@
 	)
 	(wire
 		(pts
-			(xy 198.12 275.59) (xy 198.12 285.75)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "00a819f9-fc78-4c54-87e4-5352bafafa14")
-	)
-	(wire
-		(pts
 			(xy 387.35 109.22) (xy 389.89 109.22)
 		)
 		(stroke
@@ -14536,6 +14532,16 @@
 	)
 	(wire
 		(pts
+			(xy 200.66 275.59) (xy 213.36 275.59)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1d758623-4970-4de8-abbb-734b0ec2b411")
+	)
+	(wire
+		(pts
 			(xy 554.99 320.04) (xy 542.29 320.04)
 		)
 		(stroke
@@ -15168,7 +15174,7 @@
 	)
 	(wire
 		(pts
-			(xy 213.36 269.24) (xy 213.36 266.7)
+			(xy 214.63 303.53) (xy 214.63 300.99)
 		)
 		(stroke
 			(width 0)
@@ -18787,7 +18793,7 @@
 	)
 	(wire
 		(pts
-			(xy 198.12 285.75) (xy 209.55 285.75)
+			(xy 198.12 275.59) (xy 200.66 275.59)
 		)
 		(stroke
 			(width 0)
@@ -24508,7 +24514,7 @@
 	)
 	(wire
 		(pts
-			(xy 213.36 279.4) (xy 213.36 276.86)
+			(xy 214.63 313.69) (xy 214.63 311.15)
 		)
 		(stroke
 			(width 0)
@@ -28726,7 +28732,7 @@
 		(uuid "5dc05ab6-aef9-44fc-987a-209eb1b07927")
 	)
 	(label "Power Good"
-		(at 209.55 285.75 180)
+		(at 213.36 275.59 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -36604,16 +36610,15 @@
 	)
 	(symbol
 		(lib_id "Connector:TestPoint")
-		(at 201.93 299.72 0)
+		(at 205.74 293.37 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "20711315-6b02-4145-a822-f612d481063f")
 		(property "Reference" "GNDD4"
-			(at 204.47 295.783 0)
+			(at 202.438 288.29 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -36622,7 +36627,7 @@
 			)
 		)
 		(property "Value" "TestPoint"
-			(at 204.47 298.323 0)
+			(at 208.28 291.973 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -36632,7 +36637,7 @@
 			)
 		)
 		(property "Footprint" "Scan Generator:GND Test Point WIth Dimensions"
-			(at 207.01 299.72 0)
+			(at 210.82 293.37 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -36641,7 +36646,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 207.01 299.72 0)
+			(at 210.82 293.37 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -36650,7 +36655,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 201.93 299.72 0)
+			(at 205.74 293.37 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -36659,7 +36664,7 @@
 			)
 		)
 		(property "Order Link" "NA"
-			(at 201.93 299.72 0)
+			(at 205.74 293.37 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -36668,7 +36673,7 @@
 			)
 		)
 		(property "DK Part Number" ""
-			(at 201.93 299.72 0)
+			(at 205.74 293.37 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -36677,7 +36682,7 @@
 			)
 		)
 		(property "Is Good" "Y"
-			(at 201.93 299.72 0)
+			(at 205.74 293.37 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -36686,7 +36691,7 @@
 			)
 		)
 		(property "Tolerance" ""
-			(at 201.93 299.72 0)
+			(at 205.74 293.37 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -36695,7 +36700,7 @@
 			)
 		)
 		(property "Context" ""
-			(at 201.93 299.72 0)
+			(at 205.74 293.37 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -36704,7 +36709,7 @@
 			)
 		)
 		(property "Power" ""
-			(at 201.93 299.72 0)
+			(at 205.74 293.37 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -45707,7 +45712,7 @@
 	)
 	(symbol
 		(lib_id "power:GNDD")
-		(at 201.93 299.72 0)
+		(at 205.74 293.37 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -45716,7 +45721,7 @@
 		(fields_autoplaced yes)
 		(uuid "46db4ee5-352a-47ba-895e-c54f8e2d7b36")
 		(property "Reference" "#PWR059"
-			(at 201.93 306.07 0)
+			(at 205.74 299.72 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -45725,7 +45730,7 @@
 			)
 		)
 		(property "Value" "GNDD"
-			(at 201.93 304.8 0)
+			(at 205.74 298.45 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -45734,7 +45739,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 201.93 299.72 0)
+			(at 205.74 293.37 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -45743,7 +45748,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 201.93 299.72 0)
+			(at 205.74 293.37 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -45752,7 +45757,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 201.93 299.72 0)
+			(at 205.74 293.37 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -49738,7 +49743,7 @@
 	)
 	(symbol
 		(lib_id "Device:C")
-		(at 213.36 273.05 0)
+		(at 214.63 307.34 0)
 		(mirror y)
 		(unit 1)
 		(exclude_from_sim no)
@@ -49747,7 +49752,7 @@
 		(dnp no)
 		(uuid "52630761-1bdb-480f-b90f-f33f225ed9b2")
 		(property "Reference" "C32"
-			(at 209.169 271.1363 0)
+			(at 210.439 305.4263 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -49756,7 +49761,7 @@
 			)
 		)
 		(property "Value" "0.1 uF"
-			(at 210.82 274.32 0)
+			(at 212.09 308.61 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -49765,7 +49770,7 @@
 			)
 		)
 		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
-			(at 212.3948 276.86 0)
+			(at 213.6648 311.15 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -49774,7 +49779,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 213.36 273.05 0)
+			(at 214.63 307.34 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -49783,7 +49788,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 213.36 273.05 0)
+			(at 214.63 307.34 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -49792,7 +49797,7 @@
 			)
 		)
 		(property "Order Link" "https://www.digikey.com/en/products/detail/samsung-electro-mechanics/CL10B104KA8NNNC/3886664"
-			(at 213.36 273.05 0)
+			(at 214.63 307.34 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -49801,7 +49806,7 @@
 			)
 		)
 		(property "DK Part Number" "1276-1006-1-ND"
-			(at 213.36 273.05 0)
+			(at 214.63 307.34 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -49810,7 +49815,7 @@
 			)
 		)
 		(property "Is Good" "Y"
-			(at 213.36 273.05 0)
+			(at 214.63 307.34 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -49819,7 +49824,7 @@
 			)
 		)
 		(property "Tolerance" ""
-			(at 213.36 273.05 0)
+			(at 214.63 307.34 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -49828,7 +49833,7 @@
 			)
 		)
 		(property "Context" ""
-			(at 213.36 273.05 0)
+			(at 214.63 307.34 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -49837,7 +49842,7 @@
 			)
 		)
 		(property "Power" ""
-			(at 213.36 273.05 0)
+			(at 214.63 307.34 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -80728,7 +80733,7 @@
 	)
 	(symbol
 		(lib_id "power:+3.3V")
-		(at 213.36 266.7 0)
+		(at 214.63 300.99 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -80737,7 +80742,7 @@
 		(fields_autoplaced yes)
 		(uuid "e6e98298-07de-4936-8011-905e394d1336")
 		(property "Reference" "#PWR0227"
-			(at 213.36 270.51 0)
+			(at 214.63 304.8 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -80746,7 +80751,7 @@
 			)
 		)
 		(property "Value" "+3.3V"
-			(at 213.36 263.1981 0)
+			(at 214.63 297.4881 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -80754,7 +80759,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 213.36 266.7 0)
+			(at 214.63 300.99 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -80763,7 +80768,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 213.36 266.7 0)
+			(at 214.63 300.99 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -80772,7 +80777,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 213.36 266.7 0)
+			(at 214.63 300.99 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -80984,7 +80989,7 @@
 	)
 	(symbol
 		(lib_id "Connector:TestPoint")
-		(at 209.55 285.75 180)
+		(at 200.66 275.59 180)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -80992,7 +80997,7 @@
 		(dnp no)
 		(uuid "e866b8d6-8caf-43f5-ab65-94e8ffb00d65")
 		(property "Reference" "PowerGood1"
-			(at 215.646 290.83 0)
+			(at 206.756 280.67 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -81002,7 +81007,7 @@
 			)
 		)
 		(property "Value" "TestPoint"
-			(at 214.63 293.37 0)
+			(at 205.74 283.21 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -81012,7 +81017,7 @@
 			)
 		)
 		(property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
-			(at 204.47 285.75 0)
+			(at 195.58 275.59 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -81021,7 +81026,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 204.47 285.75 0)
+			(at 195.58 275.59 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -81030,7 +81035,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 209.55 285.75 0)
+			(at 200.66 275.59 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -81039,7 +81044,7 @@
 			)
 		)
 		(property "Order Link" "NA"
-			(at 209.55 285.75 0)
+			(at 200.66 275.59 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -81048,7 +81053,7 @@
 			)
 		)
 		(property "DK Part Number" ""
-			(at 209.55 285.75 0)
+			(at 200.66 275.59 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -81057,7 +81062,7 @@
 			)
 		)
 		(property "Is Good" ""
-			(at 209.55 285.75 0)
+			(at 200.66 275.59 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -81066,7 +81071,7 @@
 			)
 		)
 		(property "Tolerance" ""
-			(at 209.55 285.75 0)
+			(at 200.66 275.59 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -81075,7 +81080,7 @@
 			)
 		)
 		(property "Context" ""
-			(at 209.55 285.75 0)
+			(at 200.66 275.59 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -81084,7 +81089,7 @@
 			)
 		)
 		(property "Power" ""
-			(at 209.55 285.75 0)
+			(at 200.66 275.59 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -85526,7 +85531,7 @@
 	)
 	(symbol
 		(lib_id "power:GNDD")
-		(at 213.36 279.4 0)
+		(at 214.63 313.69 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -85535,7 +85540,7 @@
 		(fields_autoplaced yes)
 		(uuid "f98b47a1-b094-4ab2-b498-47360a86a953")
 		(property "Reference" "#PWR0228"
-			(at 213.36 285.75 0)
+			(at 214.63 320.04 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -85544,7 +85549,7 @@
 			)
 		)
 		(property "Value" "GNDD"
-			(at 213.36 283.1545 0)
+			(at 214.63 317.4445 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -85553,7 +85558,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 213.36 279.4 0)
+			(at 214.63 313.69 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -85562,7 +85567,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 213.36 279.4 0)
+			(at 214.63 313.69 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -85571,7 +85576,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 213.36 279.4 0)
+			(at 214.63 313.69 0)
 			(effects
 				(font
 					(size 1.27 1.27)
