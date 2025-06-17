@@ -31417,7 +31417,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Package_SO:TSSOP-48_6.1x12.5mm_P0.5mm"
+		(property "Footprint" "Scan Generator:TSSOP-48_6.1x12.5mm_P0.5mm"
 			(at 246.38 50.8 0)
 			(effects
 				(font
@@ -57586,7 +57586,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Package_SO:TSSOP-48_6.1x12.5mm_P0.5mm"
+		(property "Footprint" "Scan Generator:TSSOP-48_6.1x12.5mm_P0.5mm"
 			(at 246.38 176.53 0)
 			(effects
 				(font
@@ -78304,7 +78304,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Package_SO:TSSOP-48_6.1x12.5mm_P0.5mm"
+		(property "Footprint" "Scan Generator:TSSOP-48_6.1x12.5mm_P0.5mm"
 			(at 287.02 303.53 0)
 			(effects
 				(font
