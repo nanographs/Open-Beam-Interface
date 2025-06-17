@@ -49525,7 +49525,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Package_QFP:LQFP-48_7x7mm_P0.5mm"
+		(property "Footprint" "Scan Generator:LQFP-48_7x7mm_P0.5mm"
 			(at 298.45 400.05 90)
 			(effects
 				(font

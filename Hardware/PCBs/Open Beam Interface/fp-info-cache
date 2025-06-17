@@ -1,4 +1,4 @@
-23103314223624738
+23105227827874227
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -87199,6 +87199,13 @@ Through hole vertical IDC box header THT 2x10 2.54mm double row
 20
 20
 Scan Generator
+LQFP-48_7x7mm_P0.5mm
+LQFP, 48 Pin (https://www.analog.com/media/en/technical-documentation/data-sheets/ltc2358-16.pdf), generated with kicad-footprint-generator ipc_gullwing_generator.py
+LQFP QFP
+0
+48
+48
+Scan Generator
 M8 Right Angle Panel Mount Connector
 
 
@@ -87211,7 +87218,7 @@ Mounting Hole 3.5mm with Courtyard for Washers + Tolerance
 mounting hole 3.5mm Courtyard
 0
 13
-2
+1
 Scan Generator
 Nanographs Big
 
