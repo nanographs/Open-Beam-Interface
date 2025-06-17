@@ -1,4 +1,4 @@
-23105227827874227
+23106977952167860
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -87324,6 +87324,13 @@ Scan Picture (art)
 0
 0
 0
+Scan Generator
+TSSOP-28_4.4x9.7mm_P0.65mm
+TSSOP, 28 Pin (JEDEC MO-153 Var AE https://www.jedec.org/document_search?search_api_views_fulltext=MO-153), generated with kicad-footprint-generator ipc_gullwing_generator.py
+TSSOP SO
+0
+28
+28
 Scan Generator
 nanographs small
 

@@ -41442,7 +41442,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Package_SO:TSSOP-28_4.4x9.7mm_P0.65mm"
+		(property "Footprint" "Scan Generator:TSSOP-28_4.4x9.7mm_P0.65mm"
 			(at 355.6 71.12 0)
 			(effects
 				(font
@@ -83613,7 +83613,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Package_SO:TSSOP-28_4.4x9.7mm_P0.65mm"
+		(property "Footprint" "Scan Generator:TSSOP-28_4.4x9.7mm_P0.65mm"
 			(at 353.06 200.66 0)
 			(effects
 				(font
