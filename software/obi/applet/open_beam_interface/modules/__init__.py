@@ -1,7 +1,7 @@
 __all__ = []
 
-from .structs import BlankRequest, BusSignature, DwellTime, DACStream, SuperDACStream
-__all__ += ["BlankRequest", "BusSignature", "DwellTime", "DACStream", "SuperDACStream"]
+from .structs import Transforms, BlankRequest, BusSignature, DwellTime, DACStream, SuperDACStream
+__all__ += ["Transforms", "BlankRequest", "BusSignature", "DwellTime", "DACStream", "SuperDACStream"]
 
 from .debug import PipelinedLoopbackAdapter
 __all__ += ["PipelinedLoopbackAdapter"]

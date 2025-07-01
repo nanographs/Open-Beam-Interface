@@ -4,18 +4,17 @@ import enum
 import struct
 import time
 import asyncio
+import logging
+
 from amaranth import *
-from amaranth.lib import enum, data, io, wiring
-from amaranth.lib.fifo import SyncFIFOBuffered
+from amaranth.lib import enum, data, io, stream, wiring
 from amaranth.lib.wiring import In, Out, flipped
 
-from glasgow.applet import GlasgowApplet
-from glasgow.support.logging import dump_hex
+from glasgow.applet import GlasgowAppletV2
 from glasgow.support.endpoint import ServerEndpoint
 
 from obi.applet.open_beam_interface.modules.structs import Transforms
-from obi.commands import (CmdType, BeamType, OutputMode, 
-                        SynchronizeCommand, FlushCommand, VectorPixelMinDwellCommand)
+from obi.commands import *
 from obi.applet.open_beam_interface.modules import (
     Transforms, BlankRequest,BusSignature, DwellTime, DACStream, SuperDACStream, 
     PipelinedLoopbackAdapter, BusController, FastBusController, 
@@ -36,8 +35,8 @@ from obi.applet.open_beam_interface.modules import (
 # 12. PC software (in: bytes, out: displayed image)
 
 class CommandExecutor(wiring.Component):
-    cmd_stream: In(StreamSignature(Command))
-    img_stream: Out(StreamSignature(unsigned(16)))
+    cmd_stream: In(stream.Signature(Command))
+    img_stream: Out(stream.Signature(unsigned(16)))
 
     bus: Out(BusSignature)
     inline_blank: In(BlankRequest)
@@ -56,11 +55,11 @@ class CommandExecutor(wiring.Component):
     output_mode: Out(2)
 
 
-    def __init__(self, *, out_only:bool=False, adc_latency=8, ext_switch_delay=960000,
+    def __init__(self, *, out_only:bool=False, adc_latency=8, ext_delay_cyc=960000,
                 transforms: Transforms=Transforms(False, False, False)):
         self.adc_latency = adc_latency
         # Time for external control relay/switch to actuate
-        self.ext_switch_delay = ext_switch_delay
+        self.ext_delay_cyc = ext_delay_cyc
         self.transforms = transforms
 
         self.supersampler = Supersampler()
@@ -88,7 +87,7 @@ class CommandExecutor(wiring.Component):
         wiring.connect(m, flipped(self.bus), bus_controller.bus)
         m.d.comb += self.inline_blank.eq(bus_controller.inline_blank)
 
-        vector_stream = StreamSignature(DACStream).create()
+        vector_stream = stream.Signature(DACStream).create()
 
         raster_mode = Signal()
         output_mode = Signal(2)
@@ -181,7 +180,7 @@ class CommandExecutor(wiring.Component):
                                 m.d.sync += self.ext_ctrl_enabled.eq(1)
                             # if we are going out of external control, don't change blank states
                             # until switching delay has elapsed
-                            with m.If(ext_switch_delay_counter == self.ext_switch_delay): 
+                            with m.If(ext_switch_delay_counter == self.ext_delay_cyc): 
                                 m.d.sync += ext_switch_delay_counter.eq(0)
                                 with m.If(~command.payload.external_ctrl.enable):
                                     m.d.sync += self.ext_ctrl_enabled.eq(0)
@@ -324,8 +323,8 @@ class CommandExecutor(wiring.Component):
 
 #=========================================================================
 class ImageSerializer(wiring.Component):
-    img_stream: In(StreamSignature(unsigned(16)))
-    usb_stream: Out(StreamSignature(8))
+    img_stream: In(stream.Signature(unsigned(16)))
+    usb_stream: Out(stream.Signature(8))
     output_mode: In(2)
 
     def elaborate(self, platform):
@@ -379,60 +378,57 @@ obi_resources  = [
 ]
 
 
-class OBISubtarget(wiring.Component):
-    def __init__(self, *, ports, out_fifo, in_fifo, #led, control, data, 
-                        ext_switch_delay=0, transforms: Transforms, 
-                        benchmark_counters=None, loopback=False, out_only=False):
-        self.ports            = ports
-        self.out_fifo         = out_fifo
-        self.in_fifo          = in_fifo
-        # self.led              = led
-        # self.control          = control
-        # self.data             = data
+class OBIComponent(wiring.Component):
+    i_stream: In(stream.Signature(8))
+    o_stream: Out(stream.Signature(8))
+    o_flush:  Out(1)
 
-        self.ext_switch_delay = ext_switch_delay
-        self.transforms = transforms
+    def __init__(self, ports, 
+                xflip: bool, yflip: bool, rotate90: bool, ext_switch_delay_ms=0,
+                loopback=False, out_only=False, **kwargs):
+        self.ports            = ports
+
+        if ext_switch_delay_ms:
+            self.ext_delay_cyc = int(args.ext_switch_delay * pow(10, -3) / (1/(48 * pow(10,6))))
+        else:
+            self.ext_delay_cyc = 0
+
+        self.transforms       = Transforms(xflip, yflip, rotate90)
         self.loopback         = loopback
         self.out_only         = out_only
 
-        if not benchmark_counters == None:
-            self.benchmark = True
-            out_stall_events, out_stall_cycles, stall_count_reset = benchmark_counters
-            self.out_stall_events = out_stall_events
-            self.out_stall_cycles = out_stall_cycles
-            self.stall_count_reset = stall_count_reset
-        else:
-            self.benchmark = False
+
+        super().__init__()
 
     def elaborate(self, platform):
         m = Module()
 
         ## core modules and interconnections
         m.submodules.parser     = parser     = CommandParser()
-        m.submodules.executor   = executor   = CommandExecutor(out_only=self.out_only, ext_switch_delay=self.ext_switch_delay, transforms=self.transforms)
+        m.submodules.executor   = executor   = CommandExecutor(out_only=self.out_only, ext_delay_cyc=self.ext_delay_cyc, transforms=self.transforms)
         m.submodules.serializer = serializer = ImageSerializer()
 
         wiring.connect(m, parser.cmd_stream, executor.cmd_stream)
         wiring.connect(m, executor.img_stream, serializer.img_stream)
 
-        from glasgow.hardware.multiplexer import _FIFOReadPort, _FIFOWritePort
-        if isinstance(self.out_fifo, _FIFOReadPort):
-            self.out_fifo.r_stream = self.out_fifo.stream
-        if isinstance(self.in_fifo, _FIFOWritePort):
-            self.in_fifo.w_stream = self.in_fifo.stream
-        wiring.connect(m, self.out_fifo.r_stream, parser.usb_stream)
-        wiring.connect(m, self.in_fifo.w_stream, serializer.usb_stream)
-
+        # wiring.connect(m, self.i_stream, parser.usb_stream)
+        # wiring.connect(m, self.o_stream, serializer.usb_stream)
         m.d.comb += [
-            self.in_fifo.flush.eq(executor.flush),
+            parser.usb_stream.valid.eq(self.i_stream.valid),
+            parser.usb_stream.payload.eq(self.i_stream.payload),
+            self.i_stream.ready.eq(parser.usb_stream.ready),
+            self.o_stream.valid.eq(serializer.usb_stream.valid),
+            self.o_stream.payload.eq(serializer.usb_stream.payload),
+            serializer.usb_stream.ready.eq(self.o_stream.ready),
+            self.o_flush.eq(executor.flush),
             serializer.output_mode.eq(executor.output_mode)
         ]
 
 
         ## Ports/resources ==========================================================
-        platform.add_resources(obi_resources)
 
         if platform is not None:
+            platform.add_resources(obi_resources)
             self.led            = platform.request("led", dir="-")
             self.control        = platform.request("control", dir={pin.name:"-" for pin in obi_resources[0].ios})
             self.data           = platform.request("data", dir="-")
@@ -526,36 +522,134 @@ class OBISubtarget(wiring.Component):
                 m.d.comb += loopback_adapter.loopback_stream.eq(executor.supersampler.super_dac_stream.payload.dac_x_code)
         else: ## if not in loopback, connect input to external input
             m.d.comb += executor.bus.data_i.eq(data.i)
-            
-
-        if self.benchmark:
-            m.d.comb += self.out_stall_cycles.eq(executor.supersampler.stall_cycles)
-            m.d.comb += executor.supersampler.stall_count_reset.eq(self.stall_count_reset)
-            out_stall_event = Signal()
-            begin_write = Signal()
-            with m.If(self.stall_count_reset):
-                # m.d.sync += self.out_stall_cycles.eq(0)
-                m.d.sync += self.out_stall_events.eq(0)
-                m.d.sync += out_stall_event.eq(0)
-                m.d.sync += begin_write.eq(0)
-            with m.Else():
-                with m.If(self.out_fifo.r_rdy):
-                    m.d.sync += begin_write.eq(1)
-                with m.If(begin_write):
-                    with m.If(~self.out_fifo.r_rdy):
-                        # with m.If(~(self.out_stall_cycles >= 65536)):
-                        #     m.d.sync += self.out_stall_cycles.eq(self.out_stall_cycles + 1)
-                        with m.If(~out_stall_event):
-                            m.d.sync += out_stall_event.eq(1)
-                            with m.If(~(self.out_stall_events >= 65536)):
-                                m.d.sync += self.out_stall_events.eq(self.out_stall_events + 1)
-                    with m.Else():
-                        m.d.sync += out_stall_event.eq(0)
 
         return m
 
+class OBIInterface: #not Open Beam Interface interface.....
+    def __init__(self, logger, assembly, applet_args):
+        self._logger = logger
+        self.assembly = assembly
+        self.args = applet_args
 
-class OBIApplet(GlasgowApplet):
+        def get_beam_args(id: str):
+            return {
+                f"{id}_scan_enable": getattr(applet_args,f"{id}_scan_enable"),
+                f"{id}_blank_enable": getattr(applet_args,f"{id}_blank_enable"),
+                f"{id}_blank": getattr(applet_args,f"{id}_blank")
+                }
+                    
+        ports = self.assembly.add_port_group(
+            **get_beam_args("electron"),
+            **get_beam_args("ion")
+        )
+
+        component = self.assembly.add_submodule(OBIComponent(ports, **vars(applet_args)))
+        self.pipe = self.assembly.add_inout_pipe(component.o_stream, component.i_stream, 
+                                                in_flush=component.o_flush,
+                                                in_buffer_size=16384*16384, out_buffer_size=16384*16384)
+    
+    async def read(self, length:int) -> memoryview:
+        return await self.pipe.recv(length)
+    
+    async def write(self, data: bytes | bytearray | memoryview):
+        await self.pipe.send(data)
+    
+    async def flush(self):
+        await self.pipe.flush()
+    
+    async def readuntil(self, separator=b'\n', *, flush=True, max_count=False):
+        def find_sep(buffer, separator=b'\n', offset=0):
+            if buffer._chunk is None:
+                if not buffer._queue:
+                    raise asyncio.IncompleteReadError
+                buffer._chunk  = buffer._queue.popleft()
+                buffer._offset = 0
+            return buffer._chunk.obj.find(separator)
+
+        if flush and len(self.pipe._out_buffer) > 0:
+            # Flush the buffer, so that everything written before the read reaches the device.
+            await self.pipe.flush(_wait=False)
+
+        seplen = len(separator)
+        if seplen == 0:
+            raise ValueError('Separator should be at least one-byte string')
+        chunks = []
+
+        # Loop until we find `separator` in the buffer, exceed the buffer size,
+        # or an EOF has happened.
+        while True:
+            buflen = len(self.pipe._in_buffer)
+
+            if max_count & (buflen >= max_count):
+                break
+        
+            # Check if we now have enough data in the buffer for `separator` to fit.
+            if buflen >= seplen:
+                isep = find_sep(self.pipe._in_buffer, separator)
+                if isep != -1:
+                    print(f"found {isep=}")
+                    # `separator` is in the buffer. `isep` will be used later
+                    # to retrieve the data.
+                    break
+            else:
+                while len(self.pipe_in_buffer) < seplen:
+                    print(f"{len(self.pipe._in_tasks)=}")
+                    self._logger.debug("FIFO: need %d bytes", seplen - len(self.lower._in_buffer))
+                    await self.pipe._in_tasks.wait_one()
+
+            async with self.pipe._in_pushback:
+                chunk = self.pipe._in_buffer.read()
+                self.pipe._in_pushback.notify_all()
+                chunks.append(chunk)
+            
+        if not (max_count & (buflen >= max_count)):
+            async with self.pipe._in_pushback:
+                chunk = self.pipe._in_buffer.read(isep+seplen)
+                self.pipe._in_pushback.notify_all()
+                chunks.append(chunk)
+        
+        # Always return a memoryview object, to avoid hard to detect edge cases downstream.
+        result = memoryview(b"".join(chunks))
+        return result
+    
+    async def server(self):
+        # TODO: check performance of server
+        # forward all levels of logs from the socket
+        sock_logger = self._logger.getChild("socket")
+        sock_logger.setLevel(logging.TRACE)
+        endpoint = await ServerEndpoint("", sock_logger, self.args.endpoint)
+        print("Started OBI server")
+        await endpoint.attach_to_pipe(self.pipe)
+
+        
+    
+    async def benchmark(self):
+        import time
+
+        sync_cmd = SynchronizeCommand(cookie=123, output=OutputMode.EightBit, raster=True)
+        flush_cmd = FlushCommand()
+        await self.pipe.send(bytes(sync_cmd))
+        await self.pipe.send(bytes(flush_cmd))
+        await self.pipe.flush()
+        await self.pipe.recv(4)
+        print(f"got cookie!")
+        commands = bytearray()
+        print("generating block of commands...")
+        for _ in range(131072*16):
+            commands.extend(bytes(VectorPixelCommand(x_coord=16383, y_coord=0, dwell_time=0)))
+            commands.extend(bytes(VectorPixelCommand(x_coord=0, y_coord=16383, dwell_time=0)))
+        length = len(commands)
+        print("writing commands...")
+        while True:
+            begin = time.time()
+            await self.pipe.send(commands)
+            await self.pipe.flush()
+            end = time.time()
+            self._logger.info("benchmark: %.2f MiB/s (%.2f Mb/s)",
+                                (length / (end - begin)) / (1 << 20),
+                                (length / (end - begin)) / (1 << 17))
+
+class OBIApplet(GlasgowAppletV2):
     required_revision = "C3"
     logger = logging.getLogger(__name__)
     help = "open beam interface"
@@ -565,31 +659,25 @@ class OBIApplet(GlasgowApplet):
 
     @classmethod
     def add_build_arguments(cls, parser, access):
-        super().add_build_arguments(parser, access)
+        access.add_voltage_argument(parser)
 
-        access.add_pin_set_argument(parser, "ebeam_scan_enable", range(1,3))
-        access.add_pin_set_argument(parser, "ibeam_scan_enable", range(1,3))
-        access.add_pin_set_argument(parser, "ebeam_blank_enable", range(1,3))
-        access.add_pin_set_argument(parser, "ibeam_blank_enable", range(1,3))
-        access.add_pin_set_argument(parser, "ibeam_blank", range(1,3))
-        access.add_pin_set_argument(parser, "ebeam_blank", range(1,3))
+        def add_beam(id: str):
+            group = parser.add_argument_group(f"beam_{id}")
+            access.add_pins_argument(group, f"{id}_scan_enable", range(1,3))
+            access.add_pins_argument(group, f"{id}_blank_enable", range(1,3))
+            access.add_pins_argument(group, f"{id}_blank", range(1,3))
+        
+        add_beam("electron")
+        add_beam("ion")
 
+        Transforms.add_transform_arguments(parser),
 
+        parser.add_argument("--benchmark",
+            dest = "benchmark", action = 'store_true',
+            help = "run benchmark")
         parser.add_argument("--loopback",
             dest = "loopback", action = 'store_true',
             help = "connect output and input streams internally")
-        parser.add_argument("--benchmark",
-            dest = "benchmark", action = 'store_true',
-            help = "run benchmark test")
-        parser.add_argument("--xflip",
-            dest = "xflip", action = 'store_true',
-            help = "flip x axis")
-        parser.add_argument("--yflip",
-            dest = "yflip", action = 'store_true',
-            help = "flip y axis")
-        parser.add_argument("--rotate90",
-            dest = "rotate90", action = 'store_true',
-            help = "switch x and y axes")
         parser.add_argument("--out_only",
             dest = "out_only", action = 'store_true',
             help = "use FastBusController instead of BusController; don't use ADC")
@@ -597,94 +685,17 @@ class OBIApplet(GlasgowApplet):
             help="time for external control switch to actuate, in ms")
 
 
-    def build(self, target, args):
-        self.mux_interface = iface = \
-                target.multiplexer.claim_interface(self, args)
-
-        ports = iface.get_port_group(
-            ebeam_scan_enable = args.pin_set_ebeam_scan_enable,
-            ibeam_scan_enable = args.pin_set_ibeam_scan_enable,
-            ebeam_blank_enable = args.pin_set_ebeam_blank_enable,
-            ibeam_blank_enable = args.pin_set_ibeam_blank_enable,
-            ebeam_blank = args.pin_set_ebeam_blank,
-            ibeam_blank = args.pin_set_ibeam_blank,
-        )
-
-        subtarget_args = {
-            "ports": ports,
-            "in_fifo": iface.get_in_fifo(depth=512, auto_flush=False),
-            "out_fifo": iface.get_out_fifo(depth=512),
-            "loopback": args.loopback,
-            "transforms": Transforms(args.xflip, args.yflip, args.rotate90),
-            "out_only": args.out_only
-        }
-
-        if args.ext_switch_delay:
-            ext_delay_cycles = int(args.ext_switch_delay * pow(10, -3) / (1/(48 * pow(10,6))))
-            subtarget_args.update({"ext_switch_delay": ext_delay_cycles})
-
-        if args.benchmark:
-            out_stall_events, self.__addr_out_stall_events = target.registers.add_ro(8, init=0)
-            out_stall_cycles, self.__addr_out_stall_cycles = target.registers.add_ro(16, init=0)
-            stall_count_reset, self.__addr_stall_count_reset = target.registers.add_rw(1, init=1)
-            subtarget_args.update({"benchmark_counters": [out_stall_events, out_stall_cycles, stall_count_reset]})
-
-        subtarget = OBISubtarget(**subtarget_args)
-
-        return iface.add_subtarget(subtarget)
-
-    # @classmethod
-    # def add_run_arguments(cls, parser, access):
-    #     super().add_run_arguments(parser, access)
-
-    async def run(self, device, args):
-        from glasgow.device.simulation import GlasgowSimulationDevice
-        if isinstance(device, GlasgowSimulationDevice):
-            iface = await device.demultiplexer.claim_interface(self, self.mux_interface, args)
-        else:
-            iface = await device.demultiplexer.claim_interface(self, self.mux_interface, args,
-                # read_buffer_size=131072*16, write_buffer_size=131072*16)
-                read_buffer_size=16384*16384, write_buffer_size=16384*16384)
-        
-        if args.benchmark:
-            output_mode = 2 #no output
-            raster_mode = 0 #no raster
-            mode = int(output_mode<<1 | raster_mode)
-            sync_cmd = struct.pack('>BHB', 0, 123, mode)
-            flush_cmd = struct.pack('>B', 2)
-            await iface.write(sync_cmd)
-            await iface.write(flush_cmd)
-            await iface.flush()
-            await iface.read(4)
-            print(f"got cookie!")
-            commands = bytearray()
-            print("generating block of commands...")
-            for _ in range(131072*16):
-                commands.extend(struct.pack(">BHHH", 0x14, 0, 16383, 1))
-                commands.extend(struct.pack(">BHHH", 0x14, 16383, 0, 1))
-            length = len(commands)
-            print("writing commands...")
-            while True:
-                await device.write_register(self.__addr_stall_count_reset, 1)
-                await device.write_register(self.__addr_stall_count_reset, 0)
-                begin = time.time()
-                await iface.write(commands)
-                await iface.flush()
-                end = time.time()
-                out_stall_events = await device.read_register(self.__addr_out_stall_events)
-                out_stall_cycles = await device.read_register(self.__addr_out_stall_cycles, width=2)
-                self.logger.info("benchmark: %.2f MiB/s (%.2f Mb/s)",
-                                 (length / (end - begin)) / (1 << 20),
-                                 (length / (end - begin)) / (1 << 17))
-                self.logger.info(f"out stalls: {out_stall_events}, stalled cycles: {out_stall_cycles}")
-                
-        else:
-            return iface
+    def build(self, args):
+        with self.assembly.add_applet(self):
+            self.assembly.use_voltage(args.voltage)
+            self.obi_iface = OBIInterface(self.logger, self.assembly, args)
 
     @classmethod
-    def add_interact_arguments(cls, parser):
+    def add_run_arguments(cls, parser):
         ServerEndpoint.add_argument(parser, "endpoint")
 
     async def run(self, args):
-        await self.obi_iface.benchmark()
-        # await self.obi_iface.server()
+        if args.benchmark:
+            await self.obi_iface.benchmark()
+        else:
+            await self.obi_iface.server()

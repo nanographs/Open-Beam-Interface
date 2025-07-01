@@ -1,6 +1,7 @@
 import argparse
 
-from glasgow.applet import PinArgument
+from glasgow.applet import GlasgowPin
+from glasgow.abstract import GlasgowVio, GlasgowPort
 from glasgow.support.endpoint import endpoint
 
 try:
@@ -17,10 +18,14 @@ class OBIAppletArguments:
         self.path = path
         self.toml = None
         self.args = argparse.Namespace(port_spec="AB",
-                pin_set_ebeam_scan_enable=None, pin_set_ibeam_scan_enable=None,
-                pin_set_ebeam_blank_enable=None, pin_set_ibeam_blank_enable=None,
-                pin_set_ebeam_blank=None, pin_set_ibeam_blank=None,
-                xflip=None, yflip=None, rotate90=None, pin_set_line_clock=None, pin_set_frame_clock=None,
+                voltage = {
+                    GlasgowPort.A: GlasgowVio(3.3),
+                    GlasgowPort.B: GlasgowVio(3.3)
+                },
+                electron_scan_enable=None, ion_scan_enable=None,
+                electron_blank_enable=None, ion_blank_enable=None,
+                electron_blank=None, ion_blank=None,
+                xflip=None, yflip=None, rotate90=None, line_clock=None, frame_clock=None,
                 loopback=None, out_only=None, benchmark=None, ext_switch_delay=None,
                 endpoint=('tcp', 'localhost', 2224))
     def load_toml(self):
@@ -55,13 +60,13 @@ class OBIAppletArguments:
                     pinout = beam_config["pinout"]
                     for pin_name in pinout:
                         pin_num = pinout.get(pin_name)
-                        pin_name = f"pin_set_{beam_prefixes.get(beam)}_{pin_name.replace('-','_')}"
-                        pins = [PinArgument(num) if num >= 0 else PinArgument(abs(num), invert=True) for num in pin_num ]
-                        print(pins)
+                        pin_name = f"{beam_prefixes.get(beam)}_{pin_name.replace('-','_')}"
+                        pins = [GlasgowPin(port="A", number=num) if num >= 0 else GlasgowPin(port="A", number=abs(num), invert=True) for num in pin_num ]
+                        # print(pins)
                         setattr(self.args, pin_name, pins)
                         if has_rich:
                             for pin in pins:
-                                table.add_row(str(pin_name), str(pin.number), str(pin.invert))
+                                table.add_row(str(pin_name), str(pin), str(pin.invert))
             if has_rich:
                 console = Console()
                 console.print(table)
