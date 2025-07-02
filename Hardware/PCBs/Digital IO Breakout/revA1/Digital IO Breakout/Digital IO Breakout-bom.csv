@@ -1,4 +1,4 @@
-Row,Description,Part,References,Value,Footprint,Quantity Per PCB,Status,Datasheet,Order Link,DK Part Number,Is Good
-1,"Generic connector, single row, 01x03, script generated",Conn_01x03_Socket,J6,Conn_01x03_Socket,PinHeader_1x03_P1.27mm_Vertical,1, ,~,,,
-2,,Conn_02x10_Odd_Even,J5,Conn_02x10_Odd_Even,IDC-Header_2x10_P2.54mm_Vertical,1, ,~,https://www.digikey.com/en/products/detail/molex/0878342019/3303513?s=N4IgTCBcDaILIHsA2BTAHgAgAwA4DsOAzACxhYCMAnCALoC%2BQA,WM20559-ND,Y
-3,"M8 shielded connector, single row, right angle, 01x03",M8_conn_01x03_Socket_Shielded,J1 J2 J3 J4,M8_conn_01x03_Socket_Shielded,M8_conn_01x03_Socket_Shielded_Right_Angle,4, ,~,https://www.binder-usa.com/us-en/products/automation-technology/m8/86-6618-1121-00003-m8-female-panel-mount-connector-3-shieldable-tht-ip67-m10x075-front-fastened,,
+References,Value,Footprint,Quantity,DK Part Number,Datasheet,Context
+J6,Conn_01x03_Socket,PinHeader_1x03_P1.27mm_Vertical,1,,~,
+J5,Conn_02x10_Odd_Even,IDC-Header_2x10_P2.54mm_Vertical,1,WM20559-ND,~,
+J1 J2 J3 J4,M8_conn_01x03_Socket_Shielded,M8_conn_01x03_Socket_Shielded_Right_Angle,4,,~,

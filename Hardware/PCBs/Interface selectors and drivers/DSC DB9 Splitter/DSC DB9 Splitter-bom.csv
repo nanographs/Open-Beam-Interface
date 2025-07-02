@@ -1,3 +1,3 @@
-Row,Description,Part,References,Value,Footprint,Quantity Per PCB,Status,Datasheet,Sim.Device,Sim.Pins,DK PN
-1,"9-pin male plug pin D-SUB connector, Mounting Hole",DE9_Plug_MountingHoles,J1,DE9_Plug_MountingHoles,DSUB-9_Male_Horizontal_P2.77x2.84mm_EdgePinOffset4.94mm_Housed_MountingHolesOffset7.48mm,1, , ~,,,A32094-ND
-2,"9-pin female receptacle socket D-SUB connector, Mounting Hole",DE9_Receptacle_MountingHoles,J2 J3,DE9_Receptacle_MountingHoles,DSUB-9_Female_Horizontal_P2.77x2.84mm_EdgePinOffset4.94mm_Housed_MountingHolesOffset7.48mm,2, , ~,,,A32119-ND
+References,Value,Footprint,Quantity,DK Part Number,Datasheet,Context
+J1,DE9_Plug_MountingHoles,DSUB-9_Male_Horizontal_P2.77x2.84mm_EdgePinOffset4.94mm_Housed_MountingHolesOffset7.48mm,1,, ~,
+J2 J3,DE9_Receptacle_MountingHoles,DSUB-9_Female_Horizontal_P2.77x2.84mm_EdgePinOffset4.94mm_Housed_MountingHolesOffset7.48mm,2,, ~,
