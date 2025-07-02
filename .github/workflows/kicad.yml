@@ -35,6 +35,28 @@ jobs:
         cd "Hardware/PCBs/Open Beam Interface"
         kibot -c ../../../.github/workflows/kibot/kibot.yml -e "Open Beam Interface.kicad_sch" -b "Open Beam Interface.kicad_pcb"
 
+    ## Previous OBI revisions
+    - name: Generate Export Files
+      run: |
+        cd "Hardware/PCBs/Open Beam Interface/Open Beam Interface revA1"
+        kibot -c ../../../../.github/workflows/kibot/kibot.yml -e "Open Beam Interface.kicad_sch" -b "Open Beam Interface.kicad_pcb"
+    
+    - name: Generate Export Files
+      run: |
+        cd "Hardware/PCBs/Open Beam Interface/Open Beam Interface revA2"
+        kibot -c ../../../../.github/workflows/kibot/kibot.yml -e "Open Beam Interface.kicad_sch" -b "Open Beam Interface.kicad_pcb"
+
+    - name: Generate Export Files
+      run: |
+        cd "Hardware/PCBs/Open Beam Interface/Open Beam Interface revA3"
+        kibot -c ../../../../.github/workflows/kibot/kibot.yml -e "Open Beam Interface.kicad_sch" -b "Open Beam Interface.kicad_pcb"
+    
+    - name: Generate Export Files
+      run: |
+        cd "Hardware/PCBs/Open Beam Interface/Open Beam Interface revA4"
+        kibot -c ../../../../.github/workflows/kibot/kibot.yml -e "Open Beam Interface.kicad_sch" -b "Open Beam Interface.kicad_pcb"
+
+    ## Accessory boards
     - name: Generate Export Files
       run: |
         cd "Hardware/PCBs/Data Interconnect"
