@@ -19,6 +19,16 @@ outputs:
         hide_pcb_info: true
         hide_stats_info: true
       format: CSV
+      columns:
+        - field: 'References'
+        - field: 'Value'
+        - field: 'Footprint'
+        - field: 'Quantity Per PCB'
+          name: 'Quantity'
+        - field: 'DK Part Number'
+        - field: 'Datasheet'
+        - field: 'Context'
+
 
   - name: 'print_sch'
     comment: "Print schematic (PDF)"
