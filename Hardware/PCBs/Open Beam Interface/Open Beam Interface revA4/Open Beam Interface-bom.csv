@@ -1,87 +1,74 @@
-"Reference","Value","Power","Tolerance","Context","DK Part Number","Order Link"
-"C1,C2,C11,C46","10u","","","","1276-CL32B106KAJ4PNECT-ND","https://www.digikey.com/en/products/detail/samsung-electro-mechanics/CL32B106KAJ4PNE/11487783?s=N4IgTCBcDaIMIBkDMYBCBGADANgNIEEApAFgAUA5AAhAF0BfIA"
-"C3,C4,C5,C6,C14,C17,C21,C22,C33,C42,C43,C62,C63,C64,C73,C75,C80,C84,C85,C86,C87,C88,C89","4.7u","","","","1276-3178-1-ND ","https://www.digikey.com/en/products/detail/samsung-electro-mechanics/CL31B475KAHNNWE/3888836?s=N4IgTCBcDaIMIBkDMBGAQgFgOwFYDSAggBIByJA6iALoC%2BQA"
-"C7,C8,C9,C10","100 uF","","","","P16498CT-ND","https://www.digikey.com/en/products/detail/panasonic-electronic-components/20SVPF120M/4204830"
-"C12,C13,C15,C16,C24,C26,C27,C28,C29,C31,C32,C34,C35,C36,C37,C38,C39,C40,C41,C44,C45,C47,C48,C49,C53,C56,C57,C60,C61,C65,C66,C67,C68,C69,C70,C71,C72,C76,C77,C78,C79,C81,C82,C83","0.1 uF","","","","1276-1006-1-ND","https://www.digikey.com/en/products/detail/samsung-electro-mechanics/CL10B104KA8NNNC/3886664"
-"C18,C19,C20,C25","10u","","","","1276-CL32B106KAJ4PNECT-ND","https://www.digikey.com/en/products/detail/samsung-electro-mechanics/CL32B106KAJ4PNE/11487783?s=N4IgTCBcDaIMIBkDMYBCBGADANgNIEEApAFgAUA5AAhAF0BfIA"
-"C30,C52,C54","2.2 uF","","","","1276-2016-1-ND","https://www.digikey.com/en/products/detail/samsung-electro-mechanics/CL10B225KP8NFNC/3887674?s=N4IgTCBcDaIMIBkCMAGAQmMBWA0gBQA4A5AMSJAF0BfIA"
-"C50","12 pF","","","ADC input bandwidth","1276-1168-1-ND","https://www.digikey.com/en/products/detail/samsung-electro-mechanics/CL10C471JB8NNNC/3886826"
-"C51,C55","C-Opt","","","DAC ouptut bandwidth","","Assortment"
-"C58,C59","1 uF","","","","1276-1945-1-ND","https://www.digikey.com/en/products/detail/samsung-electro-mechanics/CL10B105KP8NFNC/3887603?s=N4IgTCBcDaIMIBkCMAGAQqgrAaQAoA4A5AMUJAF0BfIA"
-"C74","C","","","","","Assortment"
-"D1,D2,D3,D4,D5,D6,D8,D9","LED","","","","1516-QBLP601D-OCT-ND","https://www.digikey.com/en/products/detail/qt-brightek-qtb/QBLP601D-O/13278855"
-"D7","SS423(TE85L,F)","","","","1SS423(TE85LF)CT-ND ","https://www.digikey.com/en/products/detail/toshiba-semiconductor-and-storage/1SS423-TE85L-F/4305011"
-"D10,D11,D12","SMF20A","","","","18-SMF4L20AT1GCT-ND ","https://www.digikey.com/en/products/detail/littelfuse-inc/SMF4L20AT1G/21320688"
-"F1,F2,F3","Fuse_Small","","","","",""
-"FB1,FB2,FB3,FB4","LI0603G221R-10","","","","240-2368-1-ND","https://www.digikey.com/en/products/detail/laird-signal-integrity-products/LI0603G221R-10/710125"
-"FH1,FH2,FH3","Fuse_Holder","","","","F1889-ND","https://www.digikey.com/en/products/detail/littelfuse-inc/01550900M/2519878?s=N4IgTCBcDaIAwEYCsS4E45wLYgLoF8g"
-"FID1,FID2,FID3","Fiducial","","","","","NA"
-"GNDA1,GNDA2,GNDA3,GNDA4,GNDA5,GNDA6,GNDA7,GNDA8,GNDA9,GNDA10,GNDA11,GNDA12,GNDA13,GNDA14,GNDA15,GNDA16,GNDA17,GNDD1,GNDD2,GNDD3,GNDD4,GNDD5,GNDD6,GNDD7,GNDD8,GNDD9","TestPoint","","","","","NA"
-"H1,H2,H3,H4","MountingHole","","","","","NA"
-"J1","Conn_01x04_Shielded","","","","","https://www.binder-usa.com/us-en/products/automation-technology/m8/86-6319-1121-00004-m8-male-panel-mount-connector-4-shieldable-tht-ip67-front-fastened"
-"J2,J3,J4","Conn_02x10_Odd_Even","","","","WM20559-ND","https://www.digikey.com/en/products/detail/molex/0878342019/3303513?s=N4IgTCBcDaILIHsA2BTAHgAgAwA4DsOAzACxhYCMAnCALoC%2BQA"
-"J5,J6,J8","Coaxial Con Amphenol 031-5538-10RFX","","","","ARF1691-ND","https://www.digikey.com/en/products/detail/amphenol-rf/031-5538-10RFX/2041817"
-"J7","Conn_01x04_Shielded","","","","","https://www.binder-usa.com/us-en/products/automation-technology/m8/86-6618-1121-00004-m8-female-panel-mount-connector-4-shieldable-tht-ip67-m10x075-front-fastened"
-"JP5,JP6,JP7","Jumper_3_Bridged12","","","","P0.0GCT-ND ","https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERJ-3GEY0R00V/135656"
-"PowerGood1,TP+1,TP+2,TP+3.1,TP+3.2,TP-1,TP-2,TP_A+1,TP_A-1,TP_A3.1,TP_ADC_MSB1,TP_Clamped1,TP_Clk_A1,TP_Clk_D2,TP_D3.1,TP_IA_X1,TP_IA_Y1,TP_IB_X1,TP_IB_Y1,TP_In1,TP_Offset1,TP_Range1,TP_Sum1,TP_Vcom1,TP_X_A1,TP_X_B1,TP_X_MSB1,TP_X_Offset1,TP_X_Out1,TP_Y_A1,TP_Y_B1,TP_Y_MSB1,TP_Y_Offset1,TP_Y_Out1","TestPoint","","","","","NA"
-"Q1,Q2,Q3,Q4","MMBT3904TT1G","","","","MMBT3904TT1GOSCT-ND","https://www.digikey.com/en/products/detail/onsemi/MMBT3904TT1G/919603"
-"R1,R83","33k","","0.1%","Sets voltage reference","P33KBDCT-ND","https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERA-3ARB333V/3073660"
-"R2,R16","140k","","0.1%","Sets voltage reference","A124703CT-ND","https://www.digikey.com/en/products/detail/te-connectivity-passive-product/RN73C1J140KBTD/6557649"
-"R3,R14,R86,R89","3.3k","","meh","Sets LED brightness","P3.3KGCT-ND","https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERJ-3GEYJ332V/135886"
-"R4","750","","1%","Sets power regulator current limit","","Assortment"
-"R5,R17","1K","0.15","1%","Sets power regulator current limit","A139971CT-ND ","https://www.digikey.com/en/products/detail/te-connectivity-passive-product/RQ73C1J1K0BTD/9479919"
-"R6,R85","5k","","meh","Power Good pullup","","Assortment"
-"R7,R9,R15,R21","13.1k","","meh","Sets LED brightness","","Assortment"
-"R8,R18","10k","","meh","Power Good pullup","","Assortment"
-"R10,R87","82.5k","0.1","0.1%","Sets Power Good level","P82.5KDBCT-ND","https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERA-3AEB8252V/2026921"
-"R11,R13,R20,R88","10k","0.1","0.1%","Sets Power Good level","P10KBDCT-ND","https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERA-3ARB103V/3073635"
-"R12,R19","392K","0.1","0.1%","Sets Power Good level","P392KHCT-ND","https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERJ-3EKF3923V/196332"
-"R22","10k","","meh","Pullup for output enable on ADC","","Assortment"
-"R23,R98,R99,R100","10k","","meh","Power Good LED driver","","Assortment"
-"R24,R25,R26,R97","10k","","meh","Power Good load","","Assortment"
-"R27","10.2k","0.15","0.1%","ADC offset preset","A139979CT-ND","https://www.digikey.com/en/products/detail/te-connectivity-passive-product/RQ73C1J10K2BTD/9479927"
-"R28","37.4k","","0.1%","ADC offset preset","","Assortment"
-"R29,R30","2.32k","0.1","0.1%","DAC gain preset","P2.32KDBCT-ND ","https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERA-3AEB2321V/2026779"
-"R31,R32,R33,R36","25","0.1","0.1%","DAC output load","13-RP0603BRD0725RLCT-ND","https://www.digikey.com/en/products/detail/yageo/RP0603BRD0725RL/16916489"
-"R34,R35","25","0.1","0.1%","ADC input load","13-RP0603BRD0725RLCT-ND","https://www.digikey.com/en/products/detail/yageo/RP0603BRD0725RL/16916489"
-"R37,R38,R39,R40","301","0.15","0.1%","Sets differential output voltage range","1712-RA73F1J226RBTDCT-ND","https://www.digikey.com/en/products/detail/te-connectivity-passive-product/RA73F1J226RBTD/16030916"
-"R41,R42,R45,R46","4.99K","0.52","0.1%","Differential gain resistor, sets ratio between single ended and differential output range","541-9840-1-ND","https://www.digikey.com/en/products/detail/vishay-dale/TNPW12064K99BYEN/9562428"
-"R43,R44","1K","0.15","0.1%","Feedback on ADC buffer","A139971CT-ND","https://www.digikey.com/en/products/detail/te-connectivity-passive-product/RQ73C1J1K0BTD/9479919"
-"R47,R48,R50,R51","0","","","Differential output current limiting (or not)","A106051CT-ND","https://www.digikey.com/en/products/detail/te-connectivity-passive-product/CRG0603ZR/2380828"
-"R49","1K","0.15","0.1%","Part of ADC gain circuit responsible for Vcom","A139971CT-ND","https://www.digikey.com/en/products/detail/te-connectivity-passive-product/RQ73C1J4K99BTD/9479768"
-"R52,R53,R54,R55,R56,R57","1K","0.15","0.1%","Input summing to single-ended stage","A139971CT-ND","https://www.digikey.com/en/products/detail/te-connectivity-passive-product/RQ73C1J4K99BTD/9479768"
-"R58","500","","0.1%","Part of gain circuit on ADC buffer op amp responsible for video signal in","541-3301-1-ND ","https://www.digikey.com/en/products/detail/vishay-dale/TNPU0603500RAZEN00/6615936"
-"R59,R60","1.82K","0.1","0.1%","DAC single ended gain resistor","P1.82KDBCT-ND ","https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERA-3AEB1821V/2026770"
-"R61","500","a problem","0.1%","Pre-clamping part of gain circuit on ADC buffer op amp responsible for video signal in","541-3301-1-ND ","https://www.digikey.com/en/products/detail/vishay-dale/TNPU0603500RAZEN00/6615936"
-"R62,R63","0","","","Output current limiting (or not) on DAC single ended","A106051CT-ND","https://www.digikey.com/en/products/detail/te-connectivity-passive-product/CRG0603ZR/2380828"
-"R64","500","0.1","0.05%","ADC Gain preset","P20KBECT-ND ","https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERA-3ARW203V/3073699"
-"R65,R77","22k","0.2","0.1%","DAC offset preset","P20122CT-ND","https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERJ-PB3B2202V/6212905"
-"R66,R67","4.99K","0.15","0.1%","ADC offset summing","A139820CT-ND","https://www.digikey.com/en/products/detail/te-connectivity-passive-product/RQ73C1J4K99BTD/9479768"
-"R68,R79","12k","0.2","0.1%","DAC offset preset","P20094CT-ND","https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERJ-PB3B1202V/6212877"
-"R69,R78","13k","0.2","0.1%","DAC offset preset","P20098CT-ND","https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERJ-PB3B1302V/6212881"
-"R70,R73","R","","","Optional axial resistor","","DNP"
-"R71,R82","20k","0.2","0.1%","DAC offset preset","P20118CT-ND ","https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERJ-PB3B2002V/6212901"
-"R72,R76","4.75k","0.1","0.1%","DAC gain preset","P4.75KDBCT-ND","https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERA-3AEB4751V/2026809"
-"R74,R80","R","0.1","0.1%","DAC gain preset","","Assortment"
-"R75,R81","1.82K","0.15","0.1%","DAC gain adjustable preset","A140440CT-ND ","https://www.digikey.com/en/products/detail/te-connectivity-passive-product/RQ73C1J1K82BTD/9480388"
-"R84","1.5K","0.1","0.1%","Sets power regulator current limit","P1.5KDBCT-ND","https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERA-3AEB152V/1465858"
-"R90","14k","0.1","0.1%","ADC offset preset","10-ERA-3ARB1402VCT-ND","https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERA-3ARB1402V/6049053"
-"R91","12.1k","0.1","0.1%","ADC offset preset","P12.1KDBCT-ND","https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERA-3AEB1212V/2026845"
-"R92","10.5k","0.15","0.1%","ADC offset preset","A139980CT-ND","https://www.digikey.com/en/products/detail/te-connectivity-passive-product/RQ73C1J10K5BTD/9479928"
-"R93","18.7k","0.1","0.1%","ADC offset preset","P18.7KDBCT-ND","https://www.digikey.com/en/products/detail/panasonic-electronic-components/ERA-3AEB1872V/2026861"
-"R94","1K","0.1","0.05%","ADC Gain preset","",""
-"R95","2K","0.15","0.1%","ADC Gain preset","A140444CT-ND","https://www.digikey.com/en/products/detail/te-connectivity-passive-product/RQ73C1J2K0BTD/9480392"
-"R96","R","","","Optional ADC attenuator feedback resistor (why?)","","DNP"
-"RV1,RV6","20K","","","","3224W-202ECT-ND","https://www.digikey.com/en/products/detail/bourns-inc/3224W-1-202E/225658"
-"RV2,RV5,RV7","20K","","","","118-3224W-1-203ECT-ND","https://www.digikey.com/en/products/detail/bourns-inc/3224W-1-203E/225661"
-"RV3","2K","","","","3224W-202ECT-ND","https://www.digikey.com/en/products/detail/bourns-inc/3224W-1-202E/225658"
-"SW1,SW2,SW3,SW4,SW5,SW6","~","","","","563-1037-1-ND","https://www.digikey.com/en/products/detail/nidec-components-corporation/CS-4-14NTA/948348"
-"U1,U2,U19","LT3045","","","","505-LT3045IMSE#TRPBFCT-ND","https://www.digikey.com/en/products/detail/analog-devices-inc/LT3045IMSE-TRPBF/6235368"
-"U3","LT3094_MSE","","","","505-LT3094EMSE#TRPBFCT-ND","https://www.digikey.com/en/products/detail/analog-devices-inc/LT3094EMSE-TRPBF/9606784"
-"U4,U5,U6","SN74ALVCH16374DGGR","","","","296-1144-1-ND","https://www.digikey.com/en/products/detail/texas-instruments/SN74ALVCH16374DGGR/276787"
-"U7,U8","AD9744ARUZ","","","","505-AD9744ARUZ-ND","https://www.digikey.com/en/products/detail/analog-devices-inc/AD9744ARUZ/936549"
-"U9","LTC2246HLX#PBF","","","","LTC2246HLX#PBF-ND","https://www.digikey.com/en/products/detail/analog-devices-inc/LTC2246HLX-PBF/1931208"
-"U10","AD8137YRZ","","","","505-AD8137YRZ-ND","https://www.digikey.com/en/products/detail/analog-devices-inc/AD8137YRZ/669749"
-"U11,U12","THS4151","","","","296-10054-5-ND","https://www.digikey.com/en/products/detail/texas-instruments/THS4151ID/380601"
-"U13,U14,U15,U16,U17,U18","LT1363","","","","505-LT1363CS8#TRPBFCT-ND","https://www.digikey.com/en/products/detail/analog-devices-inc/LT1363CS8-TRPBF/958986"
-"U20","7421","","","","296-SN74HCS21PWRCT-ND","https://www.digikey.com/en/products/detail/SN74HCS21PWR/12165103"
+References,Value,Footprint,Quantity,DK Part Number,Datasheet,Context
+C50,12 pF,C_0603_1608Metric,1,1276-1168-1-ND,CL10C471JB8NNNC,ADC input bandwidth
+C12 C13 C15 C16 C24 C26 C27 C28 C29 C31 C32 C34 C35 C36 C37 C38 C39 C40 C41 C44 C45 C47 C48 C49 C53 C56 C57 C60 C61 C65 C66 C67 C68 C69 C70 C71 C72 C76 C77 C78 C79 C81 C82 C83,0.1 uF,C_0603_1608Metric,44,1276-1006-1-ND,~,
+C58 C59,1 uF,C_0603_1608Metric,2,1276-1945-1-ND,~,
+C30 C52 C54,2.2 uF,C_0603_1608Metric,3,1276-2016-1-ND,~,
+C3 C4 C5 C6 C14 C17 C21 C22 C33 C42 C43 C62 C63 C64 C73 C75 C80 C84 C85 C86 C87 C88 C89,4.7u,C_1206_3216Metric,23,1276-3178-1-ND,~,
+C1 C2 C11 C46,10u,C_1210_3225Metric,4,1276-CL32B106KAJ4PNECT-ND,~,
+C18 C19 C20 C25,10u,C_1210_3225_Kelvin_Connections,4,1276-CL32B106KAJ4PNECT-ND,~,
+C7 C8 C9 C10,100 uF,CAP_20SVPF120M,4,P16498CT-ND,https://industrial.panasonic.com/ww/products/pt/os-con/models/20SVPF120M,
+C74,C,C_0603_1608Metric,1,,~,
+C51 C55,C-Opt,C_0603_1608Metric,2,,~,DAC output bandwidth
+D1-D8_silk_labels,Cable Pinout 1-8 Back,Cable Pinout 1-8 Back,1,,~,
+D9-D16_silk_labels,Cable Pinout 9-16 Back,Cable Pinout 9-16 Back,1,,~,
+D1 D2 D3 D4 D5 D6 D8 D9,LED,LED_0603_1608Metric,8,1516-QBLP601D-OCT-ND,~,
+D10 D11 D12,SMF20A,D_SMF,3,18-SMF4L20AT1GCT-ND,https://www.littelfuse.com/~/media/electronics/datasheets/tvs_diodes/littelfuse_tvs_diode_smf4l_datasheet.pdf.pdf,
+D7,"SS423(TE85L,F)",SOT-416,1,1SS423(TE85LF)CT-ND,https://toshiba.semicon-storage.com/info/1SS423_datasheet_en_20220720.pdf?did=4401&prodName=1SS423,
+F1 F2 F3,Fuse_Small,,3,,~,
+FB1 FB2 FB3 FB4,LI0603G221R-10,L_0603_1608Metric,4,240-2368-1-ND,~,
+FH1 FH2 FH3,Fuse_Holder,01550900M,3,F1889-ND,https://www.littelfuse.com/~/media/electronics/datasheets/fuses/littelfuse_fuse_154_154t_154l_154tl_datasheet.pdf.pdf,
+J5 J6 J8,Coaxial Con Amphenol 031-5538-10RFX,BNC_Amphenol_B6252HB-NPP3G-50_Horizontal_Flipable,3,ARF1691-ND, ~,
+J1,Conn_01x04_Shielded,M8 Right Angle Panel Mount Connector,1,,~,
+J7,Conn_01x04_Shielded,Female M8 Right Angle Panel Mount Connector,1,,~,
+J2 J3 J4,Conn_02x10_Odd_Even,IDC-Header_2x10_P2.54mm_Vertical_No_Pin_1_Mark,3,WM20559-ND,~,
+JP5 JP6 JP7,Jumper_3_Bridged12,R_0603_1608Metric 2 pos sellector,3,P0.0GCT-ND,~,
+Q1 Q2 Q3 Q4,MMBT3904TT1G,SOT-416,4,MMBT3904TT1GOSCT-ND,https://www.onsemi.com/pdf/datasheet/mmbt3904tt1-d.pdf,
+R47 R48 R50 R51 R62 R63 R74 R80,0,R_0603_1608Metric,8,A106051CT-ND,~,Differential output current limiting (or not) Output current limiting (or not) on DAC single ended DAC gain preset
+R31 R32 R33 R34 R35 R36,25,R_0603_1608Metric,6,13-RP0603BRD0725RLCT-ND,~,DAC output load ADC input load
+R37 R38 R39 R40,301,R_0603_1608Metric,4,1712-RA73F1J226RBTDCT-ND,~,Sets differential output voltage range
+R58,500,R_0603_1608Metric,1,541-3301-1-ND,~,Part of gain circuit on ADC buffer op amp responsible for video signal in
+R61,500,R_0805_2012Metric,1,541-3301-1-ND,~,Pre-clamping part of gain circuit on ADC buffer op amp responsible for video signal in
+R64,500,R_0603_1608Metric,1,P20KBECT-ND,~,ADC Gain preset
+R4,750,R_0603_1608Metric,1,P750HCT-ND,~,Sets power regulator current limit
+R5 R17,1K,R_0603_1608Metric,2,A139971CT-ND,~,Sets power regulator current limit
+R43 R44 R49 R52 R53 R54 R55 R56 R57,1K,R_0603_1608Metric,9,A139971CT-ND,~,Feedback on ADC buffer Part of ADC gain circuit responsible for Vcom Input summing to single-ended stage
+R94,1K,R_0603_1608Metric,1,P1.00KHCT-ND,~,ADC Gain preset
+R84,1.5K,R_0603_1608Metric,1,P1.5KDBCT-ND,~,Sets power regulator current limit
+R59 R60,1.82K,R_0603_1608Metric,2,P1.82KDBCT-ND,~,DAC single ended gain resistor
+R75 R81,1.82K,R_0603_1608Metric,2,A140440CT-ND,~,DAC gain adjustable preset
+R95,2K,R_0603_1608Metric,1,A140444CT-ND,~,ADC Gain preset
+R29 R30,2.32k,R_0603_1608Metric,2,P2.32KDBCT-ND,~,DAC gain preset
+R3 R14 R86 R89,3.3k,R_0603_1608Metric,4,P3.3KGCT-ND,~,Sets LED brightness
+R72 R76,4.75k,R_0603_1608Metric,2,P4.75KDBCT-ND,~,DAC gain preset
+R41 R42 R45 R46,4.99K,R_1206_3216Metric,4,541-9840-1-ND,~,"Differential gain resistor, sets ratio between single ended and differential output range"
+R6 R85,4.99k,R_0603_1608Metric,2,P4.99KHCT-ND,~,Power Good pullup
+R66 R67,4.99K,R_0603_1608Metric,2,A139820CT-ND,~,ADC offset summing
+R8 R18 R22 R23 R24 R25 R26 R97 R98 R99 R100,10k,R_0603_1608Metric,11,P10KBZCT-ND,~,Power Good pullup Pullup for output enable on ADC Power Good LED driver Power Good load
+R11 R13 R20 R88,10k,R_0603_1608Metric,4,P10KBDCT-ND,~,Sets Power Good level
+R27,10.2k,R_0603_1608Metric,1,A139979CT-ND,~,ADC offset preset
+R92,10.5k,R_0603_1608Metric,1,A139980CT-ND,~,ADC offset preset
+R68 R79,12k,R_0603_1608Metric,2,P20094CT-ND,~,DAC offset preset
+R91,12.1k,R_0603_1608Metric,1,P12.1KDBCT-ND,~,ADC offset preset
+R7 R9 R15 R21,13k,R_0603_1608Metric,4,P13KGCT-ND,~,Sets LED brightness
+R69 R78,13k,R_0603_1608Metric,2,P20098CT-ND,~,DAC offset preset
+R90,14k,R_0603_1608Metric,1,10-ERA-3ARB1402VCT-ND,~,ADC offset preset
+R93,18.7k,R_0603_1608Metric,1,P18.7KDBCT-ND,~,ADC offset preset
+R71 R82,20k,R_0603_1608Metric,2,P20118CT-ND,~,DAC offset preset
+R65 R77,22k,R_0603_1608Metric,2,P20122CT-ND,~,DAC offset preset
+R1 R83,33k,R_0603_1608Metric,2,P33KBDCT-ND,~,Sets voltage reference
+R28,37.4k,R_0603_1608Metric,1,P20150CT-ND,~,ADC offset preset
+R10 R87,82.5k,R_0603_1608Metric,2,P82.5KDBCT-ND,~,Sets Power Good level
+R2 R16,140k,R_0603_1608Metric,2,A124703CT-ND,~,Sets voltage reference
+R12 R19,392K,R_0603_1608Metric,2,P392KHCT-ND,~,Sets Power Good level
+RV3,2K,Potentiometer_Bourns_3224W_Vertical,1,3224W-202ECT-ND,https://www.bourns.com/docs/Product-Datasheets/3224.pdf,
+RV1 RV2 RV5 RV6 RV7,20K,Potentiometer_Bourns_3224W_Vertical,5,3224W-202ECT-ND 118-3224W-1-203ECT-ND,https://www.bourns.com/docs/Product-Datasheets/3224.pdf,
+SW1 SW2 SW3 SW4 SW5 SW6,~,Nidec SP4T CS-4-14NTA,6,563-1037-1-ND,https://www.nidec-copal-electronics.com/e/catalog/switch/cs-4.pdf,
+U20,7421,TSSOP-14_4.4x5mm_P0.65mm,1,296-SN74HCS21PWRCT-ND,https://www.ti.com/lit/ds/symlink/sn74hcs21.pdf,
+U10,AD8137YRZ,SOIC-8_3.9x4.9mm_P1.27mm,1,505-AD8137YRZ-ND,,
+U7 U8,AD9744ARUZ,TSSOP-28_4.4x9.7mm_P0.65mm,2,505-AD9744ARUZ-ND,https://www.analog.com/media/en/technical-documentation/data-sheets/AD9744.pdf,
+U13 U14 U15 U16 U17 U18,LT1363,SOIC-8_3.9x4.9mm_P1.27mm,6,505-LT1363CS8#TRPBFCT-ND,https://www.analog.com/media/en/technical-documentation/data-sheets/1363fa.pdf,
+U1 U2 U19,LT3045,MSOP-12-1EP_3x4mm_P0.65mm_EP1.65x2.85mm_ThermalVias,3,505-LT3045IMSE#TRPBFCT-ND,https://www.analog.com/media/en/technical-documentation/data-sheets/LT3045.pdf,
+U3,LT3094_MSE,MSOP-12-1EP_3x4mm_P0.65mm_EP1.65x2.85mm_ThermalVias,1,505-LT3094EMSE#TRPBFCT-ND,https://www.analog.com/media/en/technical-documentation/data-sheets/LT3094.pdf,
+U9,LTC2246HLX#PBF,LQFP-48_7x7mm_P0.5mm,1,LTC2246HLX#PBF-ND,,
+U4 U5 U6,SN74ALVCH16374DGGR,TSSOP-48_6.1x12.5mm_P0.5mm,3,296-1144-1-ND,,
+U11 U12,THS4151,HVSSOP-8-1_Expanded_Thermal_Pad_P0.65mm_EP1.57x1.89mm_ThermalVias,2,296-10054-5-ND,https://www.ti.com/lit/ds/symlink/ths4150.pdf,
