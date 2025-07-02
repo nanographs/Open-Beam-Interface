@@ -1,5 +1,5 @@
-Row,Description,Part,References,Value,Footprint,Quantity Per PCB,Status,Datasheet,Sim.Device,Sim.Pins
-1,"1000V 1A General Purpose Rectifier Diode, DO-41",1N4007,D1,1N4007,D_DO-41_SOD81_P10.16mm_Horizontal,1, ,http://www.vishay.com/docs/88503/1n4001.pdf,D,1=K 2=A
-2,"Generic shielded connector, single row, 01x03, script generated (kicad-library-utils/schlib/autogen/connector/)",M8_conn_01x03_Pin_Shielded,J7,M8_conn_01x03_Pin_Shielded,M8_conn_01x03_Pin_Shielded_Right_Angle,1, ,~,,
-3,"Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)",Conn_01x02,J1 J2 J3 J4 J5 J6,X_Internal,PinHeader_1x02_P2.54mm_Vertical,6, ,~,,
-4,,Omron_G6K-2P-RF_DPDT_Relay,RY1,Omron G6K-2P-RF,Omron G6K-2P-RF DPDT Relay,1, ,https://www.digikey.com/en/products/detail/omron-electronics-inc-emc-div/G6K-2P-RF-DC5/5864630,,
+References,Value,Footprint,Quantity,DK Part Number,Datasheet,Context
+D1,1N4007,D_DO-41_SOD81_P10.16mm_Horizontal,1,,http://www.vishay.com/docs/88503/1n4001.pdf,
+J7,M8_conn_01x03_Pin_Shielded,M8_conn_01x03_Pin_Shielded_Right_Angle,1,,~,
+J1 J2 J3 J4 J5 J6,X_Internal,PinHeader_1x02_P2.54mm_Vertical,6,,~,
+RY1,Omron G6K-2P-RF,Omron G6K-2P-RF DPDT Relay,1,,https://www.digikey.com/en/products/detail/omron-electronics-inc-emc-div/G6K-2P-RF-DC5/5864630,
