@@ -4,22 +4,21 @@ import enum
 import struct
 import time
 import asyncio
+import logging
+
 from amaranth import *
-from amaranth.lib import enum, data, io, wiring
-from amaranth.lib.fifo import SyncFIFOBuffered
+from amaranth.lib import enum, data, io, stream, wiring
 from amaranth.lib.wiring import In, Out, flipped
 
-from glasgow.applet import GlasgowApplet
-from glasgow.support.logging import dump_hex
+from glasgow.applet import GlasgowAppletV2
 from glasgow.support.endpoint import ServerEndpoint
-from glasgow.device import GlasgowDeviceError
 
-from usb1 import USBError
-
-from obi.commands.structs import CmdType, BeamType, OutputMode, Transforms
-from obi.commands.low_level_commands import Command, ExternalCtrlCommand
-
-import logging
+from obi.applet.open_beam_interface.modules.structs import Transforms
+from obi.commands import *
+from obi.applet.open_beam_interface.modules import (
+    Transforms, BlankRequest,BusSignature, DwellTime, DACStream, SuperDACStream, 
+    PipelinedLoopbackAdapter, BusController, FastBusController, 
+    Supersampler, RasterScanner, CommandParser)
 
 # Overview of (linear) processing pipeline:
 # 1. PC software (in: user input, out: bytes)
@@ -35,662 +34,9 @@ import logging
 # 11. Glasgow software/framework (in: bytes, out: same bytes; vendor-provided)
 # 12. PC software (in: bytes, out: displayed image)
 
-
-def StreamSignature(data_layout):
-    return wiring.Signature({
-        "payload":  Out(data_layout),
-        "valid": Out(1),
-        "ready": In(1)
-    })
-
-class BlankRequest(data.Struct):
-    enable: 1
-    request: 1
-
-
-#=========================================================================
-
-class SkidBuffer(wiring.Component):
-    def __init__(self, data_layout, *, depth):
-        self.width = Shape.cast(data_layout).width
-        self.depth = depth
-        super().__init__({
-            "i": In(StreamSignature(data_layout)),
-            "o": Out(StreamSignature(data_layout)),
-        })
-
-    def elaborate(self, platform):
-        m = Module()
-
-        m.submodules.fifo = fifo = \
-            SyncFIFOBuffered(depth=self.depth, width=self.width)
-        m.d.comb += [
-            fifo.w_data.eq(self.i.payload),
-            fifo.w_en.eq(self.i.valid),
-            self.i.ready.eq(fifo.level <= 1),
-            self.o.payload.eq(fifo.r_data),
-            self.o.valid.eq(fifo.r_rdy),
-            fifo.r_en.eq(self.o.ready),
-        ]
-
-        return m
-
-#=========================================================================
-BusSignature = wiring.Signature({
-    "adc_clk":  Out(1),
-    "adc_le_clk":   Out(1),
-    "adc_oe":   Out(1),
-
-    "dac_clk":  Out(1),
-    "dac_x_le_clk": Out(1),
-    "dac_y_le_clk": Out(1),
-
-    "data_i":   In(15),
-    "data_o":   Out(15),
-    "data_oe":  Out(1),
-})
-
-DwellTime = unsigned(16)
-
-class PipelinedLoopbackAdapter(wiring.Component):
-    loopback_stream: In(unsigned(14))
-    bus: Out(BusSignature)
-
-    def __init__(self, adc_latency: int):
-        self.adc_latency = adc_latency
-        super().__init__()
-
-    def elaborate(self, platform):
-        m = Module()
-
-        prev_bus_adc_oe = Signal()
-        adc_oe_falling = Signal()
-        m.d.sync += prev_bus_adc_oe.eq(self.bus.adc_oe)
-        m.d.comb += adc_oe_falling.eq(prev_bus_adc_oe & ~self.bus.adc_oe)
-
-        shift_register = Signal(14*self.adc_latency)
-
-        with m.If(adc_oe_falling):
-            m.d.sync += shift_register.eq((shift_register << 14) | self.loopback_stream)
-
-        m.d.comb += self.bus.data_i.eq(shift_register.word_select(self.adc_latency-1, 14))
-
-        return m
-
-
-class DACStream(data.Struct):
-    dac_x_code: 14
-    padding_x: 2
-    dac_y_code: 14
-    padding_x: 2
-    dwell_time: 16
-    blank: BlankRequest
-    delay: 3
-
-
-class SuperDACStream(data.Struct):
-    dac_x_code: 14
-    padding_x: 2
-    dac_y_code: 14
-    padding_y: 2
-    blank: BlankRequest
-    last:       1
-    delay: 3
-
-
-
-class BusController(wiring.Component):
-    # FPGA-side interface
-    dac_stream: In(StreamSignature(SuperDACStream))
-
-    adc_stream: Out(StreamSignature(data.StructLayout({
-        "adc_code": 14,
-        "adc_ovf":  1,
-        "last":     1,
-    })))
-
-    # IO-side interface
-    bus: Out(BusSignature)
-    inline_blank: Out(BlankRequest)
-
-    def __init__(self, *, adc_half_period: int, adc_latency: int, transforms: Transforms = Transforms(False,False,False)):
-        assert (adc_half_period * 2) >= 6, "ADC period must be large enough for FSM latency"
-        self.adc_half_period = adc_half_period
-        self.adc_latency     = adc_latency
-        self.transforms = transforms
-
-        super().__init__()
-
-        self.dac_x_code_transformed = Signal.like(self.dac_stream.payload.dac_x_code)
-        self.dac_y_code_transformed = Signal.like(self.dac_stream.payload.dac_y_code)
-
-    def elaborate(self, platform):
-        m = Module()
-
-        adc_cycles = Signal(range(self.adc_half_period))
-        with m.If(adc_cycles == self.adc_half_period - 1):
-            m.d.sync += adc_cycles.eq(0)
-            m.d.sync += self.bus.adc_clk.eq(~self.bus.adc_clk)
-        with m.Else():
-            m.d.sync += adc_cycles.eq(adc_cycles + 1)
-        # ADC and DAC share the bus and have to work in tandem. The ADC conversion starts simultaneously
-        # with the DAC update, so the entire ADC period is available for DAC-scope-ADC propagation.
-        m.d.comb += self.bus.dac_clk.eq(self.bus.adc_clk)
-
-
-        # Queue; MSB = most recent sample, LSB = least recent sample
-        accept_sample = Signal(self.adc_latency)
-        # Queue; as above
-        last_sample = Signal(self.adc_latency)
-
-        m.submodules.skid_buffer = skid_buffer = \
-            SkidBuffer(self.adc_stream.payload.shape(), depth=self.adc_latency)
-        wiring.connect(m, flipped(self.adc_stream), skid_buffer.o)
-
-        adc_stream_data = Signal.like(self.adc_stream.payload) # FIXME: will not be needed after FIFOs have shapes
-        m.d.comb += [
-            # Cat(adc_stream_data.adc_code,
-            #     adc_stream_data.adc_ovf).eq(self.bus.i),
-            adc_stream_data.last.eq(last_sample[self.adc_latency-1]),
-            skid_buffer.i.payload.eq(adc_stream_data),
-        ]
-
-        dac_stream_data = Signal.like(self.dac_stream.payload)
-        
-        x = Signal.like(self.dac_x_code_transformed)
-        y = Signal.like(self.dac_y_code_transformed)
-
-        m.d.comb += adc_stream_data.adc_code.eq(self.bus.data_i)
-
-        stalled = Signal()
-
-        with m.FSM():
-            with m.State("ADC_Wait"):
-                with m.If(self.bus.adc_clk & (adc_cycles == 0)):
-                    m.d.comb += self.bus.adc_le_clk.eq(1)
-                    m.d.comb += self.bus.adc_oe.eq(1) #give bus time to stabilize before sampling
-                    m.next = "ADC_Read"
-
-            with m.State("ADC_Read"):
-                #m.d.comb += self.bus.adc_le_clk.eq(1)
-                m.d.comb += self.bus.adc_oe.eq(1)
-                # buffers up to self.adc_latency samples if skid_buffer.i.ready
-                m.d.comb += skid_buffer.i.valid.eq(accept_sample[self.adc_latency-1])
-                with m.If(self.dac_stream.valid & skid_buffer.i.ready):
-                    # Latch DAC codes from input stream.
-                    m.d.comb += self.dac_stream.ready.eq(1)
-                    m.d.sync += dac_stream_data.eq(self.dac_stream.payload)
-                    # Transforms
-                    # Rotate first so that x is x and y is y, then flip x and y as needed
-                    if self.transforms.rotate90:
-                        m.d.comb += x.eq(self.dac_stream.payload.dac_y_code)
-                        m.d.comb += y.eq(self.dac_stream.payload.dac_x_code)
-                    else:
-                        m.d.comb += x.eq(self.dac_stream.payload.dac_x_code)
-                        m.d.comb += y.eq(self.dac_stream.payload.dac_y_code)
-                    
-                    if self.transforms.xflip:
-                        m.d.sync += self.dac_x_code_transformed.eq(16383-x)
-                    else:
-                        m.d.sync += self.dac_x_code_transformed.eq(x)
-
-                    if self.transforms.yflip:
-                        m.d.sync += self.dac_y_code_transformed.eq(16383-y)
-                    else:
-                        m.d.sync += self.dac_y_code_transformed.eq(y)
-
-                    # Transmit blanking state from input stream
-                    m.d.comb += self.inline_blank.eq(self.dac_stream.payload.blank)
-                    # Schedule ADC sample for these DAC codes to be output.
-                    m.d.sync += accept_sample.eq(Cat(1, accept_sample))
-                    # Carry over the flag for last sample [of averaging window] to the output.
-                    m.d.sync += last_sample.eq(Cat(self.dac_stream.payload.last, last_sample))
-                with m.Else():
-                    # Leave DAC codes as they are.
-                    # Schedule ADC sample for these DAC codes to be discarded.
-                    m.d.sync += accept_sample.eq(Cat(0, accept_sample))
-                    # The value of this flag is discarded, so it doesn't matter what it is.
-                    m.d.sync += last_sample.eq(Cat(0, last_sample))
-                m.next = "X_DAC_Write"
-
-            with m.State("X_DAC_Write"):
-                m.d.comb += [
-                    self.bus.data_o.eq(self.dac_x_code_transformed),
-                    self.bus.data_oe.eq(1),
-                ]
-                m.next = "X_DAC_Write_2"
-
-            with m.State("X_DAC_Write_2"):
-                m.d.comb += [
-                    self.bus.data_o.eq(self.dac_x_code_transformed),
-                    self.bus.data_oe.eq(1),
-                    self.bus.dac_x_le_clk.eq(1),
-                ]
-                m.next = "Y_DAC_Write"
-
-            with m.State("Y_DAC_Write"):
-                m.d.comb += [
-                    self.bus.data_o.eq(self.dac_y_code_transformed),
-                    self.bus.data_oe.eq(1),
-                ]
-                m.next = "Y_DAC_Write_2"
-
-            with m.State("Y_DAC_Write_2"):
-                m.d.comb += [
-                    self.bus.data_o.eq(self.dac_y_code_transformed),
-                    self.bus.data_oe.eq(1),
-                    self.bus.dac_y_le_clk.eq(1),
-                ]
-                m.next = "ADC_Wait"
-
-        return m
-
-class FastBusController(wiring.Component):
-    # FPGA-side interface
-    dac_stream: In(StreamSignature(SuperDACStream))
-
-
-    # IO-side interface
-    bus: Out(BusSignature)
-    inline_blank: Out(BlankRequest)
-
-    # Ignored
-    adc_stream: Out(StreamSignature(data.StructLayout({
-        "adc_code": 14,
-        "adc_ovf":  1,
-        "last":     1,
-    })))
-
-    def __init__(self):
-        self.delay = 3
-        super().__init__()
-
-    def elaborate(self, platform):
-        m = Module()
-
-        delay_cycles = Signal(3)
-
-        dac_stream_data = Signal.like(self.dac_stream.payload)
-        m.d.comb += self.inline_blank.eq(dac_stream_data.blank)
-
-        with m.FSM():
-            with m.State("X_DAC_Write"):
-                m.d.comb += [
-                    self.bus.data_o.eq(dac_stream_data.dac_x_code),
-                    self.bus.data_oe.eq(1),
-                ]
-                m.d.sync += self.bus.dac_clk.eq(0)
-                m.next = "X_DAC_Write_2"
-
-            with m.State("X_DAC_Write_2"):
-                m.d.comb += [
-                    self.bus.data_o.eq(dac_stream_data.dac_x_code),
-                    self.bus.data_oe.eq(1),
-                    self.bus.dac_x_le_clk.eq(1),
-                ]
-                m.next = "Y_DAC_Write"
-
-            with m.State("Y_DAC_Write"):
-                m.d.comb += [
-                    self.bus.data_o.eq(dac_stream_data.dac_y_code),
-                    self.bus.data_oe.eq(1),
-                ]
-                m.next = "Y_DAC_Write_2"
-
-            with m.State("Y_DAC_Write_2"):
-                m.d.comb += [
-                    self.bus.data_o.eq(dac_stream_data.dac_y_code),
-                    self.bus.data_oe.eq(1),
-                    self.bus.dac_y_le_clk.eq(1),
-                ]  
-                m.next = "Latch_Delay"
-            
-            with m.State("Latch_Delay"):
-                with m.If(delay_cycles > 0):
-                    m.d.sync += delay_cycles.eq(delay_cycles - 1) 
-                with m.Else():
-                    m.d.sync += self.bus.dac_clk.eq(1)
-                    with m.If(self.dac_stream.valid):
-                        # Latch DAC codes from input stream.
-                        m.d.comb += self.dac_stream.ready.eq(1)
-                        m.d.sync += dac_stream_data.eq(self.dac_stream.payload)
-                        with m.If(dac_stream_data.last): #latch delay from the previous stream
-                            m.d.sync +=  delay_cycles.eq(dac_stream_data.delay)
-                    m.next = "X_DAC_Write"  
-                
-                    
-
-        return m
-
-#=========================================================================
-
-class PowerOfTwoDetector(Elaboratable):
-    """Priority encode requests to binary.
-
-    If any bit in ``i`` is asserted, ``n`` is low and ``o`` indicates the least significant
-    asserted bit.
-    Otherwise, ``n`` is high and ``o`` is ``0``.
-
-    Parameters
-    ----------
-    width : int
-        Bit width of the input.
-
-    Attributes
-    ----------
-    i : Signal(width), in
-        Input requests.
-    o : Signal(range(width)), out
-        Encoded natural binary.
-    n : Signal, out
-        Invalid: no input bits are asserted.
-    """
-    def __init__(self, width):
-        self.width = width
-
-        self.i = Signal(width)
-        self.o = Signal(range(width))
-        self.n = Signal()
-        self.p = Signal()
-
-    def elaborate(self, platform):
-        m = Module()
-        p = Signal()
-        for power in range(self.width):
-            with m.If(self.i[power]):
-                m.d.comb += self.o.eq(power)
-            with m.If(self.i == 1 << power):
-                m.d.comb += p.eq(1)
-        m.d.comb += self.n.eq(self.i == 0)
-        m.d.comb += self.p.eq(p & ~self.n)
-        return m
-
-
-class Supersampler(wiring.Component):
-    """
-    In:
-        dac_stream: X and Y DAC codes and dwell time
-        super_adc_stream: ADC sample value and `last` signal
-    Out:
-        super_dac_stream: X and Y DAC codes and `last` signal
-        adc_stream: Averaged ADC sample value
-    """
-    dac_stream: In(StreamSignature(DACStream))
-
-    adc_stream: Out(StreamSignature(data.StructLayout({
-        "adc_code":   14,
-    })))
-
-    super_dac_stream: Out(StreamSignature(SuperDACStream))
-
-    super_adc_stream: In(StreamSignature(data.StructLayout({
-        "adc_code":   14,
-        "adc_ovf":    1,  # ignored
-        "last":       1,
-    })))
-
-    ## debug info
-    stall_cycles: Out(16)
-    stall_count_reset: In(1)
-
-    def __init__(self):
-        super().__init__()
-
-        self.dac_stream_data = Signal.like(self.dac_stream.payload)
-        self.encoder = PowerOfTwoDetector(16)
-
-    def elaborate(self, platform):
-        m = Module()
-        m.submodules["encoder"] = self.encoder
-
-        dwell_counter = Signal.like(self.dac_stream_data.dwell_time)
-        sample_counter = Signal.like(self.dac_stream_data.dwell_time)
-        last = Signal()
-        m.d.comb += [
-            self.super_dac_stream.payload.dac_x_code.eq(self.dac_stream_data.dac_x_code),
-            self.super_dac_stream.payload.dac_y_code.eq(self.dac_stream_data.dac_y_code),
-            self.super_dac_stream.payload.blank.eq(self.dac_stream_data.blank),
-            self.super_dac_stream.payload.delay.eq(self.dac_stream_data.delay),
-            last.eq(dwell_counter == self.dac_stream_data.dwell_time)
-            #self.super_dac_stream.payload.last.eq(dwell_counter == self.dac_stream_data.dwell_time),
-        ]
-        with m.If(self.stall_count_reset):
-            m.d.sync += self.stall_cycles.eq(0)
-
-        stalled = Signal()
-        with m.FSM():
-            with m.State("Wait"):
-                m.d.comb += self.dac_stream.ready.eq(1)
-                with m.If(self.dac_stream.valid):
-                    m.d.sync += self.dac_stream_data.eq(self.dac_stream.payload)
-                    m.d.sync += dwell_counter.eq(0)
-                    # m.d.sync += delay_counter.eq(0)
-                    m.next = "Generate"
-                
-
-            with m.State("Generate"):
-                m.d.comb += self.super_dac_stream.valid.eq(1)
-                with m.If(self.super_dac_stream.ready):
-                    with m.If(last):
-                        m.d.comb += self.super_dac_stream.payload.last.eq(last)
-                        m.next = "Wait"
-                    with m.Else():
-                        m.d.sync += dwell_counter.eq(dwell_counter + 1)
-
-        m.d.comb += self.encoder.i.eq(sample_counter)
-        running_sum = Signal(30)
-        last_p2_sum = Signal(30)
-        selected_sum = Signal(30)
-        shifted_sum = Signal(30)
-        with m.If(self.encoder.p): #if the current sample counter is a power of 2, use all samples
-            m.d.comb += selected_sum.eq(running_sum)
-            m.d.sync += last_p2_sum.eq(running_sum)
-        with m.Else(): # else, only average up to the last power of 2 samples
-            m.d.comb += selected_sum.eq(last_p2_sum)
-        m.d.comb += self.adc_stream.payload.adc_code.eq(selected_sum >> self.encoder.o)
-
-        with m.FSM():
-            with m.State("Start"):
-                m.d.comb += self.super_adc_stream.ready.eq(1)
-                with m.If(self.super_adc_stream.valid):
-                    m.d.sync += sample_counter.eq(1)
-                    m.d.sync += running_sum.eq(self.super_adc_stream.payload.adc_code)
-                    with m.If(self.super_adc_stream.payload.last):
-                        m.next = "Wait"
-                    with m.Else():
-                        m.next = "Average"
-
-            with m.State("Average"):
-                m.d.comb += self.super_adc_stream.ready.eq(1)
-                with m.If(self.super_adc_stream.valid):
-                    m.d.sync += sample_counter.eq(sample_counter + 1)
-                    m.d.sync += running_sum.eq(running_sum + self.super_adc_stream.payload.adc_code)
-                    with m.If(self.super_adc_stream.payload.last):
-                        m.next = "Wait"
-                    with m.Else():
-                        m.next = "Average"
-
-
-            with m.State("Wait"):
-                m.d.comb += self.adc_stream.valid.eq(1)
-                with m.If(self.adc_stream.ready):
-                    m.next = "Start"
-
-        return m
-
-#=========================================================================
-
-class RasterRegion(data.Struct):
-    x_start: 14 # UQ(14,0)
-    padding_x_start: 2
-    x_count: 14 # UQ(14,0)
-    padding_x_count: 2
-    x_step:  16 # UQ(8,8)
-    y_start: 14 # UQ(14,0)
-    padding_y_start: 2
-    y_count: 14 # UQ(14,0)
-    padding_y_count: 2
-    y_step:  16 # UQ(8,8)
-
-
-class RasterScanner(wiring.Component):
-    """
-    Properties:
-        FRAC_BITS: number of fixed fractional bits in accumulators
-
-    In:
-        roi_stream: A RasterRegion provided by a RasterScanCommand
-        dwell_stream: A dwell time value provided by one of the RasterPixel commands
-        abort: Interrupt the scan in progress and fetch the next ROI from `roi_stream`
-    Out:
-        dac_stream: X and Y DAC codes and a dwell time
-    """
-    FRAC_BITS = 8
-
-    roi_stream: In(StreamSignature(RasterRegion))
-
-    dwell_stream: In(StreamSignature(data.StructLayout({
-        "dwell_time": DwellTime,
-        "blank": BlankRequest,
-    })))
-
-    abort: In(1)
-    #: Interrupt the scan in progress and fetch the next ROI from `roi_stream`.
-
-    dac_stream: Out(StreamSignature(DACStream))
-
-    def elaborate(self, platform):
-        m = Module()
-
-        region  = Signal.like(self.roi_stream.payload)
-
-        x_accum = Signal(14 + self.FRAC_BITS)
-        x_count = Signal.like(region.x_count)
-        y_accum = Signal(14 + self.FRAC_BITS)
-        y_count = Signal.like(region.y_count)
-        m.d.comb += [
-            self.dac_stream.payload.dac_x_code.eq(x_accum >> self.FRAC_BITS),
-            self.dac_stream.payload.dac_y_code.eq(y_accum >> self.FRAC_BITS),
-            self.dac_stream.payload.dwell_time.eq(self.dwell_stream.payload.dwell_time),
-            self.dac_stream.payload.blank.eq(self.dwell_stream.payload.blank)
-        ]
-
-        with m.FSM():
-            with m.State("Get-ROI"):
-                m.d.comb += self.roi_stream.ready.eq(1)
-                with m.If(self.roi_stream.valid):
-                    m.d.sync += [
-                        region.eq(self.roi_stream.payload),
-                        x_accum.eq(self.roi_stream.payload.x_start << self.FRAC_BITS),
-                        x_count.eq(self.roi_stream.payload.x_count - 1),
-                        y_accum.eq(self.roi_stream.payload.y_start << self.FRAC_BITS),
-                        y_count.eq(self.roi_stream.payload.y_count - 1),
-                    ]
-                    m.next = "Scan"
-
-            with m.State("Scan"):
-                m.d.comb += self.dwell_stream.ready.eq(self.dac_stream.ready)
-                m.d.comb += self.dac_stream.valid.eq(self.dwell_stream.valid)
-                with m.If(self.dac_stream.ready):
-                    with m.If(self.abort):
-                        m.next = "Get-ROI"
-                with m.If(self.dwell_stream.valid & self.dac_stream.ready):
-                    # AXI4-Stream §2.2.1
-                    # > Once TVALID is asserted it must remain asserted until the handshake occurs.
-
-                    ## TODO: AC line sync 
-                    ## TODO: external trigger
-                    ## TODO: be flyback aware, line and frame
-
-                    with m.If(x_count == 0):
-                        with m.If(y_count == 0):
-                            m.next = "Get-ROI"
-                        with m.Else():
-                            m.d.sync += y_accum.eq(y_accum + region.y_step)
-                            m.d.sync += y_count.eq(y_count - 1)
-
-                        m.d.sync += x_accum.eq(region.x_start << self.FRAC_BITS)
-                        m.d.sync += x_count.eq(region.x_count - 1)
-                    with m.Else():
-                        m.d.sync += x_accum.eq(x_accum + region.x_step)
-                        m.d.sync += x_count.eq(x_count - 1)
-            
-        return m
-
-#=========================================================================
-
-class CommandParser(wiring.Component):
-    usb_stream: In(StreamSignature(8))
-    cmd_stream: Out(StreamSignature(Command))
-
-    def elaborate(self, platform):
-        m = Module()
-        self.command = Signal(Command)
-        m.d.comb += self.cmd_stream.payload.eq(self.command)
-        self.command_reg = Signal(Command)
-        array_length = Signal(16)
-
-        self.is_started = Signal()
-        with m.FSM() as fsm:
-            m.d.comb += self.is_started.eq(fsm.ongoing("Type"))
-            def goto_first_deserialized_state(from_type=self.command.type):
-                with m.Switch(from_type):
-                    for cmdtype, state_sequence in Command.deserialized_states.items():
-                        with m.Case(cmdtype):
-                            if len(state_sequence.keys()) > 0:
-                                m.next = list(state_sequence.keys())[0]
-                            else:
-                                m.next = "Submit"
-
-            with m.State("Type"):
-                m.d.comb += self.usb_stream.ready.eq(1)
-                with m.If(self.usb_stream.valid):
-                    m.d.comb += self.command.type.eq(self.usb_stream.payload[4:8])
-                    m.d.comb += self.command.payload.as_value()[0:4].eq(self.usb_stream.payload[0:4])
-                    m.d.sync += self.command_reg.eq(self.command)
-                    goto_first_deserialized_state()
-                    
-
-            def Deserialize(target, state, next_state):
-                m.d.comb += self.command.eq(self.command_reg)
-                #print(f'state: {state} -> next state: {next_state}')
-                with m.State(state):
-                    m.d.comb += self.usb_stream.ready.eq(1)
-                    with m.If(self.usb_stream.valid):
-                        m.d.sync += target.eq(self.usb_stream.payload)
-                        m.next = next_state
-            
-            for state_sequence in Command.deserialized_states.values():
-                for n, (state, offset) in enumerate(state_sequence.items()):
-                    if n < len(state_sequence) - 1:
-                        next_state = list(state_sequence.keys())[n+1]
-                    elif n == len(state_sequence) - 1:
-                        next_state = "Submit"
-                    Deserialize(self.command_reg.as_value()[offset:offset+8], state, next_state)
-
-
-            with m.State("Submit"):
-                m.d.comb += self.command.eq(self.command_reg)
-                with m.If(self.command.type == CmdType.Array):
-                        m.d.sync += self.command_reg.type.eq(self.command.payload.array.cmdtype)
-                        m.d.sync += self.command_reg.as_value()[4:].eq(0)
-                        m.d.sync += array_length.eq(self.command.payload.array.array_length)
-                        goto_first_deserialized_state(from_type=self.command.payload.array.cmdtype)
-                with m.Else():
-                    with m.If(self.cmd_stream.ready):
-                        m.d.comb += self.cmd_stream.valid.eq(1)
-                        with m.If(array_length != 0):
-                            m.d.sync += array_length.eq(array_length - 1)
-                            goto_first_deserialized_state()
-                        with m.Else():
-                            m.next = "Type"
-        return m
-
-#=========================================================================
-
 class CommandExecutor(wiring.Component):
-    cmd_stream: In(StreamSignature(Command))
-    img_stream: Out(StreamSignature(unsigned(16)))
+    cmd_stream: In(stream.Signature(Command))
+    img_stream: Out(stream.Signature(unsigned(16)))
 
     bus: Out(BusSignature)
     inline_blank: In(BlankRequest)
@@ -709,11 +55,11 @@ class CommandExecutor(wiring.Component):
     output_mode: Out(2)
 
 
-    def __init__(self, *, out_only:bool=False, adc_latency=8, ext_switch_delay=960000,
+    def __init__(self, *, out_only:bool=False, adc_latency=8, ext_delay_cyc=960000,
                 transforms: Transforms=Transforms(False, False, False)):
         self.adc_latency = adc_latency
         # Time for external control relay/switch to actuate
-        self.ext_switch_delay = ext_switch_delay
+        self.ext_delay_cyc = ext_delay_cyc
         self.transforms = transforms
 
         self.supersampler = Supersampler()
@@ -741,7 +87,7 @@ class CommandExecutor(wiring.Component):
         wiring.connect(m, flipped(self.bus), bus_controller.bus)
         m.d.comb += self.inline_blank.eq(bus_controller.inline_blank)
 
-        vector_stream = StreamSignature(DACStream).create()
+        vector_stream = stream.Signature(DACStream).create()
 
         raster_mode = Signal()
         output_mode = Signal(2)
@@ -834,7 +180,7 @@ class CommandExecutor(wiring.Component):
                                 m.d.sync += self.ext_ctrl_enabled.eq(1)
                             # if we are going out of external control, don't change blank states
                             # until switching delay has elapsed
-                            with m.If(ext_switch_delay_counter == self.ext_switch_delay): 
+                            with m.If(ext_switch_delay_counter == self.ext_delay_cyc): 
                                 m.d.sync += ext_switch_delay_counter.eq(0)
                                 with m.If(~command.payload.external_ctrl.enable):
                                     m.d.sync += self.ext_ctrl_enabled.eq(0)
@@ -977,8 +323,8 @@ class CommandExecutor(wiring.Component):
 
 #=========================================================================
 class ImageSerializer(wiring.Component):
-    img_stream: In(StreamSignature(unsigned(16)))
-    usb_stream: Out(StreamSignature(8))
+    img_stream: In(stream.Signature(unsigned(16)))
+    usb_stream: Out(stream.Signature(8))
     output_mode: In(2)
 
     def elaborate(self, platform):
@@ -1032,60 +378,57 @@ obi_resources  = [
 ]
 
 
-class OBISubtarget(wiring.Component):
-    def __init__(self, *, ports, out_fifo, in_fifo, #led, control, data, 
-                        ext_switch_delay=0, transforms: Transforms, 
-                        benchmark_counters=None, loopback=False, out_only=False):
-        self.ports            = ports
-        self.out_fifo         = out_fifo
-        self.in_fifo          = in_fifo
-        # self.led              = led
-        # self.control          = control
-        # self.data             = data
+class OBIComponent(wiring.Component):
+    i_stream: In(stream.Signature(8))
+    o_stream: Out(stream.Signature(8))
+    o_flush:  Out(1)
 
-        self.ext_switch_delay = ext_switch_delay
-        self.transforms = transforms
+    def __init__(self, ports, 
+                xflip: bool, yflip: bool, rotate90: bool, ext_switch_delay_ms=0,
+                loopback=False, out_only=False, **kwargs):
+        self.ports            = ports
+
+        if ext_switch_delay_ms:
+            self.ext_delay_cyc = int(args.ext_switch_delay * pow(10, -3) / (1/(48 * pow(10,6))))
+        else:
+            self.ext_delay_cyc = 0
+
+        self.transforms       = Transforms(xflip, yflip, rotate90)
         self.loopback         = loopback
         self.out_only         = out_only
 
-        if not benchmark_counters == None:
-            self.benchmark = True
-            out_stall_events, out_stall_cycles, stall_count_reset = benchmark_counters
-            self.out_stall_events = out_stall_events
-            self.out_stall_cycles = out_stall_cycles
-            self.stall_count_reset = stall_count_reset
-        else:
-            self.benchmark = False
+
+        super().__init__()
 
     def elaborate(self, platform):
         m = Module()
 
         ## core modules and interconnections
         m.submodules.parser     = parser     = CommandParser()
-        m.submodules.executor   = executor   = CommandExecutor(out_only=self.out_only, ext_switch_delay=self.ext_switch_delay, transforms=self.transforms)
+        m.submodules.executor   = executor   = CommandExecutor(out_only=self.out_only, ext_delay_cyc=self.ext_delay_cyc, transforms=self.transforms)
         m.submodules.serializer = serializer = ImageSerializer()
 
         wiring.connect(m, parser.cmd_stream, executor.cmd_stream)
         wiring.connect(m, executor.img_stream, serializer.img_stream)
 
-        from glasgow.hardware.multiplexer import _FIFOReadPort, _FIFOWritePort
-        if isinstance(self.out_fifo, _FIFOReadPort):
-            self.out_fifo.r_stream = self.out_fifo.stream
-        if isinstance(self.in_fifo, _FIFOWritePort):
-            self.in_fifo.w_stream = self.in_fifo.stream
-        wiring.connect(m, self.out_fifo.r_stream, parser.usb_stream)
-        wiring.connect(m, self.in_fifo.w_stream, serializer.usb_stream)
-
+        # wiring.connect(m, self.i_stream, parser.usb_stream)
+        # wiring.connect(m, self.o_stream, serializer.usb_stream)
         m.d.comb += [
-            self.in_fifo.flush.eq(executor.flush),
+            parser.usb_stream.valid.eq(self.i_stream.valid),
+            parser.usb_stream.payload.eq(self.i_stream.payload),
+            self.i_stream.ready.eq(parser.usb_stream.ready),
+            self.o_stream.valid.eq(serializer.usb_stream.valid),
+            self.o_stream.payload.eq(serializer.usb_stream.payload),
+            serializer.usb_stream.ready.eq(self.o_stream.ready),
+            self.o_flush.eq(executor.flush),
             serializer.output_mode.eq(executor.output_mode)
         ]
 
 
         ## Ports/resources ==========================================================
-        platform.add_resources(obi_resources)
 
         if platform is not None:
+            platform.add_resources(obi_resources)
             self.led            = platform.request("led", dir="-")
             self.control        = platform.request("control", dir={pin.name:"-" for pin in obi_resources[0].ios})
             self.data           = platform.request("data", dir="-")
@@ -1179,36 +522,134 @@ class OBISubtarget(wiring.Component):
                 m.d.comb += loopback_adapter.loopback_stream.eq(executor.supersampler.super_dac_stream.payload.dac_x_code)
         else: ## if not in loopback, connect input to external input
             m.d.comb += executor.bus.data_i.eq(data.i)
-            
-
-        if self.benchmark:
-            m.d.comb += self.out_stall_cycles.eq(executor.supersampler.stall_cycles)
-            m.d.comb += executor.supersampler.stall_count_reset.eq(self.stall_count_reset)
-            out_stall_event = Signal()
-            begin_write = Signal()
-            with m.If(self.stall_count_reset):
-                # m.d.sync += self.out_stall_cycles.eq(0)
-                m.d.sync += self.out_stall_events.eq(0)
-                m.d.sync += out_stall_event.eq(0)
-                m.d.sync += begin_write.eq(0)
-            with m.Else():
-                with m.If(self.out_fifo.r_rdy):
-                    m.d.sync += begin_write.eq(1)
-                with m.If(begin_write):
-                    with m.If(~self.out_fifo.r_rdy):
-                        # with m.If(~(self.out_stall_cycles >= 65536)):
-                        #     m.d.sync += self.out_stall_cycles.eq(self.out_stall_cycles + 1)
-                        with m.If(~out_stall_event):
-                            m.d.sync += out_stall_event.eq(1)
-                            with m.If(~(self.out_stall_events >= 65536)):
-                                m.d.sync += self.out_stall_events.eq(self.out_stall_events + 1)
-                    with m.Else():
-                        m.d.sync += out_stall_event.eq(0)
 
         return m
 
+class OBIInterface: #not Open Beam Interface interface.....
+    def __init__(self, logger, assembly, applet_args):
+        self._logger = logger
+        self.assembly = assembly
+        self.args = applet_args
 
-class OBIApplet(GlasgowApplet):
+        def get_beam_args(id: str):
+            return {
+                f"{id}_scan_enable": getattr(applet_args,f"{id}_scan_enable"),
+                f"{id}_blank_enable": getattr(applet_args,f"{id}_blank_enable"),
+                f"{id}_blank": getattr(applet_args,f"{id}_blank")
+                }
+                    
+        ports = self.assembly.add_port_group(
+            **get_beam_args("electron"),
+            **get_beam_args("ion")
+        )
+
+        component = self.assembly.add_submodule(OBIComponent(ports, **vars(applet_args)))
+        self.pipe = self.assembly.add_inout_pipe(component.o_stream, component.i_stream, 
+                                                in_flush=component.o_flush,
+                                                in_buffer_size=16384*16384, out_buffer_size=16384*16384)
+    
+    async def read(self, length:int) -> memoryview:
+        return await self.pipe.recv(length)
+    
+    async def write(self, data: bytes | bytearray | memoryview):
+        await self.pipe.send(data)
+    
+    async def flush(self):
+        await self.pipe.flush()
+    
+    async def readuntil(self, separator=b'\n', *, flush=True, max_count=False):
+        def find_sep(buffer, separator=b'\n', offset=0):
+            if buffer._chunk is None:
+                if not buffer._queue:
+                    raise asyncio.IncompleteReadError
+                buffer._chunk  = buffer._queue.popleft()
+                buffer._offset = 0
+            return buffer._chunk.obj.find(separator)
+
+        if flush and len(self.pipe._out_buffer) > 0:
+            # Flush the buffer, so that everything written before the read reaches the device.
+            await self.pipe.flush(_wait=False)
+
+        seplen = len(separator)
+        if seplen == 0:
+            raise ValueError('Separator should be at least one-byte string')
+        chunks = []
+
+        # Loop until we find `separator` in the buffer, exceed the buffer size,
+        # or an EOF has happened.
+        while True:
+            buflen = len(self.pipe._in_buffer)
+
+            if max_count & (buflen >= max_count):
+                break
+        
+            # Check if we now have enough data in the buffer for `separator` to fit.
+            if buflen >= seplen:
+                isep = find_sep(self.pipe._in_buffer, separator)
+                if isep != -1:
+                    print(f"found {isep=}")
+                    # `separator` is in the buffer. `isep` will be used later
+                    # to retrieve the data.
+                    break
+            else:
+                while len(self.pipe_in_buffer) < seplen:
+                    print(f"{len(self.pipe._in_tasks)=}")
+                    self._logger.debug("FIFO: need %d bytes", seplen - len(self.lower._in_buffer))
+                    await self.pipe._in_tasks.wait_one()
+
+            async with self.pipe._in_pushback:
+                chunk = self.pipe._in_buffer.read()
+                self.pipe._in_pushback.notify_all()
+                chunks.append(chunk)
+            
+        if not (max_count & (buflen >= max_count)):
+            async with self.pipe._in_pushback:
+                chunk = self.pipe._in_buffer.read(isep+seplen)
+                self.pipe._in_pushback.notify_all()
+                chunks.append(chunk)
+        
+        # Always return a memoryview object, to avoid hard to detect edge cases downstream.
+        result = memoryview(b"".join(chunks))
+        return result
+    
+    async def server(self):
+        # TODO: check performance of server
+        # forward all levels of logs from the socket
+        sock_logger = self._logger.getChild("socket")
+        sock_logger.setLevel(logging.TRACE)
+        endpoint = await ServerEndpoint("", sock_logger, self.args.endpoint)
+        print("Started OBI server")
+        await endpoint.attach_to_pipe(self.pipe)
+
+        
+    
+    async def benchmark(self):
+        import time
+
+        sync_cmd = SynchronizeCommand(cookie=123, output=OutputMode.EightBit, raster=True)
+        flush_cmd = FlushCommand()
+        await self.pipe.send(bytes(sync_cmd))
+        await self.pipe.send(bytes(flush_cmd))
+        await self.pipe.flush()
+        await self.pipe.recv(4)
+        print(f"got cookie!")
+        commands = bytearray()
+        print("generating block of commands...")
+        for _ in range(131072*16):
+            commands.extend(bytes(VectorPixelCommand(x_coord=16383, y_coord=0, dwell_time=0)))
+            commands.extend(bytes(VectorPixelCommand(x_coord=0, y_coord=16383, dwell_time=0)))
+        length = len(commands)
+        print("writing commands...")
+        while True:
+            begin = time.time()
+            await self.pipe.send(commands)
+            await self.pipe.flush()
+            end = time.time()
+            self._logger.info("benchmark: %.2f MiB/s (%.2f Mb/s)",
+                                (length / (end - begin)) / (1 << 20),
+                                (length / (end - begin)) / (1 << 17))
+
+class OBIApplet(GlasgowAppletV2):
     required_revision = "C3"
     logger = logging.getLogger(__name__)
     help = "open beam interface"
@@ -1218,31 +659,25 @@ class OBIApplet(GlasgowApplet):
 
     @classmethod
     def add_build_arguments(cls, parser, access):
-        super().add_build_arguments(parser, access)
+        access.add_voltage_argument(parser)
 
-        access.add_pin_set_argument(parser, "ebeam_scan_enable", range(1,3))
-        access.add_pin_set_argument(parser, "ibeam_scan_enable", range(1,3))
-        access.add_pin_set_argument(parser, "ebeam_blank_enable", range(1,3))
-        access.add_pin_set_argument(parser, "ibeam_blank_enable", range(1,3))
-        access.add_pin_set_argument(parser, "ibeam_blank", range(1,3))
-        access.add_pin_set_argument(parser, "ebeam_blank", range(1,3))
+        def add_beam(id: str):
+            group = parser.add_argument_group(f"beam_{id}")
+            access.add_pins_argument(group, f"{id}_scan_enable", range(1,3))
+            access.add_pins_argument(group, f"{id}_blank_enable", range(1,3))
+            access.add_pins_argument(group, f"{id}_blank", range(1,3))
+        
+        add_beam("electron")
+        add_beam("ion")
 
+        Transforms.add_transform_arguments(parser),
 
+        parser.add_argument("--benchmark",
+            dest = "benchmark", action = 'store_true',
+            help = "run benchmark")
         parser.add_argument("--loopback",
             dest = "loopback", action = 'store_true',
             help = "connect output and input streams internally")
-        parser.add_argument("--benchmark",
-            dest = "benchmark", action = 'store_true',
-            help = "run benchmark test")
-        parser.add_argument("--xflip",
-            dest = "xflip", action = 'store_true',
-            help = "flip x axis")
-        parser.add_argument("--yflip",
-            dest = "yflip", action = 'store_true',
-            help = "flip y axis")
-        parser.add_argument("--rotate90",
-            dest = "rotate90", action = 'store_true',
-            help = "switch x and y axes")
         parser.add_argument("--out_only",
             dest = "out_only", action = 'store_true',
             help = "use FastBusController instead of BusController; don't use ADC")
@@ -1250,232 +685,17 @@ class OBIApplet(GlasgowApplet):
             help="time for external control switch to actuate, in ms")
 
 
-    def build(self, target, args):
-        self.mux_interface = iface = \
-                target.multiplexer.claim_interface(self, args)
-
-        ports = iface.get_port_group(
-            ebeam_scan_enable = args.pin_set_ebeam_scan_enable,
-            ibeam_scan_enable = args.pin_set_ibeam_scan_enable,
-            ebeam_blank_enable = args.pin_set_ebeam_blank_enable,
-            ibeam_blank_enable = args.pin_set_ibeam_blank_enable,
-            ebeam_blank = args.pin_set_ebeam_blank,
-            ibeam_blank = args.pin_set_ibeam_blank,
-        )
-
-        subtarget_args = {
-            "ports": ports,
-            "in_fifo": iface.get_in_fifo(depth=512, auto_flush=False),
-            "out_fifo": iface.get_out_fifo(depth=512),
-            "loopback": args.loopback,
-            "transforms": Transforms(args.xflip, args.yflip, args.rotate90),
-            "out_only": args.out_only
-        }
-
-        if args.ext_switch_delay:
-            ext_delay_cycles = int(args.ext_switch_delay * pow(10, -3) / (1/(48 * pow(10,6))))
-            subtarget_args.update({"ext_switch_delay": ext_delay_cycles})
-
-        if args.benchmark:
-            out_stall_events, self.__addr_out_stall_events = target.registers.add_ro(8, init=0)
-            out_stall_cycles, self.__addr_out_stall_cycles = target.registers.add_ro(16, init=0)
-            stall_count_reset, self.__addr_stall_count_reset = target.registers.add_rw(1, init=1)
-            subtarget_args.update({"benchmark_counters": [out_stall_events, out_stall_cycles, stall_count_reset]})
-
-        subtarget = OBISubtarget(**subtarget_args)
-
-        return iface.add_subtarget(subtarget)
-
-    # @classmethod
-    # def add_run_arguments(cls, parser, access):
-    #     super().add_run_arguments(parser, access)
-
-    async def run(self, device, args):
-        from glasgow.device.simulation import GlasgowSimulationDevice
-        if isinstance(device, GlasgowSimulationDevice):
-            iface = await device.demultiplexer.claim_interface(self, self.mux_interface, args)
-        else:
-            iface = await device.demultiplexer.claim_interface(self, self.mux_interface, args,
-                # read_buffer_size=131072*16, write_buffer_size=131072*16)
-                read_buffer_size=16384*16384, write_buffer_size=16384*16384)
-        
-        if args.benchmark:
-            output_mode = 2 #no output
-            raster_mode = 0 #no raster
-            mode = int(output_mode<<1 | raster_mode)
-            sync_cmd = struct.pack('>BHB', 0, 123, mode)
-            flush_cmd = struct.pack('>B', 2)
-            await iface.write(sync_cmd)
-            await iface.write(flush_cmd)
-            await iface.flush()
-            await iface.read(4)
-            print(f"got cookie!")
-            commands = bytearray()
-            print("generating block of commands...")
-            for _ in range(131072*16):
-                commands.extend(struct.pack(">BHHH", 0x14, 0, 16383, 1))
-                commands.extend(struct.pack(">BHHH", 0x14, 16383, 0, 1))
-            length = len(commands)
-            print("writing commands...")
-            while True:
-                await device.write_register(self.__addr_stall_count_reset, 1)
-                await device.write_register(self.__addr_stall_count_reset, 0)
-                begin = time.time()
-                await iface.write(commands)
-                await iface.flush()
-                end = time.time()
-                out_stall_events = await device.read_register(self.__addr_out_stall_events)
-                out_stall_cycles = await device.read_register(self.__addr_out_stall_cycles, width=2)
-                self.logger.info("benchmark: %.2f MiB/s (%.2f Mb/s)",
-                                 (length / (end - begin)) / (1 << 20),
-                                 (length / (end - begin)) / (1 << 17))
-                self.logger.info(f"out stalls: {out_stall_events}, stalled cycles: {out_stall_cycles}")
-                
-        else:
-            return iface
+    def build(self, args):
+        with self.assembly.add_applet(self):
+            self.assembly.use_voltage(args.voltage)
+            self.obi_iface = OBIInterface(self.logger, self.assembly, args)
 
     @classmethod
-    def add_interact_arguments(cls, parser):
+    def add_run_arguments(cls, parser):
         ServerEndpoint.add_argument(parser, "endpoint")
 
-    async def interact(self, device, args, iface):
-
-        class InterceptedError(Exception):
-            """
-            An error that is only raised in response to GlasgowDeviceError or USBError.
-            Should /always/ be triggered when the USB cable is unplugged.
-            """
-            pass
-
-        class ForwardProtocol(asyncio.Protocol):
-            logger = self.logger
-
-            #TODO: will no longer be needed if Python requirement is bumped to 3.13
-            def intercept_err(self, func):
-                def if_err(err):
-                    self.transport.write_eof()
-                    self.transport.close()
-                    raise InterceptedError(err)
-
-                async def wrapper(*args, **kwargs):
-                    try:
-                        await func(*args, **kwargs)
-                    except USBError as err:
-                        if_err(err)
-                    except GlasgowDeviceError as err:
-                        if_err(err)
-                return wrapper
-
-            async def reset(self):
-                await iface.reset()
-                await iface.write(bytes(ExternalCtrlCommand(enable=False)))
-                self.logger.debug("reset")
-                self.logger.debug(iface.statistics())
-
-            def connection_made(self, transport):
-                self.backpressure = False
-                self.send_paused = False
-
-                transport.set_write_buffer_limits(131072*16)
-
-                self.transport = transport
-                peername = self.transport.get_extra_info("peername")
-                self.logger.info("connect peer=[%s]:%d", *peername[0:2])
-
-                async def initialize():
-                    await self.reset()
-                    asyncio.create_task(self.send_data())
-                self.init_fut = asyncio.create_task(initialize())
-
-                self.flush_fut = None
-            
-            async def send_data(self):
-                self.send_paused = False
-                self.logger.debug("awaiting read")
-
-                @self.intercept_err
-                async def read_send_data():
-                    data = await iface.read(flush=False)
-
-                    if self.transport:
-                        self.logger.debug(f"in-buffer size={len(iface._in_buffer)}")
-                        self.logger.debug("dev->net <%s>", dump_hex(data))
-                        self.transport.write(data)
-                        await asyncio.sleep(0)
-                        if self.backpressure:
-                            self.logger.debug("paused send due to backpressure")
-                            self.send_paused = True
-                        else:
-                            asyncio.create_task(self.send_data())
-                    else:
-                        self.logger.debug("dev->🗑️ <%s>", dump_hex(data))
-
-                await read_send_data()
-
-            
-            def pause_writing(self):
-                self.backpressure = True
-                self.logger.debug("dev->NG")
-
-            def resume_writing(self):
-                self.backpressure = False
-                self.logger.debug("dev->OK->net")
-                if self.send_paused:
-                    asyncio.create_task(self.send_data())
-
-            
-            def data_received(self, data):
-                @self.intercept_err
-                async def recv_data():
-                    await self.init_fut
-                    if not self.flush_fut == None:
-                        self.transport.pause_reading()
-                        try:
-                            await self.flush_fut
-                        except USBErrorOther:
-                            self.transport.write_eof()
-                            print("Wrote EOF")
-                        self.transport.resume_reading()
-                        self.logger.debug("net->dev flush: done")
-                    self.logger.debug("net->dev <%s>", dump_hex(data))
-                    await iface.write(data)
-                    self.logger.debug("net->dev write: done")
-
-                    @self.intercept_err
-                    async def flush():
-                        await iface.flush(wait=True)
-                            
-                    self.flush_fut = asyncio.create_task(flush())
-
-
-                asyncio.create_task(recv_data())
-
-            def connection_lost(self, exc):
-                peername = self.transport.get_extra_info("peername")
-                self.logger.info("disconnect peer=[%s]:%d", *peername[0:2], exc_info=exc)
-                self.transport = None
-
-                asyncio.create_task(self.reset())
-                
-        proto, *proto_args = args.endpoint
-        server = await asyncio.get_event_loop().create_server(ForwardProtocol, *proto_args, backlog=1)
-
-        def handler(loop, context):
-            if "exception" in context.keys():
-                if isinstance(context["exception"], InterceptedError):
-                    #TODO: in python 3.13, use server.close_clients()
-                    self.logger.warning("Device Error detected.")
-                    server.close()
-                    self.logger.warning("Forcing Server To Close...")            
-
-
-        loop = asyncio.get_running_loop()
-        loop.set_exception_handler(handler)
-        
-        try:
-            self.logger.info("Start OBI Server")
-            await server.serve_forever()
-        except asyncio.CancelledError:
-            self.logger.warning("Server shut down due to device error.\n Check device connection.")
-        finally:
-            self.logger.info("OBI Server Closed.")
+    async def run(self, args):
+        if args.benchmark:
+            await self.obi_iface.benchmark()
+        else:
+            await self.obi_iface.server()
