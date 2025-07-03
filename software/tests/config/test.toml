@@ -1,12 +1,12 @@
 [beam.electron]
 [beam.electron.pinout]
-scan_enable = [0,1]
+scan_enable = "A0:1"
 
 
 [beam.ion]
 [beam.ion.pinout]
-blank_enable = [4, 5]
-blank = [-2, 3]
+blank_enable = "A4:5"
+blank = "A2#,A3"
 
 [transforms]
 yflip = true
