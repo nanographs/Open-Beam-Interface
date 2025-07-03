@@ -32309,6 +32309,24 @@
 				(hide yes)
 			)
 		)
+		(property "DK Part Number" "F3135CT-ND"
+			(at 63.5 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Order Link" "https://www.digikey.com/en/products/detail/littelfuse-inc/0453-500MR/552279"
+			(at 63.5 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "885ac1ff-a897-4cb4-851e-4abebcd46cd7")
 		)
@@ -40891,6 +40909,24 @@
 			)
 		)
 		(property "Power" ""
+			(at 76.2 27.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" "F3135CT-ND"
+			(at 76.2 27.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Order Link" "https://www.digikey.com/en/products/detail/littelfuse-inc/0453-500MR/552279"
 			(at 76.2 27.94 0)
 			(effects
 				(font
@@ -52607,6 +52643,24 @@
 			)
 		)
 		(property "Power" ""
+			(at 88.9 25.4 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "DK Part Number" "F3135CT-ND"
+			(at 88.9 25.4 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Order Link" "https://www.digikey.com/en/products/detail/littelfuse-inc/0453-500MR/552279"
 			(at 88.9 25.4 0)
 			(effects
 				(font
