@@ -3,13 +3,13 @@ manufacturer='FEI'
 model='DB'
 
 [beam.ion.pinout]
-scan_enable = [0,1]
-blank_enable = [2,3]
-blank = [-4, 5]
+scan_enable = "A0:1"
+blank_enable = "A2:3"
+blank = "#A4,A5"
 
 [beam.electron.pinout]
-blank = [6,7]
-scan_enable = [8,9]
+blank = "A6:7"
+scan_enable = "B0:1"
 
 [transforms]
 xflip = true

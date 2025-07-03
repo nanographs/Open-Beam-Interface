@@ -484,27 +484,27 @@ class OBIComponent(wiring.Component):
                     for pin in m.submodules[f"{pin_name}_buffer"].o:
                         m.d.comb += pin.eq(signal)
         
-        connect_pins("ebeam_scan_enable", executor.ext_ctrl_enable)      
-        connect_pins("ibeam_scan_enable", executor.ext_ctrl_enable)
-        connect_pins("ebeam_blank_enable", executor.ext_ctrl_enable)
-        connect_pins("ibeam_blank_enable", executor.ext_ctrl_enable)
+        connect_pins("electron_scan_enable", 1)      
+        connect_pins("ion_scan_enable", executor.ext_ctrl_enable)
+        connect_pins("electron_blank_enable", executor.ext_ctrl_enable)
+        connect_pins("ion_blank_enable", executor.ext_ctrl_enable)
 
         with m.If(executor.ext_ctrl_enabled):
             with m.If(executor.beam_type == BeamType.NoBeam):
-                connect_pins("ebeam_blank", 1)
-                connect_pins("ibeam_blank", 1)
+                connect_pins("electron_blank", 1)
+                connect_pins("ion_blank", 1)
 
             with m.Elif(executor.beam_type == BeamType.Electron):
-                connect_pins("ebeam_blank", executor.blank_enable)
-                connect_pins("ibeam_blank", 1)
+                connect_pins("electron_blank", executor.blank_enable)
+                connect_pins("ion_blank", 1)
                 
             with m.Elif(executor.beam_type == BeamType.Ion):
-                connect_pins("ibeam_blank", executor.blank_enable)
-                connect_pins("ebeam_blank", 1)
+                connect_pins("ion_blank", executor.blank_enable)
+                connect_pins("electron_blank", 1)
         with m.Else():
             # Do not blank if external control is not enabled
-            connect_pins("ebeam_blank",0) #TODO: check diff pair behavior here
-            connect_pins("ibeam_blank",0)
+            connect_pins("electron_blank",0) #TODO: check diff pair behavior here
+            connect_pins("ion_blank",0)
         
         #=================================================================== end resources
 
@@ -531,17 +531,28 @@ class OBIInterface: #not Open Beam Interface interface.....
         self.assembly = assembly
         self.args = applet_args
 
-        def get_beam_args(id: str):
-            return {
-                f"{id}_scan_enable": getattr(applet_args,f"{id}_scan_enable"),
-                f"{id}_blank_enable": getattr(applet_args,f"{id}_blank_enable"),
-                f"{id}_blank": getattr(applet_args,f"{id}_blank")
-                }
-                    
-        ports = self.assembly.add_port_group(
-            **get_beam_args("electron"),
-            **get_beam_args("ion")
-        )
+        def get_args():
+            port_args = {}
+            pull_args = {}
+
+            def get_beam_args(beam_id: str):
+                def get_pin_args(pin_id: str):
+                    pin = getattr(applet_args,f"{beam_id}_{pin_id}")
+                    port_args.update({f"{beam_id}_{pin_id}": pin})
+                    if pin is not None:
+                        pull_args.update({pin: "high"})
+                
+                get_pin_args("scan_enable")
+                get_pin_args("blank_enable")
+                get_pin_args("blank")
+
+            get_beam_args("electron")
+            get_beam_args("ion")
+            return port_args, pull_args
+        
+        port_args, pull_args = get_args()
+        ports = self.assembly.add_port_group(**port_args)
+        self.assembly.use_pulls(pull_args)
 
         component = self.assembly.add_submodule(OBIComponent(ports, **vars(applet_args)))
         self.pipe = self.assembly.add_inout_pipe(component.o_stream, component.i_stream, 
@@ -662,10 +673,10 @@ class OBIApplet(GlasgowAppletV2):
         access.add_voltage_argument(parser)
 
         def add_beam(id: str):
-            group = parser.add_argument_group(f"beam_{id}")
-            access.add_pins_argument(group, f"{id}_scan_enable", range(1,3))
-            access.add_pins_argument(group, f"{id}_blank_enable", range(1,3))
-            access.add_pins_argument(group, f"{id}_blank", range(1,3))
+            # group = parser.add_argument_group(f"beam_{id}")
+            access.add_pins_argument(parser, f"{id}_scan_enable", range(1,3))
+            access.add_pins_argument(parser, f"{id}_blank_enable", range(1,3))
+            access.add_pins_argument(parser, f"{id}_blank", range(1,3))
         
         add_beam("electron")
         add_beam("ion")

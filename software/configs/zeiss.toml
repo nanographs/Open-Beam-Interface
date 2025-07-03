@@ -3,7 +3,7 @@ manufacturer='Zeiss'
 model='Sigma'
 
 [beam.electron.pinout]
-scan_enable = [0]
+scan_enable = "A0"
 
 
 

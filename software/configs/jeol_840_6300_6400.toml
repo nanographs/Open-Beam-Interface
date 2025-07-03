@@ -4,7 +4,7 @@ model='840,6300,6400'
 
 
 [beam.electron.pinout]
-scan_enable = [0]
+scan_enable = "A0"
 
 [transforms]
 yflip = true

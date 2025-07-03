@@ -54,22 +54,15 @@ class OBIAppletArguments:
         if "beam" in config:
             beam_types = config["beam"]
             print(f"beam types: {[x for x in beam_types.keys()]}")
-            beam_prefixes = {"electron": "ebeam", "ion": "ibeam"}
             for beam, beam_config in beam_types.items():
                 if "pinout" in beam_config:
                     pinout = beam_config["pinout"]
                     for pin_name in pinout:
-                        pin_num = pinout.get(pin_name)
-                        pin_name = f"{beam_prefixes.get(beam)}_{pin_name.replace('-','_')}"
-                        pins = [GlasgowPin(port="A", number=num) if num >= 0 else GlasgowPin(port="A", number=abs(num), invert=True) for num in pin_num ]
-                        # print(pins)
+                        pin_str = pinout.get(pin_name)
+                        pin_name = f"{beam}_{pin_name.replace('-','_')}"
+                        pins = GlasgowPin.parse(pin_str)
                         setattr(self.args, pin_name, pins)
-                        if has_rich:
-                            for pin in pins:
-                                table.add_row(str(pin_name), str(pin), str(pin.invert))
-            if has_rich:
-                console = Console()
-                console.print(table)
+
         if "transforms" in config:
             transforms = config["transforms"]
             for transform, setting in transforms.items():

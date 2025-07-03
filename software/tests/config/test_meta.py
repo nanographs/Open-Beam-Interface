@@ -10,6 +10,6 @@ class ParseMetaTest(unittest.TestCase):
         self.assertIn("ion", s.beam_settings)
         pinout_e = s.beam_settings["electron"].pinout
         pinout_i = s.beam_settings["ion"].pinout
-        self.assertEqual(pinout_e.scan_enable, [0,1])
-        self.assertEqual(pinout_i.blank_enable, [4,5])
-        self.assertEqual(pinout_i.blank, [-2,3])
+        self.assertEqual(pinout_e.scan_enable, "A0:1")
+        self.assertEqual(pinout_i.blank_enable, "A4:5")
+        self.assertEqual(pinout_i.blank, "#A2,A3")
