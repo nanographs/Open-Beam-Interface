@@ -23,6 +23,20 @@ def get_applet_args(path="microscope.toml"):
     for beam_id, beam_settings in scope.beam_settings.items():
         def set_pin_arg(pin_id: str):
             pin_str = getattr(beam_settings.pinout, pin_id)
+            if not isinstance(pin_str, str):
+                #FIXME: remove this after... a while
+                raise ValueError(f"""
+The provided pin format is not valid. 
+Your previously valid configuration file might be incompatible with the latest changes to OBI: https://github.com/nanographs/Open-Beam-Interface/pull/58
+Sorry about that! The documentation and example config files have been updated to the new format.
+Here's a quick guide on how to convert to the new format:
+\t Old \t New
+\t [0] \t "A0"
+\t [0,1] \t "A0,A1" or "A0:1"
+\t [0,-1] \t "A0,#A1"
+\t [8,9] \t "B0, B1"
+                """)
+                return
             if pin_str is not None:
                 pin_name = f"{beam_id}_{pin_id}"
                 pins = GlasgowPin.parse(pin_str)
