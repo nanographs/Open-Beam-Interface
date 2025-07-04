@@ -59,6 +59,38 @@ class MagCal:
             s += f"\n{k},{v}"
         return s
 
+@dataclass
+class Transforms:
+    xflip: Union[bool, None]
+    yflip: Union[bool, None]
+    rotate90: Union[bool, None]
+
+    @classmethod
+    def from_dict(cls, d: dict):
+        xflip = None
+        yflip = None
+        rotate90 = None
+        if "xflip" in d:
+            xflip = d["xflip"]
+        if "yflip" in d:
+            yflip = d["yflip"]
+        if "rotate90" in d:
+            rotate90 = d["rotate90"]
+        return cls(
+            xflip=xflip,
+            yflip=yflip,
+            rotate90=rotate90
+        )
+    
+    def to_dict(self):
+        d = {}
+        if self.xflip is not None:
+            d.update({"xflip": self.xflip})
+        if self.yflip is not None:
+            d.update({"yflip": self.yflip})
+        if self.rotate90 is not None:
+            d.update({"rotate90": self.rotate90})
+        return d
 
 @dataclass
 class Pinout:
@@ -70,9 +102,9 @@ class Pinout:
         blank_enable (list): Pins that when active cause the OBI blanking signal to override a microscope's internal blank signal
         blank: (list): Pins that when active (and enabled by blank_enable) cause a beam to blank
     """
-    scan_enable: list[int]
-    blank_enable: list[int]
-    blank: list[int]
+    scan_enable: str
+    blank_enable: str
+    blank: str
 
     @classmethod
     def from_dict(cls, d:dict):
@@ -144,7 +176,7 @@ class Endpoint:
 
     @classmethod
     def from_dict(cls, d: dict):
-        host = None
+        host = "localhost"
         port = None
         if "host" in d:
             host = str(d["host"])
@@ -168,19 +200,30 @@ class Endpoint:
 class ScopeSettings:
     endpoint: Union[Endpoint, None]
     beam_settings: dict({str: BeamSettings})
+    transforms: Union[Transforms, None]
+    ext_switch_delay: Union[float, None]
 
     @classmethod
     def from_dict(cls, d:dict):
         beams = {}
         endpoint = None
+        transforms = None
+        ext_switch_delay = None
         if "beam" in d:
             for beam_name, beam_dict in d["beam"].items():
                 beams.update({beam_name: BeamSettings.from_dict(beam_dict)})
         if "server" in d:
             endpoint = Endpoint.from_dict(d["server"])
+        if "transforms" in d:
+            transforms = Transforms.from_dict(d["transforms"])
+        if "timings" in d:
+            if "ext_switch_delay_ms" in d["timings"]:
+                ext_switch_delay = d["timings"]["ext_switch_delay_ms"]
         return cls(
             endpoint = endpoint,
-            beam_settings = beams
+            beam_settings = beams,
+            transforms = transforms,
+            ext_switch_delay = ext_switch_delay
         )
     
     @classmethod
@@ -230,6 +273,10 @@ class ScopeSettings:
         d = {}
         if self.endpoint is not None:
             d.update({"server":self.endpoint.to_dict()})
+        if self.transforms is not None:
+            d.update({"transforms":self.transforms.to_dict()})
+        if self.ext_switch_delay is not None:
+            d.update({"timings":{"ext_switch_delay_ms":self.ext_switch_delay}})
         b = {}
         for beam_name, beam_settings in self.beam_settings.items():
             b_s = beam_settings.to_dict()

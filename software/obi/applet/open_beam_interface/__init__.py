@@ -384,12 +384,12 @@ class OBIComponent(wiring.Component):
     o_flush:  Out(1)
 
     def __init__(self, ports, 
-                xflip: bool, yflip: bool, rotate90: bool, ext_switch_delay_ms=0,
+                xflip: bool, yflip: bool, rotate90: bool, ext_switch_delay_ms=None,
                 loopback=False, out_only=False, **kwargs):
         self.ports            = ports
 
         if ext_switch_delay_ms:
-            self.ext_delay_cyc = int(args.ext_switch_delay * pow(10, -3) / (1/(48 * pow(10,6))))
+            self.ext_delay_cyc = int(ext_switch_delay_ms * pow(10, -3) / (1/(48 * pow(10,6))))
         else:
             self.ext_delay_cyc = 0
 
