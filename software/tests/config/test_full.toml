@@ -1,0 +1,24 @@
+[beam.electron]
+[beam.electron.pinout]
+scan_enable = "A0:1"
+blank_enable = "A2,A3"
+blank = "A4,A5#"
+
+
+[beam.ion]
+[beam.ion.pinout]
+scan_enable = "B1"
+blank_enable = "B2#"
+blank = "B3:4"
+
+[transforms]
+yflip = true
+xflip = false
+rotate90 = true
+
+[timings]
+ext_switch_delay_ms = 20
+
+[server]
+host = "localhost"
+port = 1234

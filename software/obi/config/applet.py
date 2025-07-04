@@ -4,71 +4,45 @@ from glasgow.applet import GlasgowPin
 from glasgow.abstract import GlasgowVio, GlasgowPort
 from glasgow.support.endpoint import endpoint
 
-try:
-    from rich import print
-    from rich.table import Table
-    from rich.console import Console
-    has_rich = True
-except:
-    has_rich = False
+from obi.config.meta import ScopeSettings
 
-# TODO: generate this from ScopeSettings
-class OBIAppletArguments:
-    def __init__(self, path="microscope.toml"):
-        self.path = path
-        self.toml = None
-        self.args = argparse.Namespace(port_spec="AB",
-                voltage = {
-                    GlasgowPort.A: GlasgowVio(3.3),
-                    GlasgowPort.B: GlasgowVio(3.3)
-                },
-                electron_scan_enable=None, ion_scan_enable=None,
-                electron_blank_enable=None, ion_blank_enable=None,
-                electron_blank=None, ion_blank=None,
-                xflip=None, yflip=None, rotate90=None, line_clock=None, frame_clock=None,
-                loopback=None, out_only=None, benchmark=None, ext_switch_delay=None,
-                endpoint=('tcp', 'localhost', 2224))
-    def load_toml(self):
-        from tomlkit.toml_file import TOMLFile
-        self.toml_file = TOMLFile(self.path)
-        self.toml = self.toml_file.read()
-    def parse_toml(self):
-        if has_rich:
-            table = Table(title="pinout")
-            table.add_column("name")
-            table.add_column("number")
-            table.add_column("invert")
-        if self.toml is None:
-            self.load_toml()
-        config = self.toml
-        if "server" in config:
-            ep = config["server"]
-            ep_str = "tcp:"
-            if "host" in ep:
-                ep_str += str(ep["host"]) 
-            ep_str += ":"
-            if "port" in ep:
-                ep_str += str(ep["port"])
-            ep = endpoint(ep_str) #using input spec from Glasgow
-            setattr(self.args, "endpoint", ep)
-        if "beam" in config:
-            beam_types = config["beam"]
-            print(f"beam types: {[x for x in beam_types.keys()]}")
-            for beam, beam_config in beam_types.items():
-                if "pinout" in beam_config:
-                    pinout = beam_config["pinout"]
-                    for pin_name in pinout:
-                        pin_str = pinout.get(pin_name)
-                        pin_name = f"{beam}_{pin_name.replace('-','_')}"
-                        pins = GlasgowPin.parse(pin_str)
-                        setattr(self.args, pin_name, pins)
+def get_applet_args(path="microscope.toml"):
+    args = argparse.Namespace(port_spec="AB",
+            voltage = {
+                GlasgowPort.A: GlasgowVio(3.3),
+                GlasgowPort.B: GlasgowVio(3.3)
+            },
+            electron_scan_enable=None, ion_scan_enable=None,
+            electron_blank_enable=None, ion_blank_enable=None,
+            electron_blank=None, ion_blank=None,
+            xflip=None, yflip=None, rotate90=None, line_clock=None, frame_clock=None,
+            loopback=None, out_only=None, benchmark=None, ext_switch_delay=None,
+            endpoint=('tcp', 'localhost', 2224))
 
-        if "transforms" in config:
-            transforms = config["transforms"]
-            for transform, setting in transforms.items():
-                print(f"{transform} -> {setting}")
-                setattr(self.args, transform, setting)
-        if "timings" in config:
-            timings = config["timings"]
-            print(f"ext_switch_delay = {timings.get('ext_switch_delay_ms')} ms")
-            setattr(self.args, "ext_switch_delay", timings.get("ext_switch_delay_ms"))
+    scope = ScopeSettings.from_toml_file(path)
+    for beam_id, beam_settings in scope.beam_settings.items():
+        def set_pin_arg(pin_id: str):
+            pin_str = getattr(beam_settings.pinout, pin_id)
+            if pin_str is not None:
+                pin_name = f"{beam_id}_{pin_id}"
+                pins = GlasgowPin.parse(pin_str)
+                setattr(args, pin_name, pins)
+        set_pin_arg("scan_enable")
+        set_pin_arg("blank_enable")
+        set_pin_arg("blank")
+    
+    def set_transform_arg(transform_id: str):
+        setattr(args, transform_id, getattr(scope.transforms, transform_id))
+    
+    if scope.transforms is not None:
+        set_transform_arg("xflip")
+        set_transform_arg("yflip")
+        set_transform_arg("rotate90")
+
+    if scope.endpoint is not None:
+        setattr(args, "endpoint", ('tcp', scope.endpoint.host, scope.endpoint.port))
+    
+    if scope.ext_switch_delay is not None:
+        setattr(args, "ext_switch_delay_ms", scope.ext_switch_delay)
+
+    return args
