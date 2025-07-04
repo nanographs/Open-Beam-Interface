@@ -34,7 +34,7 @@ When this signal is active, the microscope's blanking state is driven by the bla
 When this signal is active (and enabled by Blank Enable), the beam is in the blanked state. When this signal is inactive (and enabled by Blank Enable), the beam is in the unblanked state.
 
 ### Pin width and direction
-Beam IO signals can be assigned to any of the 16 Digital IO pins in Glasgow's main banks (Port A and Port B). Each signal can be assigned to up to two pins, and each pin can be configured as a pull up or pull down. The pinout must be a string in the form of a [Glasgow pin argument](https://glasgow-embedded.org/latest/use/basic.html#inverting-pins), with each pin described by its port (A or B) and number and preceded by `#` if inverted. 
+Beam IO signals can be assigned to any of the 16 Digital IO pins in Glasgow's main banks (Port A and Port B). Each signal can be assigned to up to two pins, and each pin can be configured as a pull up or pull down. The pinout must be a string in the form of a [Glasgow pin argument](https://glasgow-embedded.org/latest/use/basic.html#inverting-pins), with each pin described by its port (A or B) and number and followed by `#` if inverted. 
 Examples:
      `blank = "A1"`: Port A, Pin 1 will be high when blanking
      `blank = "B0:1"`: Port B, Pin 0 and 1 will be high when blanking
@@ -45,7 +45,7 @@ Note that Glasgow port pinouts are zero-indexed.
 [beam.electron.pinout]
 scan_enable = "A1"
 blank_enable = "A2:3"
-blank = "A4,#A5"
+blank = "A4,A5#"
 ```
 
 ### Magnification Calibration Data

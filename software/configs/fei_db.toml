@@ -5,7 +5,7 @@ model='DB'
 [beam.ion.pinout]
 scan_enable = "A0:1"
 blank_enable = "A2:3"
-blank = "#A4,A5"
+blank = "A4#,A5"
 
 [beam.electron.pinout]
 blank = "A6:7"
