@@ -35,11 +35,16 @@ class RasterScanCommand(BaseCommand):
 
         def append_command(pixel_count):
             while pixel_count > 65536:
-                cmd = RasterPixelRunCommand(dwell_time = self._dwell, length=65535)
+                cmd = RasterPixelRunCommand(dwell_time = self._dwell, length=65535, output_en=True)
                 commands.extend(bytes(cmd))
                 pixel_count -= 65536
-            cmd = RasterPixelRunCommand(dwell_time = self._dwell, length=pixel_count-1)
+            cmd = RasterPixelRunCommand(dwell_time = self._dwell, length=pixel_count-1, output_en=True)
             commands.extend(bytes(cmd))
+
+        def fly_back():
+            cmd = VectorPixelCommand(output_en=False, x_coord=self._x_range.start, y_coord=self._y_range.start, dwell_time=1)
+            commands.extend(bytes(cmd))
+
 
         pixel_count = 0
         total_dwell = 0
@@ -59,6 +64,9 @@ class RasterScanCommand(BaseCommand):
         if pixel_count > 0:
             append_command(pixel_count)
             yield(commands, pixel_count)
+        
+        fly_back()
+        yield(commands,0)
 
     @BaseCommand.log_transfer
     async def transfer(self, stream, *, latency:int=65536*65536):
@@ -101,8 +109,6 @@ class RasterScanCommand(BaseCommand):
                     break
             self._logger.debug(f"recver: tokens={tokens}")
             yield await self.recv_res(pixel_count, stream, self._output_mode)
-        ## fly back
-        # await VectorPixelCommand(x_coord=self._x_range.start, y_coord=self._y_range.start, dwell_time=1).transfer(stream)
 
 
 

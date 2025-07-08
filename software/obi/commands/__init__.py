@@ -46,20 +46,16 @@ class BaseCommand(metaclass = ABCMeta):
 
     async def recv_res(self, pixel_count, stream, output_mode:OutputMode):
         self._logger.debug(f"waiting to receive {pixel_count} pixels, {output_mode=}")
-        if output_mode == OutputMode.NoOutput:
-                await asyncio.sleep(0)
-                pass
-        else:
-            if output_mode == OutputMode.SixteenBit:
-                res = array.array('H', bytes(await stream.read(pixel_count * 2)))
-                if not BIG_ENDIAN:
-                    res.byteswap()
-                await asyncio.sleep(0)
-                return res
-            if output_mode == OutputMode.EightBit:
-                res = array.array('B', await stream.read(pixel_count))
-                await asyncio.sleep(0)
-                return res
+        if output_mode == OutputMode.SixteenBit:
+            res = array.array('H', bytes(await stream.read(pixel_count * 2)))
+            if not BIG_ENDIAN:
+                res.byteswap()
+            await asyncio.sleep(0)
+            return res
+        if output_mode == OutputMode.EightBit:
+            res = array.array('B', await stream.read(pixel_count))
+            await asyncio.sleep(0)
+            return res
 __all__ += ["BaseCommand"]
 
 from .low_level_commands import (SynchronizeCommand, AbortCommand, FlushCommand, ExternalCtrlCommand,

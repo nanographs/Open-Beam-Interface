@@ -1,4 +1,4 @@
-from .structs import BitLayout, ByteLayout, CmdType, OutputMode, BeamType, u14, u16, DwellTime, DACCodeRange
+from .structs import BitLayout, ByteLayout, CmdType, OutputMode, OutputEnable, BeamType, u14, u16, DwellTime, DACCodeRange
 from . import BaseCommand
 
 from amaranth import *
@@ -162,9 +162,10 @@ class RasterPixelCommand(LowLevelCommand):
     One pixel dwell value. The position at which this pixel is executed
     depends on the current :class:`RasterRegionCommand`. 
     '''
+    bitlayout = BitLayout({"output_en": OutputEnable})
     bytelayout = ByteLayout({"dwell_time" : 2})
-    def __init__(self, *, dwell_time:DwellTime):
-        super().__init__(dwell_time=dwell_time)
+    def __init__(self, dwell_time:DwellTime, output_en: OutputEnable=True):
+        super().__init__(output_en=output_en, dwell_time=dwell_time)
 
 class ArrayCommand(LowLevelCommand):
     bitlayout = BitLayout({"cmdtype": CmdType})
@@ -183,9 +184,10 @@ class RasterPixelRunCommand(LowLevelCommand):
     The position at which these pixels are executed
     depends on the current :class:`RasterRegionCommand`. 
     '''
+    bitlayout = BitLayout({"output_en": OutputEnable})
     bytelayout = ByteLayout({"length": 2, "dwell_time" : 2})
-    def __init__(self, length: u16, dwell_time: DwellTime):
-        super().__init__(length=length, dwell_time=dwell_time)
+    def __init__(self, length: u16, dwell_time: DwellTime, output_en: OutputEnable=True):
+        super().__init__(output_en=output_en, length=length, dwell_time=dwell_time)
 
 class RasterPixelFreeRunCommand(LowLevelCommand):
     '''
@@ -201,9 +203,10 @@ class VectorPixelCommand(LowLevelCommand):
     '''
     Sets DAC output to the coordinate X, Y for the specified dwell time.
     '''
+    bitlayout = BitLayout({"output_en": OutputEnable})
     bytelayout = ByteLayout({"x_coord": 2, "y_coord": 2, "dwell_time": 2})
-    def __init__(self, x_coord:u14, y_coord:u14, dwell_time:u16):
-        super().__init__(x_coord=x_coord, y_coord=y_coord, dwell_time=dwell_time)
+    def __init__(self, x_coord:u14, y_coord:u14, dwell_time:u16, output_en: OutputEnable=True):
+        super().__init__(output_en=output_en, x_coord=x_coord, y_coord=y_coord, dwell_time=dwell_time)
     def pack(self):
         if vars(self)["dwell_time"] <= 1:
             return VectorPixelMinDwellCommand(**vars(self)).pack()
@@ -220,6 +223,7 @@ class VectorPixelCommand(LowLevelCommand):
         return await self.recv_res(1, stream, output_mode)
         
 class VectorPixelMinDwellCommand(LowLevelCommand):
+    bitlayout = BitLayout({"output_en": OutputEnable})
     bytelayout = ByteLayout({"dac_stream": {"x_coord": 2, "y_coord": 2}})
 
 all_commands = [SynchronizeCommand, 

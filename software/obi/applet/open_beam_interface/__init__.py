@@ -52,7 +52,7 @@ class CommandExecutor(wiring.Component):
     blank_enable: Out(1, init=1)
 
     #Input to Serializer
-    output_mode: Out(2)
+    output_mode: Out(OutputMode)
 
 
     def __init__(self, *, out_only:bool=False, adc_latency=8, ext_delay_cyc=960000,
@@ -90,7 +90,7 @@ class CommandExecutor(wiring.Component):
         vector_stream = stream.Signature(DACStream).create()
 
         raster_mode = Signal()
-        output_mode = Signal(2)
+        output_mode = Signal(OutputMode)
         command = Signal.like(self.cmd_stream.payload)
         with m.If(raster_mode):
             wiring.connect(m, self.raster_scanner.dac_stream, self.supersampler.dac_stream)
@@ -223,6 +223,7 @@ class CommandExecutor(wiring.Component):
                         m.d.comb += [
                             self.raster_scanner.dwell_stream.valid.eq(1),
                             self.raster_scanner.dwell_stream.payload.dwell_time.eq(command.payload.raster_pixel.dwell_time),
+                            self.raster_scanner.dwell_stream.payload.output_en.eq(command.payload.raster_pixel.output_en),
                             self.raster_scanner.dwell_stream.payload.blank.eq(sync_blank)
                         ]
                         with m.If(self.raster_scanner.dwell_stream.ready):
@@ -234,6 +235,7 @@ class CommandExecutor(wiring.Component):
                         m.d.comb += [
                             self.raster_scanner.dwell_stream.valid.eq(1),
                             self.raster_scanner.dwell_stream.payload.dwell_time.eq(command.payload.raster_pixel_run.dwell_time),
+                            self.raster_scanner.dwell_stream.payload.output_en.eq(command.payload.raster_pixel_run.output_en),
                             self.raster_scanner.dwell_stream.payload.blank.eq(sync_blank)
                         ]
                         with m.If(self.raster_scanner.dwell_stream.ready):
@@ -280,8 +282,11 @@ class CommandExecutor(wiring.Component):
 
                     with m.Case(CmdType.VectorPixel, CmdType.VectorPixelMinDwell):
                         m.d.comb += vector_stream.valid.eq(1)
-                        m.d.comb += vector_stream.payload.blank.eq(sync_blank)
-                        m.d.comb += vector_stream.payload.delay.eq(inline_delay_counter)
+                        m.d.comb += [
+                            vector_stream.payload.blank.eq(sync_blank),
+                            vector_stream.payload.output_en.eq(command.payload.vector_pixel.output_en),
+                            vector_stream.payload.delay.eq(inline_delay_counter)
+                        ]
                         with m.If(vector_stream.ready):
                             m.d.sync += inline_delay_counter.eq(0)
                             m.d.comb += submit_pixel.eq(1)
@@ -334,18 +339,15 @@ class ImageSerializer(wiring.Component):
 
         with m.FSM():
             with m.State("High"):
-                with m.If(self.output_mode == OutputMode.NoOutput):
-                    m.d.comb += self.img_stream.ready.eq(1) #consume and destroy image stream
-                with m.Else():
-                    m.d.comb += self.usb_stream.payload.eq(self.img_stream.payload[8:16])
-                    m.d.comb += self.usb_stream.valid.eq(self.img_stream.valid)
-                    m.d.comb += self.img_stream.ready.eq(self.usb_stream.ready)
-                    with m.If(self.output_mode == OutputMode.SixteenBit):
-                        m.d.sync += low.eq(self.img_stream.payload[0:8])
-                        with m.If(self.usb_stream.ready & self.img_stream.valid):
-                            m.next = "Low"
-                    with m.If(self.output_mode == OutputMode.EightBit):
-                        m.next = "High"
+                m.d.comb += self.usb_stream.payload.eq(self.img_stream.payload[8:16])
+                m.d.comb += self.usb_stream.valid.eq(self.img_stream.valid)
+                m.d.comb += self.img_stream.ready.eq(self.usb_stream.ready)
+                with m.If(self.output_mode == OutputMode.SixteenBit):
+                    m.d.sync += low.eq(self.img_stream.payload[0:8])
+                    with m.If(self.usb_stream.ready & self.img_stream.valid):
+                        m.next = "Low"
+                with m.If(self.output_mode == OutputMode.EightBit):
+                    m.next = "High"
 
             with m.State("Low"):
                 m.d.comb += self.usb_stream.payload.eq(low)
