@@ -22,5 +22,6 @@ class ParseMetaTest(unittest.TestCase):
         get_applet_args("tests/config/test_minimal.toml") 
 
         for file in os.listdir("configs"):
+            print(f"testing against configs/{file}")
             get_applet_args(f"configs/{file}")
 

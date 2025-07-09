@@ -32,6 +32,15 @@ class LowLevelCommand(BaseCommand):
         :class: data.Struct
         """
         return data.StructLayout({**cls.bitlayout.as_struct_layout(), **cls.bytelayout.as_struct_layout()})
+    @classmethod
+    def header(cls, **kwargs):
+        """Generate just the header (first byte) of a command sequence
+        Returns:
+            int
+        """
+        header_funcstr = cls.bitlayout.pack_fn(cls.cmdtype)
+        func = eval(f"lambda value_dict: {header_funcstr}")
+        return func(kwargs)
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
     def __bytes__(self):
@@ -164,14 +173,13 @@ class RasterPixelCommand(LowLevelCommand):
     '''
     bitlayout = BitLayout({"output_en": OutputEnable})
     bytelayout = ByteLayout({"dwell_time" : 2})
-    def __init__(self, dwell_time:DwellTime, output_en: OutputEnable=True):
+    def __init__(self, dwell_time:DwellTime, output_en: OutputEnable=OutputEnable.Enabled):
         super().__init__(output_en=output_en, dwell_time=dwell_time)
 
 class ArrayCommand(LowLevelCommand):
-    bitlayout = BitLayout({"cmdtype": CmdType})
-    bytelayout = ByteLayout({"array_length": 2})
-    def __init__(self, cmdtype: CmdType, array_length: u16):
-        super().__init__(cmdtype=cmdtype, array_length=array_length)
+    bytelayout = ByteLayout({"command": 1, "array_length": 2})
+    def __init__(self, command, array_length: u16):
+        super().__init__(command=command, array_length=array_length)
 
 class RasterPixelFillCommand(LowLevelCommand):
     bytelayout = ByteLayout({"dwell_time" : 2})
@@ -186,7 +194,7 @@ class RasterPixelRunCommand(LowLevelCommand):
     '''
     bitlayout = BitLayout({"output_en": OutputEnable})
     bytelayout = ByteLayout({"length": 2, "dwell_time" : 2})
-    def __init__(self, length: u16, dwell_time: DwellTime, output_en: OutputEnable=True):
+    def __init__(self, length: u16, dwell_time: DwellTime, output_en: OutputEnable=OutputEnable.Enabled):
         super().__init__(output_en=output_en, length=length, dwell_time=dwell_time)
 
 class RasterPixelFreeRunCommand(LowLevelCommand):
@@ -205,7 +213,7 @@ class VectorPixelCommand(LowLevelCommand):
     '''
     bitlayout = BitLayout({"output_en": OutputEnable})
     bytelayout = ByteLayout({"x_coord": 2, "y_coord": 2, "dwell_time": 2})
-    def __init__(self, x_coord:u14, y_coord:u14, dwell_time:u16, output_en: OutputEnable=True):
+    def __init__(self, x_coord:u14, y_coord:u14, dwell_time:u16, output_en: OutputEnable=OutputEnable.Enabled):
         super().__init__(output_en=output_en, x_coord=x_coord, y_coord=y_coord, dwell_time=dwell_time)
     def pack(self):
         if vars(self)["dwell_time"] <= 1:

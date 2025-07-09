@@ -44,7 +44,8 @@ class RasterScanner(wiring.Component):
             self.dac_stream.payload.dac_x_code.eq(x_accum >> self.FRAC_BITS),
             self.dac_stream.payload.dac_y_code.eq(y_accum >> self.FRAC_BITS),
             self.dac_stream.payload.dwell_time.eq(self.dwell_stream.payload.dwell_time),
-            self.dac_stream.payload.blank.eq(self.dwell_stream.payload.blank)
+            self.dac_stream.payload.blank.eq(self.dwell_stream.payload.blank),
+            self.dac_stream.payload.output_en.eq(self.dwell_stream.payload.output_en)
         ]
 
         with m.FSM():

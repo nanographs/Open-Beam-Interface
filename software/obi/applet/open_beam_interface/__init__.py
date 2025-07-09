@@ -256,7 +256,8 @@ class CommandExecutor(wiring.Component):
                             m.d.comb += [
                                 self.raster_scanner.dwell_stream.valid.eq(1),
                                 self.raster_scanner.dwell_stream.payload.dwell_time.eq(command.payload.raster_pixel_fill.dwell_time),
-                                self.raster_scanner.dwell_stream.payload.blank.eq(sync_blank)
+                                self.raster_scanner.dwell_stream.payload.blank.eq(sync_blank),
+                                self.raster_scanner.dwell_stream.payload.output_en.eq(OutputEnable.Enabled),
                             ]
 
                             
@@ -265,7 +266,8 @@ class CommandExecutor(wiring.Component):
                         m.d.comb += [
                             self.raster_scanner.roi_stream.payload.eq(raster_region),
                             self.raster_scanner.dwell_stream.payload.dwell_time.eq(command.payload.raster_pixel.dwell_time),
-                            self.raster_scanner.dwell_stream.payload.blank.eq(sync_blank)
+                            self.raster_scanner.dwell_stream.payload.blank.eq(sync_blank),
+                            self.raster_scanner.dwell_stream.payload.output_en.eq(OutputEnable.Enabled),
                         ]
                         with m.If(self.cmd_stream.valid):
                             m.d.comb += self.raster_scanner.abort.eq(1)
@@ -289,7 +291,8 @@ class CommandExecutor(wiring.Component):
                         ]
                         with m.If(vector_stream.ready):
                             m.d.sync += inline_delay_counter.eq(0)
-                            m.d.comb += submit_pixel.eq(1)
+                            with m.If(command.payload.vector_pixel.output_en==OutputEnable.Enabled):
+                                m.d.comb += submit_pixel.eq(1)
                             m.next = "Fetch"
 
         with m.FSM():
