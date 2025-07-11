@@ -1,3 +1,5 @@
+from rich import print 
+
 # https://superfastpython.com/asyncio-log-blocking/
 # example of asyncio logging with a queue handler and listener
 import logging
@@ -19,7 +21,7 @@ async def init_logger():
     loggingHandler.setFormatter(
         logging.Formatter(style="{", fmt="{levelname[0]:s}: {name:s}: {message:s}"))
     # log all messages, debug and up
-    log.setLevel(logging.DEBUG)
+    log.setLevel(logging.TRACE)
     # create a listener for messages on the queue
     listener = QueueListener(que, StreamHandler(sys.stdout))
     try:
