@@ -977,6 +977,7 @@ class OBIAppletTestCase(unittest.TestCase):
                 await applet.obi_iface.write(bytes(SynchronizeCommand(cookie=4, output=2, raster=0)))
                 await applet.obi_iface.read(6)
             
+
         test_case = OBIApplet_TestCase()
         test_case.test_build()
         test_case.test_loopback_vector()

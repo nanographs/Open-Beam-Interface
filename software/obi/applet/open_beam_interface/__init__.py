@@ -20,6 +20,8 @@ from obi.applet.open_beam_interface.modules import (
     PipelinedLoopbackAdapter, BusController, FastBusController, 
     Supersampler, RasterScanner, CommandParser)
 
+from glasgow.simulation.assembly import SimulationPipe
+
 # Overview of (linear) processing pipeline:
 # 1. PC software (in: user input, out: bytes)
 # 2. Glasgow software/framework (in: bytes, out: same bytes; vendor-provided)
@@ -574,6 +576,7 @@ class OBIInterface: #not Open Beam Interface interface.....
         await self.pipe.flush()
     
     async def readuntil(self, separator=b'\n', *, flush=True, max_count=False):
+        self._logger.debug("reading until %s", separator)
         def find_sep(buffer, separator=b'\n', offset=0):
             if buffer._chunk is None:
                 if not buffer._queue:
@@ -601,6 +604,7 @@ class OBIInterface: #not Open Beam Interface interface.....
         
             # Check if we now have enough data in the buffer for `separator` to fit.
             if buflen >= seplen:
+                self._logger.debug("Looking for the separator in the buffer")
                 isep = find_sep(self.pipe._in_buffer, separator)
                 if isep != -1:
                     print(f"found {isep=}")
@@ -608,9 +612,9 @@ class OBIInterface: #not Open Beam Interface interface.....
                     # to retrieve the data.
                     break
             else:
-                while len(self.pipe_in_buffer) < seplen:
-                    print(f"{len(self.pipe._in_tasks)=}")
-                    self._logger.debug("FIFO: need %d bytes", seplen - len(self.lower._in_buffer))
+                self._logger.debug("Need more data before we can look for the separator")
+                while len(self.pipe._in_buffer) < seplen:
+                    self._logger.debug("FIFO: need %d bytes", seplen - len(self.pipe._in_buffer))
                     await self.pipe._in_tasks.wait_one()
 
             async with self.pipe._in_pushback:
@@ -645,10 +649,9 @@ class OBIInterface: #not Open Beam Interface interface.....
         sync_cmd = SynchronizeCommand(cookie=123, output=OutputMode.EightBit, raster=True)
         flush_cmd = FlushCommand()
         await self.pipe.send(bytes(sync_cmd))
-        await self.pipe.send(bytes(flush_cmd))
         await self.pipe.flush()
-        await self.pipe.recv(4)
-        print(f"got cookie!")
+        data = await self.pipe.recv(4)
+        print(f"got cookie!: {data.tobytes()[2:]}")
         commands = bytearray()
         print("generating block of commands...")
         for _ in range(131072*16):

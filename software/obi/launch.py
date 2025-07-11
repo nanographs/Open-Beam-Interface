@@ -16,6 +16,11 @@ def _setup():
     assembly.use_voltage({"A": 3.3, "B": 3.3})
 
     iface = OBIInterface(logger, assembly, args)
+    
+    class DummyApplet:
+        logger = logging.getLogger()
+    
+    assembly.add_applet(DummyApplet())
 
     return iface, assembly
 
