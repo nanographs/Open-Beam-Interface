@@ -35,11 +35,18 @@ class RasterScanCommand(BaseCommand):
 
         def append_command(pixel_count):
             while pixel_count > 65536:
-                cmd = RasterPixelRunCommand(dwell_time = self._dwell, length=65535)
+                cmd = RasterPixelRunCommand(dwell_time = self._dwell, length=65535, output_en=OutputEnable.Enabled)
                 commands.extend(bytes(cmd))
                 pixel_count -= 65536
-            cmd = RasterPixelRunCommand(dwell_time = self._dwell, length=pixel_count-1)
+            cmd = RasterPixelRunCommand(dwell_time = self._dwell, length=pixel_count-1, output_en=OutputEnable.Enabled)
             commands.extend(bytes(cmd))
+        
+        def fly_back():
+            if self.frame_blank:
+                commands.extend(bytes(BlankCommand(enable=True, inline=False)))
+            commands.extend(bytes(VectorPixelCommand(output_en=False, x_coord=self._x_range.start, y_coord=self._y_range.start, dwell_time=1)))
+            if self.frame_blank: #unblank at the next provided pixel position
+                commands.extend(bytes(BlankCommand(enable=False, inline=True)))
 
         pixel_count = 0
         total_dwell = 0
@@ -48,9 +55,8 @@ class RasterScanCommand(BaseCommand):
             total_dwell += self._dwell
             if total_dwell >= latency:
                 append_command(pixel_count)
-                ## blank at the end of the last pixel
-                if self.frame_blank and n + 1 == self._x_range.count * self._y_range.count:
-                    commands.extend(bytes(BlankCommand(enable=True, inline=False)))
+                if n + 1 == self._x_range.count * self._y_range.count: # end of frame
+                    fly_back()
                 yield(commands, pixel_count)
                 commands = bytearray()
                 pixel_count = 0
@@ -75,9 +81,12 @@ class RasterScanCommand(BaseCommand):
                 if tokens == 0:
                     await FlushCommand().transfer(stream)
                     await token_fut
-                if self.frame_blank and self.abort.is_set():
-                    ## go to a blanked state after an aborted frame
-                    commands.extend(bytes(BlankCommand(enable=True, inline=False)))
+                if self.abort.is_set():
+                    if self.frame_blank: ## go to a blanked state after an aborted frame
+                        commands.extend(bytes(BlankCommand(enable=True, inline=False)))
+                    commands.extend(bytes(VectorPixelCommand(output_en=False, x_coord=self._x_range.start, y_coord=self._y_range.start, dwell_time=1)))
+                    if self.frame_blank: #unblank at the next provided pixel position
+                        commands.extend(bytes(BlankCommand(enable=False, inline=True)))
                 await stream.write(commands)
                 tokens -= 1
                 if self.abort.is_set():
@@ -85,11 +94,10 @@ class RasterScanCommand(BaseCommand):
                 await asyncio.sleep(0)
             await FlushCommand().transfer(stream)
 
-        await SynchronizeCommand(cookie=self._cookie, raster=True, output = self._output_mode).transfer(stream)
         await RasterRegionCommand(x_range=self._x_range, y_range=self._y_range).transfer(stream)
         asyncio.create_task(sender())
 
-        cookie = await stream.read(4) #just assume these are exactly FFFF + cookie, and discard them
+        # cookie = await stream.read(4) #just assume these are exactly FFFF + cookie, and discard them
         ## TODO: assert against synchronization result
         for commands, pixel_count in self._iter_chunks(latency):
             tokens += 1
@@ -101,8 +109,6 @@ class RasterScanCommand(BaseCommand):
                     break
             self._logger.debug(f"recver: tokens={tokens}")
             yield await self.recv_res(pixel_count, stream, self._output_mode)
-        ## fly back
-        # await VectorPixelCommand(x_coord=self._x_range.start, y_coord=self._y_range.start, dwell_time=1).transfer(stream)
 
 
 
