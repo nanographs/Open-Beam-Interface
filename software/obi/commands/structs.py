@@ -133,8 +133,9 @@ class OutputMode(enum.IntEnum, shape = 1):
     EightBit            = 1
 
 class OutputEnable(enum.IntEnum, shape = 1):
-    Disabled            = 0
-    Enabled             = 1
+    Enabled             = 0 #Because enabled is default
+    Disabled            = 1
+    
     
 
 class BeamType(enum.IntEnum, shape = 2):
