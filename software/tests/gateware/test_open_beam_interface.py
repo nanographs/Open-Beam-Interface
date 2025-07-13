@@ -148,7 +148,7 @@ class OBIAppletTestCase(unittest.TestCase):
         def test_one_cycle():
             dut = BusController(adc_half_period=3, adc_latency=6)
             async def put_testbench(ctx):
-                await put_stream(ctx, dut.dac_stream, {"dac_x_code": 123, "dac_y_code": 456, "last": 1})
+                await put_stream(ctx, dut.dac_stream, {"dac_x_code": 123, "dac_y_code": 456, "output_en": OutputEnable.Enabled, "last": 1})
 
             async def get_testbench(ctx):
                 await get_stream(ctx, dut.adc_stream, {"adc_code": 0, "last": 1}, timeout_steps=100)
@@ -158,15 +158,15 @@ class OBIAppletTestCase(unittest.TestCase):
         def test_multi_cycle():
             dut = BusController(adc_half_period=3, adc_latency=6)
             async def put_testbench(ctx):
-                await put_stream(ctx, dut.dac_stream, {"dac_x_code": 1, "dac_y_code": 1, "last": 0})
+                await put_stream(ctx, dut.dac_stream, {"dac_x_code": 1, "dac_y_code": 1, "output_en": OutputEnable.Enabled, "last": 0})
                 await ctx.tick().repeat(1)
-                await put_stream(ctx, dut.dac_stream, {"dac_x_code": 1, "dac_y_code": 1, "last": 0})
+                await put_stream(ctx, dut.dac_stream, {"dac_x_code": 1, "dac_y_code": 1, "output_en": OutputEnable.Enabled, "last": 0})
                 await ctx.tick().repeat(1)
-                await put_stream(ctx, dut.dac_stream, {"dac_x_code": 1, "dac_y_code": 1, "last": 0})
+                await put_stream(ctx, dut.dac_stream, {"dac_x_code": 1, "dac_y_code": 1, "output_en": OutputEnable.Enabled, "last": 0})
                 await ctx.tick().repeat(1)
-                await put_stream(ctx, dut.dac_stream, {"dac_x_code": 1, "dac_y_code": 1, "last": 1})
+                await put_stream(ctx, dut.dac_stream, {"dac_x_code": 1, "dac_y_code": 1, "output_en": OutputEnable.Enabled, "last": 1})
                 await ctx.tick().repeat(1)
-                await put_stream(ctx, dut.dac_stream, {"dac_x_code": 2, "dac_y_code": 2, "last": 0})
+                await put_stream(ctx, dut.dac_stream, {"dac_x_code": 2, "dac_y_code": 2, "output_en": OutputEnable.Enabled, "last": 0})
                 
             async def get_testbench(ctx):
                 await get_stream(ctx, dut.adc_stream, {"adc_code": 0, "last": 0}, timeout_steps=100)
@@ -176,8 +176,37 @@ class OBIAppletTestCase(unittest.TestCase):
 
             self.simulate(dut, [put_testbench, get_testbench], name="bus_controller_4")
         
+        def test_disable_output():
+            dut = BusController(adc_half_period=3, adc_latency=6)
+            async def put_testbench(ctx):
+                await put_stream(ctx, dut.dac_stream, {"dac_x_code": 1, "dac_y_code": 1, "output_en": OutputEnable.Enabled, "last": 0})
+                await ctx.tick().repeat(1)
+                await put_stream(ctx, dut.dac_stream, {"dac_x_code": 1, "dac_y_code": 1, "output_en": OutputEnable.Enabled, "last": 0})
+                await ctx.tick().repeat(1)
+                await put_stream(ctx, dut.dac_stream, {"dac_x_code": 1, "dac_y_code": 1, "output_en": OutputEnable.Enabled, "last": 0})
+                await ctx.tick().repeat(1)
+                await put_stream(ctx, dut.dac_stream, {"dac_x_code": 1, "dac_y_code": 1, "output_en": OutputEnable.Enabled, "last": 1})
+                await ctx.tick().repeat(1)
+                await put_stream(ctx, dut.dac_stream, {"dac_x_code": 2, "dac_y_code": 2, "output_en": OutputEnable.Disabled, "last": 0})
+                await ctx.tick().repeat(1)
+                await put_stream(ctx, dut.dac_stream, {"dac_x_code": 2, "dac_y_code": 2, "output_en": OutputEnable.Disabled, "last": 0})
+                await ctx.tick().repeat(1)
+                await put_stream(ctx, dut.dac_stream, {"dac_x_code": 2, "dac_y_code": 2, "output_en": OutputEnable.Disabled, "last": 0})
+                await ctx.tick().repeat(1)
+                await put_stream(ctx, dut.dac_stream, {"dac_x_code": 2, "dac_y_code": 2, "output_en": OutputEnable.Disabled, "last": 1})
+                await ctx.tick().repeat(1)
+                
+            async def get_testbench(ctx):
+                await get_stream(ctx, dut.adc_stream, {"adc_code": 0, "last": 0}, timeout_steps=100)
+                await get_stream(ctx, dut.adc_stream, {"adc_code": 0, "last": 0}, timeout_steps=100)
+                await get_stream(ctx, dut.adc_stream, {"adc_code": 0, "last": 0}, timeout_steps=100)
+                await get_stream(ctx, dut.adc_stream, {"adc_code": 0, "last": 1}, timeout_steps=100)
+                assert ctx.get(dut.adc_stream.valid) == 0
+
+            self.simulate(dut, [put_testbench, get_testbench], name="bus_controller_disable_output")
         test_one_cycle()
         test_multi_cycle()
+        test_disable_output()
         
     def test_bus_controller_transforms(self):
         def test_xflip(xin: int, xout: int):
@@ -188,7 +217,7 @@ class OBIAppletTestCase(unittest.TestCase):
                 assert trans_x == xout, f"flipped x {trans_x} != expected {xout}"
                 assert trans_y == 0, f"non-flipped y {trans_y} != expected 0"
                 
-            self.simulate(dut, [put_testbench], name="xflip_{xin}_{xout}")
+            self.simulate(dut, [put_testbench], name=f"xflip_{xin}_{xout}")
         
         def test_yflip(yin: int, yout: int):
             dut = BusController(adc_half_period=3, adc_latency=6, transforms = Transforms(xflip=False, yflip=True, rotate90=False))
@@ -198,7 +227,7 @@ class OBIAppletTestCase(unittest.TestCase):
                 assert trans_x == 0, f"non-flipped x {trans_x} != expected 0"
                 assert trans_y == yout, f"flipped y {trans_y} != expected {yout}"
                 
-            self.simulate(dut, [put_testbench], name="xflip_{xin}_{xout}")
+            self.simulate(dut, [put_testbench], name=f"yflip_{yin}_{yout}")
         
         def test_rotate90():
             dut = BusController(adc_half_period=3, adc_latency=6, transforms = Transforms(xflip=False, yflip=False, rotate90=True))
@@ -208,7 +237,7 @@ class OBIAppletTestCase(unittest.TestCase):
                 assert trans_x == 456, f"rotated x {trans_x} != expected 456"
                 assert trans_y == 123, f"rotated y {trans_y} != expected 123"
                 
-            self.simulate(dut, [put_testbench], name="xflip_{xin}_{xout}")
+            self.simulate(dut, [put_testbench], name=f"rotate90")
         
         test_xflip(0, 16383)
         test_xflip(16383, 0)
@@ -378,7 +407,7 @@ class OBIAppletTestCase(unittest.TestCase):
                 self.assertEqual(ctx.get(dut.cmd_stream.valid),0)
             self.simulate(dut, [get_testbench,put_testbench], name="parse_" + name)  
         
-        test_cmd(SynchronizeCommand(cookie=1234, raster=True, output=OutputMode.NoOutput),"cmd_sync")
+        test_cmd(SynchronizeCommand(cookie=1234, raster=True, output=OutputMode.EightBit),"cmd_sync")
         
         test_cmd(AbortCommand(), "cmd_abort")
         
@@ -397,18 +426,16 @@ class OBIAppletTestCase(unittest.TestCase):
 
         test_cmd(RasterRegionCommand(x_range=x_range, y_range=y_range), "cmd_rasterregion")
 
-        test_cmd(RasterPixelRunCommand(length=5, dwell_time= 6),"cmd_rasterpixelrun")
-        
+        test_cmd(RasterPixelRunCommand(length=5, dwell_time=6),"cmd_rasterpixelrun")
 
         test_cmd(RasterPixelFreeRunCommand(dwell_time = 10), "cmd_rasterpixelfreerun")
-
 
         test_cmd(VectorPixelCommand(x_coord=4, y_coord=5, dwell_time= 6),"cmd_vectorpixel")
 
         test_cmd(VectorPixelCommand(x_coord=4, y_coord=5, dwell_time= 1),"cmd_vectorpixelmin")
     
         def test_raster_pixels_cmd():
-            command = ArrayCommand(cmdtype = CmdType.RasterPixel, array_length = 5)
+            command = ArrayCommand(command = RasterPixelCommand.header(output_en=1), array_length = 5)
             dwells = [1,2,3,4,5,6]
             async def put_testbench(ctx):
                 for byte in bytes(command):
@@ -418,7 +445,7 @@ class OBIAppletTestCase(unittest.TestCase):
                         await put_stream(ctx, dut.usb_stream, byte)
             async def get_testbench(ctx):
                 for dwell in dwells:
-                    await get_stream(ctx, dut.cmd_stream, RasterPixelCommand(dwell_time=dwell).as_dict(), timeout_steps=len(command)*2 + len(dwells)*2 + 2)
+                    await get_stream(ctx, dut.cmd_stream, RasterPixelCommand(dwell_time=dwell,output_en=OutputEnable.Enabled).as_dict(), timeout_steps=len(command)*2 + len(dwells)*2 + 2)
                     self.assertEqual(ctx.get(dut.cmd_stream.valid),0)
                 self.assertEqual(ctx.get(dut.is_started),1)
             self.simulate(dut, [get_testbench,put_testbench], name="parse_cmd_rasterpixel")  
@@ -434,7 +461,7 @@ class OBIAppletTestCase(unittest.TestCase):
 
             async def put_testbench(ctx):
                 await put_stream(ctx, dut.cmd_stream, 
-                        SynchronizeCommand(raster=True, output=OutputMode.NoOutput, cookie=cookie).as_dict())
+                        SynchronizeCommand(raster=True, output=OutputMode.EightBit, cookie=cookie).as_dict())
             
             async def get_testbench(ctx):
                 await get_stream(ctx, dut.img_stream, 65535) # FFFF
@@ -466,7 +493,7 @@ class OBIAppletTestCase(unittest.TestCase):
 
             async def put_testbench(ctx):
                 await put_stream(ctx, dut.cmd_stream, 
-                    RasterPixelCommand(dwell_time=5).as_dict())
+                    RasterPixelCommand(dwell_time=5, output_en=OutputEnable.Enabled).as_dict())
             async def get_testbench(ctx):
                 data = await ctx.tick().sample(dut.raster_scanner.dwell_stream.payload).until(dut.raster_scanner.dwell_stream.valid == 1)
                 payload = {
@@ -474,7 +501,9 @@ class OBIAppletTestCase(unittest.TestCase):
                         "blank": {
                             "enable": 0,
                             "request": 0
-                        }}
+                        },
+                        "output_en": OutputEnable.Enabled
+                        }
                 wrapped_payload = dut.raster_scanner.dwell_stream.payload.shape().const(payload)
                 assert data[0] == wrapped_payload,  f"{prettier_diff(data[0], payload)}"
                 
@@ -511,7 +540,8 @@ class OBIAppletTestCase(unittest.TestCase):
                         "blank": {
                             "enable": 0,
                             "request": 0
-                        }})
+                        },
+                        "output_en": OutputEnable.Enabled})
 
             self.simulate(dut, [get_testbench,put_testbench], name = "exec_rasterpixelrun")  
         
@@ -545,7 +575,8 @@ class OBIAppletTestCase(unittest.TestCase):
                         "blank": {
                             "enable": 0,
                             "request": 0
-                        }})
+                        },
+                        "output_en": OutputEnable.Enabled})
             self.simulate(dut, [get_testbench,put_testbench], name = "exec_rasterpixelfill")  
 
 
@@ -671,6 +702,10 @@ class OBIAppletTestCase(unittest.TestCase):
             @property
             def response(self):
                 return [65535, self.command.cookie] # FFFF, cookie
+            @property
+            def exec_cycles(self):
+                # Wait as long as it takes to synchronize
+                return 10000
         
         class TestFlushCommand(TestCommand, command=FlushCommand):
             pass
@@ -728,7 +763,10 @@ class OBIAppletTestCase(unittest.TestCase):
         class TestRasterPixelRunCommand(TestCommand, command=RasterPixelRunCommand):
             @property
             def response(self):
-                return [0]*(self.command.length+1)
+                if self.command.output_en == OutputEnable.Enabled:
+                    return [0]*(self.command.length+1)
+                else:
+                    return []
             @property
             def exec_cycles(self):
                 return self.command.dwell_time*self.command.length*BUS_CYCLES
@@ -760,19 +798,19 @@ class OBIAppletTestCase(unittest.TestCase):
                         break
                     await ctx.tick().until(dut.supersampler.dac_stream.ready == 1)
                     n += 1
-                    logger.debug(f"{n}/{self.test_samples} valid samples")
-                    
+                    logger.debug(f"{n}/{self.test_samples} valid samples")                 
 
         class TestVectorPixelCommand(TestCommand, command=VectorPixelCommand):
             @property
             def response(self):
-                return [0]
+                if self.command.output_en == OutputEnable.Enabled:
+                    return [0]
+                else:
+                    return []
             @property
             def exec_cycles(self):
                 return self.command.dwell_time*BUS_CYCLES
         
-
-
         def test_exec_1():
             test_seq = TestCommandSequence()
             test_seq.add(TestSyncCommand(cookie=502, raster=True, output=OutputMode.SixteenBit))
@@ -832,12 +870,12 @@ class OBIAppletTestCase(unittest.TestCase):
         
         def test_exec_5():
             test_seq = TestCommandSequence()
-            test_seq.add(TestSyncCommand(cookie=502, raster=False, output=OutputMode.NoOutput))
+            test_seq.add(TestSyncCommand(cookie=502, raster=False, output=OutputMode.SixteenBit))
             test_seq.add(TestFlushCommand())
             for n in range(100):
-                test_seq.add(TestVectorPixelCommand(x_coord=1, y_coord=1, dwell_time=1))
-                test_seq.add(TestVectorPixelCommand(x_coord=16384, y_coord=16384, dwell_time=1))
-            test_seq.add(TestSyncCommand(cookie=502, raster=False, output=OutputMode.NoOutput))
+                test_seq.add(TestVectorPixelCommand(x_coord=1, y_coord=1, dwell_time=1, output_en=OutputEnable.Disabled))
+                test_seq.add(TestVectorPixelCommand(x_coord=16384, y_coord=16384, dwell_time=1, output_en=OutputEnable.Disabled))
+            test_seq.add(TestSyncCommand(cookie=503, raster=False, output=OutputMode.SixteenBit))
 
             self.simulate(test_seq.dut, [test_seq.put_testbench, test_seq.get_testbench], name="exec_5")
         
@@ -848,7 +886,6 @@ class OBIAppletTestCase(unittest.TestCase):
             test_seq.add(TestVectorPixelCommand(x_coord=1, y_coord=1, dwell_time=1))
             self.simulate(test_seq.dut, [test_seq.put_testbench, test_seq.get_testbench], name="exec_6")
 
-
         test_exec_1()
         test_exec_2()
         test_exec_3()
@@ -856,9 +893,7 @@ class OBIAppletTestCase(unittest.TestCase):
         test_exec_5()
         test_exec_6()
 
-    # @unittest.skip("Skipped applet test case")
     def test_all(self):
-        #TODO: Fix this simulation
         from amaranth import Module
         from obi.applet.open_beam_interface import OBIApplet
         from glasgow.applet import GlasgowAppletV2TestCase, synthesis_test, applet_v2_simulation_test
@@ -937,6 +972,7 @@ class OBIAppletTestCase(unittest.TestCase):
                 await applet.obi_iface.write(bytes(SynchronizeCommand(cookie=4, output=2, raster=0)))
                 await applet.obi_iface.read(6)
             
+
         test_case = OBIApplet_TestCase()
         test_case.test_build()
         test_case.test_loopback_vector()
