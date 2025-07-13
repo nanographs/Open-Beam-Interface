@@ -33,7 +33,7 @@ class GlasgowConnection(Connection):
     async def _connect(self):
         assert not self.connected
         iface, assembly = _setup()
-        await assembly.start()
+        await assembly.start(reload_bitstream=True) #FIXME: reload bitstream will eventually not be necessary
         self._stream = GlasgowStream(iface)
 
     # async def transfer(self, command, flush:bool = False, **kwargs):
