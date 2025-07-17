@@ -1,6 +1,7 @@
 import struct
 import enum
 import array
+import json
 
 from collections import UserDict
 from dataclasses import dataclass
@@ -93,6 +94,20 @@ class BitLayout(PayloadLayout):
         field_values.append(f"{str(int(cmdtype))} << {CMD_SHAPE}") # add type field
         funcstr = f'int({" | ".join(field_values)})'
         return funcstr
+    def wavedrom(self, cmdtype):
+        reg = [{"name": hex(int(cmdtype)),"bits": CMD_SHAPE,"type": 3}] #Header
+
+        bitdict = self.flatten()
+        for n, b in bitdict.items(): #Bit fields
+            reg.append({"name": n, "bits": b})
+
+        used = CMD_SHAPE + sum(bitdict.values()) #Padding
+        pad = 8 - used
+        if pad > 0:
+            reg.append({"bits": pad})
+        
+        config = {"vflip": True, "lanes":1}
+        return {"config": config, "reg": reg}
 
 STRUCT_FORMATS = {
     1: "B",
@@ -124,6 +139,13 @@ class ByteLayout(PayloadLayout):
             structargs += f"value_dict['{field_name}'], "
         func = f'lambda value_dict: struct.pack("{structformat}", {header_funcstr}, {structargs})'
         return eval(func)
+    def wavedrom(self):
+        reg = []
+        bytedict = self.flatten()
+        for n, c in bytedict.items():
+            reg.append({"name": n, "bits": c * ByteLayout.bits_per_field})
+        config = {"vflip": True, "hflip": True, "lanes":int(len(bytedict)/2), "offset": 8}
+        return {"config": config, "reg": reg}
 
 
 ##### start commands
