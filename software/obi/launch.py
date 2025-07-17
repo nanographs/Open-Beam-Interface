@@ -13,7 +13,8 @@ def _setup():
     args = get_applet_args("microscope.toml")
 
     assembly = HardwareAssembly()
-    assembly.use_voltage({"A": 3.3, "B": 3.3})
+    #TODO: maybe make voltage configurable
+    assembly.use_voltage({"A": 5, "B": 5})
 
     iface = OBIInterface(logger, assembly, args)
 
