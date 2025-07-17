@@ -10,8 +10,8 @@ import struct
 BIG_ENDIAN = (struct.pack('@H', 0x1234) == struct.pack('>H', 0x1234))
 
 __all__ = []
-from .structs import CmdType, OutputMode, BeamType, u14, u16, fp8_8, DwellTime, DACCodeRange
-__all__ += ["CmdType", "OutputMode", "BeamType", "u14", "u16", "fp8_8", "DwellTime", "DACCodeRange"]
+from .structs import CmdType, OutputMode, OutputEnable, BeamType, u14, u16, fp8_8, DwellTime, DACCodeRange
+__all__ += ["CmdType", "OutputMode", "OutputEnable", "BeamType", "u14", "u16", "fp8_8", "DwellTime", "DACCodeRange"]
 
 class BaseCommand(metaclass = ABCMeta):
     def __init_subclass__(cls):
@@ -45,21 +45,18 @@ class BaseCommand(metaclass = ABCMeta):
         ...
 
     async def recv_res(self, pixel_count, stream, output_mode:OutputMode):
-        self._logger.debug(f"waiting to receive {pixel_count} pixels, {output_mode=}")
-        if output_mode == OutputMode.NoOutput:
-                await asyncio.sleep(0)
-                pass
-        else:
-            if output_mode == OutputMode.SixteenBit:
-                res = array.array('H', bytes(await stream.read(pixel_count * 2)))
-                if not BIG_ENDIAN:
-                    res.byteswap()
-                await asyncio.sleep(0)
-                return res
-            if output_mode == OutputMode.EightBit:
-                res = array.array('B', await stream.read(pixel_count))
-                await asyncio.sleep(0)
-                return res
+        if output_mode == OutputMode.SixteenBit:
+            self._logger.debug(f"waiting to receive {pixel_count} pixels, ({pixel_count*2} bytes)")
+            res = array.array('H', bytes(await stream.read(pixel_count * 2)))
+            if not BIG_ENDIAN:
+                res.byteswap()
+            await asyncio.sleep(0)
+            return res
+        if output_mode == OutputMode.EightBit:
+            self._logger.debug(f"waiting to receive {pixel_count} pixels, ({pixel_count} bytes)")
+            res = array.array('B', await stream.read(pixel_count))
+            await asyncio.sleep(0)
+            return res
 __all__ += ["BaseCommand"]
 
 from .low_level_commands import (SynchronizeCommand, AbortCommand, FlushCommand, ExternalCtrlCommand,
