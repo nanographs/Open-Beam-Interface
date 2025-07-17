@@ -48,7 +48,7 @@ class BitmapVectorPattern:
 
         Args:
             resolution: Resolution to scale pattern to.
-            max_dwell (Dwe: Maximum dwell value
+            max_dwell: Maximum dwell value
             invert: Invert grayscale levels
         """
         im = self.im
