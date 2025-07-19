@@ -16,6 +16,7 @@ release = '0.0'
 
 extensions = [
     "myst_parser", 
+    "sphinx.ext.autosectionlabel",
     "sphinx.ext.autodoc",
     "sphinx.ext.intersphinx",
     "sphinx.ext.napoleon",
@@ -33,12 +34,16 @@ myst_enable_extensions = ["attrs_inline", "colon_fence"]
 #enables turning markdown headings into links
 myst_heading_anchors = 6 
 
+autosectionlabel_prefix_document = True
+autosectionlabel_maxdepth = None
+
 autodoc_member_order = "bysource"
 autodoc_default_options = {
     "members": True
 }
 autodoc_typehints = "description"
 #autodoc_typehints_description_target = "documented"
+add_module_names = False
 
 autodoc_preserve_defaults = True
 autodoc_inherit_docstrings = False
@@ -80,4 +85,3 @@ def linkcode_resolve(domain, info):
         return None
     filename = info['module'].replace('.', '/')
     return "https://github.com/nanographs/Open-Beam-Interface/blob/update-main/software/%s.py" % filename
-    
