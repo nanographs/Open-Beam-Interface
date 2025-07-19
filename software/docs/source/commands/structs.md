@@ -6,24 +6,20 @@ Set of all available [low-level commands](./low_level_commands.md)
 
 ```{eval-rst}
 .. autoenum:: obi.commands.structs.CmdType
-    :members:
 ```
 
 ### Output Modes
 ```{eval-rst}
 .. autoenum:: obi.commands.structs.OutputEnable
-    :members:
 ```
 
 ```{eval-rst}
 .. autoenum:: obi.commands.structs.OutputMode
-    :members:
 ```
 
 ### Beam Types
 ```{eval-rst}
 .. autoenum:: obi.commands.structs.BeamType
-    :members:
 ```
 
 ## Numeric types

@@ -90,6 +90,10 @@ class LowLevelCommand(BaseCommand):
 
 
 class SynchronizeCommand(LowLevelCommand):
+    """
+    Args: 
+        cookie(u16): Arbitrary value for synchronization. When received, returned as-is in an USB IN frame.
+    """
     bitlayout = BitLayout({"mode": {
             "raster": 1,
             "output": OutputMode
@@ -141,7 +145,7 @@ class BeamSelectCommand(LowLevelCommand):
 
 class BlankCommand(LowLevelCommand):
     """
-    Triggers beam blanking
+    Triggers beam blanking. Pin assignment of blanking signals depends on your :ref:`microscope specific pinout <config:pinout>`
 
     Args:
         enable: True if blanking, False if unblanking.
