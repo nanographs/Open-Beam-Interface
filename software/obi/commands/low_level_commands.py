@@ -196,6 +196,41 @@ class RasterPixelCommand(LowLevelCommand):
         super().__init__(output_en=output_en, dwell_time=dwell_time)
 
 class ArrayCommand(LowLevelCommand):
+    '''
+    ArrayCommand allows compressing multiple payloads with the same header.
+
+    Example
+    -------
+
+    Constructing an array of :class:`RasterPixelCommand`:
+
+    .. code-block:: python
+
+        cmds = bytearray()
+        cmds.extend(bytes(
+            ArrayCommand(
+                command = RasterPixelCommand.header(
+                    output_en=OutputEnable.Enabled
+                    ), 
+                array_length = 6)
+        ))
+        dwells = [1,1,2,3,5,8]
+        cmds.extend(struct.pack('>6H', *dwells))
+
+    The equivalent series of individual commands:
+
+    .. code-block:: python
+
+        cmds = bytearray()
+        dwells = [1,1,2,3,5,8]
+        cmds.extend(bytes(
+            RasterPixelCommand(
+                output_en=OutputEnable.Enabled,
+                dwell_time = dwell
+            ), 
+        ))
+        
+    '''
     bytelayout = ByteLayout({"command": 1, "array_length": 2})
     def __init__(self, command:bytes, array_length: u16):
         super().__init__(command=command, array_length=array_length)
