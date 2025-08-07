@@ -14,7 +14,7 @@ async def _setup():
 
     assembly = await HardwareAssembly.find_device()
     #TODO: maybe make voltage configurable
-    assembly.use_voltage({"A": 5, "B": 5})
+    assembly.use_voltage({"A": 5.0, "B": 5.0})
 
     iface = OBIInterface(logger, assembly, args)
 
