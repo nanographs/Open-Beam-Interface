@@ -1,6 +1,6 @@
 # Installing OBI 
 Prerequisites:
-- Python >= 3.10
+- Python >= 3.11
 - [PDM](https://pdm-project.org/latest/#installation)
 
 Clone the OBI repository:

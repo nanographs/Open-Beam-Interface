@@ -3,6 +3,11 @@
 ## Editing the documentation
 OBI documentation is built with [Sphinx](https://www.sphinx-doc.org/en/master/) and the [MyST](https://myst-parser.readthedocs.io/en/latest/) Markdown parser. This configuration was chosen to combine the advanced autodocumentation features of Sphinx with the lower friction of writing in Markdown.
 
+To install additional dependencies necessary to build the documentation:
+```
+pdm install -L pdm.dev.lock
+```
+
 To build the documentation:
 ```
 pdm run docs
