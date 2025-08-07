@@ -9,10 +9,10 @@ from obi.support import stream_logs
 
 logger = logging.getLogger()
 
-def _setup():
+async def _setup():
     args = get_applet_args("microscope.toml")
 
-    assembly = HardwareAssembly()
+    assembly = await HardwareAssembly.find_device()
     #TODO: maybe make voltage configurable
     assembly.use_voltage({"A": 5, "B": 5})
 
@@ -22,7 +22,7 @@ def _setup():
 
 @stream_logs
 async def main():
-    iface, assembly = _setup()
+    iface, assembly = await _setup()
     async with assembly:
         await iface.server()
 
