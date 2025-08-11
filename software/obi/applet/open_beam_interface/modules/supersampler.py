@@ -91,6 +91,7 @@ class Supersampler(wiring.Component):
             self.super_dac_stream.payload.dac_x_code.eq(self.dac_stream_data.dac_x_code),
             self.super_dac_stream.payload.dac_y_code.eq(self.dac_stream_data.dac_y_code),
             self.super_dac_stream.payload.blank.eq(self.dac_stream_data.blank),
+            self.super_dac_stream.payload.output_en.eq(self.dac_stream_data.output_en),
             self.super_dac_stream.payload.delay.eq(self.dac_stream_data.delay),
             last.eq(dwell_counter == self.dac_stream_data.dwell_time)
             #self.super_dac_stream.payload.last.eq(dwell_counter == self.dac_stream_data.dwell_time),
