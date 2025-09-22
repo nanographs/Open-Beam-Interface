@@ -153,12 +153,14 @@ class FrameBuffer:
 
     Args:
         conn (:class:`Connection`): A connection to an OBI device, via a Glasgow device
+        latency_monitor (:class:`LatencyMonitor`, optional): Latency monitor for performance tracking
     '''
     _logger = logger.getChild("FrameBuffer")
-    def __init__(self, conn: Connection):
+    def __init__(self, conn: Connection, latency_monitor=None):
         self.conn = conn
         self.current_frame = None
         self.abort = None
+        self.latency_monitor = latency_monitor
 
     def _opt_chunk_size(self, frame: Frame):
         """
@@ -242,6 +244,9 @@ class FrameBuffer:
         Yields:
             :class:`Frame`: A :class:`Frame` object is yielded each time new pixels are added
         """
+        if self.latency_monitor:
+            self.latency_monitor.start_timer('frame_processing')
+        
         res = array.array('H')
         pixels_per_chunk = self._opt_chunk_size(frame)
         self._logger.debug(f"{pixels_per_chunk=}")
@@ -272,13 +277,24 @@ class FrameBuffer:
                     self._logger.debug(f"have {len(res)} pixels in buffer, need minimum {pixels_per_chunk} pixels to complete this chunk")
 
             async for frame in slice_chunk():
+                if self.latency_monitor:
+                    self.latency_monitor.start_timer('display_update')
+                
                 yield frame
+                
+                if self.latency_monitor:
+                    display_latency = self.latency_monitor.end_timer('display_update')
+                    self._logger.debug(f"Display update latency: {display_latency:.2f}ms")
                 
         self._logger.debug(f"end of scan: {len(res)} pixels in buffer")
         last_lines = len(res)//frame._x_count
         if last_lines > 0:
             frame.fill_lines(res[:frame._x_count*last_lines])
         yield frame
+        
+        if self.latency_monitor:
+            frame_latency = self.latency_monitor.end_timer('frame_processing')
+            self._logger.debug(f"Frame processing latency: {frame_latency:.2f}ms")
 
     async def capture_frame(self, *, x_range:DACCodeRange, y_range:DACCodeRange, dwell_time:int, **kwargs):
         """

@@ -18,6 +18,7 @@ import qasync
 from qasync import asyncSlot, asyncClose, QApplication, QEventLoop
 
 from obi.gui.components import ImageDisplay, CombinedScanControls, CombinedPatternControls, BeamControl, MagCalWidget
+from obi.gui.components.latency_monitor import LatencyMonitor, LatencyVisualizationWidget
 
 from obi.transfer import TCPConnection, setup_logging, TransferError
 from obi.macros import FrameBuffer, BitmapVectorPattern
@@ -84,7 +85,12 @@ class Window(QMainWindow):
             port = ep.port
             self.conn = TCPConnection(host, port)
 
-        self.fb = FrameBuffer(self.conn)
+        # Initialize latency monitor
+        self.latency_monitor = LatencyMonitor()
+        
+        # Pass latency monitor to connection and frame buffer
+        self.conn.latency_monitor = self.latency_monitor
+        self.fb = FrameBuffer(self.conn, latency_monitor=self.latency_monitor)
 
         self.image_display = ImageDisplay(511, 511)
         self.setCentralWidget(self.image_display)
@@ -102,6 +108,12 @@ class Window(QMainWindow):
 
         self.pattern_control = PatternControlWidget(self.conn)
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.pattern_control)
+
+        # Add latency visualization widget
+        self.latency_widget = LatencyVisualizationWidget(self.latency_monitor)
+        self.latency_dock = QDockWidget("Latency Monitor", self)
+        self.latency_dock.setWidget(self.latency_widget)
+        self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.latency_dock)
 
         self.scan_control.inner.live.start_btn.clicked.connect(self.toggle_live_scan)
         self.scan_control.inner.live.roi_btn.clicked.connect(self.toggle_roi_scan)
@@ -161,6 +173,9 @@ class Window(QMainWindow):
             item.setEnabled(True)
 
     async def capture_ROI(self, resolution, dwell_time):
+        # Add latency monitoring
+        self.latency_monitor.start_timer('total_round_trip')
+        
         x_start, x_count, y_start, y_count = self.image_display.get_ROI()
         print(f"{resolution=}, {x_start=}, {x_count=}, {y_start=}, {y_count=}")
         async for frame in self.fb.capture_frame_roi(
@@ -170,9 +185,16 @@ class Window(QMainWindow):
         ):
             self.image_display.setImage(frame.as_uint8())
             self._logger.debug("set image ROI")
+        
+        # End latency monitoring
+        total_latency = self.latency_monitor.end_timer('total_round_trip')
+        self._logger.debug(f"Total round-trip latency: {total_latency:.2f}ms")
 
 
     async def capture_frame(self, resolution, dwell_time):
+        # Add latency monitoring
+        self.latency_monitor.start_timer('total_round_trip')
+        
         if self.image_display.roi is not None:
             if (self.fb.current_frame is not None) & (resolution != max(self.fb.current_frame._x_count, self.fb.current_frame._y_count)):
                 self.image_display.remove_ROI()
@@ -185,6 +207,10 @@ class Window(QMainWindow):
                 ):
                 self.image_display.setImage(frame.as_uint8())
                 self._logger.debug("set image")
+        
+        # End latency monitoring
+        total_latency = self.latency_monitor.end_timer('total_round_trip')
+        self._logger.debug(f"Total round-trip latency: {total_latency:.2f}ms")
     
     @asyncSlot()
     async def acquire_photo(self):

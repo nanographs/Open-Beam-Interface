@@ -57,10 +57,11 @@ class TCPStream(Stream):
 
 class TCPConnection(Connection):
     _logger = logger.getChild("Connection")
-    def __init__(self, host: str, port: int, *, read_buffer_size=0x10000*128):
+    def __init__(self, host: str, port: int, *, read_buffer_size=0x10000*128, latency_monitor=None):
         self.host = host
         self.port = port
         self.read_buffer_size = read_buffer_size
+        self.latency_monitor = latency_monitor
 
         self._stream = None
         self._synchronized = False
@@ -98,3 +99,41 @@ class TCPConnection(Connection):
         cookie, self._next_cookie = self._next_cookie + 1, self._next_cookie + 2 # odd cookie
         self._logger.debug(f"allocating cookie {cookie:#06x}")
         return cookie
+
+    async def transfer(self, command, **kwargs):
+        if self.latency_monitor:
+            self.latency_monitor.start_timer('network_send')
+        
+        self._logger.debug(f"transfer {command!r}")
+        try:
+            if not self.synchronized:
+                await self._synchronize() # may raise asyncio.IncompleteReadError
+            result = await command.transfer(self._stream, **kwargs)
+            
+            if self.latency_monitor:
+                send_latency = self.latency_monitor.end_timer('network_send')
+                self._logger.debug(f"Network send latency: {send_latency:.2f}ms")
+            
+            return result
+        except asyncio.IncompleteReadError as e:
+            self._handle_incomplete_read(e)
+    
+    async def transfer_multiple(self, command, **kwargs):
+        if self.latency_monitor:
+            self.latency_monitor.start_timer('network_receive')
+        
+        self._logger.debug(f"transfer multiple {command!r}")
+        try:
+            if not self.synchronized:
+                await self._synchronize() # may raise asyncio.IncompleteReadError
+            self._logger.debug(f"synchronize transfer_multiple")
+            async for value in command.transfer(self._stream, **kwargs):
+                yield value
+                self._logger.debug(f"yield transfer_multiple")
+            
+            if self.latency_monitor:
+                receive_latency = self.latency_monitor.end_timer('network_receive')
+                self._logger.debug(f"Network receive latency: {receive_latency:.2f}ms")
+                
+        except asyncio.IncompleteReadError as e:
+            self._handle_incomplete_read(e)
