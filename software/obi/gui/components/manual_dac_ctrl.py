@@ -55,6 +55,11 @@ class DACSettings(QHBoxLayout):
         self.field.setValue(0)
 
 
+def _adc_u16_to_u14(data: array.array) -> array.array:
+    # FPGA sends ADC samples scaled to 16-bit by left-shifting 2; convert back to 14-bit for display.
+    return array.array('H', (value >> 2 for value in data))
+
+
 class PointControl(QVBoxLayout):
     """
     Interface for
@@ -96,8 +101,9 @@ class PointControl(QVBoxLayout):
         x_coord, y_coord = self.getvals()
         cmd = VectorPixelCommand(x_coord = x_coord, y_coord = y_coord, dwell_time=100)
         data = await self.conn.transfer(cmd)
-        self.adc_readout.setText(f"{data[0]}")
-        self.sigNewDataGenerated.emit(data)
+        scaled = _adc_u16_to_u14(data)
+        self.adc_readout.setText(f"{scaled[0]}")
+        self.sigNewDataGenerated.emit(scaled)
 
     @asyncSlot()
     async def toggle_live(self):
@@ -141,7 +147,7 @@ class RampControl(QVBoxLayout):
             cmd = RasterScanCommand(cookie=123,x_range=x, y_range=y, dwell_time=500)
         ptr = 0
         async for chunk in self.conn.transfer_multiple(cmd, latency=16384):
-            self.sigNewDataGenerated.emit(chunk)
+            self.sigNewDataGenerated.emit(_adc_u16_to_u14(chunk))
     
 
 class CombinedDACControl(QVBoxLayout):
@@ -186,4 +192,3 @@ def run_gui():
 
 if __name__ == "__main__":
     run_gui()
-
