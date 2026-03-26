@@ -5,10 +5,10 @@
 groups = ["default", "gui"]
 strategy = ["inherit_metadata"]
 lock_version = "4.5.0"
-content_hash = "sha256:fa53024ff46ca5490313d4cc2301c45461be134fabc18a57b935ccd82944709b"
+content_hash = "sha256:f3dbf204bb9ae861309671f22510e6575d0a55b66d608e36d3662abd256ba93b"
 
 [[metadata.targets]]
-requires_python = "~=3.11"
+requires_python = ">=3.11,<3.14"
 
 [[package]]
 name = "amaranth"
