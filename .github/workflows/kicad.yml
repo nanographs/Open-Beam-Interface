@@ -56,12 +56,26 @@ jobs:
         cd "Hardware/PCBs/Open Beam Interface/Open Beam Interface revA4"
         kibot -c ../../../../.github/workflows/kibot/kibot.yml -e "Open Beam Interface.kicad_sch" -b "Open Beam Interface.kicad_pcb"
 
-    ## Accessory boards
+    ## Data Interconnect
     - name: Generate Export Files
       run: |
         cd "Hardware/PCBs/Data Interconnect"
         kibot -c ../../../.github/workflows/kibot/kibot.yml -e "OBI Data Interconnect.kicad_sch" -b "OBI Data Interconnect.kicad_pcb"
+    
+   ## Previous Versions
+    - name: Generate Export Files
+      run: |
+        cd "Hardware/PCBs/Data Interconnect/Data Interconnect revA3"
+        kibot -c ../../../../.github/workflows/kibot/kibot.yml -e "OBI Data Interconnect.kicad_sch" -b "OBI Data Interconnect.kicad_pcb"
+  
 
+    ## Previous Versions
+    - name: Generate Export Files
+      run: |
+        cd "Hardware/PCBs/Data Interconnect/Data Interconnect revA3"
+        kibot -c ../../../../.github/workflows/kibot/kibot.yml -e "OBI Data Interconnect.kicad_sch" -b "OBI Data Interconnect.kicad_pcb"
+  
+    ## Digital IO Breakout
     - name: Generate Export Files
       run: |
         cd "Hardware/PCBs/Digital IO Breakout/revA1/Digital IO Breakout"
@@ -104,7 +118,6 @@ jobs:
       with:
         commit-message: 🤖 kibot generated 🤖
         committer: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
-        author: 🤖 <isabel@nanographs.io>
         signoff: false
         branch: kibot-auto
         delete-branch: true
