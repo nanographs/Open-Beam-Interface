@@ -1,0 +1,6 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "Scan Generator")(type "KiCad")(uri "${KIPRJMOD}/Scan Generator.pretty")(options "")(descr ""))
+  (lib (name "OBI Data Interconnect")(type "KiCad")(uri "${KIPRJMOD}/OBI Data Interconnect.pretty")(options "")(descr ""))
+  (lib (name "LVDS Backpack")(type "KiCad")(uri "/Users/isabelburgos/LVDS Backpack AS ORDERED JUN 15/LVDS Backpack.pretty")(options "")(descr ""))
+)

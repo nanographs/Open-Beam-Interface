@@ -1,0 +1,4 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "OBI Data Interconnect")(type "KiCad")(uri "${KIPRJMOD}/OBI Data Interconnect.kicad_sym")(options "")(descr ""))
+)

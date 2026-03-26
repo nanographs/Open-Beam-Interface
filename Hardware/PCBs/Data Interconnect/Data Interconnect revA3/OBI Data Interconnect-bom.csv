@@ -1,0 +1,7 @@
+References,Value,Footprint,Quantity,DK Part Number,Datasheet,Context
+C1 C2 C5,0.1uF,C_0603_1608Metric,3,,~,
+C3 C4 C6,4.7uF,C_1206_3216Metric,3,,~,
+J2 J3 J4,Conn_02x10_Odd_Even,IDC-Header_Receptacle_2x10_P2.54mm_Vertical_No_Pin_1_Mark,3,,~,
+J1,Conn_02x22_Odd_Even,PinReceptacle_2x22_P1.27mm_Vertical_BackSide_SMD,1,,~,
+JP1,Jumper_2_Open,R_0603_1608Metric,1,,~,
+RN1 RN2 RN3,R_Pack08,RES_EXB2HV,3,,~,
