@@ -11,6 +11,11 @@ Set of all available [low-level commands](./low_level_commands.md)
 
 ### Output Modes
 ```{eval-rst}
+.. autoenum:: obi.commands.structs.OutputEnable
+    :members:
+```
+
+```{eval-rst}
 .. autoenum:: obi.commands.structs.OutputMode
     :members:
 ```
