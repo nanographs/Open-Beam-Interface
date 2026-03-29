@@ -5,15 +5,16 @@ description = "Electron microscope image capture with Glasgow and Open Beam Inte
 authors = [
     {name = "nanographs", email = "adam@nanographs.io"},
     {name = "isabelburgos", email = "isabelmburgos01@gmail.com"},
+    {name = "isabelburgos", email = "isabelmburgos01@gmail.com"},
 ]
 dependencies = [
     "glasgow[builtin-toolchain] @ git+https://github.com/GlasgowEmbedded/glasgow@main#subdirectory=software",
-    "numpy>=2.0.1",
+    "numpy>=2.4.0",
     "tifffile>=2024.7.21",
-    "Pillow>=10.4.0",
+    "Pillow>=12.0.0",
     "tomlkit>=0.13.0",
 ]
-requires-python = "~=3.11,<3.14"
+requires-python = "<4,>=3.13"
 readme = "README.md"
 license = {text = "\"0BSD OR Apache-2.0\""}
 
