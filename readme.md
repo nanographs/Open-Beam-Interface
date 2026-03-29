@@ -93,6 +93,14 @@ Microscopes the board has been specifically integrated into, this is far from an
     - Expedia 830
     - Expedia 1230
 
+## Contributors
+- [Isabel Burgos](https://github.com/isabelburgos)
+- [Catherine 'whitequark'](https://github.com/whitequark)
+- [Adam McCombs](https://github.com/nanographs)
+- [q3k](https://github.com/q3k)
+- [Ben Kravsknow](https://github.com/benkrasnow)
+- [qw](https://github.com/quarterwave0)
+
 
 ## Sponsors
 We would like to thank our sponsors' generous sustaining contributions. Without them, we would not be here today.
