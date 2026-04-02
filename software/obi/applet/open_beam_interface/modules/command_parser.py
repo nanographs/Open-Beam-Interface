@@ -15,8 +15,10 @@ class CommandParser(wiring.Component):
         m.d.comb += self.cmd_stream.payload.eq(self.command)
         self.command_reg = Signal(Command)
         array_length = Signal(16)
+        is_array_command = Signal()
 
         self.is_started = Signal()
+
         with m.FSM() as fsm:
             m.d.comb += self.is_started.eq(fsm.ongoing("Type"))
             def goto_first_deserialized_state(from_type=self.command.type):
@@ -58,10 +60,12 @@ class CommandParser(wiring.Component):
             with m.State("Submit"):
                 m.d.comb += self.command.eq(self.command_reg)
                 with m.If(self.command.type == CmdType.Array):
-                        m.d.sync += self.command_reg.type.eq(self.command.payload.array.cmdtype)
-                        m.d.sync += self.command_reg.as_value()[4:].eq(0)
+                        # m.d.sync += self.command_reg.eq(self.command.payload.array.command)
+                        m.d.sync += self.command_reg.type.eq(self.command.payload.array.command[4:8])
+                        m.d.sync += self.command_reg.payload.as_value()[0:4].eq(self.command.payload.array.command[0:4])
+                        m.d.sync += self.command_reg.payload.as_value()[8:].eq(self.command.payload.array.command[8:])
                         m.d.sync += array_length.eq(self.command.payload.array.array_length)
-                        goto_first_deserialized_state(from_type=self.command.payload.array.cmdtype)
+                        goto_first_deserialized_state(from_type=self.command.payload.array.command[4:8])
                 with m.Else():
                     with m.If(self.cmd_stream.ready):
                         m.d.comb += self.cmd_stream.valid.eq(1)

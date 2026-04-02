@@ -128,10 +128,15 @@ class ByteLayout(PayloadLayout):
 
 ##### start commands
 
-class OutputMode(enum.IntEnum, shape = 2):
+class OutputMode(enum.IntEnum, shape = 1):
     SixteenBit          = 0
     EightBit            = 1
-    NoOutput            = 2
+
+class OutputEnable(enum.IntEnum, shape = 1):
+    Enabled             = 0 #Because enabled is default
+    Disabled            = 1
+    
+    
 
 class BeamType(enum.IntEnum, shape = 2):
     NoBeam              = 0

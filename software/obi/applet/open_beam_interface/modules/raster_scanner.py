@@ -2,7 +2,7 @@ from amaranth import *
 from amaranth.lib import data, stream, wiring
 from amaranth.lib.wiring import In, Out, flipped
 
-from obi.applet.open_beam_interface.modules.structs import RasterRegion, DACStream, DwellTime, BlankRequest
+from obi.applet.open_beam_interface.modules.structs import RasterRegion, DACStream, DwellTime, BlankRequest, OutputEnable
 
 class RasterScanner(wiring.Component):
     """
@@ -23,6 +23,7 @@ class RasterScanner(wiring.Component):
     dwell_stream: In(stream.Signature(data.StructLayout({
         "dwell_time": DwellTime,
         "blank": BlankRequest,
+        "output_en": OutputEnable
     })))
 
     abort: In(1)
@@ -43,7 +44,8 @@ class RasterScanner(wiring.Component):
             self.dac_stream.payload.dac_x_code.eq(x_accum >> self.FRAC_BITS),
             self.dac_stream.payload.dac_y_code.eq(y_accum >> self.FRAC_BITS),
             self.dac_stream.payload.dwell_time.eq(self.dwell_stream.payload.dwell_time),
-            self.dac_stream.payload.blank.eq(self.dwell_stream.payload.blank)
+            self.dac_stream.payload.blank.eq(self.dwell_stream.payload.blank),
+            self.dac_stream.payload.output_en.eq(self.dwell_stream.payload.output_en)
         ]
 
         with m.FSM():

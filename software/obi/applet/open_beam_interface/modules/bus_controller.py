@@ -3,7 +3,7 @@ from amaranth.lib import data, stream, wiring
 from amaranth.lib.wiring import In, Out, flipped
 from amaranth.lib.fifo import SyncFIFOBuffered
 
-from obi.applet.open_beam_interface.modules.structs import SuperDACStream, BusSignature, BlankRequest, Transforms
+from obi.applet.open_beam_interface.modules.structs import SuperDACStream, BusSignature, BlankRequest, Transforms, OutputEnable
 
 class SkidBuffer(wiring.Component):
     def __init__(self, data_layout, *, depth):
@@ -139,7 +139,8 @@ class BusController(wiring.Component):
                     # Transmit blanking state from input stream
                     m.d.comb += self.inline_blank.eq(self.dac_stream.payload.blank)
                     # Schedule ADC sample for these DAC codes to be output.
-                    m.d.sync += accept_sample.eq(Cat(1, accept_sample))
+                    with m.If(self.dac_stream.payload.output_en==OutputEnable.Enabled):
+                        m.d.sync += accept_sample.eq(Cat(1, accept_sample))
                     # Carry over the flag for last sample [of averaging window] to the output.
                     m.d.sync += last_sample.eq(Cat(self.dac_stream.payload.last, last_sample))
                 with m.Else():

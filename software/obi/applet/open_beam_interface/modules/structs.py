@@ -5,6 +5,8 @@ from amaranth.lib.wiring import In, Out, flipped
 
 from dataclasses import dataclass
 
+from obi.commands.structs import OutputEnable
+
 class BlankRequest(data.Struct):
     enable: 1
     request: 1
@@ -32,6 +34,7 @@ class DACStream(data.Struct):
     padding_x: 2
     dwell_time: 16
     blank: BlankRequest
+    output_en: OutputEnable
     delay: 3
 
 
@@ -41,7 +44,8 @@ class SuperDACStream(data.Struct):
     dac_y_code: 14
     padding_y: 2
     blank: BlankRequest
-    last:       1
+    output_en: OutputEnable
+    last: 1
     delay: 3
 
 class RasterRegion(data.Struct):

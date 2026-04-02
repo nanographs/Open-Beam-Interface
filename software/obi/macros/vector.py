@@ -39,7 +39,7 @@ class VectorScanCommand(BaseCommand):
 
             def get_command(pixel_count):
                 nonlocal commands
-                cmd = ArrayCommand(cmdtype=CmdType.VectorPixel, array_length=pixel_count-1)
+                cmd = ArrayCommand(command=VectorPixelCommand.header(output_en=OutputEnable.Enabled), array_length=pixel_count-1)
                 return bytes(cmd)
                 
             pixel_count = 0
