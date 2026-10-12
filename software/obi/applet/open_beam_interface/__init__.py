@@ -484,7 +484,7 @@ class OBIComponent(wiring.Component):
                     for pin in m.submodules[f"{pin_name}_buffer"].o:
                         m.d.comb += pin.eq(signal)
         
-        connect_pins("electron_scan_enable", 1)      
+        connect_pins("electron_scan_enable", executor.ext_ctrl_enable)      
         connect_pins("ion_scan_enable", executor.ext_ctrl_enable)
         connect_pins("electron_blank_enable", executor.ext_ctrl_enable)
         connect_pins("ion_blank_enable", executor.ext_ctrl_enable)
